@@ -1,2 +1,1 @@
-# colonia-front-app
-Flutter app for project Colonia.
+# colonia_front_app
