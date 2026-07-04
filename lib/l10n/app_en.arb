@@ -1,0 +1,28 @@
+{
+    "@@locale": "en",
+  
+    "loginOrSignUp": "Login or sign up",
+    "@loginOrSignUp": {},
+
+    "continueWithEmail": "Continue with Email",
+    "@continueWithEmail": {},
+
+    "selectYourAuthPref": "Select your preferred method to continue setting up your account",
+    "@selectYourAuthPref": {},
+
+    "ifCreatingNewAccount": "If you are creating a new account, ",
+    "@ifCreatingNewAccount": {},
+    
+    "termsAndConditions": "Terms & Conditions",
+    "@termsAndConditions": {},
+
+    "and": "and",
+    "@and": {},
+
+    "privacyPolicy": "Privace Policy",
+    "@privacyPolicy": {},
+
+    "willApply": "will apply",
+    "@willApply": {}
+
+}

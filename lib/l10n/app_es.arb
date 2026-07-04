@@ -1,0 +1,27 @@
+{
+    "@@locale": "es",
+  
+    "loginOrSignUp": "Iniciar sesión o registrarse",
+    "@loginOrSignUp": {},
+
+    "continueWithEmail": "Continuar con Email",
+    "@continueWithEmail": {},
+
+    "selectYourAuthPref": "Selecciona tu método de preferencia para iniciar tu cuenta",
+    "@selectYourAuthPref": {},
+
+    "ifCreatingNewAccount": "Si estás creando una nueva cuenta, ",
+    "@ifCreatingNewAccount": {},
+    
+    "termsAndConditions": "Términos y Condiciones",
+    "@termsAndConditions": {},
+
+    "and": "y",
+    "@and": {},
+
+    "privacyPolicy": "Política de Privacidad",
+    "@privacyPolicy": {},
+
+    "willApply": "se aplicarán",
+    "@willApply": {}
+}

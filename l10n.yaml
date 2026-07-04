@@ -1,0 +1,8 @@
+# .arb translation files 
+arb-dir: lib/l10n
+
+# template file containing base translations
+template-arb-file: app_es.arb
+
+# class name of the generated localizations helper
+output-class: AppLocalizations
