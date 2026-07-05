@@ -23,6 +23,17 @@
     "@privacyPolicy": {},
 
     "willApply": "will apply",
-    "@willApply": {}
+    "@willApply": {},
 
+    "pleaseValidEmail": "Please enter a valid email.",
+    "@pleaseValidEmail": {},
+
+    "enterYourEmail": "Enter your email to log in or sign up.",
+    "@enterYourEmail": {},
+
+    "emailAddress": "Email address",
+    "@emailAddress": {},
+
+    "continueM": "Continue",
+    "@continueM": {}
 }

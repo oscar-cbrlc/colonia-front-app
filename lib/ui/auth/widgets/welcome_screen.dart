@@ -4,6 +4,9 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
+import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 
 class WelcomeScreen extends StatelessWidget {
@@ -16,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final locale = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: SafeArea(
@@ -53,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Bottom Section
+            // bottom section
             Expanded(
               flex: 5,
               child: Container(
@@ -72,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
 
                     // Title
                     Text(
-                      l10n.loginOrSignUp,
+                      locale.loginOrSignUp,
                       style: TextTheme.of(context).titleMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -82,7 +85,7 @@ class WelcomeScreen extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        l10n.selectYourAuthPref,
+                        locale.selectYourAuthPref,
                         style: TextTheme.of(context).bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -97,31 +100,30 @@ class WelcomeScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 56.0,
                           child: ElevatedButton(
-                            onPressed: viewModel.isLoading
-                                ? null
-                                : () => viewModel.loginWithEmail(),
-                            child: viewModel.isLoading
-                                ? const SizedBox(
-                                    height: 24.0,
-                                    width: 24.0,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.5,
-                                    ),
-                                  )
-                                : Text(
-                                    l10n.continueWithEmail,
+                            onPressed: () {
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ChangeNotifierProvider<EmailViewModel>(
+                                    create: (_) => EmailViewModel(),
+                                    child: const EmailScreen(),
                                   ),
-                          ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              locale.continueWithEmail,
+                            ),
+                          )
                         );
                       },
                     ),
                     const SizedBox(height: 12.0),
 
-                    // Row of Google & Apple login buttons
+                    // google and apple buttons
                     Row(
                       children: [
-                        // Google Button
+                        // Google
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => viewModel.loginWithGoogle(),
@@ -134,7 +136,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         
-                        // Apple Button
+                        // Apple
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => viewModel.loginWithApple(),
@@ -157,9 +159,9 @@ class WelcomeScreen extends StatelessWidget {
                         text: TextSpan(
                           style: TextTheme.of(context).bodySmall,
                           children: [
-                            TextSpan(text: l10n.ifCreatingNewAccount),
+                            TextSpan(text: locale.ifCreatingNewAccount),
                             TextSpan(
-                              text: l10n.termsAndConditions,
+                              text: locale.termsAndConditions,
                               style: const TextStyle(
                                 decoration: TextDecoration.underline,
                                 fontWeight: FontWeight.bold,
@@ -170,9 +172,9 @@ class WelcomeScreen extends StatelessWidget {
                                   // TODO: Navigate to Terms
                                 },
                             ),
-                            TextSpan(text: ' ${l10n.and} '),
+                            TextSpan(text: ' ${locale.and} '),
                             TextSpan(
-                              text: l10n.privacyPolicy,
+                              text: locale.privacyPolicy,
                               style: const TextStyle(
                                 decoration: TextDecoration.underline,
                                 fontWeight: FontWeight.bold,
@@ -183,7 +185,7 @@ class WelcomeScreen extends StatelessWidget {
                                   // TODO: Navigate to Privacy Policy
                                 },
                             ),
-                            TextSpan(text: ' ${l10n.willApply}'),
+                            TextSpan(text: ' ${locale.willApply}'),
                           ],
                         ),
                       ),

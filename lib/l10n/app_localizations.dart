@@ -145,6 +145,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'se aplicarán'**
   String get willApply;
+
+  /// No description provided for @pleaseValidEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un correo electrónico válido.'**
+  String get pleaseValidEmail;
+
+  /// No description provided for @enterYourEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu email para iniciar sesión o crear una cuenta.'**
+  String get enterYourEmail;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección email'**
+  String get emailAddress;
+
+  /// No description provided for @continueM.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get continueM;
 }
 
 class _AppLocalizationsDelegate

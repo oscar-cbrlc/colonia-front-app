@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryColor = Color.fromRGBO(193,30,59,1);
-  static const Color secondaryColor = Color(0x26397f00);
+  static const Color secondaryColor = Color.fromRGBO(245, 138, 7, 1);
   static const Color fontPrimaryColor = Color(0xFF101828);
   static const Color fontSecondaryColor = Color(0xFF475467);
   static const Color fontVeryLightColor = Color(0xFF667085);
@@ -12,6 +12,45 @@ class AppTheme {
   static const Color darkBackground = Color.fromRGBO(48,38,33,1);
   static const Color lightTextColor = Color(0xFF475467);
   static const Color lightBtBorderColor = Color(0xFFD0D5DD);
+  static const Color lightInputColor = Color(0xFFF2F4F7);
+  static const Color errorColor = Color(0xffff0000);
+
+
+  static InputDecorationTheme get inputDecorationTheme {
+    return InputDecorationTheme(
+      filled: true,
+      fillColor: AppTheme.lightInputColor,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: const BorderSide(color: AppTheme.fontSecondaryColor, width: 1.0),
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2.0),
+      ),
+
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: const BorderSide(color: AppTheme.errorColor, width: 1.5),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: const BorderSide(color: AppTheme.errorColor, width: 2.0),
+      ),
+
+      hintStyle: const TextStyle(
+        color: AppTheme.lightTextColor,
+        fontSize: 16.0,
+      ),
+      labelStyle: TextStyle(
+          color: Color(0xFF1B1817),
+          fontWeight: FontWeight.w600
+      ),
+    );
+  }
 
   static ThemeData get theme {
     return ThemeData(
@@ -20,6 +59,7 @@ class AppTheme {
         seedColor: primaryColor,
         secondary: secondaryColor,
       ),
+      inputDecorationTheme: inputDecorationTheme,
       textTheme: TextTheme(
         displayLarge: GoogleFonts.lato(
           fontSize: 72,
@@ -59,6 +99,7 @@ class AppTheme {
           ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
+            disabledBackgroundColor: AppTheme.primaryColor,
             shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
@@ -67,7 +108,7 @@ class AppTheme {
               fontWeight: FontWeight.bold,
               letterSpacing: 1.0,
             ),
-            elevation: 1.0,
+            elevation: 0.5,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(

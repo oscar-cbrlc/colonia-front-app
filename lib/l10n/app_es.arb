@@ -23,5 +23,17 @@
     "@privacyPolicy": {},
 
     "willApply": "se aplicarán",
-    "@willApply": {}
+    "@willApply": {},
+
+    "pleaseValidEmail": "Por favor ingresa un correo electrónico válido.",
+    "@pleaseValidEmail": {},
+
+    "enterYourEmail": "Ingresa tu email para iniciar sesión o crear una cuenta.",
+    "@enterYourEmail": {},
+
+    "emailAddress": "Dirección email",
+    "@emailAddress": {},
+
+    "continueM": "Continuar",
+    "@continueM": {}
 }

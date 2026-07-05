@@ -32,4 +32,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get willApply => 'will apply';
+
+  @override
+  String get pleaseValidEmail => 'Please enter a valid email.';
+
+  @override
+  String get enterYourEmail => 'Enter your email to log in or sign up.';
+
+  @override
+  String get emailAddress => 'Email address';
+
+  @override
+  String get continueM => 'Continue';
 }
