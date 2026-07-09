@@ -6,7 +6,6 @@ class EmailViewModel extends ChangeNotifier {
   //final l10n = AppLocalizations.of(context);
   String _email = '';
   bool _isLoading = false;
-  String? _errorMessage;
 
   EmailValidationError _error = EmailValidationError.none;
   EmailValidationError get error => _error;
@@ -14,7 +13,6 @@ class EmailViewModel extends ChangeNotifier {
 
   String get email => _email;
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
 
   final emailRegex = RegExp(
     r"^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$",
@@ -37,19 +35,17 @@ class EmailViewModel extends ChangeNotifier {
 
   void setEmail(String value) {
     _email = value.trim();
-    if (_errorMessage != null) {
-      _errorMessage = null;
-    }
     notifyListeners();
   }
 
   void clearError() {
-    _errorMessage = null;
+    _error = EmailValidationError.none;
     notifyListeners();
   }
 
-  Future<bool> continueWithEmail() async {
-    validateEmail(email);
+  Future<bool> continueWithEmail(String email) async {
+    setEmail(email);
+    validateEmail(_email);
     if (_error != EmailValidationError.none) return false;
     _isLoading = true;
     notifyListeners();

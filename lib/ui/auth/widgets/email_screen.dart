@@ -123,8 +123,9 @@ class _EmailScreenState extends State<EmailScreen> {
                             FilteringTextInputFormatter.deny(RegExp(r'\s'))
                           ],
                           decoration: InputDecoration(
-                            hintText: 'Email address',
-                            errorText: viewModel.error == EmailValidationError.none? '':locale.pleaseValidEmail,
+                            hintText: locale.emailAddress,
+                            errorText: viewModel.error == EmailValidationError.none ? null : locale.pleaseValidEmail,
+                            labelText: locale.emailAddress,
                           ),
                         );
                       },
