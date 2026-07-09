@@ -95,7 +95,7 @@ class _NewPasswordScreen extends State<NewPasswordScreen> {
                           decoration: InputDecoration(
                             labelText: locale.passwordLabel,
                             hintText: locale.password,
-                            errorText: viewModel.error == PassValidationError.none || viewModel.error == PassValidationError.empty ? null : locale.pleaseValidEmail,
+                            errorText: viewModel.error == PassValidationError.none || viewModel.error == PassValidationError.empty ? null : locale.notValidInput,
                           ),
                         );
                       },

@@ -51,24 +51,4 @@ class NewPasswordViewModel extends ChangeNotifier {
     _error = PassValidationError.none;
     notifyListeners();
   }
-
-  Future<bool> registerUser() async {
-    validatePass(_pass);
-    if (_error != PassValidationError.none) return false;
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      // TODO: send to back etc
-      await Future.delayed(const Duration(milliseconds: 1200));
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _isLoading = false;
-      //_errorMessage = 'Error de conexión. Inténtalo de nuevo.';
-      notifyListeners();
-      return false;
-    }
-  }
 }

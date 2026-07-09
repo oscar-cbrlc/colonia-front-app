@@ -124,7 +124,7 @@ class _EmailScreenState extends State<EmailScreen> {
                           ],
                           decoration: InputDecoration(
                             hintText: locale.emailAddress,
-                            errorText: viewModel.error == EmailValidationError.none ? null : locale.pleaseValidEmail,
+                            errorText: viewModel.error == EmailValidationError.none ? null : locale.notValidInput,
                             labelText: locale.emailAddress,
                           ),
                         );
