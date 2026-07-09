@@ -25,10 +25,10 @@
     "willApply": "se aplicarán",
     "@willApply": {},
 
-    "pleaseValidEmail": "Por favor ingresa un correo electrónico válido.",
+    "notValidInput": "No es una entrada válida",
     "@pleaseValidEmail": {},
 
-    "enterYourEmail": "Ingresa tu email para iniciar sesión o crear una cuenta.",
+    "enterYourEmail": "Ingresa tu email para iniciar sesión o crear una cuenta",
     "@enterYourEmail": {},
 
     "emailAddress": "Dirección email",
@@ -80,5 +80,26 @@
     "@loginButton": {},
 
     "errorEmptyPassword": "La contraseña no puede estar vacía",
-    "@errorEmptyPassword": {}
+    "@errorEmptyPassword": {},
+
+    "createUsername": "Crea tu nombre de usuario",
+    "@createUsername": {},
+
+    "usernameLabel": "Nombre de usuario",
+    "@usernameLabel": {},
+
+    "usernameHint": "Cataglyphis-Maximus-99",
+    "@usernameHint": {},
+
+    "usernameGuide": "Guía de nombre:",
+    "@usernameGuide": {},
+
+    "beBetween4and16Chars": "Entre 4-16 characters",
+    "@beBetween4and16Chars": {},
+
+    "onlyContainUsernameChars": "Se permiten letras, números, -, _, ?, !",
+    "@onlyContainUsernameChars": {},
+
+    "createANameToIdentifyYou": "Crea un nombre para que otros te identifiquen",
+    "@createANameToIdentifyYou": {}
 }

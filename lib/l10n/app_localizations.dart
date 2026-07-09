@@ -146,16 +146,16 @@ abstract class AppLocalizations {
   /// **'se aplicarán'**
   String get willApply;
 
-  /// No description provided for @pleaseValidEmail.
+  /// No description provided for @notValidInput.
   ///
   /// In es, this message translates to:
-  /// **'Por favor ingresa un correo electrónico válido.'**
-  String get pleaseValidEmail;
+  /// **'No es una entrada válida'**
+  String get notValidInput;
 
   /// No description provided for @enterYourEmail.
   ///
   /// In es, this message translates to:
-  /// **'Ingresa tu email para iniciar sesión o crear una cuenta.'**
+  /// **'Ingresa tu email para iniciar sesión o crear una cuenta'**
   String get enterYourEmail;
 
   /// No description provided for @emailAddress.
@@ -259,6 +259,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'La contraseña no puede estar vacía'**
   String get errorEmptyPassword;
+
+  /// No description provided for @createUsername.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea tu nombre de usuario'**
+  String get createUsername;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de usuario'**
+  String get usernameLabel;
+
+  /// No description provided for @usernameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Cataglyphis-Maximus-99'**
+  String get usernameHint;
+
+  /// No description provided for @usernameGuide.
+  ///
+  /// In es, this message translates to:
+  /// **'Guía de nombre:'**
+  String get usernameGuide;
+
+  /// No description provided for @beBetween4and16Chars.
+  ///
+  /// In es, this message translates to:
+  /// **'Entre 4-16 characters'**
+  String get beBetween4and16Chars;
+
+  /// No description provided for @onlyContainUsernameChars.
+  ///
+  /// In es, this message translates to:
+  /// **'Se permiten letras, números, -, _, ?, !'**
+  String get onlyContainUsernameChars;
+
+  /// No description provided for @createANameToIdentifyYou.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea un nombre para que otros te identifiquen'**
+  String get createANameToIdentifyYou;
 }
 
 class _AppLocalizationsDelegate

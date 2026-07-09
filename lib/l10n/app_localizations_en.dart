@@ -34,10 +34,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get willApply => 'will apply';
 
   @override
-  String get pleaseValidEmail => 'Please enter a valid email.';
+  String get notValidInput => 'Not a valid input';
 
   @override
-  String get enterYourEmail => 'Enter your email to log in or sign up.';
+  String get enterYourEmail => 'Enter your email to log in or sign up';
 
   @override
   String get emailAddress => 'Email address';
@@ -89,4 +89,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorEmptyPassword => 'Password cannot be empty';
+
+  @override
+  String get createUsername => 'Create your username';
+
+  @override
+  String get usernameLabel => 'Username';
+
+  @override
+  String get usernameHint => 'Cataglyphis-Maximus-99';
+
+  @override
+  String get usernameGuide => 'User name guide:';
+
+  @override
+  String get beBetween4and16Chars => 'Between 4-16 characters';
+
+  @override
+  String get onlyContainUsernameChars => 'Allowed letters, numbers, -, _, ?, !';
+
+  @override
+  String get createANameToIdentifyYou => 'Create a name so others identify you';
 }

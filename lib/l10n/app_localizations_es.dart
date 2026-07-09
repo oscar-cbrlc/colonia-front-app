@@ -34,12 +34,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get willApply => 'se aplicarán';
 
   @override
-  String get pleaseValidEmail =>
-      'Por favor ingresa un correo electrónico válido.';
+  String get notValidInput => 'No es una entrada válida';
 
   @override
   String get enterYourEmail =>
-      'Ingresa tu email para iniciar sesión o crear una cuenta.';
+      'Ingresa tu email para iniciar sesión o crear una cuenta';
 
   @override
   String get emailAddress => 'Dirección email';
@@ -91,4 +90,27 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorEmptyPassword => 'La contraseña no puede estar vacía';
+
+  @override
+  String get createUsername => 'Crea tu nombre de usuario';
+
+  @override
+  String get usernameLabel => 'Nombre de usuario';
+
+  @override
+  String get usernameHint => 'Cataglyphis-Maximus-99';
+
+  @override
+  String get usernameGuide => 'Guía de nombre:';
+
+  @override
+  String get beBetween4and16Chars => 'Entre 4-16 characters';
+
+  @override
+  String get onlyContainUsernameChars =>
+      'Se permiten letras, números, -, _, ?, !';
+
+  @override
+  String get createANameToIdentifyYou =>
+      'Crea un nombre para que otros te identifiquen';
 }
