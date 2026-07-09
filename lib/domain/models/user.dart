@@ -37,3 +37,16 @@ abstract class User with _$User {
       avatarBody != null ||
       avatarFootwear != null;
 }
+
+@freezed
+abstract class LoginResult with _$LoginResult {
+  const LoginResult._();
+
+  const factory LoginResult({
+    @JsonKey(name: 'access_token') required String accessToken,
+    @JsonKey(name: 'token_type') required String tokenType,
+    required User user,
+  }) = _LoginResult;
+
+  factory LoginResult.fromJson(Map<String, dynamic> json) => _$LoginResultFromJson(json);
+}
