@@ -46,4 +46,34 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get continueM => 'Continuar';
+
+  @override
+  String get createPass => 'Crear contraseña';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get register => 'Registrarse';
+
+  @override
+  String get yourPasswordMustInclude => 'Tu contraseña debe incluir:';
+
+  @override
+  String get atLeast8Characters => 'Al menos 8 caracteres';
+
+  @override
+  String get oneUppercaseLetter => 'Una letra mayúscula';
+
+  @override
+  String get oneLowercaseLetter => 'Una letra minúscula';
+
+  @override
+  String get oneNumber => 'Un número';
+
+  @override
+  String get oneSpecialCharacter => 'Un carácter especial';
 }

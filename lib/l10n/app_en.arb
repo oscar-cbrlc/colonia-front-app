@@ -35,5 +35,35 @@
     "@emailAddress": {},
 
     "continueM": "Continue",
-    "@continueM": {}
+    "@continueM": {},
+
+    "createPass": "Create password",
+    "@createPass": {},
+
+    "password": "Password",
+    "@password": {},
+
+    "confirmPassword": "Confirm password",
+    "@confirmPassword": {},
+
+    "register": "Register",
+    "@register": {},
+
+    "yourPasswordMustInclude": "Your password must include:",
+    "@yourPasswordMustInclude": {},
+
+    "atLeast8Characters": "At least 8 characters",
+    "@atLeast8Characters": {},
+
+    "oneUppercaseLetter": "One uppercase letter",
+    "@oneUppercaseLetter": {},
+
+    "oneLowercaseLetter": "One lowercase letter",
+    "@oneLowercaseLetter": {},
+
+    "oneNumber": "One number",
+    "@oneNumber": {},
+
+    "oneSpecialCharacter": "One special character",
+    "@oneSpecialCharacter": {}
 }

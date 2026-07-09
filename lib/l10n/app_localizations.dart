@@ -169,6 +169,66 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Continuar'**
   String get continueM;
+
+  /// No description provided for @createPass.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear contraseña'**
+  String get createPass;
+
+  /// No description provided for @password.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar contraseña'**
+  String get confirmPassword;
+
+  /// No description provided for @register.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse'**
+  String get register;
+
+  /// No description provided for @yourPasswordMustInclude.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu contraseña debe incluir:'**
+  String get yourPasswordMustInclude;
+
+  /// No description provided for @atLeast8Characters.
+  ///
+  /// In es, this message translates to:
+  /// **'Al menos 8 caracteres'**
+  String get atLeast8Characters;
+
+  /// No description provided for @oneUppercaseLetter.
+  ///
+  /// In es, this message translates to:
+  /// **'Una letra mayúscula'**
+  String get oneUppercaseLetter;
+
+  /// No description provided for @oneLowercaseLetter.
+  ///
+  /// In es, this message translates to:
+  /// **'Una letra minúscula'**
+  String get oneLowercaseLetter;
+
+  /// No description provided for @oneNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Un número'**
+  String get oneNumber;
+
+  /// No description provided for @oneSpecialCharacter.
+  ///
+  /// In es, this message translates to:
+  /// **'Un carácter especial'**
+  String get oneSpecialCharacter;
 }
 
 class _AppLocalizationsDelegate

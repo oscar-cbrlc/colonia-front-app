@@ -35,5 +35,35 @@
     "@emailAddress": {},
 
     "continueM": "Continuar",
-    "@continueM": {}
+    "@continueM": {},
+
+    "createPass": "Crear contraseña",
+    "@createPass": {},
+
+    "password": "Contraseña",
+    "@password": {},
+
+    "confirmPassword": "Confirmar contraseña",
+    "@confirmPassword": {},
+
+    "register": "Registrarse",
+    "@register": {},
+
+    "yourPasswordMustInclude": "Tu contraseña debe incluir:",
+    "@yourPasswordMustInclude": {},
+
+    "atLeast8Characters": "Al menos 8 caracteres",
+    "@atLeast8Characters": {},
+
+    "oneUppercaseLetter": "Una letra mayúscula",
+    "@oneUppercaseLetter": {},
+
+    "oneLowercaseLetter": "Una letra minúscula",
+    "@oneLowercaseLetter": {},
+
+    "oneNumber": "Un número",
+    "@oneNumber": {},
+
+    "oneSpecialCharacter": "Un carácter especial",
+    "@oneSpecialCharacter": {}
 }
