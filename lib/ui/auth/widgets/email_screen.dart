@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -118,6 +119,9 @@ class _EmailScreenState extends State<EmailScreen> {
                           controller: _emailController,
                           focusNode: _emailFocusNode,
                           onChanged: (value) => viewModel.validateEmail(value),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'\s'))
+                          ],
                           decoration: InputDecoration(
                             hintText: 'Email address',
                             errorText: viewModel.error == EmailValidationError.none? '':locale.pleaseValidEmail,
@@ -172,17 +176,17 @@ class _EmailScreenState extends State<EmailScreen> {
   }
 
   Future<void> _handleContinue(EmailViewModel viewModel) async {
-    final success = await viewModel.continueWithEmail();
+    final success = await viewModel.continueWithEmail(_emailController.text);
     if (success && mounted) {
       _emailFocusNode.unfocus();
       
       // TODO(Navigation): route to password validation or Sign-Up screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Continuando con: ${viewModel.email}'),
-          backgroundColor: const Color(0xFF10B981),
-        ),
-      );
+      //ScaffoldMessenger.of(context).showSnackBar(
+        //SnackBar(
+          //content: Text('Continuando con: ${viewModel.email}'),
+          //backgroundColor: const Color(0xFF10B981),
+        //),
+      //);
     }
   }
 }
