@@ -65,5 +65,20 @@
     "@oneNumber": {},
 
     "oneSpecialCharacter": "Un carácter especial",
-    "@oneSpecialCharacter": {}
+    "@oneSpecialCharacter": {},
+
+    "loginTitle": "Iniciar sesión",
+    "@loginTitle": {},
+
+    "passwordLabel": "Contraseña",
+    "@passwordLabel": {},
+
+    "passwordHint": "Ingresa tu contraseña",
+    "@passwordHint": {},
+
+    "loginButton": "Iniciar sesión",
+    "@loginButton": {},
+
+    "errorEmptyPassword": "La contraseña no puede estar vacía",
+    "@errorEmptyPassword": {}
 }

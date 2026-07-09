@@ -24,6 +24,7 @@ class _NewPasswordScreen extends State<NewPasswordScreen> {
     // auto-focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _passFocusNode.requestFocus();
+      context.read<NewPasswordViewModel>().setEmail(widget.email);
     });
   }
 
@@ -92,6 +93,7 @@ class _NewPasswordScreen extends State<NewPasswordScreen> {
                           onChanged: (value) => viewModel.validatePass(value),
                           obscureText: true,
                           decoration: InputDecoration(
+                            labelText: locale.passwordLabel,
                             hintText: locale.password,
                             errorText: viewModel.error == PassValidationError.none || viewModel.error == PassValidationError.empty ? null : locale.pleaseValidEmail,
                           ),
@@ -198,11 +200,11 @@ class _NewPasswordScreen extends State<NewPasswordScreen> {
   }
 
   Future<void> _handleContinue(NewPasswordViewModel viewModel) async {
-    final success = await viewModel.registerUser();
-    if (success && mounted) {
-      _passFocusNode.unfocus();
+    //final success = await viewModel.registerUser();
+    //if (success && mounted) {
+      //_passFocusNode.unfocus();
 
       // TODO(auth) register user, home screen
-    }
+    //}
   }
 }

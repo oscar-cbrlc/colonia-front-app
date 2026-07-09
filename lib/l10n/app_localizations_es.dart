@@ -76,4 +76,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get oneSpecialCharacter => 'Un carácter especial';
+
+  @override
+  String get loginTitle => 'Iniciar sesión';
+
+  @override
+  String get passwordLabel => 'Contraseña';
+
+  @override
+  String get passwordHint => 'Ingresa tu contraseña';
+
+  @override
+  String get loginButton => 'Iniciar sesión';
+
+  @override
+  String get errorEmptyPassword => 'La contraseña no puede estar vacía';
 }

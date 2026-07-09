@@ -229,6 +229,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Un carácter especial'**
   String get oneSpecialCharacter;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get loginTitle;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu contraseña'**
+  String get passwordHint;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get loginButton;
+
+  /// No description provided for @errorEmptyPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña no puede estar vacía'**
+  String get errorEmptyPassword;
 }
 
 class _AppLocalizationsDelegate

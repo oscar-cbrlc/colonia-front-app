@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 
-enum PassValidationError { none, empty, invalidFormat,  }
+enum PassValidationError { none, empty, invalidFormat }
 
 class NewPasswordViewModel extends ChangeNotifier {
   //final l10n = AppLocalizations.of(context);
+  String _email = '';
   String _pass = '';
-  String? _errorMessage;
   bool _isLoading = false;
 
 
   PassValidationError _error = PassValidationError.none;
   PassValidationError get error => _error;
 
-
-  String get pass => _pass;
   bool get isLoading => _isLoading;
-
-  String? get errorMessage => _errorMessage;
 
   // 8 caracteres, 1 mayuscula, 1 minuscula, 1 especial, 1 digito
   final passRegex = RegExp(
@@ -30,8 +26,17 @@ class NewPasswordViewModel extends ChangeNotifier {
   bool get hasDigit => _pass.contains(RegExp(r'[0-9]'));
   bool get hasSpecial => _pass.contains(RegExp(r'[#?!@$%^&*-.,]'));
 
-  void validatePass(String pass) {
+  void setEmail(String email) {
+    _email = email;
+  }
+
+  void setPass(String pass) {
     _pass = pass;
+    validatePass(pass);
+    notifyListeners();
+  }
+
+  void validatePass(String pass) {
     if (pass.isEmpty) {
       _error = PassValidationError.empty;
     } else if (!passRegex.hasMatch(pass)) {
@@ -42,16 +47,8 @@ class NewPasswordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPass(String value) {
-    _pass = value;
-    if (_errorMessage != null) {
-      _errorMessage = null;
-    }
-    notifyListeners();
-  }
-
   void clearError() {
-    _errorMessage = null;
+    _error = PassValidationError.none;
     notifyListeners();
   }
 

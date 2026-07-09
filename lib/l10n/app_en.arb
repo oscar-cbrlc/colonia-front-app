@@ -65,5 +65,17 @@
     "@oneNumber": {},
 
     "oneSpecialCharacter": "One special character",
-    "@oneSpecialCharacter": {}
+    "@oneSpecialCharacter": {},
+
+    "passwordLabel": "Password",
+    "@passwordLabel": {},
+
+    "passwordHint": "Enter your password",
+    "@passwordHint": {},
+
+    "loginButton": "Log in",
+    "@loginButton": {},
+
+    "errorEmptyPassword": "Password cannot be empty",
+    "@errorEmptyPassword": {}
 }
