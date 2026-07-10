@@ -38,15 +38,39 @@ void main(){
   );
 }
 
-class ColoniaApp extends StatelessWidget {
+
+
+class ColoniaApp extends StatefulWidget {
   const ColoniaApp({super.key});
+
+  @override
+  State<ColoniaApp> createState() => _ColoniaAppState();
+}
+
+class _ColoniaAppState extends State<ColoniaApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authRepo = Provider.of<AuthRepository>(context, listen: false);
+
+      await authRepo.initializeSession();
+
+      if (authRepo.hasActiveSession) {
+        // TODO(Boot): route authenticated user to Map screen
+        print("Session active Token: ${authRepo.cachedToken}");
+      } else {
+        print("No active session");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Colonia',
       theme: AppTheme.theme,
-      darkTheme: AppTheme.theme, 
+      darkTheme: AppTheme.theme,
       themeMode: ThemeMode.system,
 
       localizationsDelegates: const [
@@ -60,7 +84,7 @@ class ColoniaApp extends StatelessWidget {
         Locale('es'),
         Locale('en'),
       ],
-      
+
       home: ChangeNotifierProvider<WelcomeViewModel>(
         create: (_) => WelcomeViewModel(),
         child: Consumer<WelcomeViewModel>(
