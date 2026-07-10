@@ -1,44 +1,45 @@
+// lib/main.dart (Updated with named routing)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+// Localization & Themes
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
+// Services, Repositories, & Navigation
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/auth_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
-import 'package:colonia_front_app/ui/auth/widgets/welcome_screen.dart';
-import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
-
-
-void main(){
+void main() {
   runApp(
     MultiProvider(
-        providers: [
-          Provider<ApiClient>(
-            create: (_) => ApiClient(),
-          ),
-          ProxyProvider<ApiClient, AuthService>(
-            update: (_, apiClient, __) => AuthService(apiClient),
-          ),
-          ProxyProvider<AuthService, AuthRepository>(
-            update: (context, authService, __) {
-              final authRepository = AuthRepository(authService);
-              final apiClient = Provider.of<ApiClient>(context, listen: false);
-              apiClient.setAuthRepository(authRepository);
+      providers: [
+        Provider<ApiClient>(
+          create: (_) => ApiClient(),
+        ),
 
-              return authRepository;
-            },
-          ),
-        ],
+        ProxyProvider<ApiClient, AuthService>(
+          update: (_, apiClient, __) => AuthService(apiClient),
+        ),
+
+        ProxyProvider<AuthService, AuthRepository>(
+          update: (context, authService, __) {
+            final authRepository = AuthRepository(authService);
+
+            final apiClient = Provider.of<ApiClient>(context, listen: false);
+            apiClient.setAuthRepository(authRepository);
+
+            return authRepository;
+          },
+        ),
+      ],
       child: const ColoniaApp(),
-    )
+    ),
   );
 }
-
-
 
 class ColoniaApp extends StatefulWidget {
   const ColoniaApp({super.key});
@@ -48,19 +49,19 @@ class ColoniaApp extends StatefulWidget {
 }
 
 class _ColoniaAppState extends State<ColoniaApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authRepo = Provider.of<AuthRepository>(context, listen: false);
 
       await authRepo.initializeSession();
 
       if (authRepo.hasActiveSession) {
-        // TODO(Boot): route authenticated user to Map screen
-        print("Session active Token: ${authRepo.cachedToken}");
-      } else {
-        print("No active session");
+        //_navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
       }
     });
   }
@@ -73,11 +74,13 @@ class _ColoniaAppState extends State<ColoniaApp> {
       darkTheme: AppTheme.theme,
       themeMode: ThemeMode.system,
 
+      navigatorKey: _navigatorKey,
+
       localizationsDelegates: const [
         AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate, // Core Material widget translations (date pickers, etc)
-        GlobalWidgetsLocalizations.delegate, // Text direction support
-        GlobalCupertinoLocalizations.delegate, // Cupertino widget translations
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
 
       supportedLocales: const [
@@ -85,12 +88,8 @@ class _ColoniaAppState extends State<ColoniaApp> {
         Locale('en'),
       ],
 
-      home: ChangeNotifierProvider<WelcomeViewModel>(
-        create: (_) => WelcomeViewModel(),
-        child: Consumer<WelcomeViewModel>(
-          builder: (context, viewModel, _) => WelcomeScreen(viewModel: viewModel),
-        ),
-      ),
+      initialRoute: AppRouter.welcome,
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
