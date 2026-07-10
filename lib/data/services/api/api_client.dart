@@ -21,7 +21,7 @@ class ApiClient {
     };
 
     if (_authRepository != null) {
-      final token = await _authRepository?.getStoredToken();
+      final token = _authRepository?.cachedToken;
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
