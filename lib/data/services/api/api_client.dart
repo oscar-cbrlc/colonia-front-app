@@ -30,28 +30,35 @@ class ApiClient {
   }
 
   Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
-    final url = Uri.parse('${Env.apiUrl}$endpoint');
+    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
     return await _httpClient.post(
       url,
       headers: await _getHeaders(),
       body: body != null? jsonEncode(body): null,
-    );
+    ).timeout(const Duration(seconds: 10));
   }
 
-  Future<http.Response> get(String endpoint) async {
-    final url = Uri.parse('$Env.apiUrl$endpoint');
+  Future<http.Response> get(
+      String endpoint, {
+        Map<String, String>? queryParameters,
+      }) async {
+    var url = Uri.parse(Env.apiUrl).resolve(endpoint);
+
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      url = url.replace(queryParameters: queryParameters);
+    }
     return await _httpClient.get(
       url,
       headers: await _getHeaders(),
-    );
+    ).timeout(const Duration(seconds: 10));
   }
 
   Future<http.Response> patch(String endpoint, {Map<String, dynamic>? body}) async {
-    final url = Uri.parse('$Env.apiUrl$endpoint');
+    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
     return await _httpClient.patch(
       url,
       headers: await _getHeaders(),
       body: body != null? jsonEncode(body): null,
-    );
+    ).timeout(const Duration(seconds: 10));
   }
 }

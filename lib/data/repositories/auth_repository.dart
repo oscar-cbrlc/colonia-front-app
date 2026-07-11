@@ -5,6 +5,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/models/user.dart';
 import '../services/auth_service.dart';
 
+class UserNotFoundException implements Exception {
+  String cause;
+  UserNotFoundException(this.cause);
+}
+
 class AuthRepository extends ChangeNotifier {
   final AuthService _authService;
   final FlutterSecureStorage _secureStorage;
@@ -20,6 +25,57 @@ class AuthRepository extends ChangeNotifier {
       this._authService, {
         FlutterSecureStorage? secureStorage,
       }) : _secureStorage = secureStorage ?? const FlutterSecureStorage();
+
+  Future<User> getUserByEmail(String email) async {
+
+    try {
+      final response = await _authService.getUserByEmail(email);
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        if (jsonList.isNotEmpty) {
+          return User.fromJson(jsonList.first as Map<String, dynamic>);
+        } else {
+          throw UserNotFoundException('User not found');
+        }
+      } else if (response.statusCode == 404) {
+        throw UserNotFoundException('User not found');
+      }
+      else {
+        final errorDetail = jsonDecode(response.body)['detail'] ?? 'Server error';
+        throw Exception(errorDetail);
+      }
+    } on SocketException {
+      throw Exception('Network error');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<User> getUserById({
+    required int id,
+  }) async {
+    try {
+      final response = await _authService.getUserById(id);
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        if (jsonList.isNotEmpty) {
+          return User.fromJson(jsonList.first as Map<String, dynamic>);
+        } else {
+          throw UserNotFoundException('User not found');
+        }
+      } else if (response.statusCode == 404) {
+        throw UserNotFoundException('User not found');
+      }
+      else {
+        final errorDetail = jsonDecode(response.body)['detail'] ?? 'Server error';
+        throw Exception(errorDetail);
+      }
+    } on SocketException {
+      throw Exception('Network error');
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<void> initializeSession() async {
     _cachedToken = await _secureStorage.read(key: _tokenKey);
@@ -58,6 +114,13 @@ class AuthRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> logout() async {
+    await _secureStorage.delete(key: _tokenKey);
+    _cachedToken = null;
+    _currentUser = null;
+    notifyListeners();
+  }
+
   Future<User> registerUser({
     required String email,
     required String username,
@@ -90,13 +153,6 @@ class AuthRepository extends ChangeNotifier {
         rethrow;
       }
     }
-
-  Future<void> logout() async {
-    await _secureStorage.delete(key: _tokenKey);
-    _cachedToken = null;
-    _currentUser = null;
-    notifyListeners();
-  }
 
   bool get hasActiveSession => _cachedToken != null && _cachedToken!.isNotEmpty;
 }

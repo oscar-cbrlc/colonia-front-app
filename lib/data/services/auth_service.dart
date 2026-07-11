@@ -6,6 +6,19 @@ class AuthService {
 
   AuthService(this._apiClient);
 
+  Future<http.Response> getUserById(int id) async {
+    return await _apiClient.get('/users/users/$id');
+  }
+
+  Future<http.Response> getUserByEmail(String email) async {
+    return await _apiClient.get(
+      '/users/users/',
+      queryParameters: {
+        'email': email,
+      },
+    );
+  }
+
   Future<http.Response> register({
     required String email,
     required String username,
@@ -17,7 +30,6 @@ class AuthService {
         'email': email,
         'user_name': username,
         'password': password,
-        'user_type': 1, //TODO: remove after updating API
       }
     );
   }

@@ -10,7 +10,7 @@ abstract class User with _$User {
   const factory User({
     @JsonKey(name: 'user_id') required int id,
     required String email,
-    required String username,
+    @JsonKey(name: 'user_name') required String username,
     @JsonKey(name: 'user_type') int? userType,
     @JsonKey(name: 'user_team') int? userTeam,
     @JsonKey(name: 'team_role') int? teamRole,
