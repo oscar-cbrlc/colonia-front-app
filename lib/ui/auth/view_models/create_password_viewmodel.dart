@@ -1,24 +1,28 @@
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 
 enum PassValidationError { none, empty, invalidFormat }
 
-class NewPasswordViewModel extends ChangeNotifier {
-  //final l10n = AppLocalizations.of(context);
+class CreatePasswordViewModel extends ChangeNotifier {
+  final AuthRepository _authRepository;
+
   String _email = '';
   String _pass = '';
   bool _isLoading = false;
-
-
-  PassValidationError _error = PassValidationError.none;
-  PassValidationError get error => _error;
-
-  bool get isLoading => _isLoading;
 
   // 8 caracteres, 1 mayuscula, 1 minuscula, 1 especial, 1 digito
   final passRegex = RegExp(
     r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.,]).{8,}$",
   );
 
+  PassValidationError _error = PassValidationError.none;
+  PassValidationError get error => _error;
+  bool get isLoading => _isLoading;
+
+  String get email => _email;
+  String get pass => _pass;
+
+  CreatePasswordViewModel(this._authRepository);
 
   bool get has8Characters => _pass.length >= 8;
   bool get hasUppercase => _pass.contains(RegExp(r'[A-Z]'));
@@ -28,6 +32,7 @@ class NewPasswordViewModel extends ChangeNotifier {
 
   void setEmail(String email) {
     _email = email;
+    notifyListeners();
   }
 
   void setPass(String pass) {

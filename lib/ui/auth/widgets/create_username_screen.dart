@@ -1,13 +1,12 @@
 import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/ui/validation_row.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 
 class CreateUsernameScreen extends StatefulWidget {
-  const CreateUsernameScreen({super.key, required this.email, required this.pass});
-  final String email;
-  final String pass;
+  const CreateUsernameScreen({super.key, required this.viewModel});
+  final CreateUsernameViewModel viewModel;
 
   @override
   State<CreateUsernameScreen> createState() => _CreateUsernameScreen();
@@ -20,13 +19,13 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController();
+    _usernameController = TextEditingController(text: widget.viewModel.username);
 
     // auto-focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _usernameFocusNode.requestFocus();
-      context.read<CreateUsernameViewModel>().setEmail(widget.email);
-      context.read<CreateUsernameViewModel>().setPass(widget.pass);
+      if (mounted && _usernameController.text.isEmpty) {
+        _usernameFocusNode.requestFocus();
+      }
     });
   }
 
@@ -40,138 +39,132 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
+    final viewModel = widget.viewModel;
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                behavior: HitTestBehavior.opaque,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.arrow_back,
-                      color: AppTheme.primaryColor,
-                      size: 32.0,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // main content
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16.0),
-
-                    Container(
-                      width: 48.0,
-                      height: 48.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: AppTheme.lightBtBorderColor,
-                        border: Border.all(
-                          width: 1.9,
-                          color: AppTheme.fontPrimaryColor,
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppTheme.lightBackground,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.arrow_back,
+                          color: AppTheme.primaryColor,
+                          size: 32.0,
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '*-*',
-                          style: TextStyle(
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.fontPrimaryColor,
-                            height: 1.0,
+                      ],
+                    ),
+                  ),
+                ),
+
+                // main content
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16.0),
+
+                        Container(
+                          width: 48.0,
+                          height: 48.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: AppTheme.lightBtBorderColor,
+                            border: Border.all(
+                              width: 1.9,
+                              color: AppTheme.fontPrimaryColor,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '*-*',
+                              style: TextStyle(
+                                fontSize: 28.0,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.fontPrimaryColor,
+                                height: 1.0,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
 
-                    const SizedBox(height: 24.0),
+                        const SizedBox(height: 24.0),
 
-                    // 4. TITLE & SUBTITLE
-                    Text(
-                        locale.createUsername,
-                        style: TextTheme.of(context).titleMedium
-                    ),
+                        // 4. TITLE & SUBTITLE
+                        Text(
+                            locale.createUsername,
+                            style: TextTheme.of(context).titleMedium
+                        ),
 
-                    const SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
 
-                    Text(
-                        locale.createANameToIdentifyYou,
-                        style: TextTheme.of(context).bodyMedium
-                    ),
+                        Text(
+                            locale.createANameToIdentifyYou,
+                            style: TextTheme.of(context).bodyMedium
+                        ),
 
-                    const SizedBox(height: 32.0),
+                        const SizedBox(height: 32.0),
 
-                    Consumer<CreateUsernameViewModel>(
-                      builder: (context, viewModel, _) {
-                        return TextFormField(
+                        TextFormField(
                           controller: _usernameController,
                           focusNode: _usernameFocusNode,
                           onChanged: (value) => viewModel.setUsername(value),
                           decoration: InputDecoration(
                             labelText: locale.usernameLabel,
                             hintText: locale.usernameHint,
-                            errorText: viewModel.error == UsernameValidationError.none || viewModel.error == UsernameValidationError.empty ? null : locale.notValidInput,
+                            errorText: viewModel.error == UsernameValidationError.none || viewModel.error == UsernameValidationError.empty
+                                ? null
+                                : locale.notValidInput,
                           ),
-                        );
-                      },
-                    ),
+                        ),
 
-                    const SizedBox(height: 24.0),
+                        const SizedBox(height: 24.0),
 
-                    Text(
-                      locale.usernameGuide,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.fontPrimaryColor,
-                      ),
-                    ),
+                        Text(
+                          locale.usernameGuide,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.fontPrimaryColor,
+                          ),
+                        ),
 
-                    const SizedBox(height: 12.0),
+                        const SizedBox(height: 12.0),
 
-                    Consumer<CreateUsernameViewModel>(
-                      builder: (context, viewModel, _) {
-                        return Column(
+                        Column(
                           children: [
-                            _buildRequirement(locale.beBetween4and16Chars, viewModel.hasLengthCharacters),
-                            _buildRequirement(locale.onlyContainUsernameChars, viewModel.hasOnlyValidChars)
+                            ValidationRow(text: locale.beBetween4and16Chars, isValid: viewModel.hasLengthCharacters),
+                            ValidationRow(text: locale.onlyContainUsernameChars, isValid: viewModel.hasOnlyValidChars)
                           ],
-                        );
-                      },
+                        ),
+
+                        const SizedBox(height: 8.0),
+                      ],
                     ),
-
-                    const SizedBox(height: 8.0),
-
-
-                  ],
+                  ),
                 ),
-              ),
-            ),
 
-            // continue button
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Consumer<CreateUsernameViewModel>(
-                builder: (context, viewModel, child) {
-                  return SizedBox(
+                // continue button
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: SizedBox(
                     width: double.infinity,
                     height: 56.0,
                     child: ElevatedButton(
-                      onPressed: viewModel.isLoading
+                      onPressed: viewModel.isLoading || viewModel.error != UsernameValidationError.none || viewModel.username.isEmpty
                           ? null
                           : () => _handleContinue(viewModel),
                       child: viewModel.isLoading
@@ -192,46 +185,35 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRequirement(String text, bool isSatisfied) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Icon(
-            Icons.arrow_forward,
-            size: 16.0,
-            color: isSatisfied ? AppTheme.secondaryColor : AppTheme.fontVeryLightColor,
-          ),
-          const SizedBox(width: 12.0),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 14.0,
-              color: isSatisfied ? AppTheme.secondaryColor : AppTheme.fontVeryLightColor,
-              fontWeight: isSatisfied ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Future<void> _handleContinue(CreateUsernameViewModel viewModel) async {
-    //final success = await viewModel.registerUser();
-    //if (success && mounted) {
-    //_usernameFocusNode.unfocus();
+    final success = await viewModel.submitRegistrationAndLogin();
+    if (!mounted) return;
 
-    // TODO(auth) register user, home screen
-    //}
+    if (success) {
+      _usernameFocusNode.unfocus();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("SUCCESS"),//TODO: send to home screen
+          backgroundColor: AppTheme.fontSecondaryColor,
+        ),
+      );
+    } else if (viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(viewModel.errorMessage!),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+    }
   }
 }
