@@ -99,7 +99,8 @@ class AppTheme {
           ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: AppTheme.primaryColor,
+            disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
+            disabledForegroundColor: Colors.white.withOpacity(0.7),
             shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
