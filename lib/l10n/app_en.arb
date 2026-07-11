@@ -25,15 +25,78 @@
     "willApply": "will apply",
     "@willApply": {},
 
-    "pleaseValidEmail": "Please enter a valid email.",
-    "@pleaseValidEmail": {},
+    "notValidInput": "Not a valid input",
+    "@notValidInput": {},
 
-    "enterYourEmail": "Enter your email to log in or sign up.",
+    "enterYourEmail": "Enter your email to log in or sign up",
     "@enterYourEmail": {},
 
     "emailAddress": "Email address",
     "@emailAddress": {},
 
     "continueM": "Continue",
-    "@continueM": {}
+    "@continueM": {},
+
+    "createPass": "Create password",
+    "@createPass": {},
+
+    "password": "Password",
+    "@password": {},
+
+    "confirmPassword": "Confirm password",
+    "@confirmPassword": {},
+
+    "register": "Register",
+    "@register": {},
+
+    "yourPasswordMustInclude": "Your password must include:",
+    "@yourPasswordMustInclude": {},
+
+    "atLeast8Characters": "At least 8 characters",
+    "@atLeast8Characters": {},
+
+    "oneUppercaseLetter": "One uppercase letter",
+    "@oneUppercaseLetter": {},
+
+    "oneLowercaseLetter": "One lowercase letter",
+    "@oneLowercaseLetter": {},
+
+    "oneNumber": "One number",
+    "@oneNumber": {},
+
+    "oneSpecialCharacter": "One special character",
+    "@oneSpecialCharacter": {},
+
+    "passwordLabel": "Password",
+    "@passwordLabel": {},
+
+    "passwordHint": "Enter your password",
+    "@passwordHint": {},
+
+    "loginButton": "Log in",
+    "@loginButton": {},
+
+    "errorEmptyPassword": "Password cannot be empty",
+    "@errorEmptyPassword": {},
+
+    "createUsername": "Create your username",
+    "@createUsername": {},
+
+    "usernameLabel": "Username",
+    "@usernameLabel": {},
+
+    "usernameHint": "Cataglyphis-Maximus-99",
+    "@usernameHint": {},
+
+    "usernameGuide": "User name guide:",
+    "@usernameGuide": {},
+
+    "beBetween4and16Chars": "Between 4-16 characters",
+    "@beBetween4and16Chars": {},
+
+    "onlyContainUsernameChars": "Allowed letters, numbers, -, _, ?, !",
+    "@onlyContainUsernameChars": {},
+
+    "createANameToIdentifyYou": "Create a name so others identify you",
+    "@createANameToIdentifyYou": {}
 }

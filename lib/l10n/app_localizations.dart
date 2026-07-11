@@ -146,16 +146,16 @@ abstract class AppLocalizations {
   /// **'se aplicarán'**
   String get willApply;
 
-  /// No description provided for @pleaseValidEmail.
+  /// No description provided for @notValidInput.
   ///
   /// In es, this message translates to:
-  /// **'Por favor ingresa un correo electrónico válido.'**
-  String get pleaseValidEmail;
+  /// **'No es una entrada válida'**
+  String get notValidInput;
 
   /// No description provided for @enterYourEmail.
   ///
   /// In es, this message translates to:
-  /// **'Ingresa tu email para iniciar sesión o crear una cuenta.'**
+  /// **'Ingresa tu email para iniciar sesión o crear una cuenta'**
   String get enterYourEmail;
 
   /// No description provided for @emailAddress.
@@ -169,6 +169,138 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Continuar'**
   String get continueM;
+
+  /// No description provided for @createPass.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear contraseña'**
+  String get createPass;
+
+  /// No description provided for @password.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar contraseña'**
+  String get confirmPassword;
+
+  /// No description provided for @register.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrarse'**
+  String get register;
+
+  /// No description provided for @yourPasswordMustInclude.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu contraseña debe incluir:'**
+  String get yourPasswordMustInclude;
+
+  /// No description provided for @atLeast8Characters.
+  ///
+  /// In es, this message translates to:
+  /// **'Al menos 8 caracteres'**
+  String get atLeast8Characters;
+
+  /// No description provided for @oneUppercaseLetter.
+  ///
+  /// In es, this message translates to:
+  /// **'Una letra mayúscula'**
+  String get oneUppercaseLetter;
+
+  /// No description provided for @oneLowercaseLetter.
+  ///
+  /// In es, this message translates to:
+  /// **'Una letra minúscula'**
+  String get oneLowercaseLetter;
+
+  /// No description provided for @oneNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Un número'**
+  String get oneNumber;
+
+  /// No description provided for @oneSpecialCharacter.
+  ///
+  /// In es, this message translates to:
+  /// **'Un carácter especial'**
+  String get oneSpecialCharacter;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get loginTitle;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu contraseña'**
+  String get passwordHint;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get loginButton;
+
+  /// No description provided for @errorEmptyPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña no puede estar vacía'**
+  String get errorEmptyPassword;
+
+  /// No description provided for @createUsername.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea tu nombre de usuario'**
+  String get createUsername;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de usuario'**
+  String get usernameLabel;
+
+  /// No description provided for @usernameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Cataglyphis-Maximus-99'**
+  String get usernameHint;
+
+  /// No description provided for @usernameGuide.
+  ///
+  /// In es, this message translates to:
+  /// **'Guía de nombre:'**
+  String get usernameGuide;
+
+  /// No description provided for @beBetween4and16Chars.
+  ///
+  /// In es, this message translates to:
+  /// **'Entre 4-16 characters'**
+  String get beBetween4and16Chars;
+
+  /// No description provided for @onlyContainUsernameChars.
+  ///
+  /// In es, this message translates to:
+  /// **'Se permiten letras, números, -, _, ?, !'**
+  String get onlyContainUsernameChars;
+
+  /// No description provided for @createANameToIdentifyYou.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea un nombre para que otros te identifiquen'**
+  String get createANameToIdentifyYou;
 }
 
 class _AppLocalizationsDelegate

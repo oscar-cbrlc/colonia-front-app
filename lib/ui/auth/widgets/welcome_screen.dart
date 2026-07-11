@@ -1,12 +1,10 @@
+import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
-import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
-import 'package:provider/provider.dart';
 
 
 class WelcomeScreen extends StatelessWidget {
@@ -101,15 +99,7 @@ class WelcomeScreen extends StatelessWidget {
                           height: 56.0,
                           child: ElevatedButton(
                             onPressed: () {
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ChangeNotifierProvider<EmailViewModel>(
-                                    create: (_) => EmailViewModel(),
-                                    child: const EmailScreen(),
-                                  ),
-                                ),
-                              );
+                              navigateToEmailScreen(context);
                             },
                             child: Text(
                               locale.continueWithEmail,

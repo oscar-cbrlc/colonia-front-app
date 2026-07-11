@@ -1,43 +1,95 @@
+// lib/main.dart (Updated with named routing)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'ui/auth/widgets/welcome_screen.dart';
-import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
-import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
-import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+// Localization & Themes
+import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
-void main() => runApp(const ColoniaApp());
+// Services, Repositories, & Navigation
+import 'package:colonia_front_app/data/services/api/api_client.dart';
+import 'package:colonia_front_app/data/services/auth_service.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
-class ColoniaApp extends StatelessWidget {
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<ApiClient>(
+          create: (_) => ApiClient(),
+        ),
+
+        ProxyProvider<ApiClient, AuthService>(
+          update: (_, apiClient, __) => AuthService(apiClient),
+        ),
+
+        ProxyProvider<AuthService, AuthRepository>(
+          update: (context, authService, __) {
+            final authRepository = AuthRepository(authService);
+
+            final apiClient = Provider.of<ApiClient>(context, listen: false);
+            apiClient.setAuthRepository(authRepository);
+
+            return authRepository;
+          },
+        ),
+      ],
+      child: const ColoniaApp(),
+    ),
+  );
+}
+
+class ColoniaApp extends StatefulWidget {
   const ColoniaApp({super.key});
+
+  @override
+  State<ColoniaApp> createState() => _ColoniaAppState();
+}
+
+class _ColoniaAppState extends State<ColoniaApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authRepo = Provider.of<AuthRepository>(context, listen: false);
+
+      await authRepo.initializeSession();
+
+      if (authRepo.hasActiveSession) {
+        //_navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Colonia',
       theme: AppTheme.theme,
-      darkTheme: AppTheme.theme, 
+      darkTheme: AppTheme.theme,
       themeMode: ThemeMode.system,
+
+      navigatorKey: _navigatorKey,
 
       localizationsDelegates: const [
         AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate, // Core Material widget translations (date pickers, etc)
-        GlobalWidgetsLocalizations.delegate, // Text direction support
-        GlobalCupertinoLocalizations.delegate, // Cupertino widget translations
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
 
       supportedLocales: const [
         Locale('es'),
         Locale('en'),
       ],
-      
-      home: ChangeNotifierProvider<WelcomeViewModel>(
-        create: (_) => WelcomeViewModel(),
-        child: Consumer<WelcomeViewModel>(
-          builder: (context, viewModel, _) => WelcomeScreen(viewModel: viewModel),
-        ),
-      ),
+
+      initialRoute: AppRouter.welcome,
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

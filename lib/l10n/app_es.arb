@@ -25,15 +25,81 @@
     "willApply": "se aplicarán",
     "@willApply": {},
 
-    "pleaseValidEmail": "Por favor ingresa un correo electrónico válido.",
+    "notValidInput": "No es una entrada válida",
     "@pleaseValidEmail": {},
 
-    "enterYourEmail": "Ingresa tu email para iniciar sesión o crear una cuenta.",
+    "enterYourEmail": "Ingresa tu email para iniciar sesión o crear una cuenta",
     "@enterYourEmail": {},
 
     "emailAddress": "Dirección email",
     "@emailAddress": {},
 
     "continueM": "Continuar",
-    "@continueM": {}
+    "@continueM": {},
+
+    "createPass": "Crear contraseña",
+    "@createPass": {},
+
+    "password": "Contraseña",
+    "@password": {},
+
+    "confirmPassword": "Confirmar contraseña",
+    "@confirmPassword": {},
+
+    "register": "Registrarse",
+    "@register": {},
+
+    "yourPasswordMustInclude": "Tu contraseña debe incluir:",
+    "@yourPasswordMustInclude": {},
+
+    "atLeast8Characters": "Al menos 8 caracteres",
+    "@atLeast8Characters": {},
+
+    "oneUppercaseLetter": "Una letra mayúscula",
+    "@oneUppercaseLetter": {},
+
+    "oneLowercaseLetter": "Una letra minúscula",
+    "@oneLowercaseLetter": {},
+
+    "oneNumber": "Un número",
+    "@oneNumber": {},
+
+    "oneSpecialCharacter": "Un carácter especial",
+    "@oneSpecialCharacter": {},
+
+    "loginTitle": "Iniciar sesión",
+    "@loginTitle": {},
+
+    "passwordLabel": "Contraseña",
+    "@passwordLabel": {},
+
+    "passwordHint": "Ingresa tu contraseña",
+    "@passwordHint": {},
+
+    "loginButton": "Iniciar sesión",
+    "@loginButton": {},
+
+    "errorEmptyPassword": "La contraseña no puede estar vacía",
+    "@errorEmptyPassword": {},
+
+    "createUsername": "Crea tu nombre de usuario",
+    "@createUsername": {},
+
+    "usernameLabel": "Nombre de usuario",
+    "@usernameLabel": {},
+
+    "usernameHint": "Cataglyphis-Maximus-99",
+    "@usernameHint": {},
+
+    "usernameGuide": "Guía de nombre:",
+    "@usernameGuide": {},
+
+    "beBetween4and16Chars": "Entre 4-16 characters",
+    "@beBetween4and16Chars": {},
+
+    "onlyContainUsernameChars": "Se permiten letras, números, -, _, ?, !",
+    "@onlyContainUsernameChars": {},
+
+    "createANameToIdentifyYou": "Crea un nombre para que otros te identifiquen",
+    "@createANameToIdentifyYou": {}
 }

@@ -1,46 +1,38 @@
-import 'package:colonia_front_app/data/repositories/auth_repository.dart';
-import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
-import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.dart';
-import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
-import 'package:colonia_front_app/ui/auth/widgets/create_password_screen.dart';
-import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
-import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
+import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/ui/validation_row.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
-import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
 
-class EmailScreen extends StatefulWidget {
-  const EmailScreen({super.key, required this.viewModel});
-  final EmailViewModel viewModel;
+class CreateUsernameScreen extends StatefulWidget {
+  const CreateUsernameScreen({super.key, required this.viewModel});
+  final CreateUsernameViewModel viewModel;
 
   @override
-  State<EmailScreen> createState() => _EmailScreenState();
+  State<CreateUsernameScreen> createState() => _CreateUsernameScreen();
 }
 
-class _EmailScreenState extends State<EmailScreen> {
-  late final TextEditingController _emailController;
-  final FocusNode _emailFocusNode = FocusNode();
+class _CreateUsernameScreen extends State<CreateUsernameScreen> {
+  late final TextEditingController _usernameController;
+  final FocusNode _usernameFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController(text: widget.viewModel.email);
+    _usernameController = TextEditingController(text: widget.viewModel.username);
 
     // auto-focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _emailController.text.isEmpty) {
-        _emailFocusNode.requestFocus();
+      if (mounted && _usernameController.text.isEmpty) {
+        _usernameFocusNode.requestFocus();
       }
     });
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _emailFocusNode.dispose();
+    _usernameController.dispose();
+    _usernameFocusNode.dispose();
     super.dispose();
   }
 
@@ -61,10 +53,7 @@ class _EmailScreenState extends State<EmailScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: GestureDetector(
-                    onTap: () {
-                      viewModel.resetState();
-                      Navigator.of(context).pop();
-                    },
+                    onTap: () => Navigator.of(context).pop(),
                     behavior: HitTestBehavior.opaque,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -102,7 +91,7 @@ class _EmailScreenState extends State<EmailScreen> {
                           ),
                           child: const Center(
                             child: Text(
-                              '@',
+                              '*-*',
                               style: TextStyle(
                                 fontSize: 28.0,
                                 fontWeight: FontWeight.bold,
@@ -115,35 +104,54 @@ class _EmailScreenState extends State<EmailScreen> {
 
                         const SizedBox(height: 24.0),
 
+                        // 4. TITLE & SUBTITLE
                         Text(
-                          locale.continueWithEmail,
-                          style: Theme.of(context).textTheme.titleMedium,
+                            locale.createUsername,
+                            style: TextTheme.of(context).titleMedium
                         ),
 
                         const SizedBox(height: 8.0),
 
                         Text(
-                          locale.enterYourEmail,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                            locale.createANameToIdentifyYou,
+                            style: TextTheme.of(context).bodyMedium
                         ),
 
                         const SizedBox(height: 32.0),
 
                         TextFormField(
-                          controller: _emailController,
-                          focusNode: _emailFocusNode,
-                          onChanged: (value) => viewModel.setEmail(value),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp(r'\s'))
-                          ],
+                          controller: _usernameController,
+                          focusNode: _usernameFocusNode,
+                          onChanged: (value) => viewModel.setUsername(value),
                           decoration: InputDecoration(
-                            hintText: locale.emailAddress,
-                            errorText: viewModel.error == EmailValidationError.none
+                            labelText: locale.usernameLabel,
+                            hintText: locale.usernameHint,
+                            errorText: viewModel.error == UsernameValidationError.none || viewModel.error == UsernameValidationError.empty
                                 ? null
                                 : locale.notValidInput,
-                            labelText: locale.emailAddress,
                           ),
                         ),
+
+                        const SizedBox(height: 24.0),
+
+                        Text(
+                          locale.usernameGuide,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.fontPrimaryColor,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12.0),
+
+                        Column(
+                          children: [
+                            ValidationRow(text: locale.beBetween4and16Chars, isValid: viewModel.hasLengthCharacters),
+                            ValidationRow(text: locale.onlyContainUsernameChars, isValid: viewModel.hasOnlyValidChars)
+                          ],
+                        ),
+
+                        const SizedBox(height: 8.0),
                       ],
                     ),
                   ),
@@ -156,12 +164,9 @@ class _EmailScreenState extends State<EmailScreen> {
                     width: double.infinity,
                     height: 56.0,
                     child: ElevatedButton(
-                      onPressed: viewModel.isLoading || viewModel.error != EmailValidationError.none || viewModel.email.isEmpty
+                      onPressed: viewModel.isLoading || viewModel.error != UsernameValidationError.none || viewModel.username.isEmpty
                           ? null
-                          : () {
-                        _emailFocusNode.unfocus();
-                        _findUser(viewModel);
-                      },
+                          : () => _handleContinue(viewModel),
                       child: viewModel.isLoading
                           ? const SizedBox(
                         width: 24.0,
@@ -190,23 +195,24 @@ class _EmailScreenState extends State<EmailScreen> {
     );
   }
 
-  Future<void> _findUser(EmailViewModel viewModel) async {
-    await viewModel.findUser();
-
+  Future<void> _handleContinue(CreateUsernameViewModel viewModel) async {
+    final success = await viewModel.submitRegistrationAndLogin();
     if (!mounted) return;
 
-    if (viewModel.userFoundState == UserFoundState.error) {
+    if (success) {
+      _usernameFocusNode.unfocus();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${viewModel.errorMessage ?? "Unknown error"}'),
-          backgroundColor: AppTheme.errorColor,
+          content: const Text("SUCCESS"),//TODO: send to home screen
+          backgroundColor: AppTheme.fontSecondaryColor,
         ),
       );
-    } else {
-      handleEmailNavigation(
-          context: context,
-          email: viewModel.email,
-          emailExists: viewModel.userFoundState == UserFoundState.found
+    } else if (viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(viewModel.errorMessage!),
+          backgroundColor: AppTheme.errorColor,
+        ),
       );
     }
   }
