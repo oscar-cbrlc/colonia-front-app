@@ -13,7 +13,7 @@ class ApiClient {
     _authRepository = repository;
   }
 
-  Future<Map<String, String>> _getHeaders() async {
+  Future<Map<String, String>> _getHeaders({Map<String, String>? extraHeaders}) async {
     final headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
@@ -26,14 +26,19 @@ class ApiClient {
         headers['Authorization'] = 'Bearer $token';
       }
     }
+
+    if (extraHeaders != null) {
+      headers.addAll(extraHeaders);
+    }
+
     return headers;
   }
 
-  Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
+  Future<http.Response> post(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
     final url = Uri.parse(Env.apiUrl).resolve(endpoint);
     return await _httpClient.post(
       url,
-      headers: await _getHeaders(),
+      headers: await _getHeaders(extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
     ).timeout(const Duration(seconds: 10));
   }
@@ -41,6 +46,7 @@ class ApiClient {
   Future<http.Response> get(
       String endpoint, {
         Map<String, String>? queryParameters,
+        Map<String, String>? headers,
       }) async {
     var url = Uri.parse(Env.apiUrl).resolve(endpoint);
 
@@ -49,15 +55,15 @@ class ApiClient {
     }
     return await _httpClient.get(
       url,
-      headers: await _getHeaders(),
+      headers: await _getHeaders(extraHeaders: headers),
     ).timeout(const Duration(seconds: 10));
   }
 
-  Future<http.Response> patch(String endpoint, {Map<String, dynamic>? body}) async {
+  Future<http.Response> patch(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
     final url = Uri.parse(Env.apiUrl).resolve(endpoint);
     return await _httpClient.patch(
       url,
-      headers: await _getHeaders(),
+      headers: await _getHeaders(extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
     ).timeout(const Duration(seconds: 10));
   }
