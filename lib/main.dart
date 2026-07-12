@@ -11,6 +11,7 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/auth_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 void main() {
@@ -25,15 +26,25 @@ void main() {
           update: (_, apiClient, __) => AuthService(apiClient),
         ),
 
-        ProxyProvider<AuthService, AuthRepository>(
-          update: (context, authService, __) {
-            final authRepository = AuthRepository(authService);
+        ChangeNotifierProxyProvider<AuthService, AuthRepository>(
+          create: (context) => AuthRepository(context.read<AuthService>()),
+          update: (context, authService, previous) {
+            final authRepository = previous ?? AuthRepository(authService);
 
             final apiClient = Provider.of<ApiClient>(context, listen: false);
             apiClient.setAuthRepository(authRepository);
 
             return authRepository;
           },
+        ),
+
+        ChangeNotifierProxyProvider2<AuthService, AuthRepository, FirebaseAuthRepository>(
+          create: (context) => FirebaseAuthRepository(
+            context.read<AuthService>(),
+            context.read<AuthRepository>(),
+          ),
+          update: (_, authService, authRepository, previous) =>
+              previous ?? FirebaseAuthRepository(authService, authRepository),
         ),
       ],
       child: const ColoniaApp(),

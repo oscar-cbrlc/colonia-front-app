@@ -11,16 +11,22 @@ class CreateUsernameViewModel extends ChangeNotifier {
   String _pass = '';
   String _username = '';
   bool _isLoading = false;
+  bool _isSocialAuth = false;
   String? _errorMessage;
 
   UsernameValidationError _error = UsernameValidationError.none;
 
   UsernameValidationError get error => _error;
   bool get isLoading => _isLoading;
+  bool get isSocialAuth => _isSocialAuth;
   String? get errorMessage => _errorMessage;
   String get username => _username;
 
   CreateUsernameViewModel(this._authRepository);
+
+  void setSocialAuth(bool value) {
+    _isSocialAuth = value;
+  }
 
   // 4 to 16 chars, letters, digits, -, _, !, ?
   final passRegex = RegExp(
