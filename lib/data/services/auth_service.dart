@@ -46,4 +46,15 @@ class AuthService {
         }
     );
   }
+
+  Future<http.Response> firebaseAuth({
+    required String idToken,
+  }) async {
+    return await _apiClient.post(
+      '/users/auth/firebase',
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+  }
 }
