@@ -14,7 +14,8 @@ class AppTheme {
   static const Color lightBtBorderColor = Color(0xFFD0D5DD);
   static const Color lightInputColor = Color(0xFFF2F4F7);
   static const Color errorColor = Color(0xffff0000);
-
+  static const Color boostPrimaryColor = Color.fromRGBO(134,43,13,1);
+  static const Color boostPrimaryIconColor = Color.fromRGBO(249,232,217, 1);
 
   static InputDecorationTheme get inputDecorationTheme {
     return InputDecorationTheme(
