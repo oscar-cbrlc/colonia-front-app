@@ -11,6 +11,7 @@ import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
+import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 
 // Screens
 import 'package:colonia_front_app/ui/auth/widgets/welcome_screen.dart';
@@ -18,6 +19,7 @@ import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_username_screen.dart';
+import 'package:colonia_front_app/ui/map/widgets/map_screen.dart';
 
 class AppRouter {
   static const String welcome = '/';
@@ -25,7 +27,7 @@ class AppRouter {
   static const String loginPassword = '/login_password';
   static const String createPassword = '/create_password';
   static const String createUsername = '/create_username';
-  //static const String map = '/map';
+  static const String map = '/map';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -91,6 +93,16 @@ class AppRouter {
               ..setSocialAuth(isSocialAuth),
             child: Consumer<CreateUsernameViewModel>(
               builder: (context, viewModel, _) => CreateUsernameScreen(viewModel: viewModel),
+            ),
+          ),
+        );
+
+      case map:
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<MapViewModel>(
+            create: (_) => MapViewModel(),
+            child: Consumer<MapViewModel>(
+              builder: (context, viewModel, _) => MapScreen(viewModel: viewModel),
             ),
           ),
         );

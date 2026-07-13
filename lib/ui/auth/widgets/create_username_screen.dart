@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/ui/core/ui/validation_row.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -201,12 +202,7 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
 
     if (success) {
       _usernameFocusNode.unfocus();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("SUCCESS"),//TODO: send to home screen
-          backgroundColor: AppTheme.fontSecondaryColor,
-        ),
-      );
+      navigateToMapScreen(context);
     } else if (viewModel.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -36,3 +36,10 @@ void navigateToCreateUsernameScreen({
     },
   );
 }
+
+void navigateToMapScreen(BuildContext context) {
+  Navigator.of(context).pushNamedAndRemoveUntil(
+    AppRouter.map,
+    (route) => false,
+  );
+}

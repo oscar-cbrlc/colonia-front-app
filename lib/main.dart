@@ -1,4 +1,5 @@
 // lib/main.dart (Updated with named routing)
+import 'package:colonia_front_app/env/env.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,14 +8,18 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
-// Services, Repositories, & Navigation
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/auth_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MapboxOptions.setAccessToken(Env.mapboxAccessToken);
   runApp(
     MultiProvider(
       providers: [
@@ -72,7 +77,9 @@ class _ColoniaAppState extends State<ColoniaApp> {
       await authRepo.initializeSession();
 
       if (authRepo.hasActiveSession) {
-        //_navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
+        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
+      } else {
+        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.welcome);
       }
     });
   }
