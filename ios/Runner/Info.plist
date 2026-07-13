@@ -27,6 +27,8 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs your location</string>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
