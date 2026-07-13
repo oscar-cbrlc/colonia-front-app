@@ -14,4 +14,7 @@ abstract class Env {
 
   @EnviedField(varName: 'GOOGLE_SERVER_CLIENT_ID', obfuscate: true)
   static final String googleServerClientId = _Env.googleServerClientId;
+
+  @EnviedField(varName: 'MAPBOX_ACCESS_TOKEN', obfuscate: true)
+  static final String mapboxAccessToken = _Env.mapboxAccessToken;
 }
