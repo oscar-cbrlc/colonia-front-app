@@ -1,3 +1,5 @@
+import 'package:colonia_front_app/data/models/firebase_auth_result.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -7,7 +9,7 @@ import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   final WelcomeViewModel viewModel;
 
   const WelcomeScreen({
@@ -16,8 +18,60 @@ class WelcomeScreen extends StatelessWidget {
   });
 
   @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.addListener(_onStateChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.removeListener(_onStateChanged);
+    super.dispose();
+  }
+
+  void _onStateChanged() {
+    if (widget.viewModel.state == WelcomeState.success) {
+      final result = widget.viewModel.authResult;
+      if (result != null) {
+        _handleSocialAuthNavigation(result);
+      }
+    } else if (widget.viewModel.state == WelcomeState.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.viewModel.errorMessage),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+      widget.viewModel.clearError();
+    }
+  }
+
+  void _handleSocialAuthNavigation(FirebaseAuthResult result) {
+    if (result.isNewUser) {
+      Navigator.of(context).pushNamed(
+        AppRouter.createUsername,
+        arguments: {
+          'email': result.email,
+          'password': '',
+          'isSocialAuth': true,
+        },
+      );
+    } else {
+
+      // TODO: LOGIN
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
+    final viewModel = widget.viewModel;
+
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: SafeArea(
@@ -43,7 +97,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       child: const Center(
                         child: Icon(
-                          Icons.image_outlined, // TODO(Welcome): PUT APP LOGO
+                          Icons.image_outlined,
                           color: Color(0xFF8B807D),
                           size: 72.0,
                         ),
@@ -61,127 +115,114 @@ class WelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: AppTheme.lightBackground,
-                  borderRadius: BorderRadius.vertical(
-                    //top: Radius.circular(4.0),
-                  ),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: Column(
-                  children: [
-                    
-                    const SizedBox(height: 8.0),
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (context, _) {
+                    return Column(
+                      children: [
+                        const SizedBox(height: 8.0),
+                        Text(
+                          locale.loginOrSignUp,
+                          style: TextTheme.of(context).titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            locale.selectYourAuthPref,
+                            style: TextTheme.of(context).bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const Spacer(),
 
-                    // Title
-                    Text(
-                      locale.loginOrSignUp,
-                      style: TextTheme.of(context).titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12.0),
-
-                    // Subtitle
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        locale.selectYourAuthPref,
-                        style: TextTheme.of(context).bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const Spacer(),
-
-                    // Email Button
-                    ListenableBuilder(
-                      listenable: viewModel,
-                      builder: (context, _) {
-                        return SizedBox(
+                        // Email Button
+                        SizedBox(
                           width: double.infinity,
                           height: 56.0,
                           child: ElevatedButton(
-                            onPressed: () {
-                              navigateToEmailScreen(context);
-                            },
-                            child: Text(
-                              locale.continueWithEmail,
-                            ),
+                            onPressed: viewModel.isLoading 
+                              ? null 
+                              : () => navigateToEmailScreen(context),
+                            child: Text(locale.continueWithEmail),
                           )
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12.0),
-
-                    // google and apple buttons
-                    Row(
-                      children: [
-                        // Google
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => viewModel.loginWithGoogle(),
-                            child: SvgPicture.asset(
-                              'assets/icons/google.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                          ),
                         ),
-                        const SizedBox(width: 12),
-                        
-                        // Apple
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => viewModel.loginWithApple(),
-                            child: SvgPicture.asset(
-                              'assets/icons/apple.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
+                        const SizedBox(height: 12.0),
 
-                    // bottom bottom
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: TextTheme.of(context).bodySmall,
+                        // google and apple buttons
+                        Row(
                           children: [
-                            TextSpan(text: locale.ifCreatingNewAccount),
-                            TextSpan(
-                              text: locale.termsAndConditions,
-                              style: const TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.fontUnderlineColor
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: viewModel.isLoading 
+                                  ? null 
+                                  : () => viewModel.loginWithGoogle(),
+                                child: viewModel.isLoading 
+                                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : SvgPicture.asset('assets/icons/google.svg', width: 24, height: 24),
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  // TODO: Navigate to Terms
-                                },
                             ),
-                            TextSpan(text: ' ${locale.and} '),
-                            TextSpan(
-                              text: locale.privacyPolicy,
-                              style: const TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.fontUnderlineColor
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: viewModel.isLoading 
+                                  ? null 
+                                  : () => viewModel.loginWithApple(),
+                                child: viewModel.isLoading 
+                                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : SvgPicture.asset('assets/icons/apple.svg', width: 24, height: 24),
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  // TODO: Navigate to Privacy Policy
-                                },
                             ),
-                            TextSpan(text: ' ${locale.willApply}'),
                           ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                  ],
+                        const Spacer(),
+
+                        // bottom bottom
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: TextTheme.of(context).bodySmall,
+                              children: [
+                                TextSpan(text: locale.ifCreatingNewAccount),
+                                TextSpan(
+                                  text: locale.termsAndConditions,
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.fontUnderlineColor
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // TODO: Navigate to Terms
+                                    },
+                                ),
+                                TextSpan(text: ' ${locale.and} '),
+                                TextSpan(
+                                  text: locale.privacyPolicy,
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.fontUnderlineColor
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // TODO: Navigate to Privacy Policy
+                                    },
+                                ),
+                                TextSpan(text: ' ${locale.willApply}'),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                    );
+                  }
                 ),
               ),
             ),

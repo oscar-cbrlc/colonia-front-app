@@ -11,4 +11,7 @@ abstract class Env {
 
   @EnviedField(varName: 'API_KEY', obfuscate: true)
   static final String apiKey = _Env.apiKey;
+
+  @EnviedField(varName: 'GOOGLE_SERVER_CLIENT_ID', obfuscate: true)
+  static final String googleServerClientId = _Env.googleServerClientId;
 }

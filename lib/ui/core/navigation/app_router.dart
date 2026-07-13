@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 // Repositories
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 
 // ViewModels
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
@@ -31,7 +32,7 @@ class AppRouter {
       case welcome:
         return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<WelcomeViewModel>(
-            create: (_) => WelcomeViewModel(),
+            create: (context) => WelcomeViewModel(context.read<FirebaseAuthRepository>()),
             child: Consumer<WelcomeViewModel>(
               builder: (context, viewModel, _) => WelcomeScreen(viewModel: viewModel),
             ),
@@ -80,12 +81,14 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         final userEmail = args?['email'] as String? ?? '';
         final userPassword = args?['password'] as String? ?? '';
+        final isSocialAuth = args?['isSocialAuth'] as bool? ?? false;
 
         return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<CreateUsernameViewModel>(
             create: (context) => CreateUsernameViewModel(context.read<AuthRepository>())
-                ..setEmail(userEmail)
-                ..setPass(userPassword),
+              ..setEmail(userEmail)
+              ..setPass(userPassword)
+              ..setSocialAuth(isSocialAuth),
             child: Consumer<CreateUsernameViewModel>(
               builder: (context, viewModel, _) => CreateUsernameScreen(viewModel: viewModel),
             ),

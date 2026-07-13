@@ -121,6 +121,19 @@ class AuthRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> completeSocialLogin({
+    required User user,
+    required String token,
+  }) async {
+    await _secureStorage.write(
+      key: _tokenKey,
+      value: token,
+    );
+    _cachedToken = token;
+    _currentUser = user;
+    notifyListeners();
+  }
+
   Future<User> registerUser({
     required String email,
     required String username,
