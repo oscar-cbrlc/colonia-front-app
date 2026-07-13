@@ -25,7 +25,7 @@ class AuthService {
     required String password
   }) async {
     return await _apiClient.post(
-      '/users/register',
+      '/auth/register',
       body: {
         'email': email,
         'user_name': username,
@@ -39,7 +39,7 @@ class AuthService {
     required String password
   }) async {
     return await _apiClient.post(
-        '/users/login',
+        '/auth/login',
         body: {
           'email': email,
           'password': password,
@@ -51,7 +51,7 @@ class AuthService {
     required String idToken,
   }) async {
     return await _apiClient.post(
-      '/users/auth/firebase',
+      '/auth/firebase',
       headers: {
         'Authorization': 'Bearer $idToken',
       },
