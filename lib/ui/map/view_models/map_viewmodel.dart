@@ -28,16 +28,34 @@ class MapViewModel extends ChangeNotifier {
 
     _configureOrnaments();
     _checkInitialPermission();
+    _setMapDaylight();
 
     notifyListeners();
   }
 
-  void centerOnUser() {
-    _viewport = const FollowPuckViewportState(
-      zoom: 16.0,
-      pitch: 0,
-    );
-    notifyListeners();
+  Future<void> centerOnUser() async {
+    if (!_isLocationPermissionGranted) {
+      final status = await Permission.location.request();
+      _isLocationPermissionGranted = status.isGranted;
+      
+      if (_isLocationPermissionGranted) {
+        _enableLocationComponent();
+        return;
+      }
+    }
+
+    if (_isLocationPermissionGranted) {
+      _viewport = const IdleViewportState();
+      notifyListeners();
+
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      _viewport = FollowPuckViewportState(
+        zoom: 16.0,
+        pitch: 0,
+      );
+      notifyListeners();
+    }
   }
 
   Future<void> _checkInitialPermission() async {
@@ -54,13 +72,6 @@ class MapViewModel extends ChangeNotifier {
     _mapboxMap!.location.updateSettings(LocationComponentSettings(
       enabled: true,
       pulsingEnabled: true,
-      locationPuck: LocationPuck(
-        locationPuck2D: DefaultLocationPuck2D(
-          shadowImage: null,
-          topImage: null,
-          bearingImage: null,
-        ),
-      )
     ));
 
     centerOnUser();
@@ -76,7 +87,7 @@ class MapViewModel extends ChangeNotifier {
 
     _mapboxMap!.compass.updateSettings(CompassSettings(
       position: OrnamentPosition.TOP_RIGHT,
-      marginTop: 100,
+      marginTop: 105,
       marginRight: 20,
     ));
 
@@ -84,20 +95,40 @@ class MapViewModel extends ChangeNotifier {
       enabled: true,
       isMetricUnits: true,
       distanceUnits: DistanceUnits.METRIC,
-      position: OrnamentPosition.TOP_LEFT,
-      marginTop: 100,
-      marginLeft: 20,
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 60,
+      marginRight: 10,
     ));
 
     _mapboxMap!.attribution.updateSettings(AttributionSettings(
-      position: OrnamentPosition.TOP_LEFT,
+      position: OrnamentPosition.BOTTOM_LEFT,
+      marginLeft: 20,
       marginBottom: 20,
     ));
 
     _mapboxMap!.logo.updateSettings(LogoSettings(
       position: OrnamentPosition.BOTTOM_LEFT,
       marginBottom: 20,
-      marginLeft: 100,
+      marginLeft: 45,
     ));
+  }
+
+  void _setMapDaylight() {
+    if (_mapboxMap == null) return;
+
+    final int hour = DateTime.now().hour;
+
+    String preset;
+    if (hour >= 5 && hour < 8) {
+      preset = "dawn";
+    } else if (hour >= 8 && hour < 17) {
+      preset = "day";
+    } else if (hour >= 17 && hour < 20) {
+      preset = "dusk";
+    } else {
+      preset = "night";
+    }
+
+    _mapboxMap?.style.setStyleImportConfigProperty("basemap", "lightPreset", preset);
   }
 }
