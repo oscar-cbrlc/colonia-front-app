@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color.fromRGBO(193,30,59,1);
-  static const Color secondaryColor = Color.fromRGBO(245, 138, 7, 1);
+  static const Color primaryColor = Color.fromRGBO(61, 93, 196,1);
+  //static const Color secondaryColor = Color.fromRGBO(245, 138, 7, 1);
+  static const Color secondaryColor = Color.fromRGBO(246, 83, 20, 1);
   static const Color fontPrimaryColor = Color(0xFF101828);
   static const Color fontSecondaryColor = Color(0xFF475467);
   static const Color fontVeryLightColor = Color(0xFF667085);
@@ -14,8 +15,6 @@ class AppTheme {
   static const Color lightBtBorderColor = Color(0xFFD0D5DD);
   static const Color lightInputColor = Color(0xFFF2F4F7);
   static const Color errorColor = Color(0xffff0000);
-  static const Color boostPrimaryColor = Color.fromRGBO(134,43,13,1);
-  static const Color boostPrimaryIconColor = Color.fromRGBO(249,232,217, 1);
 
   static InputDecorationTheme get inputDecorationTheme {
     return InputDecorationTheme(
