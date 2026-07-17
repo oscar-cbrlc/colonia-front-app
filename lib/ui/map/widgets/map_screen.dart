@@ -44,6 +44,8 @@ class _MapScreenState extends State<MapScreen> {
                 key: const ValueKey("mapWidget"),
                 styleUri: MapboxStyles.STANDARD,
                 onMapCreated: widget.viewModel.onMapCreated,
+                onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
+                onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
                 viewport: widget.viewModel.viewport ?? CameraViewportState(
                   center: Point(coordinates: Position(0, 0)),
                   zoom: 12.0,
@@ -75,7 +77,7 @@ class _MapScreenState extends State<MapScreen> {
                         padding: const EdgeInsetsGeometry.all(16),
                         child: _MapActionButton(
                             icon: Icons.play_arrow,
-                            color: AppTheme.primaryColor,
+                            color: AppTheme.primaryColor.withAlpha(125),
                             iconColor: AppTheme.secondaryColor,
                             borderColor: AppTheme.secondaryColor,
                             onTap: () {
@@ -108,7 +110,7 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             _MapActionButton(
                                 icon: Icons.notifications,
-                                color: AppTheme.darkBackground,
+                                color: AppTheme.primaryColor.withAlpha(100),
                                 iconColor: AppTheme.primaryColor,
                                 borderColor: AppTheme.primaryColor,
                                 onTap: () {
@@ -126,7 +128,7 @@ class _MapScreenState extends State<MapScreen> {
                               offset: const Offset(0, -10),
                               child: _MapActionButton(
                                   icon: Icons.group,
-                                  color: AppTheme.darkBackground,
+                                  color: AppTheme.primaryColor.withAlpha(100),
                                   iconColor: AppTheme.primaryColor,
                                   borderColor: AppTheme.primaryColor,
                                   onTap: () {
@@ -147,7 +149,7 @@ class _MapScreenState extends State<MapScreen> {
                           offset: const Offset(-20, -40),
                           child: _MapActionButton(
                               icon: Icons.person,
-                              color: AppTheme.darkBackground,
+                              color: AppTheme.primaryColor.withAlpha(100),
                               iconColor: AppTheme.primaryColor,
                               borderColor: AppTheme.primaryColor,
                               onTap: () {
@@ -183,11 +185,11 @@ class _MapScreenState extends State<MapScreen> {
                         Transform.translate(
                           offset: const Offset(20, -40),
                           child: _FloatingHexMenu(
-                            mainColor: AppTheme.darkBackground,
-                            mainIconColor: AppTheme.secondaryColor,
-                            mainBorderColor: AppTheme.primaryColor,
-                            menuColor: AppTheme.darkBackground,
-                            menuIconColor: AppTheme.secondaryColor,
+                            mainColor: AppTheme.tertiaryColor.withAlpha(90),
+                            mainIconColor: AppTheme.primaryColor,
+                            mainBorderColor: AppTheme.tertiaryColor,
+                            menuColor: AppTheme.tertiaryColor.withAlpha(10),
+                            menuIconColor: AppTheme.tertiaryColor,
                             menuBorderColor: AppTheme.primaryColor,
                             mainIcon: Icons.shield_rounded,
                             menuItems: [
@@ -220,11 +222,11 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             _FloatingHexMenu(
                               mainIcon: Icons.timeline_sharp,
-                              mainColor: AppTheme.darkBackground,
-                              mainIconColor: AppTheme.secondaryColor,
-                              mainBorderColor: AppTheme.primaryColor,
-                              menuColor: AppTheme.darkBackground,
-                              menuIconColor: AppTheme.secondaryColor,
+                              mainColor: AppTheme.tertiaryColor.withAlpha(90),
+                              mainIconColor: AppTheme.primaryColor,
+                              mainBorderColor: AppTheme.tertiaryColor,
+                              menuColor: AppTheme.tertiaryColor.withAlpha(10),
+                              menuIconColor: AppTheme.tertiaryColor,
                               menuBorderColor: AppTheme.primaryColor,
                               menuItems: [
                                 _MenuAction(
@@ -254,11 +256,11 @@ class _MapScreenState extends State<MapScreen> {
                               offset: const Offset(0, -10),
                               child: _FloatingHexMenu (
                                 mainIcon: Icons.directions_walk,
-                                mainColor: AppTheme.darkBackground,
-                                mainIconColor: AppTheme.secondaryColor,
-                                mainBorderColor: AppTheme.primaryColor,
-                                menuColor: AppTheme.darkBackground,
-                                menuIconColor: AppTheme.secondaryColor,
+                                mainColor: AppTheme.tertiaryColor.withAlpha(90),
+                                mainIconColor: AppTheme.primaryColor,
+                                mainBorderColor: AppTheme.tertiaryColor,
+                                menuColor: AppTheme.tertiaryColor.withAlpha(10),
+                                menuIconColor: AppTheme.tertiaryColor,
                                 menuBorderColor: AppTheme.primaryColor,
                                 menuItems: [
                                   _MenuAction(
@@ -346,7 +348,7 @@ class _FloatingHexMenuState extends State<_FloatingHexMenu> with SingleTickerPro
     );
     _expandAnimation = CurvedAnimation(
       curve: Curves.easeInOutCubicEmphasized,
-      reverseCurve: Curves.easeInOutCubicEmphasized.flipped,
+      reverseCurve: Curves.easeInOutCubicEmphasized,
       parent: _controller,
     );
   }
@@ -467,13 +469,13 @@ class _MapActionButton extends StatelessWidget {
     return Material(
       elevation: 9,
       shadowColor: Colors.black45,
-      color: color.withAlpha(120),
+      color: color,
       clipBehavior: Clip.antiAlias,
       shape: shape,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: InkWell(
-          splashColor: iconColor.withAlpha(40),
+          splashColor: color.withAlpha(200),
           customBorder: shape,
           onTap: onTap,
           child: SizedBox(

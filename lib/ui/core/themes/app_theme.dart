@@ -5,6 +5,7 @@ class AppTheme {
   static const Color primaryColor = Color.fromRGBO(61, 93, 196,1);
   //static const Color secondaryColor = Color.fromRGBO(245, 138, 7, 1);
   static const Color secondaryColor = Color.fromRGBO(246, 83, 20, 1);
+  static const Color tertiaryColor = Color.fromRGBO(242, 187, 5, 1);
   static const Color fontPrimaryColor = Color(0xFF101828);
   static const Color fontSecondaryColor = Color(0xFF475467);
   static const Color fontVeryLightColor = Color(0xFF667085);
