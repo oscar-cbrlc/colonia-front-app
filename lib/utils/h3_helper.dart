@@ -8,6 +8,15 @@ class H3Helper {
   static const double _EARTH_CIRC = 40075017;
   static const double _LAT_1DEG = _EARTH_CIRC / 360;
 
+  static String getHexagonAt({
+    required double lat,
+    required double lon,
+    required int resolution,
+  }) {
+    final BigInt cell = h3.geoToCell(GeoCoord(lon: lon, lat: lat), resolution);
+    return cell.toRadixString(16);
+  }
+
   static List<String> getHexagonsInRadius({
     required double centerLat,
     required double centerLon,
@@ -29,12 +38,7 @@ class H3Helper {
       );
     }
 
-    final List<BigInt> cells = h3.polygonToCells(
-        perimeter: perimeter,
-        resolution: resolution
-    );
-
-    return cells.map((cell) => cell.toRadixString(16)).toList();
+    return getHexagonsInPolygon(perimeter: perimeter, resolution: resolution);
   }
 
   static List<String> getHexagonsInViewport({
@@ -51,11 +55,17 @@ class H3Helper {
       GeoCoord(lat: maxLat, lon: minLon),
     ];
 
-    final List<BigInt> cells = h3.polygonToCells(
-      perimeter: perimeter,
-      resolution: resolution,
-    );
+    return getHexagonsInPolygon(perimeter: perimeter, resolution: resolution);
+  }
 
+  static List<String> getHexagonsInPolygon({
+    required List<GeoCoord> perimeter,
+    required int resolution,
+  }) {
+    final List<BigInt> cells = h3.polygonToCells(
+        perimeter: perimeter,
+        resolution: resolution
+    );
     return cells.map((cell) => cell.toRadixString(16)).toList();
   }
 
