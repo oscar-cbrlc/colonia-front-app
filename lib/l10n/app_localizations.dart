@@ -301,6 +301,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Crea un nombre para que otros te identifiquen'**
   String get createANameToIdentifyYou;
+
+  /// No description provided for @map.
+  ///
+  /// In es, this message translates to:
+  /// **'Mapa'**
+  String get map;
+
+  /// No description provided for @team.
+  ///
+  /// In es, this message translates to:
+  /// **'Equipo'**
+  String get team;
+
+  /// No description provided for @profile.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get profile;
+
+  /// No description provided for @startActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar actividad'**
+  String get startActivity;
 }
 
 class _AppLocalizationsDelegate

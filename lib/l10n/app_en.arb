@@ -98,5 +98,17 @@
     "@onlyContainUsernameChars": {},
 
     "createANameToIdentifyYou": "Create a name so others identify you",
-    "@createANameToIdentifyYou": {}
+    "@createANameToIdentifyYou": {},
+
+    "map": "Map",
+    "@map": {},
+
+    "team": "Team",
+    "@team": {},
+
+    "profile": "Profile",
+    "@profile": {},
+
+    "startActivity": "Start activity",
+    "@startActivity": {}
 }

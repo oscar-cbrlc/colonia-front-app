@@ -113,4 +113,16 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get createANameToIdentifyYou =>
       'Crea un nombre para que otros te identifiquen';
+
+  @override
+  String get map => 'Mapa';
+
+  @override
+  String get team => 'Equipo';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get startActivity => 'Empezar actividad';
 }

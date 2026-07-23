@@ -101,5 +101,17 @@
     "@onlyContainUsernameChars": {},
 
     "createANameToIdentifyYou": "Crea un nombre para que otros te identifiquen",
-    "@createANameToIdentifyYou": {}
+    "@createANameToIdentifyYou": {},
+
+    "map": "Mapa",
+    "@map": {},
+
+    "team": "Equipo",
+    "@team": {},
+
+    "profile": "Perfil",
+    "@profile": {},
+
+    "startActivity": "Empezar actividad",
+    "@startActivity": {}
 }

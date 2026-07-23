@@ -110,4 +110,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createANameToIdentifyYou => 'Create a name so others identify you';
+
+  @override
+  String get map => 'Map';
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get startActivity => 'Start activity';
 }
