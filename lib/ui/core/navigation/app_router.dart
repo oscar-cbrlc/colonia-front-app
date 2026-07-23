@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 // Repositories
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 
 // ViewModels
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
@@ -19,7 +20,7 @@ import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_username_screen.dart';
-import 'package:colonia_front_app/ui/map/widgets/map_screen.dart';
+import 'package:colonia_front_app/ui/navigation/main_navigation_screen.dart';
 
 class AppRouter {
   static const String welcome = '/';
@@ -27,6 +28,7 @@ class AppRouter {
   static const String loginPassword = '/login_password';
   static const String createPassword = '/create_password';
   static const String createUsername = '/create_username';
+  static const String navigation = '/navigation';
   static const String map = '/map';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -97,13 +99,14 @@ class AppRouter {
           ),
         );
 
+
       case map:
         return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<MapViewModel>(
-            create: (_) => MapViewModel(),
-            child: Consumer<MapViewModel>(
-              builder: (context, viewModel, _) => MapScreen(viewModel: viewModel),
+            create: (context) => MapViewModel(
+              context.read<TrackingRepository>(),
             ),
+            child: const MainNavigationScreen(),
           ),
         );
 
