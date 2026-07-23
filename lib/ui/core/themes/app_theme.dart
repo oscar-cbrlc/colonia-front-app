@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color.fromRGBO(61, 93, 196,1);
+  static const Color primaryColor = Color.fromRGBO(253, 203, 52,1);
   //static const Color secondaryColor = Color.fromRGBO(245, 138, 7, 1);
   static const Color secondaryColor = Color.fromRGBO(246, 83, 20, 1);
   static const Color tertiaryColor = Color.fromRGBO(242, 187, 5, 1);
@@ -16,6 +16,8 @@ class AppTheme {
   static const Color lightBtBorderColor = Color(0xFFD0D5DD);
   static const Color lightInputColor = Color(0xFFF2F4F7);
   static const Color errorColor = Color(0xffff0000);
+  static const Color h3GridLineColor = Color(0x98393939);
+  static const Color trackingPolygonColor = Color(0xEA121111);
 
   static InputDecorationTheme get inputDecorationTheme {
     return InputDecorationTheme(
