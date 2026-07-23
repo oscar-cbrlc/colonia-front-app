@@ -1,17 +1,18 @@
-// lib/main.dart (Updated with named routing)
 import 'package:colonia_front_app/env/env.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-// Localization & Themes
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/auth_service.dart';
+import 'package:colonia_front_app/data/services/location_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -50,6 +51,20 @@ void main() {
           ),
           update: (_, authService, authRepository, previous) =>
               previous ?? FirebaseAuthRepository(authService, authRepository),
+        ),
+
+        Provider<LocationService>(
+          create: (_) => LocationService(),
+        ),
+
+        ChangeNotifierProxyProvider<LocationService, TrackingRepository>(
+          create: (context) => TrackingRepository(context.read<LocationService>()),
+          update: (_, locationService, previous) => previous ?? TrackingRepository(locationService),
+        ),
+
+        ChangeNotifierProxyProvider<TrackingRepository, SessionRepository>(
+          create: (context) => SessionRepository(context.read<TrackingRepository>()),
+          update: (_, trackingRepository, previous) => previous ?? SessionRepository(trackingRepository),
         ),
       ],
       child: const ColoniaApp(),
