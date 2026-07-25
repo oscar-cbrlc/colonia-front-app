@@ -7,12 +7,15 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
 import 'package:colonia_front_app/data/services/api/api_client.dart';
-import 'package:colonia_front_app/data/services/auth_service.dart';
+import 'package:colonia_front_app/data/services/api/auth_service.dart';
 import 'package:colonia_front_app/data/services/location_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/data/services/api/training_service.dart';
+import 'package:colonia_front_app/data/repositories/training_repository.dart';
+
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -30,6 +33,10 @@ void main() {
 
         ProxyProvider<ApiClient, AuthService>(
           update: (_, apiClient, __) => AuthService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TrainingService>(
+          update: (_, apiClient, __) => TrainingService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -51,6 +58,14 @@ void main() {
           ),
           update: (_, authService, authRepository, previous) =>
               previous ?? FirebaseAuthRepository(authService, authRepository),
+        ),
+
+        ChangeNotifierProxyProvider<TrainingService, TrainingRepository>(
+          create: (context) => TrainingRepository(
+            trainingService: context.read<TrainingService>(),
+          ),
+          update: (_, trainingService, previous) =>
+          previous ?? TrainingRepository(trainingService: trainingService),
         ),
 
         Provider<LocationService>(

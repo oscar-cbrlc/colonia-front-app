@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -273,7 +274,8 @@ class _MapScreenState extends State<MapScreen> {
               padding: const EdgeInsets.only(bottom: 12.0),
               child:ElevatedButton(
                 onPressed: () {
-                HapticFeedback.lightImpact();
+                  HapticFeedback.lightImpact();
+                  navigateToActivityScreen(context);
                 },
                 child: Text(locale.startActivity)
               )

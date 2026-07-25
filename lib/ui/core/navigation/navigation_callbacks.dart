@@ -43,3 +43,9 @@ void navigateToMapScreen(BuildContext context) {
     (route) => false,
   );
 }
+
+void navigateToActivityScreen(BuildContext context) {
+  Navigator.of(context).pushNamed(
+    AppRouter.activity,
+  );
+}

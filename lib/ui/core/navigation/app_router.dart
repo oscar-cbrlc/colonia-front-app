@@ -1,3 +1,7 @@
+import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
+import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,6 +34,7 @@ class AppRouter {
   static const String createUsername = '/create_username';
   static const String navigation = '/navigation';
   static const String map = '/map';
+  static const String activity = "/activity";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -110,6 +115,19 @@ class AppRouter {
           ),
         );
 
+      case activity:
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<ActivityViewModel>(
+            create: (context) => ActivityViewModel(
+              context.read<SessionRepository>(),
+              context.read<TrackingRepository>(),
+              context.read<TrainingRepository>()
+            ),
+            child: Consumer<ActivityViewModel>(
+              builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),
+            ),
+          )
+        );
 
       default:
         return MaterialPageRoute(
