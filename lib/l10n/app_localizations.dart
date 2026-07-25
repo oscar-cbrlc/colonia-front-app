@@ -325,6 +325,120 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Empezar actividad'**
   String get startActivity;
+
+  /// No description provided for @walk.
+  ///
+  /// In es, this message translates to:
+  /// **'Caminar'**
+  String get walk;
+
+  /// No description provided for @run.
+  ///
+  /// In es, this message translates to:
+  /// **'Correr'**
+  String get run;
+
+  /// No description provided for @bike.
+  ///
+  /// In es, this message translates to:
+  /// **'Bicicleta'**
+  String get bike;
+
+  /// No description provided for @activity.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividad'**
+  String get activity;
+
+  /// No description provided for @training.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento'**
+  String get training;
+
+  /// No description provided for @free.
+  ///
+  /// In es, this message translates to:
+  /// **'Libre'**
+  String get free;
+
+  /// No description provided for @distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia'**
+  String get distance;
+
+  /// No description provided for @time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo'**
+  String get time;
+
+  /// No description provided for @pace.
+  ///
+  /// In es, this message translates to:
+  /// **'Ritmo'**
+  String get pace;
+
+  /// No description provided for @timeTrial.
+  ///
+  /// In es, this message translates to:
+  /// **'Contrarreloj'**
+  String get timeTrial;
+
+  /// No description provided for @setObjective.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo'**
+  String get setObjective;
+
+  /// No description provided for @km.
+  ///
+  /// In es, this message translates to:
+  /// **'km'**
+  String get km;
+
+  /// No description provided for @meters.
+  ///
+  /// In es, this message translates to:
+  /// **'metros'**
+  String get meters;
+
+  /// No description provided for @hours.
+  ///
+  /// In es, this message translates to:
+  /// **'horas'**
+  String get hours;
+
+  /// No description provided for @min.
+  ///
+  /// In es, this message translates to:
+  /// **'min'**
+  String get min;
+
+  /// No description provided for @sec.
+  ///
+  /// In es, this message translates to:
+  /// **'seg'**
+  String get sec;
+
+  /// No description provided for @targetPace.
+  ///
+  /// In es, this message translates to:
+  /// **'Ritmo objetivo (min/km)'**
+  String get targetPace;
+
+  /// No description provided for @confirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get confirm;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
 }
 
 class _AppLocalizationsDelegate

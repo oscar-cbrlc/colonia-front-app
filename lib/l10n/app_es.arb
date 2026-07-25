@@ -113,5 +113,63 @@
     "@profile": {},
 
     "startActivity": "Empezar actividad",
-    "@startActivity": {}
+    "@startActivity": {},
+
+    "walk": "Caminar",
+    "@walk": {},
+
+    "run": "Correr",
+    "@run": {},
+
+    "bike": "Bicicleta",
+    "@bike":  {},
+
+    "activity": "Actividad",
+    "@activity": {},
+
+    "training": "Entrenamiento",
+    "@training": {},
+
+    "free": "Libre",
+    "@free": {},
+
+    "distance": "Distancia",
+    "@distance": {},
+
+    "time": "Tiempo",
+    "@time": {},
+
+    "pace": "Ritmo",
+    "@pace": {},
+
+    "timeTrial": "Contrarreloj",
+    "@timeTrial": {},
+
+    "setObjective": "Objetivo",
+    "@setObjective": {},
+
+    "km": "km",
+    "@km": {},
+
+    "meters": "metros",
+    "@meters": {},
+
+    "hours": "horas",
+    "@hours": {},
+
+    "min": "min",
+    "@min": {},
+
+    "sec": "seg",
+    "@sec": {},
+
+    "targetPace": "Ritmo objetivo (min/km)",
+    "@targetPace": {},
+
+    "confirm": "Confirmar",
+    "@confirm": {},
+
+    "cancel": "Cancelar",
+    "@cancel": {}
+
 }

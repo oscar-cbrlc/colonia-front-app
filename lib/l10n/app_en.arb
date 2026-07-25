@@ -110,5 +110,63 @@
     "@profile": {},
 
     "startActivity": "Start activity",
-    "@startActivity": {}
+    "@startActivity": {},
+
+    "walk": "Walk",
+    "@walk": {},
+
+    "run": "Run",
+    "@run": {},
+
+    "bike": "Bike",
+    "@bike":  {},
+
+    "activity": "Activity",
+    "@activity": {},
+
+    "training": "Training",
+    "@training": {},
+
+    "free": "Free",
+    "@free": {},
+
+    "distance": "Distance",
+    "@distance": {},
+
+    "time": "Time",
+    "@time": {},
+
+    "pace": "Pace",
+    "@pace": {},
+
+    "timeTrial": "Time Trial",
+    "@timeTrial": {},
+
+    "setObjective": "Objective",
+    "@setObjective": {},
+
+    "km": "km",
+    "@km": {},
+
+    "meters": "meters",
+    "@meters": {},
+
+    "hours": "hours",
+    "@hours": {},
+
+    "min": "min",
+    "@min": {},
+
+    "sec": "sec",
+    "@sec": {},
+
+    "targetPace": "Target pace (min/km)",
+    "@targetPace": {},
+
+    "confirm": "Confirm",
+    "@confirm": {},
+
+    "cancel": "Cancel",
+    "@cancel": {}
+
 }

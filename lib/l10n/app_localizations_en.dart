@@ -122,4 +122,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startActivity => 'Start activity';
+
+  @override
+  String get walk => 'Walk';
+
+  @override
+  String get run => 'Run';
+
+  @override
+  String get bike => 'Bike';
+
+  @override
+  String get activity => 'Activity';
+
+  @override
+  String get training => 'Training';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get pace => 'Pace';
+
+  @override
+  String get timeTrial => 'Time Trial';
+
+  @override
+  String get setObjective => 'Objective';
+
+  @override
+  String get km => 'km';
+
+  @override
+  String get meters => 'meters';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get min => 'min';
+
+  @override
+  String get sec => 'sec';
+
+  @override
+  String get targetPace => 'Target pace (min/km)';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get cancel => 'Cancel';
 }
