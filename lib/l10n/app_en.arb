@@ -167,6 +167,24 @@
     "@confirm": {},
 
     "cancel": "Cancel",
-    "@cancel": {}
+    "@cancel": {},
+
+    "pause": "Pause",
+    "@pause": {},
+
+    "stop": "Stop",
+    "@stop": {},
+
+    "resume": "Resume",
+    "@resume": {},
+
+    "finish": "Finish",
+    "@finish": {},
+
+    "setUpActivity": "Set up activity",
+    "@setUpActivity": {},
+
+    "start": "Start",
+    "@start": {}
 
 }

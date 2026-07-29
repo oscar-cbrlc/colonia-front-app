@@ -17,6 +17,7 @@ class MapViewModel extends ChangeNotifier {
 
   MapboxMap? _mapboxMap;
   bool _isLocationPermissionGranted = false;
+  bool _hasCenteredOnFirstPosition = false;
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
@@ -26,12 +27,24 @@ class MapViewModel extends ChangeNotifier {
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
 
-  bool get isTracking => _trackingRepository.isTracking;
+  bool get inActivity => _trackingRepository.isActivityActive;
   Point? get userPosition => _trackingRepository.userPosition;
   double get currentBearing => _trackingRepository.currentBearing;
   String? get currentCell => _trackingRepository.currentCell;
 
-  MapViewModel(this._trackingRepository);
+  MapViewModel(this._trackingRepository) {
+    _trackingRepository.addListener(_onTrackingDataChanged);
+  }
+
+  void _onTrackingDataChanged() {
+    if (!_hasCenteredOnFirstPosition && userPosition != null) {
+      _hasCenteredOnFirstPosition = true;
+      centerOnUser();
+    }
+
+    _updateH3Grid();
+    notifyListeners();
+  }
 
   void onMapCreated(MapboxMap map) {
     _mapboxMap = map;
@@ -73,7 +86,6 @@ class MapViewModel extends ChangeNotifier {
       ),
     );
     
-    //_trackingRepository.startTracking();
     centerOnUser();
   }
 
@@ -279,6 +291,7 @@ class MapViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _trackingRepository.removeListener(_onTrackingDataChanged);
     super.dispose();
   }
 }

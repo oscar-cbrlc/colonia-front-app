@@ -439,6 +439,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cancelar'**
   String get cancel;
+
+  /// No description provided for @pause.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausa'**
+  String get pause;
+
+  /// No description provided for @stop.
+  ///
+  /// In es, this message translates to:
+  /// **'Detener'**
+  String get stop;
+
+  /// No description provided for @resume.
+  ///
+  /// In es, this message translates to:
+  /// **'Reanudar'**
+  String get resume;
+
+  /// No description provided for @finish.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizar'**
+  String get finish;
+
+  /// No description provided for @setUpActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar actividad'**
+  String get setUpActivity;
+
+  /// No description provided for @start.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar'**
+  String get start;
 }
 
 class _AppLocalizationsDelegate

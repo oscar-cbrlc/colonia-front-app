@@ -170,6 +170,24 @@
     "@confirm": {},
 
     "cancel": "Cancelar",
-    "@cancel": {}
+    "@cancel": {},
+
+    "pause": "Pausa",
+    "@pause": {},
+
+    "stop": "Detener",
+    "@stop": {},
+
+    "resume": "Reanudar",
+    "@resume": {},
+
+    "finish": "Finalizar",
+    "@finish": {},
+
+    "setUpActivity": "Configurar actividad",
+    "@setUpActivity": {},
+
+    "start": "Iniciar",
+    "@start": {}
 
 }

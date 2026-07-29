@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
-import 'package:colonia_front_app/domain/models/session_models.dart';
+import 'package:colonia_front_app/domain/models/session/session_enums.dart';
+import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -33,31 +34,67 @@ class ActivityViewModel extends ChangeNotifier {
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
 
-  String? _selectedActivity;
-  String? _selectedTraining;
-  double? _selectedTarget;
+  bool get readyToStart => _trainingConfig != null;
+  bool get inActivity => _trackingRepository.isActivityActive;
+
+  String? _selectedPreActivity = "walk";
+  String? _selectedPreTrainingName = "free";
+
+  String? get selectedPreActivity => _selectedPreActivity;
+  set selectedPreActivity(String? value) {
+    _selectedPreActivity = value;
+    notifyListeners();
+  }
+
+  String? get selectedPreTrainingName => _selectedPreTrainingName;
+  set selectedPreTrainingName(String? value) {
+    _selectedPreTrainingName = value;
+    notifyListeners();
+  }
+
+  TrainingConfig? _trainingConfig;
 
   PlayingState get playingState => _sessionRepository.playingState;
-  bool get isTracking => _trackingRepository.isTracking;
   Point? get userPosition => _trackingRepository.userPosition;
   double get currentBearing => _trackingRepository.currentBearing;
   String? get currentCell => _trackingRepository.currentCell;
-  String? get selectedActivity => _selectedActivity;
-  String? get selectedTraining => _selectedTraining;
-  double? get selectedTarget => _selectedTarget;
+
+  double get totalMetersTracked => _trackingRepository.totalMetersTracked;
+  int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
+  double get currentPace => _trackingRepository.currentPace;
+  double get averagePace => _trackingRepository.averagePace;
+
+
+  String? get selectedActivity => _trainingConfig?.activity;
+  String? get selectedTrainingName => _trainingConfig?.training.name;
+  double? get selectedDistance => _trainingConfig?.distance;
+  Duration? get selectedTime => _trainingConfig?.time;
+  double? get selectedPace => _trainingConfig?.pace;
 
   List<Training> get trainings => _trainingRepository.trainings;
 
   ActivityViewModel(this._sessionRepository, this._trackingRepository, this._trainingRepository) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _sessionRepository.addListener(_onSessionStateChanged);
-    _trainingRepository.addListener(_onTrainingGataChanged);
+    _trainingRepository.addListener(_onTrainingDataChanged);
   }
 
-  void setActivityConfig({String? activity, String? training, double? target}) {
-    if (activity != null) _selectedActivity = activity;
-    if (training != null) _selectedTraining = training;
-    if (target != null) _selectedTarget = target;
+  void setActivityConfig({
+    required String activity,
+    required String training,
+    required double distance,
+    required Duration time,
+    required double pace
+  }) {
+    selectedPreActivity = activity;
+    selectedPreTrainingName = training;
+    _trainingConfig = TrainingConfig(
+        activity: activity,
+        training: trainings.firstWhere( (tr) => tr.name == training),
+        distance: distance,
+        time: time,
+        pace: pace
+    );
     notifyListeners();
   }
 
@@ -71,7 +108,7 @@ class ActivityViewModel extends ChangeNotifier {
 
   Future<void> onStyleLoaded() async {
     await _initializeH3Layer();
-    //await _initializeTrackingPolygon();
+    await _initializeTrackingPolygon();
     await _updateH3Grid();
   }
 
@@ -403,10 +440,15 @@ class ActivityViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void onPushStopButton() {
+    _sessionRepository.stopAndSaveSession();
+    notifyListeners();
+  }
+
 
   bool _isMapUpdating = false;
 
-  void _onTrainingGataChanged() async {
+  void _onTrainingDataChanged() {
     //_trainings = _trainingRepository.trainings;
   }
 

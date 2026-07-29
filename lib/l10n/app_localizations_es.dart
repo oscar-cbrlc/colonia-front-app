@@ -182,4 +182,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancel => 'Cancelar';
+
+  @override
+  String get pause => 'Pausa';
+
+  @override
+  String get stop => 'Detener';
+
+  @override
+  String get resume => 'Reanudar';
+
+  @override
+  String get finish => 'Finalizar';
+
+  @override
+  String get setUpActivity => 'Configurar actividad';
+
+  @override
+  String get start => 'Iniciar';
 }

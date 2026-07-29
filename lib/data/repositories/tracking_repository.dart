@@ -12,7 +12,8 @@ class TrackingRepository extends ChangeNotifier {
   final LocationService _locationService;
   StreamSubscription<geo.Position>? _positionSubscription;
 
-  bool _isTracking = false;
+
+  bool _isActivityActive = false;
   bool _isPaused = false;
 
   Point? _userPosition;
@@ -36,11 +37,13 @@ class TrackingRepository extends ChangeNotifier {
 
   geo.Position? _lastRecordedPosition;
 
-  bool get isTracking => _isTracking;
+  bool get isActivityActive => _isActivityActive;
   bool get isPaused => _isPaused;
+  
   Point? get userPosition => _userPosition;
   double get currentBearing => _currentBearing;
   String? get currentCell => _currentCell;
+  
   List<GeoCoord> get perimeter => _perimeter;
   Set<String> get visitedCells => _visitedCells;
   GeoCoord? get temporaryPauseLineEnd => _temporaryPauseLineEnd;
@@ -53,12 +56,20 @@ class TrackingRepository extends ChangeNotifier {
 
   double get metersPerEdge => GameConfig.minMetersBetweenVertices;
 
-  TrackingRepository(this._locationService);
+  TrackingRepository(this._locationService) {
+    _initPassiveTracking();
+  }
 
-  void startTracking() {
-    if (_isTracking) return;
-    _isTracking = true;
+  void _initPassiveTracking() {
+    _positionSubscription?.cancel();
+    _positionSubscription = _locationService.positionStream.listen(_onLocationReceived);
+  }
+
+  void startActivity() {
+    if (_isActivityActive) return;
+    _isActivityActive = true;
     _isPaused = false;
+    
     _totalMetersTracked = 0.0;
     _edgeMetersTracked = 0.0;
     _totalSecondsElapsed = 0;
@@ -74,13 +85,11 @@ class TrackingRepository extends ChangeNotifier {
     _lastRecordedPosition = null;
 
     _startTimer();
-
-    _positionSubscription = _locationService.positionStream.listen(_onLocationReceived);
     notifyListeners();
   }
 
-  void pauseTracking() {
-    if (!_isTracking || _isPaused) return;
+  void pauseActivity() {
+    if (!_isActivityActive || _isPaused) return;
     _isPaused = true;
 
     if (_lastRecordedPosition != null) {
@@ -94,8 +103,8 @@ class TrackingRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resumeTracking() {
-    if (!_isTracking || !_isPaused) return;
+  void resumeActivity() {
+    if (!_isActivityActive || !_isPaused) return;
     _isPaused = false;
 
     _lastRecordedPosition = null;
@@ -110,19 +119,17 @@ class TrackingRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  TrackingSession stopTracking() {
+  TrackingSession stopActivity() {
     final session = TrackingSession(
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
       durationSeconds: _totalSecondsElapsed,
     );
 
-    _positionSubscription?.cancel();
-    _positionSubscription = null;
+    _isActivityActive = false;
+    _isPaused = false;
     _gameTimer?.cancel();
     _gameTimer = null;
-    _isTracking = false;
-    _isPaused = false;
 
     notifyListeners();
     return session;
@@ -147,8 +154,9 @@ class TrackingRepository extends ChangeNotifier {
       resolution: GameConfig.h3Resolution,
     );
 
-    if (_currentCell != null) {
-      _visitedCells.add(_currentCell!);
+    if (!_isActivityActive) {
+      notifyListeners();
+      return;
     }
 
     if (_isPaused) {
@@ -161,6 +169,11 @@ class TrackingRepository extends ChangeNotifier {
     }
 
     final now = DateTime.now();
+    
+    if (_currentCell != null) {
+      _visitedCells.add(_currentCell!);
+    }
+
     if (_lastRecordedPosition != null) {
       double distanceDelta = geo.Geolocator.distanceBetween(
         _lastRecordedPosition!.latitude,

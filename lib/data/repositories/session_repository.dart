@@ -1,5 +1,7 @@
+import 'package:colonia_front_app/config/game_config.dart';
 import 'package:flutter/material.dart';
-import 'package:colonia_front_app/domain/models/session_models.dart';
+import 'package:colonia_front_app/domain/models/session/session_enums.dart';
+import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:h3_flutter/h3_flutter.dart';
 
@@ -7,57 +9,46 @@ class SessionRepository extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
 
   PlayingState _playingState = PlayingState.stopped;
-  SportActivity _activeActivity = SportActivity.walking;
-  TrainingType _activeTraining = TrainingType.free;
-
-  double _targetDistance = 0.0;
-  Duration _targetDuration = Duration.zero;
-  double _targetPace = 0.0;
+  String _activeActivity = "walk";
+  TrainingConfig? _trainingConfig;
 
   PlayingState get playingState => _playingState;
-  SportActivity get sportActivity => _activeActivity;
-  TrainingType get trainingType => _activeTraining;
-  double get targetDistance => _targetDistance;
-  Duration get targetDuration => _targetDuration;
-  double get targetPace => _targetPace;
+  String? get sportActivity => _activeActivity;
+  TrainingConfig? get trainingConfig => _trainingConfig;
+  double get targetDistance => _trainingConfig?.distance ?? 0.0;
+  Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
+  double get targetPace => _trainingConfig?.pace ?? 0.0;
 
   SessionRepository(this._trackingRepository) {
     _trackingRepository.addListener(_onMetricsUpdated);
   }
 
   void setupSession({
-    required SportActivity activity,
-    required TrainingType training,
-    double distance = 0.0,
-    Duration? duration,
-    double pace = 0.0,
+    required TrainingConfig config,
   }) {
-    _activeActivity = activity;
-    _activeTraining = training;
-    _targetDistance = distance;
-    _targetDuration = duration ?? Duration.zero;
-    _targetPace = pace;
+    _activeActivity = config.activity;
+    _trainingConfig = config;
     notifyListeners();
   }
 
   void startGame() {
     if (_playingState == PlayingState.playing) return;
     _playingState = PlayingState.playing;
-    _trackingRepository.startTracking();
+    _trackingRepository.startActivity();
     notifyListeners();
   }
 
   void pauseGame() {
     if (_playingState != PlayingState.playing) return;
     _playingState = PlayingState.paused;
-    _trackingRepository.pauseTracking();
+    _trackingRepository.pauseActivity();
     notifyListeners();
   }
 
   void resumeGame() {
     if (_playingState != PlayingState.paused) return;
     _playingState = PlayingState.playing;
-    _trackingRepository.resumeTracking();
+    _trackingRepository.resumeActivity();
     notifyListeners();
   }
 
@@ -69,7 +60,7 @@ class SessionRepository extends ChangeNotifier {
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
     final vertices = List<GeoCoord>.from(_trackingRepository.perimeter);
 
-    _trackingRepository.stopTracking();
+    _trackingRepository.stopActivity();
 
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
 
@@ -78,9 +69,11 @@ class SessionRepository extends ChangeNotifier {
       const int basePoints = 100;
       double multiplier = 1.0;
 
-      if (_activeTraining == TrainingType.distance) multiplier = 1.5;
-      if (_activeTraining == TrainingType.duration) multiplier = 1.25;
-      if (_activeTraining == TrainingType.timeTrial) multiplier = 1.75;
+      final trainingType = _trainingConfig?.training.name;
+      if (trainingType == TrainingType.distance.toString()) multiplier = 1.5;
+      if (trainingType == TrainingType.duration.toString()) multiplier = 1.25;
+      if (trainingType == TrainingType.pace.toString()) multiplier = 1.75;
+      if (trainingType == TrainingType.timeTrial.toString()) multiplier = 1.75;
 
       final double calculatedScore = finalDistance * basePoints * multiplier;
 
@@ -93,14 +86,25 @@ class SessionRepository extends ChangeNotifier {
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
     // TODO: verify with ML model
-    if (_activeTraining == TrainingType.free) {
+    final trainingType = _trainingConfig?.training.name;
+    if (trainingType == TrainingType.free.toString() || trainingType == null) {
       return true;
     }
-    if (_activeTraining == TrainingType.distance) {
-      return actualDistanceMeters >= _targetDistance;
+    if (trainingType == TrainingType.distance.toString()) {
+      return actualDistanceMeters >= targetDistance;
     }
-    if (_activeTraining == TrainingType.duration) {
-      return actualSeconds >= _targetDuration.inSeconds;
+    if (trainingType == TrainingType.duration.toString()) {
+      return actualSeconds >= targetDuration.inSeconds;
+    }
+    if (trainingType == TrainingType.pace.toString()) {
+      final actualPace = actualSeconds / (actualDistanceMeters / 1000);
+      return
+        targetPace * (1-GameConfig.validPaceRange) <= actualPace
+            && targetPace * (1+GameConfig.validPaceRange) >= actualPace;
+    }
+    if (trainingType == TrainingType.timeTrial.toString()) {
+      return actualDistanceMeters >= targetDistance &&
+          actualSeconds <= targetDuration.inSeconds;
     }
     return true;
   }
@@ -110,10 +114,10 @@ class SessionRepository extends ChangeNotifier {
   }
 
   void _resetSessionData() {
-    _targetDistance = 0.0;
-    _targetDuration = Duration.zero;
-    _targetPace = 0.0;
+    _trainingConfig = null;
   }
+
+
 
   Future<void> _syncSessionWithServer(List<GeoCoord> path, double score) async {
     // TODO: API Send
