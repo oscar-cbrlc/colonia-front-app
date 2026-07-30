@@ -15,6 +15,7 @@ import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/data/services/api/training_service.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
@@ -66,6 +67,10 @@ void main() {
           ),
           update: (_, trainingService, previous) =>
           previous ?? TrainingRepository(trainingService: trainingService),
+        ),
+
+        ChangeNotifierProvider<BoostRepository>(
+          create: (_) => BoostRepository(),
         ),
 
         Provider<LocationService>(
