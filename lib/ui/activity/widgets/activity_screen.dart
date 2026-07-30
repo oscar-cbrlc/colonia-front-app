@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -196,6 +197,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ),
 
+            Align(
+              alignment: Alignment.topRight,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 124, right: 16),
+                  child: IconButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      widget.viewModel.centerOnUser();
+                    },
+                    icon: const Icon(Icons.location_searching),
+                    color: Colors.redAccent,
+                    iconSize: 32,
+                  ),
+                ),
+              ),
+            ),
+
             //_activityGroup,
 
             if (widget.viewModel.playingState != PlayingState.stopped)
@@ -210,7 +229,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.viewModel.readyToStart)
+                    if (widget.viewModel.readyToStart) ...[
+                      _PreActivityOverview(viewModel: widget.viewModel),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         child: SizedBox(
@@ -225,15 +245,26 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           ),
                         ),
                       ),
+                    ],
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _showActivitySelector,
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          _showActivitySelector();
+                        },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: AppTheme.darkBackground.withAlpha(230),
+                          foregroundColor: AppTheme.primaryColor,
+                          splashFactory: InkRipple.splashFactory,
                         ),
-                        child: Text(locale.setUpActivity.toUpperCase(), style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                        child: Text(
+                            locale.setUpActivity.toUpperCase(),
+                            style: const TextStyle(color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold
+                            )
+                        ),
                       ),
                     ),
                   ],
@@ -244,12 +275,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
       },
     );
   }
-
-
-  void handlePushPlayButton() {
-    widget.viewModel.onPushPlayButton();
-  }
-
 
   void _showActivitySelector() {
     showModalBottomSheet(
@@ -262,6 +287,187 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
 }
 
+class _PreActivityOverview extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _PreActivityOverview({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return ListenableBuilder(
+        listenable: viewModel,
+        builder: (context, _) {
+          final String activity = viewModel.selectedActivity ?? "walk";
+          final String training = viewModel.selectedTrainingName ?? "free";
+          final Boost? boost = viewModel.selectedBoost;
+          final Color activityColor =
+              activity == "walk" ? AppTheme.walkColor :
+              activity == "run" ? AppTheme.runColor :
+                  AppTheme.bikeColor;
+
+          final IconData activityIcon = activity == "walk"
+              ? Icons.directions_walk
+              : activity == "run"
+                  ? Icons.directions_run
+                  : Icons.directions_bike;
+
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: ShapeDecoration(
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: activityColor, width: 1),
+              ),
+              color: AppTheme.darkBackground.withAlpha(240),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(activityIcon, color: activityColor, size: 28),
+                        const SizedBox(width: 12),
+                        Text(
+                          activity.toUpperCase(),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, decoration: TextDecoration.none),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: ShapeDecoration(
+                        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        color: AppTheme.primaryColor.withAlpha(40),
+                      ),
+                      child: Text(
+                        training.toUpperCase(),
+                        style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    if (viewModel.selectedDistance != null && viewModel.selectedDistance! > 0)
+                      _OverviewStat(
+                        label: locale.distance.toUpperCase(),
+                        value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
+                        unit: "KM",
+                      ),
+                    if (viewModel.selectedTime != null && viewModel.selectedTime! > Duration.zero)
+                      _OverviewStat(
+                        label: locale.time.toUpperCase(),
+                        value: _formatDurationShort(viewModel.selectedTime!),
+                        unit: "",
+                      ),
+                    if (viewModel.selectedPace != null && viewModel.selectedPace! > 0)
+                      _OverviewStat(
+                        label: locale.targetPace.toUpperCase(),
+                        value: viewModel.selectedPace!.toStringAsFixed(1),
+                        unit: "M/KM",
+                      ),
+                  ],
+                ),
+                if (boost != null) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: Colors.white10, height: 1),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(boost.image, width: 24, height: 24, errorBuilder: (c,e,s) => const Icon(Icons.bolt, color: AppTheme.tertiaryColor, size: 20)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              boost.name.toUpperCase(),
+                              style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 14, decoration: TextDecoration.none),
+                            ),
+                            Text(
+                              boost.description,
+                              style: const TextStyle(color: Colors.white54, fontSize: 12, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
+                    const SizedBox(width: 24),
+                    _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
+                  ],
+                )
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  String _formatDurationShort(Duration d) {
+    if (d.inHours > 0) return "${d.inHours}H ${d.inMinutes.remainder(60)}M";
+    return "${d.inMinutes}M ${d.inSeconds.remainder(60)}S";
+  }
+}
+
+class _OverviewStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  const _OverviewStat({required this.label, required this.value, required this.unit});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
+            if (unit.isNotEmpty) ...[
+              const SizedBox(width: 2),
+              Text(unit, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+            ]
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class _MultiplierMini extends StatelessWidget {
+  final String label;
+  final double multiplier;
+  final Color color;
+  const _MultiplierMini({required this.label, required this.multiplier, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text("$label: ", style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+        Text("x${multiplier.toStringAsFixed(2)}", style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
+      ],
+    );
+  }
+}
 
 class _DistanceProgressPanel extends StatelessWidget {
   final ActivityViewModel viewModel;
@@ -682,6 +888,15 @@ class _ActivityProgressPanel extends StatelessWidget {
               ),
             ],
           ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
+                  const SizedBox(width: 24),
+                  _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
+                ],
+              ),
               if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
                 const SizedBox(height: 12),
                 _DistanceProgressPanel(viewModel: viewModel),
@@ -777,7 +992,7 @@ class _StatDisplay extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+          style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
         ),
         const SizedBox(height: 6),
         Row(
@@ -786,13 +1001,13 @@ class _StatDisplay extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
+              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
             ),
             if (unit.isNotEmpty) ...[
               const SizedBox(width: 4),
               Text(
                 unit,
-                style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                style: const TextStyle(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
               ),
             ],
           ],
@@ -1124,9 +1339,10 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                               style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12),
                             ),
                             const SizedBox(height: 4),
+
                             Text(
                               widget.viewModel.selectedBoost!.description,
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              style: const TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.none),
                             ),
                           ],
                         ),
@@ -1147,7 +1363,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       _buildObjectiveInputs(context),
                       const SizedBox(height: 32),
                     ],
-                    // multipliers
+
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                       decoration: BoxDecoration(
