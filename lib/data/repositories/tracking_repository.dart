@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:colonia_front_app/data/services/location_service.dart';
+import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -34,6 +35,7 @@ class TrackingRepository extends ChangeNotifier {
   double _currentPace = 0.0; // min/km
   double _averagePace = 0.0; // min/km
   Timer? _gameTimer;
+  List<OnTrackNode> _onTrackNodes = [];
 
   geo.Position? _lastRecordedPosition;
 
@@ -53,6 +55,7 @@ class TrackingRepository extends ChangeNotifier {
   double get currentPace => _currentPace;
   double get averagePace => _averagePace;
   int get totalSecondsElapsed => _totalSecondsElapsed;
+  List<OnTrackNode> get onTrackNodes => _onTrackNodes;
 
   double get metersPerEdge => GameConfig.minMetersBetweenVertices;
 
@@ -83,6 +86,7 @@ class TrackingRepository extends ChangeNotifier {
     _averagePace = 0.0;
     _temporaryPauseLineEnd = null;
     _lastRecordedPosition = null;
+    _onTrackNodes = [];
 
     _startTimer();
     notifyListeners();
@@ -124,6 +128,9 @@ class TrackingRepository extends ChangeNotifier {
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
       durationSeconds: _totalSecondsElapsed,
+      averageSpeed: _averageSpeed,
+      averagePace: _averagePace,
+      nodes: List.from(_onTrackNodes),
     );
 
     _isActivityActive = false;
@@ -203,9 +210,22 @@ class TrackingRepository extends ChangeNotifier {
           _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
           _edgeMetersTracked = 0.0;
         }
+
+        _onTrackNodes.add(OnTrackNode(
+          lat: position.latitude,
+          lon: position.longitude,
+          pace: _currentPace,
+          timestamp: now,
+        ));
       }
     } else {
       _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
+      _onTrackNodes.add(OnTrackNode(
+        lat: position.latitude,
+        lon: position.longitude,
+        pace: 0.0,
+        timestamp: now,
+      ));
     }
 
     _lastTrackTime = now;
@@ -233,10 +253,16 @@ class TrackingSession {
   final List<GeoCoord> route;
   final double totalDistance;
   final int durationSeconds;
+  final double averageSpeed;
+  final double averagePace;
+  final List<OnTrackNode> nodes;
 
   TrackingSession({
     required this.route,
     required this.totalDistance,
     required this.durationSeconds,
+    required this.averageSpeed,
+    required this.averagePace,
+    required this.nodes,
   });
 }

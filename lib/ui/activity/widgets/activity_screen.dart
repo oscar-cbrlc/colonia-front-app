@@ -690,7 +690,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                 const SizedBox(height: 12),
                 _TimeProgressPanel(viewModel: viewModel),
               ],
-              if (training == 'pace' || training == 'timeTrial') ...[
+              if (training == 'pace') ...[
                 const SizedBox(height: 12),
                 _PaceEquilibriumPanel(viewModel: viewModel),
               ],
@@ -855,7 +855,8 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
         training: training,
         distance: distance,
         time: time,
-        pace: pace
+        pace: pace,
+        boost: widget.viewModel.selectedBoost
     );
     Navigator.pop(context);
   }
@@ -866,7 +867,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     final locale = AppLocalizations.of(context)!;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOutCubicEmphasized,
       padding: EdgeInsets.only(
         left: 24,
@@ -1001,6 +1002,137 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       ],
                     ),
                     const SizedBox(height: 24),
+                    if (widget.viewModel.availableBoosts.isNotEmpty) ...[
+                      Text(
+                        "BOOSTS",
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: widget.viewModel.availableBoosts.length,
+                        itemBuilder: (context, index) {
+                          final boost = widget.viewModel.availableBoosts[index];
+                          final isSelected = widget.viewModel.selectedBoost == boost;
+                          final int count = widget.viewModel.getBoostCount(boost.id);
+                          
+                          return GestureDetector(
+                            onTap: () {
+                              if (count <= 0) return;
+                              if (isSelected) {
+                                widget.viewModel.selectedBoost = null;
+                              } else {
+                                widget.viewModel.selectedBoost = boost;
+                              }
+                            },
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  decoration: ShapeDecoration(
+                                    color: isSelected 
+                                        ? AppTheme.tertiaryColor 
+                                        : count > 0 
+                                            ? Colors.white.withAlpha(20) 
+                                            : Colors.white.withAlpha(5),
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                        color: isSelected ? Colors.white : AppTheme.tertiaryColor.withAlpha(100),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(boost.image, height: 40, width: 40, errorBuilder: (c, e, s) => const Icon(Icons.bolt, color: Colors.white)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        boost.name.toUpperCase(),
+                                        style: TextStyle(
+                                          color: isSelected ? Colors.black : Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (count > 0)
+                                  Positioned(
+                                    right: 1.5,
+                                    top: 1.5,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: ShapeDecoration(
+                                          color: isSelected? AppTheme.secondaryColor.withAlpha(180): AppTheme.secondaryColor.withAlpha(30),
+                                          shape:  BeveledRectangleBorder(
+                                            borderRadius: BorderRadius.only(topRight: Radius.circular(11)),
+                                            side: BorderSide(color: isSelected? AppTheme.secondaryColor.withAlpha(100) : Colors.transparent, width: 0.5)
+                                          )
+                                      ),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 22,
+                                        minHeight: 22,
+                                      ),
+                                      child: Text(
+                                        "$count",
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (widget.viewModel.selectedBoost != null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.tertiaryColor.withAlpha(20),
+                          borderRadius: BorderRadius.circular(0),
+                          border: Border.all(color: AppTheme.tertiaryColor.withAlpha(210)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.viewModel.selectedBoost!.name.toUpperCase(),
+                              style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.viewModel.selectedBoost!.description,
+                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                     if (widget.viewModel.selectedPreTrainingName != "free" && widget.viewModel.selectedPreTrainingName != null) ...[
                       Text(
                         locale.setObjective.toUpperCase(),
@@ -1015,6 +1147,30 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       _buildObjectiveInputs(context),
                       const SizedBox(height: 32),
                     ],
+                    // multipliers
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(10),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _MultiplierItem(
+                            label: "ATTACK",
+                            multiplier: widget.viewModel.currentAttackMultiplier,
+                            color: Colors.redAccent,
+                          ),
+                          _MultiplierItem(
+                            label: "DEFENSE",
+                            multiplier: widget.viewModel.currentDefenseMultiplier,
+                            color: Colors.blueAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -1401,6 +1557,31 @@ class _FloatingHexMenuState extends State<_FloatingHexMenu> with SingleTickerPro
           ),
         );
       },
+    );
+  }
+}
+
+class _MultiplierItem extends StatelessWidget {
+  final String label;
+  final double multiplier;
+  final Color color;
+
+  const _MultiplierItem({required this.label, required this.multiplier, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "x${multiplier.toStringAsFixed(2)}",
+          style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald'),
+        ),
+      ],
     );
   }
 }

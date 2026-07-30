@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 // Repositories
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 
@@ -121,7 +122,8 @@ class AppRouter {
             create: (context) => ActivityViewModel(
               context.read<SessionRepository>(),
               context.read<TrackingRepository>(),
-              context.read<TrainingRepository>()
+              context.read<TrainingRepository>(),
+              context.read<BoostRepository>(),
             ),
             child: Consumer<ActivityViewModel>(
               builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),

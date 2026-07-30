@@ -1,4 +1,8 @@
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
+import 'package:colonia_front_app/domain/models/territory.dart';
+import 'package:colonia_front_app/utils/h3_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
@@ -18,6 +22,7 @@ class SessionRepository extends ChangeNotifier {
   double get targetDistance => _trainingConfig?.distance ?? 0.0;
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
   double get targetPace => _trainingConfig?.pace ?? 0.0;
+  Boost? get boost => _trainingConfig?.boost;
 
   SessionRepository(this._trackingRepository) {
     _trackingRepository.addListener(_onMetricsUpdated);
@@ -58,7 +63,13 @@ class SessionRepository extends ChangeNotifier {
 
     final double finalDistance = _trackingRepository.totalMetersTracked;
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
-    final vertices = List<GeoCoord>.from(_trackingRepository.perimeter);
+    final List<OnTrackNode> onTrackNodes = _trackingRepository.onTrackNodes;
+
+    // TODO:  use actual team id
+    /*final List<Territory> affectedTerritories = onTrackNodes.map((node) {
+      final h3Index = H3Helper.getHexagonAt(lat: node.lat, lon: node.lon, resolution: GameConfig.h3Resolution);
+      //return Territory(id: h3Index.toString(), teamId: 1, healthPoints: );
+    }).toList();*/
 
     _trackingRepository.stopActivity();
 
@@ -74,10 +85,13 @@ class SessionRepository extends ChangeNotifier {
       if (trainingType == TrainingType.duration.toString()) multiplier = 1.25;
       if (trainingType == TrainingType.pace.toString()) multiplier = 1.75;
       if (trainingType == TrainingType.timeTrial.toString()) multiplier = 1.75;
+      if (boost != null) multiplier *= boost!.effect;
+
+
 
       final double calculatedScore = finalDistance * basePoints * multiplier;
 
-      await _syncSessionWithServer(vertices, calculatedScore);
+      //await _syncSessionWithServer(vertices, calculatedScore);
     }
 
     _resetSessionData();

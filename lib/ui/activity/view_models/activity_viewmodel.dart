@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
@@ -18,6 +20,7 @@ class ActivityViewModel extends ChangeNotifier {
   final SessionRepository _sessionRepository;
   final TrackingRepository _trackingRepository;
   final TrainingRepository _trainingRepository;
+  final BoostRepository _boostRepository;
 
   static const double minZoomToRender = 6.0;
   static const double maxRenderRadius = 5000.0;
@@ -27,12 +30,18 @@ class ActivityViewModel extends ChangeNotifier {
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
+  Timer? _throttleTimer;
+  double _smoothedBearing = 0.0;
+  static const double _bearingFilterFactor = 0.15;
+  
   Set<String> _lastH3Indexes = {};
   bool _hasCenteredOnFirstPosition = false;
 
   bool get isLocationPermissionGranted => _isLocationPermissionGranted;
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
+
+  double get smoothedBearing => _smoothedBearing;
 
   bool get readyToStart => _trainingConfig != null;
   bool get inActivity => _trackingRepository.isActivityActive;
@@ -72,11 +81,54 @@ class ActivityViewModel extends ChangeNotifier {
   double? get selectedPace => _trainingConfig?.pace;
 
   List<Training> get trainings => _trainingRepository.trainings;
+  List<Boost> get availableBoosts => _boostRepository.userBoostInventory;
 
-  ActivityViewModel(this._sessionRepository, this._trackingRepository, this._trainingRepository) {
+  double get currentAttackMultiplier {
+    final trainingObj = trainings.firstWhere(
+      (t) => t.name == selectedPreTrainingName,
+      orElse: () => trainings.first,
+    );
+    double multiplier = trainingObj.attackPoints;
+    if (selectedBoost != null) {
+      multiplier *= selectedBoost!.effect;
+    }
+    return multiplier;
+  }
+
+  double get currentDefenseMultiplier {
+    final trainingObj = trainings.firstWhere(
+      (t) => t.name == selectedPreTrainingName,
+      orElse: () => trainings.first,
+    );
+    double multiplier = trainingObj.defensePoints;
+    if (selectedBoost != null) {
+      multiplier *= selectedBoost!.effect;
+    }
+    return multiplier;
+  }
+
+  int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
+
+  Boost? _selectedBoost;
+  Boost? get selectedBoost => _selectedBoost;
+  set selectedBoost(Boost? value) {
+    _selectedBoost = value;
+    notifyListeners();
+  }
+
+  ActivityViewModel(
+    this._sessionRepository, 
+    this._trackingRepository, 
+    this._trainingRepository,
+    this._boostRepository,
+  ) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _sessionRepository.addListener(_onSessionStateChanged);
     _trainingRepository.addListener(_onTrainingDataChanged);
+    _boostRepository.addListener(notifyListeners);
+    
+
+    // _boostRepository.fetchAndSetUserBoosts(userId);
   }
 
   void setActivityConfig({
@@ -84,16 +136,19 @@ class ActivityViewModel extends ChangeNotifier {
     required String training,
     required double distance,
     required Duration time,
-    required double pace
+    required double pace,
+    Boost? boost,
   }) {
     selectedPreActivity = activity;
     selectedPreTrainingName = training;
+    selectedBoost = boost;
     _trainingConfig = TrainingConfig(
         activity: activity,
         training: trainings.firstWhere( (tr) => tr.name == training),
         distance: distance,
         time: time,
-        pace: pace
+        pace: pace,
+        boost: boost
     );
     notifyListeners();
   }
@@ -135,6 +190,8 @@ class ActivityViewModel extends ChangeNotifier {
       LocationComponentSettings(
         enabled: true,
         pulsingEnabled: true,
+        puckBearingEnabled: true,
+        puckBearing: PuckBearing.HEADING,
       ),
     );
 
@@ -162,7 +219,7 @@ class ActivityViewModel extends ChangeNotifier {
 
     _viewport = FollowPuckViewportState(
       zoom: 17.0,
-      bearing: FollowPuckViewportStateBearingConstant(currentBearing),
+      bearing: FollowPuckViewportStateBearingHeading(),
       pitch: 0.0,
     );
     notifyListeners();
@@ -170,7 +227,7 @@ class ActivityViewModel extends ChangeNotifier {
 
   void onCameraChanged(CameraChangedEventData data) {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 25), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 50), () {
       _updateH3Grid();
     });
   }
@@ -453,23 +510,35 @@ class ActivityViewModel extends ChangeNotifier {
   }
 
   void _onTrackingDataChanged() async {
+    double delta = currentBearing - _smoothedBearing;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    _smoothedBearing = (_smoothedBearing + (_bearingFilterFactor * delta)) % 360;
+    if (_smoothedBearing < 0) _smoothedBearing += 360;
+
     if (!_hasCenteredOnFirstPosition && userPosition != null) {
       _hasCenteredOnFirstPosition = true;
       centerOnUser();
     }
 
     if (_isMapUpdating) return;
-    _isMapUpdating = true;
 
-    try {
-      if (playingState == PlayingState.playing) {
-        await _updateTrackingPolygon();
+    if (_throttleTimer?.isActive ?? false) return;
+    _throttleTimer = Timer(const Duration(milliseconds: 100), () async {
+      _isMapUpdating = true;
+      try {
+        if (playingState == PlayingState.playing) {
+          await _updateTrackingPolygon();
+          if (viewport == null) {
+            mapTrackUser();
+          }
+        }
+        await _updateH3Grid();
+      } finally {
+        _isMapUpdating = false;
+        notifyListeners();
       }
-      await _updateH3Grid();
-    } finally {
-      _isMapUpdating = false;
-      notifyListeners();
-    }
+    });
   }
 
   void _onSessionStateChanged() {
