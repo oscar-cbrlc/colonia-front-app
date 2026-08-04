@@ -15,6 +15,8 @@ import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/data/services/api/training_service.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/data/services/api/territory_service.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
@@ -38,6 +40,10 @@ void main() {
 
         ProxyProvider<ApiClient, TrainingService>(
           update: (_, apiClient, __) => TrainingService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TerritoryService>(
+          update: (_, apiClient, __) => TerritoryService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -69,6 +75,12 @@ void main() {
           previous ?? TrainingRepository(trainingService: trainingService),
         ),
 
+        ChangeNotifierProxyProvider<TerritoryService, TerritoryRepository>(
+          create: (context) => TerritoryRepository(context.read<TerritoryService>()),
+          update: (_, territoryService, previous) =>
+              previous ?? TerritoryRepository(territoryService),
+        ),
+
         ChangeNotifierProvider<BoostRepository>(
           create: (_) => BoostRepository(),
         ),
@@ -77,9 +89,13 @@ void main() {
           create: (_) => LocationService(),
         ),
 
-        ChangeNotifierProxyProvider<LocationService, TrackingRepository>(
-          create: (context) => TrackingRepository(context.read<LocationService>()),
-          update: (_, locationService, previous) => previous ?? TrackingRepository(locationService),
+        ChangeNotifierProxyProvider2<LocationService, TerritoryRepository, TrackingRepository>(
+          create: (context) => TrackingRepository(
+            context.read<LocationService>(),
+            context.read<TerritoryRepository>(),
+          ),
+          update: (_, locationService, territoryRepository, previous) =>
+              previous ?? TrackingRepository(locationService, territoryRepository),
         ),
 
         ChangeNotifierProxyProvider<TrackingRepository, SessionRepository>(

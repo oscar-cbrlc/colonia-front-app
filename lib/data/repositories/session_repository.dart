@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
@@ -8,13 +11,17 @@ import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:h3_flutter/h3_flutter.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+
 
 class SessionRepository extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
+  //final TrainingRepository? _trainingRepository;
 
   PlayingState _playingState = PlayingState.stopped;
   String _activeActivity = "walk";
   TrainingConfig? _trainingConfig;
+  List<Territory> _affectedTerritories = [];
 
   PlayingState get playingState => _playingState;
   String? get sportActivity => _activeActivity;
@@ -23,6 +30,8 @@ class SessionRepository extends ChangeNotifier {
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
   double get targetPace => _trainingConfig?.pace ?? 0.0;
   Boost? get boost => _trainingConfig?.boost;
+
+  List<Territory> get affectedTerritories => _affectedTerritories;
 
   SessionRepository(this._trackingRepository) {
     _trackingRepository.addListener(_onMetricsUpdated);
@@ -57,45 +66,37 @@ class SessionRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> stopAndSaveSession() async {
-    if (_playingState == PlayingState.stopped) return;
+  Future<TrackingSession?> stopAndSaveSession() async {
+    if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
 
     final double finalDistance = _trackingRepository.totalMetersTracked;
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
-    final List<OnTrackNode> onTrackNodes = _trackingRepository.onTrackNodes;
+    // final List<OnTrackNode> onTrackNodes = _trackingRepository.onTrackNodes;
 
-    // TODO:  use actual team id
-    /*final List<Territory> affectedTerritories = onTrackNodes.map((node) {
-      final h3Index = H3Helper.getHexagonAt(lat: node.lat, lon: node.lon, resolution: GameConfig.h3Resolution);
-      //return Territory(id: h3Index.toString(), teamId: 1, healthPoints: );
-    }).toList();*/
-
-    _trackingRepository.stopActivity();
+    final session = _trackingRepository.stopActivity();
 
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
 
-    // TODO(game_session): retrieve points from DB
+    // TODO: change to attack or defense if territory is from team or not. Change the team is needed
     if (isValid) {
-      const int basePoints = 100;
-      double multiplier = 1.0;
-
-      final trainingType = _trainingConfig?.training.name;
-      if (trainingType == TrainingType.distance.toString()) multiplier = 1.5;
-      if (trainingType == TrainingType.duration.toString()) multiplier = 1.25;
-      if (trainingType == TrainingType.pace.toString()) multiplier = 1.75;
-      if (trainingType == TrainingType.timeTrial.toString()) multiplier = 1.75;
-      if (boost != null) multiplier *= boost!.effect;
-
-
-
-      final double calculatedScore = finalDistance * basePoints * multiplier;
-
-      //await _syncSessionWithServer(vertices, calculatedScore);
+      _affectedTerritories.clear();
+      for (final territory in session.territories) {
+        var newPoints = territory.healthPoints * (boost?.effect ?? 1.0) *  trainingConfig!.training.attackPoints;
+        var ter = Territory(
+            id: territory.id,
+            teamId: territory.teamId,
+            healthPoints: newPoints);
+        _affectedTerritories.add(ter);
+      }
+      session.setTerritories(affectedTerritories);
     }
+
+
 
     _resetSessionData();
     notifyListeners();
+    return session;
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {

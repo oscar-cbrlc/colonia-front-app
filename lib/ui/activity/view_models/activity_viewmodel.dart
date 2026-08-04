@@ -72,6 +72,7 @@ class ActivityViewModel extends ChangeNotifier {
   int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
   double get currentPace => _trackingRepository.currentPace;
   double get averagePace => _trackingRepository.averagePace;
+  double get distanceTilNextNode => _trackingRepository.metersPerEdge - _trackingRepository.edgeMetersTracked;
 
 
   String? get selectedActivity => _trainingConfig?.activity;
@@ -150,6 +151,7 @@ class ActivityViewModel extends ChangeNotifier {
         pace: pace,
         boost: boost
     );
+    _sessionRepository.setupSession(config: _trainingConfig!);
     notifyListeners();
   }
 
@@ -178,7 +180,12 @@ class ActivityViewModel extends ChangeNotifier {
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
     _isLocationPermissionGranted = status.isGranted;
+
     if (_isLocationPermissionGranted) {
+      await Permission.notification.request();
+
+      await Permission.locationAlways.request();
+
       await _enableLocationComponent();
     }
     notifyListeners();
@@ -369,7 +376,7 @@ class ActivityViewModel extends ChangeNotifier {
         id: "tracking-perimeter-line-layer",
         sourceId: "tracking-polygon-source",
         filter: ['==', ['geometry-type'], 'LineString'],
-        lineColor: Colors.blueAccent.value,
+        lineColor: Colors.white.toARGB32(),
         lineWidth: 4.0,
         lineJoin: LineJoin.ROUND,
         lineCap: LineCap.ROUND,
@@ -497,9 +504,19 @@ class ActivityViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onPushStopButton() {
-    _sessionRepository.stopAndSaveSession();
+  Future<Map<String, dynamic>?> onPushStopButton() async {
+    final activity = _trainingConfig?.activity;
+    final trainingName = _trainingConfig?.training.name;
+
+    final session = await _sessionRepository.stopAndSaveSession();
+    if (session == null) return null;
+
     notifyListeners();
+    return {
+      'session': session,
+      'activity': activity,
+      'trainingName': trainingName,
+    };
   }
 
 
@@ -548,6 +565,10 @@ class ActivityViewModel extends ChangeNotifier {
       _updateTrackingPolygon();
     }
     notifyListeners();
+  }
+
+  void finishActivity() {
+
   }
 
   @override

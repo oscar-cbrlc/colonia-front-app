@@ -781,6 +781,8 @@ class _PaceEquilibriumPanel extends StatelessWidget {
   }
 }
 
+
+
 class _ActivityProgressPanel extends StatelessWidget {
   final ActivityViewModel viewModel;
   const _ActivityProgressPanel({required this.viewModel});
@@ -825,7 +827,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                 width: 1.5,
               )
             ),
-            color: AppTheme.darkBackground.withAlpha(240),
+            color: AppTheme.darkBackground.withAlpha(200),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -943,9 +945,16 @@ class _ActivityProgressPanel extends StatelessWidget {
                           color: Colors.redAccent.withAlpha(220),
                           iconColor: Colors.white,
                           borderColor: Colors.redAccent,
-                          onTap: () {
+                          onTap: () async {
                             HapticFeedback.heavyImpact();
-                            viewModel.onPushStopButton();
+                            final result = await viewModel.onPushStopButton();
+                            if (result != null && context.mounted) {
+                              Navigator.pushReplacementNamed(
+                                context, 
+                                '/summary', 
+                                arguments: result
+                              );
+                            }
                           },
                           shape: const StarBorder(
                             side: BorderSide(color: Colors.white, width: 2),

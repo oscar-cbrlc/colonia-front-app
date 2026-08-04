@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/services/location_service.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
+import 'package:colonia_front_app/domain/models/territory.dart';
+import 'package:colonia_front_app/domain/models/training.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -11,6 +15,7 @@ import 'package:colonia_front_app/utils/h3_helper.dart';
 
 class TrackingRepository extends ChangeNotifier {
   final LocationService _locationService;
+  final TerritoryRepository _territoryRepository;
   StreamSubscription<geo.Position>? _positionSubscription;
 
 
@@ -57,9 +62,10 @@ class TrackingRepository extends ChangeNotifier {
   int get totalSecondsElapsed => _totalSecondsElapsed;
   List<OnTrackNode> get onTrackNodes => _onTrackNodes;
 
+  double get edgeMetersTracked => _edgeMetersTracked;
   double get metersPerEdge => GameConfig.minMetersBetweenVertices;
 
-  TrackingRepository(this._locationService) {
+  TrackingRepository(this._locationService, this._territoryRepository) {
     _initPassiveTracking();
   }
 
@@ -72,7 +78,7 @@ class TrackingRepository extends ChangeNotifier {
     if (_isActivityActive) return;
     _isActivityActive = true;
     _isPaused = false;
-    
+
     _totalMetersTracked = 0.0;
     _edgeMetersTracked = 0.0;
     _totalSecondsElapsed = 0;
@@ -123,7 +129,34 @@ class TrackingRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  // TODO: update with user team
   TrackingSession stopActivity() {
+
+    final repeatedCells = _visitedCells.where((c) => _visitedCells.contains(c)).toList();
+    if (repeatedCells.isNotEmpty && _perimeter.isNotEmpty) {
+      final closingPoint = _perimeter.lastWhere((p) {
+        final cell = H3Helper.getHexagonAt(
+          lat: p.lat,
+          lon: p.lon,
+          resolution: GameConfig.h3Resolution,
+        );
+        return cell == repeatedCells.last;
+      }, orElse: () => _perimeter.last);
+      _perimeter.add(closingPoint);
+    }
+
+    final capturedH3Ids = H3Helper.getHexagonsInPolygon(
+      perimeter: _perimeter,
+      resolution: GameConfig.h3Resolution,
+    );
+
+    // TODO: Get actual teamId and health points logic
+    _territoryRepository.claimTerritories(
+      ids: capturedH3Ids,
+      teamId: 1,
+      healthPoints: List.filled(capturedH3Ids.length, 100.0),
+    );
+
     final session = TrackingSession(
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
@@ -131,6 +164,10 @@ class TrackingRepository extends ChangeNotifier {
       averageSpeed: _averageSpeed,
       averagePace: _averagePace,
       nodes: List.from(_onTrackNodes),
+      territories: capturedH3Ids.map((id) {
+        return _territoryRepository.getTerritory(id) ??
+            Territory(id: id, teamId: 1, healthPoints: 100);
+      }).toList(),
     );
 
     _isActivityActive = false;
@@ -256,6 +293,7 @@ class TrackingSession {
   final double averageSpeed;
   final double averagePace;
   final List<OnTrackNode> nodes;
+  List<Territory> _territories;
 
   TrackingSession({
     required this.route,
@@ -264,5 +302,31 @@ class TrackingSession {
     required this.averageSpeed,
     required this.averagePace,
     required this.nodes,
-  });
+    required List<Territory> territories,
+  }) : _territories = territories;
+
+  List<Territory> get territories => _territories;
+
+  void setTerritories(List<Territory> territories) {
+    _territories = territories;
+  }
+
+  Point? get routeCenter {
+    if (route.isEmpty) return null;
+
+    double minLat = route.map((coord) {
+      return coord.lat;
+    }).toList().reduce(min);
+    double minLon = route.map((coord) {
+      return coord.lon;
+    }).toList().reduce(min);
+    double maxLat = route.map((coord) {
+      return coord.lat;
+    }).toList().reduce(max);
+    double maxLon = route.map((coord) {
+      return coord.lon;
+    }).toList().reduce(max);
+
+    return Point(coordinates: Position((minLon + maxLon) / 2, (minLat + maxLat) / 2));
+  }
 }

@@ -2,6 +2,8 @@ import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
+import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
+import 'package:colonia_front_app/ui/activity/widgets/activity_summary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,9 +38,29 @@ class AppRouter {
   static const String navigation = '/navigation';
   static const String map = '/map';
   static const String activity = "/activity";
+  static const String summary = "/summary";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+
+      case summary:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final session = args?['session'] as TrackingSession;
+        final activity = args?['activity'] as String? ?? 'walk';
+        final trainingName = args?['trainingName'] as String? ?? 'free';
+
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
+            create: (context) => ActivitySummaryViewModel(
+              session: session,
+              activity: activity,
+              trainingName: trainingName,
+            ),
+            child: Consumer<ActivitySummaryViewModel>(
+              builder: (context, viewModel, _) => ActivitySummaryScreen(viewModel: viewModel),
+            ),
+          ),
+        );
       case welcome:
         return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<WelcomeViewModel>(

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:geolocator/geolocator.dart' as geo;
 
 class LocationService {
@@ -36,12 +37,38 @@ class LocationService {
         permission == geo.LocationPermission.whileInUse;
   }
 
-  Stream<geo.Position> get positionStream => geo.Geolocator.getPositionStream(
-    locationSettings: const geo.LocationSettings(
-      accuracy: geo.LocationAccuracy.high,
-      distanceFilter: 1,
-    ),
-  );
+  Stream<geo.Position> get positionStream {
+    geo.LocationSettings locationSettings;
+
+    if (Platform.isAndroid) {
+      locationSettings = geo.AndroidSettings(
+        accuracy: geo.LocationAccuracy.high,
+        distanceFilter: 1,
+        forceLocationManager: false,
+        intervalDuration: const Duration(seconds: 5),
+        foregroundNotificationConfig: const geo.ForegroundNotificationConfig(
+          notificationText: "Colonia is tracking your workout",
+          notificationTitle: "Tracking Active",
+          enableWakeLock: true,
+          setOngoing: true,
+        ),
+      );
+    } else if (Platform.isIOS || Platform.isMacOS) {
+      locationSettings = geo.AppleSettings(
+        accuracy: geo.LocationAccuracy.high,
+        distanceFilter: 1,
+        pauseLocationUpdatesAutomatically: false,
+        showBackgroundLocationIndicator: true,
+      );
+    } else {
+      locationSettings = const geo.LocationSettings(
+        accuracy: geo.LocationAccuracy.high,
+        distanceFilter: 1,
+      );
+    }
+
+    return geo.Geolocator.getPositionStream(locationSettings: locationSettings);
+  }
 
   double distanceBetween(
     double startLatitude,
