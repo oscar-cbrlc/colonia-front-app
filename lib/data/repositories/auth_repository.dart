@@ -11,6 +11,9 @@ class UserNotFoundException implements Exception {
 }
 
 class AuthRepository extends ChangeNotifier {
+  static AuthRepository? _instance;
+  static AuthRepository get instance => _instance!;
+
   final AuthService _authService;
   final FlutterSecureStorage _secureStorage;
 
@@ -24,7 +27,9 @@ class AuthRepository extends ChangeNotifier {
   AuthRepository(
       this._authService, {
         FlutterSecureStorage? secureStorage,
-      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage();
+      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage() {
+    _instance = this;
+  }
 
   Future<User> getUserByEmail(String email) async {
 
