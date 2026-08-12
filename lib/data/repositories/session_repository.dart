@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:colonia_front_app/config/game_config.dart';
-import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
@@ -10,18 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
-import 'package:h3_flutter/h3_flutter.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
 
 class SessionRepository extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
-  //final TrainingRepository? _trainingRepository;
+  final TerritoryRepository _territoryRepository;
 
   PlayingState _playingState = PlayingState.stopped;
   String _activeActivity = "walk";
   TrainingConfig? _trainingConfig;
   List<Territory> _affectedTerritories = [];
+  double _accumulatedImpactPoints = 0.0;
 
   PlayingState get playingState => _playingState;
   String? get sportActivity => _activeActivity;
@@ -30,11 +29,35 @@ class SessionRepository extends ChangeNotifier {
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
   double get targetPace => _trainingConfig?.pace ?? 0.0;
   Boost? get boost => _trainingConfig?.boost;
+  double get accumulatedImpactPoints => _accumulatedImpactPoints;
 
   List<Territory> get affectedTerritories => _affectedTerritories;
 
-  SessionRepository(this._trackingRepository) {
+  SessionRepository(this._trackingRepository, this._territoryRepository) {
     _trackingRepository.addListener(_onMetricsUpdated);
+    _trackingRepository.onNodeCompleted = _handleNodeCompleted;
+  }
+
+  void _handleNodeCompleted(OnTrackNode node) {
+    if (_trainingConfig == null || _playingState != PlayingState.playing) return;
+
+    final cellId = H3Helper.getHexagonAt(
+      lat: node.lat,
+      lon: node.lon,
+      resolution: GameConfig.h3Resolution,
+    );
+
+    final baseEffect = GameConfig.basePointsEffect;
+    final baseDamage = _trainingConfig!.training.attackPoints;
+    final boostEffect = boost?.effect ?? 1.0;
+    final totalEffect = baseEffect * baseDamage * boostEffect;
+    _accumulatedImpactPoints += totalEffect;
+
+    _trackingRepository.updateLastNodePoints(totalEffect);
+
+    _territoryRepository.impactTerritory(id: cellId, points: totalEffect);
+
+    notifyListeners();
   }
 
   void setupSession({
@@ -48,6 +71,7 @@ class SessionRepository extends ChangeNotifier {
   void startGame() {
     if (_playingState == PlayingState.playing) return;
     _playingState = PlayingState.playing;
+    _accumulatedImpactPoints = 0.0;
     _trackingRepository.startActivity();
     notifyListeners();
   }
@@ -72,27 +96,14 @@ class SessionRepository extends ChangeNotifier {
 
     final double finalDistance = _trackingRepository.totalMetersTracked;
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
-    // final List<OnTrackNode> onTrackNodes = _trackingRepository.onTrackNodes;
 
     final session = _trackingRepository.stopActivity();
-
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
+    session.isSuccess = isValid;
 
-    // TODO: change to attack or defense if territory is from team or not. Change the team is needed
     if (isValid) {
-      _affectedTerritories.clear();
-      for (final territory in session.territories) {
-        var newPoints = territory.healthPoints * (boost?.effect ?? 1.0) *  trainingConfig!.training.attackPoints;
-        var ter = Territory(
-            id: territory.id,
-            teamId: territory.teamId,
-            healthPoints: newPoints);
-        _affectedTerritories.add(ter);
-      }
-      session.setTerritories(affectedTerritories);
+      _affectedTerritories = List.from(session.territories);
     }
-
-
 
     _resetSessionData();
     notifyListeners();
@@ -100,27 +111,32 @@ class SessionRepository extends ChangeNotifier {
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
-    // TODO: verify with ML model
-    final trainingType = _trainingConfig?.training.name;
-    if (trainingType == TrainingType.free.toString() || trainingType == null) {
+    final trainingName = _trainingConfig?.training.name.toLowerCase();
+    
+    if (trainingName == "free" || trainingName == null) {
       return true;
     }
-    if (trainingType == TrainingType.distance.toString()) {
+    
+    if (trainingName == "distance") {
       return actualDistanceMeters >= targetDistance;
     }
-    if (trainingType == TrainingType.duration.toString()) {
+    
+    if (trainingName == "time" || trainingName == "duration") {
       return actualSeconds >= targetDuration.inSeconds;
     }
-    if (trainingType == TrainingType.pace.toString()) {
-      final actualPace = actualSeconds / (actualDistanceMeters / 1000);
-      return
-        targetPace * (1-GameConfig.validPaceRange) <= actualPace
-            && targetPace * (1+GameConfig.validPaceRange) >= actualPace;
+    
+    if (trainingName == "pace") {
+      if (actualDistanceMeters < 50) return false;
+      final actualPace = (actualSeconds / 60) / (actualDistanceMeters / 1000);
+      return actualPace >= (targetPace * (1.0 - GameConfig.validPaceRange)) &&
+             actualPace <= (targetPace * (1.0 + GameConfig.validPaceRange));
     }
-    if (trainingType == TrainingType.timeTrial.toString()) {
+    
+    if (trainingName == "timetrial") {
       return actualDistanceMeters >= targetDistance &&
-          actualSeconds <= targetDuration.inSeconds;
+             actualSeconds <= targetDuration.inSeconds;
     }
+    
     return true;
   }
 
@@ -130,12 +146,6 @@ class SessionRepository extends ChangeNotifier {
 
   void _resetSessionData() {
     _trainingConfig = null;
-  }
-
-
-
-  Future<void> _syncSessionWithServer(List<GeoCoord> path, double score) async {
-    // TODO: API Send
   }
 
   @override

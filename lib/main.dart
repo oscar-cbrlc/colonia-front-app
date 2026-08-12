@@ -98,9 +98,13 @@ void main() {
               previous ?? TrackingRepository(locationService, territoryRepository),
         ),
 
-        ChangeNotifierProxyProvider<TrackingRepository, SessionRepository>(
-          create: (context) => SessionRepository(context.read<TrackingRepository>()),
-          update: (_, trackingRepository, previous) => previous ?? SessionRepository(trackingRepository),
+        ChangeNotifierProxyProvider2<TrackingRepository, TerritoryRepository, SessionRepository>(
+          create: (context) => SessionRepository(
+            context.read<TrackingRepository>(),
+            context.read<TerritoryRepository>(),
+          ),
+          update: (_, trackingRepository, territoryRepository, previous) => 
+              previous ?? SessionRepository(trackingRepository, territoryRepository),
         ),
       ],
       child: const ColoniaApp(),

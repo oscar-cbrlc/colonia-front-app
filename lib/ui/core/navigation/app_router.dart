@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
@@ -133,6 +134,7 @@ class AppRouter {
           builder: (context) => ChangeNotifierProvider<MapViewModel>(
             create: (context) => MapViewModel(
               context.read<TrackingRepository>(),
+              context.read<TerritoryRepository>(),
             ),
             child: const MainNavigationScreen(),
           ),
@@ -146,6 +148,7 @@ class AppRouter {
               context.read<TrackingRepository>(),
               context.read<TrainingRepository>(),
               context.read<BoostRepository>(),
+              context.read<TerritoryRepository>(),
             ),
             child: Consumer<ActivityViewModel>(
               builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),

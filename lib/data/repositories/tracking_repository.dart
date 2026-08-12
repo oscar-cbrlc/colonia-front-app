@@ -4,7 +4,6 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/services/location_service.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
-import 'package:colonia_front_app/domain/models/training.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -18,7 +17,6 @@ class TrackingRepository extends ChangeNotifier {
   final TerritoryRepository _territoryRepository;
   StreamSubscription<geo.Position>? _positionSubscription;
 
-
   bool _isActivityActive = false;
   bool _isPaused = false;
 
@@ -28,245 +26,208 @@ class TrackingRepository extends ChangeNotifier {
 
   final List<GeoCoord> _perimeter = [];
   final Set<String> _visitedCells = {};
-  GeoCoord? _pausedPosition;
-  GeoCoord? _temporaryPauseLineEnd;
+  final List<OnTrackNode> _onTrackNodes = [];
 
   double _totalMetersTracked = 0.0;
-  double _edgeMetersTracked = 0.0;
+  double _metersSinceLastPerimeterPoint = 0.0;
+  double _metersSinceLastNode = 0.0;
   int _totalSecondsElapsed = 0;
   DateTime? _lastTrackTime;
-  double _currentSpeed = 0.0; // m/s
-  double _averageSpeed = 0.0; // m/s
-  double _currentPace = 0.0; // min/km
-  double _averagePace = 0.0; // min/km
+  double _currentSpeed = 0.0; 
+  double _averagePace = 0.0; 
   Timer? _gameTimer;
-  List<OnTrackNode> _onTrackNodes = [];
+  Timer? _routineTimer;
 
+  void Function(OnTrackNode node)? onNodeCompleted;
   geo.Position? _lastRecordedPosition;
+  int _pingsToSkip = 0;
 
   bool get isActivityActive => _isActivityActive;
   bool get isPaused => _isPaused;
-  
   Point? get userPosition => _userPosition;
   double get currentBearing => _currentBearing;
   String? get currentCell => _currentCell;
-  
   List<GeoCoord> get perimeter => _perimeter;
   Set<String> get visitedCells => _visitedCells;
-  GeoCoord? get temporaryPauseLineEnd => _temporaryPauseLineEnd;
   double get totalMetersTracked => _totalMetersTracked;
-  double get currentSpeed => _currentSpeed;
-  double get averageSpeed => _averageSpeed;
-  double get currentPace => _currentPace;
+  double get currentPace => _currentSpeed > 0.1 ? (16.6667 / _currentSpeed) : 0.0;
   double get averagePace => _averagePace;
   int get totalSecondsElapsed => _totalSecondsElapsed;
   List<OnTrackNode> get onTrackNodes => _onTrackNodes;
-
-  double get edgeMetersTracked => _edgeMetersTracked;
-  double get metersPerEdge => GameConfig.minMetersBetweenVertices;
+  double get metersSinceLastNode => _metersSinceLastNode;
 
   TrackingRepository(this._locationService, this._territoryRepository) {
     _initPassiveTracking();
   }
 
-  void _initPassiveTracking() {
+  void _initPassiveTracking() async {
     _positionSubscription?.cancel();
     _positionSubscription = _locationService.positionStream.listen(_onLocationReceived);
   }
 
+  void refreshTracking() => _initPassiveTracking();
+
+  Future<void> updateCurrentPosition() async {
+    try {
+      final pos = await _locationService.getCurrentPosition();
+      _onLocationReceived(pos);
+    } catch (_) {}
+  }
+
   void startActivity() {
-    if (_isActivityActive) return;
     _isActivityActive = true;
     _isPaused = false;
-
-    _totalMetersTracked = 0.0;
-    _edgeMetersTracked = 0.0;
+    _totalMetersTracked = 0;
+    _metersSinceLastNode = 0;
+    _metersSinceLastPerimeterPoint = 0;
     _totalSecondsElapsed = 0;
     _perimeter.clear();
+    _onTrackNodes.clear();
     _visitedCells.clear();
-    _pausedPosition = null;
-    _lastTrackTime = null;
-    _currentSpeed = 0.0;
-    _averageSpeed = 0.0;
-    _currentPace = 0.0;
-    _averagePace = 0.0;
-    _temporaryPauseLineEnd = null;
     _lastRecordedPosition = null;
-    _onTrackNodes = [];
-
+    _lastTrackTime = DateTime.now();
+    _pingsToSkip = 0;
     _startTimer();
+    _startRoutinePolling();
     notifyListeners();
   }
 
-  void pauseActivity() {
-    if (!_isActivityActive || _isPaused) return;
-    _isPaused = true;
-
-    if (_lastRecordedPosition != null) {
-      _pausedPosition = GeoCoord(
-        lat: _lastRecordedPosition!.latitude,
-        lon: _lastRecordedPosition!.longitude,
-      );
-    }
-
-    _gameTimer?.cancel();
-    notifyListeners();
+  void _startRoutinePolling() {
+    _routineTimer?.cancel();
+    _routineTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_isActivityActive && !_isPaused) {
+        updateCurrentPosition();
+      }
+    });
   }
 
-  void resumeActivity() {
-    if (!_isActivityActive || !_isPaused) return;
-    _isPaused = false;
-
-    _lastRecordedPosition = null;
-
-    if (_pausedPosition != null) {
-      _perimeter.add(_pausedPosition!);
-      _pausedPosition = null;
-      _temporaryPauseLineEnd = null;
-    }
-
-    _startTimer();
-    notifyListeners();
-  }
-
-  // TODO: update with user team
   TrackingSession stopActivity() {
-
-    final repeatedCells = _visitedCells.where((c) => _visitedCells.contains(c)).toList();
-    if (repeatedCells.isNotEmpty && _perimeter.isNotEmpty) {
-      final closingPoint = _perimeter.lastWhere((p) {
-        final cell = H3Helper.getHexagonAt(
-          lat: p.lat,
-          lon: p.lon,
-          resolution: GameConfig.h3Resolution,
-        );
-        return cell == repeatedCells.last;
-      }, orElse: () => _perimeter.last);
-      _perimeter.add(closingPoint);
-    }
-
-    final capturedH3Ids = H3Helper.getHexagonsInPolygon(
-      perimeter: _perimeter,
-      resolution: GameConfig.h3Resolution,
-    );
-
-    // TODO: Get actual teamId and health points logic
-    _territoryRepository.claimTerritories(
-      ids: capturedH3Ids,
-      teamId: 1,
-      healthPoints: List.filled(capturedH3Ids.length, 100.0),
-    );
+    _isActivityActive = false;
+    _gameTimer?.cancel();
+    _routineTimer?.cancel();
 
     final session = TrackingSession(
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
       durationSeconds: _totalSecondsElapsed,
-      averageSpeed: _averageSpeed,
       averagePace: _averagePace,
       nodes: List.from(_onTrackNodes),
-      territories: capturedH3Ids.map((id) {
-        return _territoryRepository.getTerritory(id) ??
-            Territory(id: id, teamId: 1, healthPoints: 100);
-      }).toList(),
+      territories: _visitedCells.map((id) => 
+        _territoryRepository.getTerritoryOrDefault(id)
+      ).toList(),
     );
-
-    _isActivityActive = false;
-    _isPaused = false;
-    _gameTimer?.cancel();
-    _gameTimer = null;
 
     notifyListeners();
     return session;
   }
 
-  Future<void> updateCurrentPosition() async {
-    try {
-      final position = await _locationService.getCurrentPosition();
-      _onLocationReceived(position);
-    } catch (e) {
-      debugPrint('TrackingRepository: Error getting current position: $e');
+  void updateLastNodePoints(double points) {
+    if (_onTrackNodes.isNotEmpty) {
+      final lastIdx = _onTrackNodes.length - 1;
+      final lastNode = _onTrackNodes[lastIdx];
+      _onTrackNodes[lastIdx] = OnTrackNode(
+        lat: lastNode.lat,
+        lon: lastNode.lon,
+        pace: lastNode.pace,
+        points: points,
+        timestamp: lastNode.timestamp,
+      );
+      notifyListeners();
     }
   }
 
   void _onLocationReceived(geo.Position position) {
-    _userPosition = Point(coordinates: Position(position.longitude, position.latitude));
-    _currentBearing = position.heading;
-
-    _currentCell = H3Helper.getHexagonAt(
-      lat: position.latitude,
-      lon: position.longitude,
-      resolution: GameConfig.h3Resolution,
-    );
-
-    if (!_isActivityActive) {
-      notifyListeners();
-      return;
+    if (position.accuracy < 30.0) {
+        _userPosition = Point(coordinates: Position(position.longitude, position.latitude));
+        _currentBearing = position.heading;
+        _currentCell = H3Helper.getHexagonAt(lat: position.latitude, lon: position.longitude, resolution: GameConfig.h3Resolution);
     }
 
-    if (_isPaused) {
-      _temporaryPauseLineEnd = GeoCoord(
-        lat: position.latitude,
-        lon: position.longitude,
-      );
-      notifyListeners();
+    if (position.accuracy > 15.0) {
+      notifyListeners(); 
       return;
     }
 
     final now = DateTime.now();
-    
-    if (_currentCell != null) {
-      _visitedCells.add(_currentCell!);
+    if (now.difference(position.timestamp).inSeconds > 3) {
+      notifyListeners();
+      return;
+    }
+
+    if (!_isActivityActive || _isPaused) {
+      notifyListeners();
+      return;
+    }
+
+    if (_pingsToSkip > 0) {
+      _lastRecordedPosition = position;
+      _lastTrackTime = now;
+      _pingsToSkip--;
+      notifyListeners();
+      return;
     }
 
     if (_lastRecordedPosition != null) {
-      double distanceDelta = geo.Geolocator.distanceBetween(
-        _lastRecordedPosition!.latitude,
-        _lastRecordedPosition!.longitude,
-        position.latitude,
-        position.longitude,
+      double delta = geo.Geolocator.distanceBetween(
+        _lastRecordedPosition!.latitude, _lastRecordedPosition!.longitude,
+        position.latitude, position.longitude
       );
 
-      if (distanceDelta > 0.5) {
-        _totalMetersTracked += distanceDelta;
-        _edgeMetersTracked += distanceDelta;
+      double reportedSpeed = position.speed;
+      double timeElapsed = now.difference(_lastTrackTime!).inMilliseconds / 1000.0;
 
-        if (_lastTrackTime != null) {
-          final timeDelta = now.difference(_lastTrackTime!).inMilliseconds / 1000.0;
-          if (timeDelta > 0) {
-            _currentSpeed = distanceDelta / timeDelta;
-            _currentPace = _currentSpeed > 0.1 ? (16.6667 / _currentSpeed) : 0.0;
-          }
-        }
+      bool isMovementValid = false;
+      
+      if (delta < position.accuracy) {
+          notifyListeners();
+          return;
+      }
 
-        if (_totalSecondsElapsed > 0) {
-          _averageSpeed = _totalMetersTracked / _totalSecondsElapsed;
-          _averagePace = _averageSpeed > 0.1 ? (16.6667 / _averageSpeed) : 0.0;
-        }
+      if (reportedSpeed < 0.5) {
+        if (delta > 10.0) isMovementValid = true;
+      } else {
+        if (delta > 2.5) isMovementValid = true;
+      }
 
-        if (_edgeMetersTracked >= metersPerEdge) {
+      if (isMovementValid) {
+        _totalMetersTracked += delta;
+        _metersSinceLastPerimeterPoint += delta;
+        _metersSinceLastNode += delta;
+        _currentSpeed = delta / max(1.0, timeElapsed);
+        
+        double avgSpeed = _totalMetersTracked / max(1, _totalSecondsElapsed);
+        _averagePace = avgSpeed > 0.1 ? (16.6667 / avgSpeed) : 0.0;
+
+        if (_metersSinceLastPerimeterPoint >= GameConfig.minMetersBetweenTracking) {
           _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
-          _edgeMetersTracked = 0.0;
+          _metersSinceLastPerimeterPoint = 0;
         }
 
-        _onTrackNodes.add(OnTrackNode(
-          lat: position.latitude,
-          lon: position.longitude,
-          pace: _currentPace,
-          timestamp: now,
-        ));
+        if (_metersSinceLastNode >= GameConfig.minMetersBetweenNodes) {
+          final node = OnTrackNode(
+            lat: position.latitude, 
+            lon: position.longitude, 
+            pace: currentPace, 
+            points: 0,
+            timestamp: now
+          );
+          if (_currentCell != null) _visitedCells.add(_currentCell!);
+          _onTrackNodes.add(node);
+          
+          _metersSinceLastNode -= GameConfig.minMetersBetweenNodes;
+
+          onNodeCompleted?.call(node);
+        }
+        
+        _lastRecordedPosition = position;
+        _lastTrackTime = now;
       }
     } else {
+      _lastRecordedPosition = position;
+      _lastTrackTime = now;
       _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
-      _onTrackNodes.add(OnTrackNode(
-        lat: position.latitude,
-        lon: position.longitude,
-        pace: 0.0,
-        timestamp: now,
-      ));
     }
 
-    _lastTrackTime = now;
-    _lastRecordedPosition = position;
     notifyListeners();
   }
 
@@ -282,7 +243,24 @@ class TrackingRepository extends ChangeNotifier {
   void dispose() {
     _positionSubscription?.cancel();
     _gameTimer?.cancel();
+    _routineTimer?.cancel();
     super.dispose();
+  }
+
+  void pauseActivity() {
+    _isPaused = true;
+    _gameTimer?.cancel();
+    _routineTimer?.cancel();
+    notifyListeners();
+  }
+
+  void resumeActivity() {
+    _isPaused = false;
+    _pingsToSkip = 2;
+    _lastTrackTime = DateTime.now();
+    _startTimer();
+    _startRoutinePolling();
+    notifyListeners();
   }
 }
 
@@ -290,43 +268,31 @@ class TrackingSession {
   final List<GeoCoord> route;
   final double totalDistance;
   final int durationSeconds;
-  final double averageSpeed;
   final double averagePace;
   final List<OnTrackNode> nodes;
-  List<Territory> _territories;
+  List<Territory> territories;
+  bool isSuccess; 
+  double impactPoints;
 
   TrackingSession({
     required this.route,
     required this.totalDistance,
     required this.durationSeconds,
-    required this.averageSpeed,
     required this.averagePace,
     required this.nodes,
-    required List<Territory> territories,
-  }) : _territories = territories;
+    required this.territories,
+    this.isSuccess = true,
+    this.impactPoints = 0.0,
+  });
 
-  List<Territory> get territories => _territories;
-
-  void setTerritories(List<Territory> territories) {
-    _territories = territories;
-  }
+  void setTerritories(List<Territory> newTerritories) => territories = newTerritories;
 
   Point? get routeCenter {
     if (route.isEmpty) return null;
-
-    double minLat = route.map((coord) {
-      return coord.lat;
-    }).toList().reduce(min);
-    double minLon = route.map((coord) {
-      return coord.lon;
-    }).toList().reduce(min);
-    double maxLat = route.map((coord) {
-      return coord.lat;
-    }).toList().reduce(max);
-    double maxLon = route.map((coord) {
-      return coord.lon;
-    }).toList().reduce(max);
-
+    double minLat = route.map((c) => c.lat).reduce(min);
+    double maxLat = route.map((c) => c.lat).reduce(max);
+    double minLon = route.map((c) => c.lon).reduce(min);
+    double maxLon = route.map((c) => c.lon).reduce(max);
     return Point(coordinates: Position((minLon + maxLon) / 2, (minLat + maxLat) / 2));
   }
 }
