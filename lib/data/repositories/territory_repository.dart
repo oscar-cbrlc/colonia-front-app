@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/data/services/api/territory_service.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
@@ -34,68 +37,55 @@ class TerritoryRepository extends ChangeNotifier {
     }
   }
 
-  Future<Territory> claimTerritory({
-    required String territoryId,
-    required int teamId,
-    required double healthPoints,
-  }) async {
+  Future<void> fetchAllTerritories() async {
     try {
-      final response = await _territoryService.claimTerritory(territoryId, teamId, healthPoints);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final updatedTerritory = Territory.fromJson(data);
-        _territories[territoryId] = updatedTerritory;
-        notifyListeners();
-        return updatedTerritory;
-      }
-    } catch (e) {
-      debugPrint('TerritoryRepository: Error claiming territory: $e');
-      rethrow;
-    }
-    throw Exception('Failed to claim territory');
-  }
-
-  Future<List<Territory>> claimTerritories({
-    required List<String> ids,
-    required int teamId,
-    required List<double> healthPoints,
-  }) async {
-    try {
-      final response = await _territoryService.claimTerritories(ids, teamId, healthPoints);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final List<dynamic> data = jsonDecode(response.body);
-        final updatedTerritories = data.map((json) => Territory.fromJson(json)).toList();
-        for (var territory in updatedTerritories) {
-          _territories[territory.id] = territory;
-        }
-        notifyListeners();
-        return updatedTerritories;
-      }
-    } catch (e) {
-      debugPrint('TerritoryRepository: Error claiming territories: $e');
-      rethrow;
-    }
-    throw Exception('Failed to claim territories');
-  }
-
-  Future<void> updateTerritoryHealth({
-    required String territoryId,
-    required double healthDelta,
-  }) async {
-    try {
-      final response = await _territoryService.updateTerritoryHealth(territoryId, healthDelta);
+      final response = await _territoryService.getAllTerritories();
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final updatedTerritory = Territory.fromJson(data);
-        _territories[territoryId] = updatedTerritory;
+        final List<dynamic> data = jsonDecode(response.body);
+        _territories = {
+          for (var json in data) json['territory_id'] as String: Territory.fromJson(json)
+        };
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('TerritoryRepository: Error updating territory health: $e');
+      debugPrint('TerritoryRepository: Error fetching all territories: $e');
     }
   }
 
-  Territory? getTerritory(String id) => _territories[id];
+  Territory getTerritoryOrDefault(String id) {
+    return _territories[id] ?? Territory(
+      id: id,
+      teamId: 0,
+      healthPoints: GameConfig.baseTerritoryHealth,
+    );
+  }
+
+  double impactTerritory({
+    required String id,
+    required double points,
+  })  {
+    var territory = getTerritoryOrDefault(id);
+    double newHealth;
+    int newTeamId = territory.teamId;
+
+    if (AuthRepository.instance.currentUser?.userTeam != null && territory.teamId == AuthRepository.instance.currentUser!.userTeam) {
+      newHealth = min(GameConfig.maxTerritoryHealth, territory.healthPoints + points);
+    } else {
+      newHealth = territory.healthPoints - points;
+      if (newHealth < 0) {
+        newHealth = min(GameConfig.maxTerritoryHealth, GameConfig.baseTerritoryHealth + newHealth.abs());
+        newTeamId = AuthRepository.instance.currentUser?.userTeam ?? 0;
+      }
+    }
+    
+    final updatedTerritory = territory.copyWith(
+      healthPoints: newHealth,
+      teamId: newTeamId,
+    );
+    _territories[id] = updatedTerritory;
+    notifyListeners();
+    return updatedTerritory.healthPoints;
+  }
 
   void clearCache() {
     _territories.clear();
