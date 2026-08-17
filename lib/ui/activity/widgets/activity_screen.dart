@@ -19,134 +19,6 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  Widget get _activityGroup => Visibility(
-      visible: widget.viewModel.playingState != PlayingState.playing,
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 48.0, right: 16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Transform.translate(
-                  offset: const Offset(17, -41),
-                  child: _FloatingHexMenu(
-                    mainIcon: Icons.shield_rounded,
-                    mainIconPressed: Icons.close,
-                    mainColor: AppTheme.tertiaryColor.withAlpha(90),
-                    mainIconColor: AppTheme.primaryColor,
-                    mainBorderColor: AppTheme.tertiaryColor,
-                    menuColor: AppTheme.tertiaryColor.withAlpha(10),
-                    menuIconColor: AppTheme.tertiaryColor,
-                    menuBorderColor: AppTheme.primaryColor,
-                    menuItems: [
-                      _MenuAction(
-                        icon: Icons.shield_rounded,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-
-                        },
-                      ),
-                      _MenuAction(
-                        icon: Icons.edit,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-
-                        },
-                      ),
-                      _MenuAction(
-                        icon: Icons.shield_sharp,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _FloatingHexMenu(
-                      mainIcon: Icons.timeline_sharp,
-                      mainIconPressed: Icons.close,
-                      mainColor: AppTheme.tertiaryColor.withAlpha(90),
-                      mainIconColor: AppTheme.primaryColor,
-                      mainBorderColor: AppTheme.tertiaryColor,
-                      menuColor: AppTheme.tertiaryColor.withAlpha(10),
-                      menuIconColor: AppTheme.tertiaryColor,
-                      menuBorderColor: AppTheme.primaryColor,
-                      menuItems: [
-                        _MenuAction(
-                          icon: Icons.timeline_sharp,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-
-                          },
-                        ),
-                        _MenuAction(
-                          icon: Icons.timer,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-
-                          },
-                        ),
-                        _MenuAction(
-                          icon: Icons.linear_scale_rounded,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-
-                          },
-                        ),
-                      ],
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -10),
-                      child: _FloatingHexMenu (
-                        mainIcon: Icons.directions_walk,
-                        mainIconPressed: Icons.close,
-                        mainColor: AppTheme.tertiaryColor.withAlpha(90),
-                        mainIconColor: AppTheme.primaryColor,
-                        mainBorderColor: AppTheme.tertiaryColor,
-                        menuColor: AppTheme.tertiaryColor.withAlpha(10),
-                        menuIconColor: AppTheme.tertiaryColor,
-                        menuBorderColor: AppTheme.primaryColor,
-                        menuItems: [
-                          _MenuAction(
-                            icon: Icons.directions_walk,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-
-                            },
-                          ),
-                          _MenuAction(
-                            icon: Icons.directions_run,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-
-                            },
-                          ),
-                          _MenuAction(
-                            icon: Icons.directions_bike,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      )
-  );
-
 
   @override
   void initState() {
@@ -162,6 +34,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
+    
     return ListenableBuilder(
       listenable: widget.viewModel,
       builder: (context, _) {
@@ -173,29 +46,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
               onMapCreated: widget.viewModel.onMapCreated,
               onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
               onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-              viewport: widget.viewModel.viewport ?? mapbox.CameraViewportState(
-                center: mapbox.Point(coordinates: mapbox.Position(0, 0)),
-                zoom: 12.0,
-              ),
+              viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
+                center: widget.viewModel.userPosition!,
+                zoom: 17.0,
+              ) : null),
             ),
 
-            Align(
-              alignment: Alignment.topLeft,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    behavior: HitTestBehavior.opaque,
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: AppTheme.primaryColor,
-                      size: 32.0,
+            if (widget.viewModel.playingState == PlayingState.stopped)
+              Align(
+                alignment: Alignment.topLeft,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      behavior: HitTestBehavior.opaque,
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: AppTheme.primaryColor,
+                        size: 32.0,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
             Align(
               alignment: Alignment.topRight,
@@ -215,8 +89,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ),
 
-            //_activityGroup,
-
+            if (widget.viewModel.playingState != PlayingState.stopped)
+              Align(
+                alignment: Alignment.topCenter,
+                child: _NextImpactPanel(viewModel: widget.viewModel),
+              ),
+            
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.bottomCenter,
@@ -284,7 +162,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
       builder: (context) => _ActivitySelectorSheet(viewModel: widget.viewModel),
     );
   }
-
 }
 
 class _PreActivityOverview extends StatelessWidget {
@@ -478,9 +355,9 @@ class _DistanceProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final double targetDistance = viewModel.selectedDistance ?? 0.0;
-        final double progress = targetDistance > 0
-            ? (viewModel.totalMetersTracked / targetDistance)
+        final double targetDistanceMeters = viewModel.selectedDistanceMeters;
+        final double progress = targetDistanceMeters > 0
+            ? (viewModel.totalMetersTracked / targetDistanceMeters)
             : 0.0;
 
         return Column(
@@ -515,9 +392,9 @@ class _DistanceProgressPanel extends StatelessWidget {
                     decoration: TextDecoration.none
                   ),
                 ),
-                if (targetDistance > 0)
+                if (targetDistanceMeters > 0)
                   Text(
-                    "${((targetDistance - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM REMAINING",
+                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM REMAINING",
                     style: const TextStyle(
                       color: Colors.white54,
                       fontWeight: FontWeight.bold,
@@ -674,7 +551,10 @@ class _PaceBarEquilibrium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (targetPace <= 0) return const SizedBox.shrink();
+
     final double diff = (pace - targetPace);
+
     final double normalizedPosition = (0.5 + (diff / (targetPace * GameConfig.validPaceRange)));
     final double currentPos = normalizedPosition.clamp(0.0, 1.0);
     final int activeIndex = (currentPos * segments).floor().clamp(0, segments - 1);
@@ -781,7 +661,56 @@ class _PaceEquilibriumPanel extends StatelessWidget {
   }
 }
 
+class _NextImpactPanel extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _NextImpactPanel({required this.viewModel});
 
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return ListenableBuilder(
+        listenable: viewModel,
+        builder: (context, _) {
+          final String distanceLeft = "${viewModel.distanceTilNextNode} M";
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: ShapeDecoration(
+              shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+                  side: BorderSide(
+                    color: AppTheme.primaryColor.withAlpha(150),
+                    width: 1,
+                  ),
+              ),
+              color: AppTheme.darkBackground.withAlpha(200),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 24),
+
+                Text(
+                  locale.nextImpact.toUpperCase(),
+                  style: TextStyle(color: AppTheme.primaryColor.withAlpha(240), fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _StatDisplay(
+                      value: viewModel.distanceTilNextNode.toString(),
+                      unit: "M"
+                    )
+                  ]
+                ),
+              ]
+            )
+          );
+        }
+    );
+  }
+}
 
 class _ActivityProgressPanel extends StatelessWidget {
   final ActivityViewModel viewModel;
@@ -989,20 +918,21 @@ class _ActivityProgressPanel extends StatelessWidget {
 }
 
 class _StatDisplay extends StatelessWidget {
-  final String label;
+  final String? label;
   final String value;
   final String unit;
 
-  const _StatDisplay({required this.label, required this.value, required this.unit});
+  const _StatDisplay({this.label, required this.value, required this.unit});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
-        ),
+        if (label != null && label!.isNotEmpty)
+          Text(
+            label!,
+            style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+          ),
         const SizedBox(height: 6),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -1035,8 +965,8 @@ class _ActivitySelectorSheet extends StatefulWidget {
 }
 
 class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
-  late final TextEditingController _kmController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? (widget.viewModel.selectedDistance! ~/ 1000).toString() : "0"));
-  late final TextEditingController _mController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? (widget.viewModel.selectedDistance! % 1000).toInt().toString() : "0"));
+  late final TextEditingController _kmController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? widget.viewModel.selectedDistance!.toInt().toString() : "0"));
+  late final TextEditingController _mController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? ((widget.viewModel.selectedDistance! * 1000) % 1000).toInt().toString() : "0"));
   late final TextEditingController _hController = TextEditingController(text: (widget.viewModel.selectedTime?.inHours.toString() ?? "0"));
   late final TextEditingController _minController = TextEditingController(text: (widget.viewModel.selectedTime?.inMinutes.remainder(60).toString() ?? "0"));
   late final TextEditingController _secController = TextEditingController(text: (widget.viewModel.selectedTime?.inSeconds.remainder(60).toString() ?? "0"));
@@ -1635,153 +1565,6 @@ class _ChoiceChip extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _MenuAction {
-  final IconData icon;
-  final VoidCallback onTap;
-  _MenuAction({required this.icon, required this.onTap});
-}
-
-class _FloatingHexMenu extends StatefulWidget {
-  final IconData mainIcon;
-  final IconData mainIconPressed;
-  final List<_MenuAction> menuItems;
-  final Color mainColor;
-  final Color mainIconColor;
-  final Color mainBorderColor;
-  final Color menuColor;
-  final Color menuIconColor;
-  final Color menuBorderColor;
-
-  const _FloatingHexMenu({
-    required this.mainIcon,
-    required this.mainIconPressed,
-    required this.menuItems,
-    required this.mainColor,
-    required this.mainIconColor,
-    required this.mainBorderColor,
-    required this.menuColor,
-    required this.menuIconColor,
-    required this.menuBorderColor,
-  });
-
-  @override
-  State<_FloatingHexMenu> createState() => _FloatingHexMenuState();
-}
-
-class _FloatingHexMenuState extends State<_FloatingHexMenu> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _expandAnimation;
-  bool _isOpen = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      value: 0.0,
-      duration: const Duration(milliseconds: 350),
-      vsync: this,
-    );
-    _expandAnimation = CurvedAnimation(
-      curve: Curves.easeInOutCubicEmphasized,
-      reverseCurve: Curves.easeInOutCubicEmphasized,
-      parent: _controller,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggle() {
-    setState(() {
-      _isOpen = !_isOpen;
-      if (_isOpen) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-    HapticFeedback.mediumImpact();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _expandAnimation,
-      builder: (context, child) {
-        return SizedBox(
-          width: 72,
-          height: 72 + (widget.menuItems.length * 63.0 * _expandAnimation.value),
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            clipBehavior: Clip.none,
-            children: [
-              ...List.generate(widget.menuItems.length, (index) {
-                return _buildExpandingItem(
-                  index: index,
-                  action: widget.menuItems[index],
-                );
-              }),
-
-              _MapActionButton(
-                icon: _isOpen ? widget.mainIconPressed : widget.mainIcon,
-                color: widget.mainColor,
-                iconColor: widget.mainIconColor,
-                borderColor: widget.mainBorderColor,
-                onTap: _toggle,
-                shape: StarBorder(
-                  side: BorderSide(color: widget.mainBorderColor, width: 2),
-                  points: 6,
-                  innerRadiusRatio: 0.86,
-                  rotation: 30,
-                  pointRounding: 0.15,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildExpandingItem({required int index, required _MenuAction action}) {
-    return AnimatedBuilder(
-      animation: _expandAnimation,
-      builder: (context, child) {
-        final double offset = (index + 1) * 63.0 * _expandAnimation.value;
-        return Positioned(
-          bottom: offset,
-          child: Transform.translate(
-            offset: Offset(0, (1 - _expandAnimation.value) * 15),
-            child: Opacity(
-              opacity: _expandAnimation.value,
-              child: _MapActionButton(
-                icon: action.icon,
-                color: widget.menuColor,
-                iconColor: widget.menuIconColor,
-                borderColor: widget.menuBorderColor,
-                onTap: () {
-                  _toggle();
-                  action.onTap();
-                },
-                shape: StarBorder(
-                  side: BorderSide(color: widget.menuBorderColor, width: 2),
-                  points: 6,
-                  innerRadiusRatio: 0.86,
-                  rotation: 30,
-                  pointRounding: 0.15,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

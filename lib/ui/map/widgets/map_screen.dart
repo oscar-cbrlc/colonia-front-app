@@ -243,10 +243,10 @@ class _MapScreenState extends State<MapScreen> {
           onMapCreated: widget.viewModel.onMapCreated,
           onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
           onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-          viewport: widget.viewModel.viewport ?? mapbox.CameraViewportState(
-            center: mapbox.Point(coordinates: mapbox.Position(0, 0)),
-            zoom: 12.0,
-          ),
+          viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
+            center: widget.viewModel.userPosition!,
+            zoom: 15.0,
+          ) : null),
         ),
 
         Align(
