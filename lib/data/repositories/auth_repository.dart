@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/models/user.dart';
-import '../services/auth_service.dart';
+import '../services/api/auth_service.dart';
 
 class UserNotFoundException implements Exception {
   String cause;
@@ -11,6 +11,9 @@ class UserNotFoundException implements Exception {
 }
 
 class AuthRepository extends ChangeNotifier {
+  static AuthRepository? _instance;
+  static AuthRepository get instance => _instance!;
+
   final AuthService _authService;
   final FlutterSecureStorage _secureStorage;
 
@@ -24,7 +27,9 @@ class AuthRepository extends ChangeNotifier {
   AuthRepository(
       this._authService, {
         FlutterSecureStorage? secureStorage,
-      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage();
+      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage() {
+    _instance = this;
+  }
 
   Future<User> getUserByEmail(String email) async {
 

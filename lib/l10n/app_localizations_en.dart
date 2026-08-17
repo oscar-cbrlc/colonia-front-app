@@ -110,4 +110,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createANameToIdentifyYou => 'Create a name so others identify you';
+
+  @override
+  String get map => 'Map';
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get startActivity => 'Start activity';
+
+  @override
+  String get walk => 'Walk';
+
+  @override
+  String get run => 'Run';
+
+  @override
+  String get bike => 'Bike';
+
+  @override
+  String get activity => 'Activity';
+
+  @override
+  String get training => 'Training';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get pace => 'Pace';
+
+  @override
+  String get timeTrial => 'Time Trial';
+
+  @override
+  String get setObjective => 'Objective';
+
+  @override
+  String get km => 'km';
+
+  @override
+  String get meters => 'meters';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get min => 'min';
+
+  @override
+  String get sec => 'sec';
+
+  @override
+  String get targetPace => 'Target pace (min/km)';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get stop => 'Stop';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get setUpActivity => 'Set up activity';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get timeUp => 'Time up';
+
+  @override
+  String get objectiveAchieved => 'Objective achieved';
+
+  @override
+  String get objectiveFailed => 'Objective failed';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get failed => 'Failed';
+
+  @override
+  String get trainingFinished => 'Training finished';
+
+  @override
+  String get activitySummary => 'Activity summary';
+
+  @override
+  String get nextImpact => 'Next impact';
 }

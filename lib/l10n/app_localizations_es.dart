@@ -113,4 +113,118 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get createANameToIdentifyYou =>
       'Crea un nombre para que otros te identifiquen';
+
+  @override
+  String get map => 'Mapa';
+
+  @override
+  String get team => 'Equipo';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get startActivity => 'Empezar actividad';
+
+  @override
+  String get walk => 'Caminar';
+
+  @override
+  String get run => 'Correr';
+
+  @override
+  String get bike => 'Bicicleta';
+
+  @override
+  String get activity => 'Actividad';
+
+  @override
+  String get training => 'Entrenamiento';
+
+  @override
+  String get free => 'Libre';
+
+  @override
+  String get distance => 'Distancia';
+
+  @override
+  String get time => 'Tiempo';
+
+  @override
+  String get pace => 'Ritmo';
+
+  @override
+  String get timeTrial => 'Contrarreloj';
+
+  @override
+  String get setObjective => 'Objetivo';
+
+  @override
+  String get km => 'km';
+
+  @override
+  String get meters => 'metros';
+
+  @override
+  String get hours => 'horas';
+
+  @override
+  String get min => 'min';
+
+  @override
+  String get sec => 'seg';
+
+  @override
+  String get targetPace => 'Ritmo objetivo (min/km)';
+
+  @override
+  String get confirm => 'Confirmar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get pause => 'Pausa';
+
+  @override
+  String get stop => 'Detener';
+
+  @override
+  String get resume => 'Reanudar';
+
+  @override
+  String get finish => 'Finalizar';
+
+  @override
+  String get setUpActivity => 'Configurar actividad';
+
+  @override
+  String get start => 'Iniciar';
+
+  @override
+  String get timeUp => 'Tiempo terminado';
+
+  @override
+  String get objectiveAchieved => 'Objetivo logrado';
+
+  @override
+  String get objectiveFailed => 'Objetivo no logrado';
+
+  @override
+  String get success => 'Éxito';
+
+  @override
+  String get remaining => 'Restante';
+
+  @override
+  String get failed => 'Fallido';
+
+  @override
+  String get trainingFinished => 'Entrenamiento terminado';
+
+  @override
+  String get activitySummary => 'Resumen de actividad';
+
+  @override
+  String get nextImpact => 'Próximo impacto';
 }

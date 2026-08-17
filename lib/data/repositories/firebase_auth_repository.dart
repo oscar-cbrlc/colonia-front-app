@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:colonia_front_app/env/env.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/api/auth_service.dart';
 import '../models/firebase_auth_result.dart';
 import 'auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';

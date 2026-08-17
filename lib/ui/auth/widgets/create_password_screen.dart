@@ -2,7 +2,6 @@ import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/ui/core/ui/validation_row.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 
@@ -41,14 +40,6 @@ class _CreatePasswordScreen extends State<CreatePasswordScreen> {
     final locale = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B807D)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
       backgroundColor: AppTheme.lightBackground,
       body: ListenableBuilder(
         listenable: widget.viewModel,
@@ -57,6 +48,13 @@ class _CreatePasswordScreen extends State<CreatePasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF8B807D)),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
                 // main content
                 Expanded(
                   child: SingleChildScrollView(

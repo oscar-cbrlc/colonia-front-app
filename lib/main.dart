@@ -1,20 +1,32 @@
-// lib/main.dart (Updated with named routing)
+import 'package:colonia_front_app/env/env.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-// Localization & Themes
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
-// Services, Repositories, & Navigation
 import 'package:colonia_front_app/data/services/api/api_client.dart';
-import 'package:colonia_front_app/data/services/auth_service.dart';
+import 'package:colonia_front_app/data/services/api/auth_service.dart';
+import 'package:colonia_front_app/data/services/location_service.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/data/services/api/training_service.dart';
+import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/data/services/api/territory_service.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MapboxOptions.setAccessToken(Env.mapboxAccessToken);
   runApp(
     MultiProvider(
       providers: [
@@ -24,6 +36,14 @@ void main() {
 
         ProxyProvider<ApiClient, AuthService>(
           update: (_, apiClient, __) => AuthService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TrainingService>(
+          update: (_, apiClient, __) => TrainingService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TerritoryService>(
+          update: (_, apiClient, __) => TerritoryService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -45,6 +65,46 @@ void main() {
           ),
           update: (_, authService, authRepository, previous) =>
               previous ?? FirebaseAuthRepository(authService, authRepository),
+        ),
+
+        ChangeNotifierProxyProvider<TrainingService, TrainingRepository>(
+          create: (context) => TrainingRepository(
+            trainingService: context.read<TrainingService>(),
+          ),
+          update: (_, trainingService, previous) =>
+          previous ?? TrainingRepository(trainingService: trainingService),
+        ),
+
+        ChangeNotifierProxyProvider<TerritoryService, TerritoryRepository>(
+          create: (context) => TerritoryRepository(context.read<TerritoryService>()),
+          update: (_, territoryService, previous) =>
+              previous ?? TerritoryRepository(territoryService),
+        ),
+
+        ChangeNotifierProvider<BoostRepository>(
+          create: (_) => BoostRepository(),
+        ),
+
+        Provider<LocationService>(
+          create: (_) => LocationService(),
+        ),
+
+        ChangeNotifierProxyProvider2<LocationService, TerritoryRepository, TrackingRepository>(
+          create: (context) => TrackingRepository(
+            context.read<LocationService>(),
+            context.read<TerritoryRepository>(),
+          ),
+          update: (_, locationService, territoryRepository, previous) =>
+              previous ?? TrackingRepository(locationService, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider2<TrackingRepository, TerritoryRepository, SessionRepository>(
+          create: (context) => SessionRepository(
+            context.read<TrackingRepository>(),
+            context.read<TerritoryRepository>(),
+          ),
+          update: (_, trackingRepository, territoryRepository, previous) => 
+              previous ?? SessionRepository(trackingRepository, territoryRepository),
         ),
       ],
       child: const ColoniaApp(),
@@ -72,7 +132,9 @@ class _ColoniaAppState extends State<ColoniaApp> {
       await authRepo.initializeSession();
 
       if (authRepo.hasActiveSession) {
-        //_navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
+        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
+      } else {
+        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.welcome);
       }
     });
   }

@@ -301,6 +301,234 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Crea un nombre para que otros te identifiquen'**
   String get createANameToIdentifyYou;
+
+  /// No description provided for @map.
+  ///
+  /// In es, this message translates to:
+  /// **'Mapa'**
+  String get map;
+
+  /// No description provided for @team.
+  ///
+  /// In es, this message translates to:
+  /// **'Equipo'**
+  String get team;
+
+  /// No description provided for @profile.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get profile;
+
+  /// No description provided for @startActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar actividad'**
+  String get startActivity;
+
+  /// No description provided for @walk.
+  ///
+  /// In es, this message translates to:
+  /// **'Caminar'**
+  String get walk;
+
+  /// No description provided for @run.
+  ///
+  /// In es, this message translates to:
+  /// **'Correr'**
+  String get run;
+
+  /// No description provided for @bike.
+  ///
+  /// In es, this message translates to:
+  /// **'Bicicleta'**
+  String get bike;
+
+  /// No description provided for @activity.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividad'**
+  String get activity;
+
+  /// No description provided for @training.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento'**
+  String get training;
+
+  /// No description provided for @free.
+  ///
+  /// In es, this message translates to:
+  /// **'Libre'**
+  String get free;
+
+  /// No description provided for @distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia'**
+  String get distance;
+
+  /// No description provided for @time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo'**
+  String get time;
+
+  /// No description provided for @pace.
+  ///
+  /// In es, this message translates to:
+  /// **'Ritmo'**
+  String get pace;
+
+  /// No description provided for @timeTrial.
+  ///
+  /// In es, this message translates to:
+  /// **'Contrarreloj'**
+  String get timeTrial;
+
+  /// No description provided for @setObjective.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo'**
+  String get setObjective;
+
+  /// No description provided for @km.
+  ///
+  /// In es, this message translates to:
+  /// **'km'**
+  String get km;
+
+  /// No description provided for @meters.
+  ///
+  /// In es, this message translates to:
+  /// **'metros'**
+  String get meters;
+
+  /// No description provided for @hours.
+  ///
+  /// In es, this message translates to:
+  /// **'horas'**
+  String get hours;
+
+  /// No description provided for @min.
+  ///
+  /// In es, this message translates to:
+  /// **'min'**
+  String get min;
+
+  /// No description provided for @sec.
+  ///
+  /// In es, this message translates to:
+  /// **'seg'**
+  String get sec;
+
+  /// No description provided for @targetPace.
+  ///
+  /// In es, this message translates to:
+  /// **'Ritmo objetivo (min/km)'**
+  String get targetPace;
+
+  /// No description provided for @confirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get confirm;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
+
+  /// No description provided for @pause.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausa'**
+  String get pause;
+
+  /// No description provided for @stop.
+  ///
+  /// In es, this message translates to:
+  /// **'Detener'**
+  String get stop;
+
+  /// No description provided for @resume.
+  ///
+  /// In es, this message translates to:
+  /// **'Reanudar'**
+  String get resume;
+
+  /// No description provided for @finish.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizar'**
+  String get finish;
+
+  /// No description provided for @setUpActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar actividad'**
+  String get setUpActivity;
+
+  /// No description provided for @start.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar'**
+  String get start;
+
+  /// No description provided for @timeUp.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo terminado'**
+  String get timeUp;
+
+  /// No description provided for @objectiveAchieved.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo logrado'**
+  String get objectiveAchieved;
+
+  /// No description provided for @objectiveFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo no logrado'**
+  String get objectiveFailed;
+
+  /// No description provided for @success.
+  ///
+  /// In es, this message translates to:
+  /// **'Éxito'**
+  String get success;
+
+  /// No description provided for @remaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Restante'**
+  String get remaining;
+
+  /// No description provided for @failed.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallido'**
+  String get failed;
+
+  /// No description provided for @trainingFinished.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento terminado'**
+  String get trainingFinished;
+
+  /// No description provided for @activitySummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de actividad'**
+  String get activitySummary;
+
+  /// No description provided for @nextImpact.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximo impacto'**
+  String get nextImpact;
 }
 
 class _AppLocalizationsDelegate

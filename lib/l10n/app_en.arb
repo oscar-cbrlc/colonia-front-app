@@ -98,5 +98,119 @@
     "@onlyContainUsernameChars": {},
 
     "createANameToIdentifyYou": "Create a name so others identify you",
-    "@createANameToIdentifyYou": {}
+    "@createANameToIdentifyYou": {},
+
+    "map": "Map",
+    "@map": {},
+
+    "team": "Team",
+    "@team": {},
+
+    "profile": "Profile",
+    "@profile": {},
+
+    "startActivity": "Start activity",
+    "@startActivity": {},
+
+    "walk": "Walk",
+    "@walk": {},
+
+    "run": "Run",
+    "@run": {},
+
+    "bike": "Bike",
+    "@bike":  {},
+
+    "activity": "Activity",
+    "@activity": {},
+
+    "training": "Training",
+    "@training": {},
+
+    "free": "Free",
+    "@free": {},
+
+    "distance": "Distance",
+    "@distance": {},
+
+    "time": "Time",
+    "@time": {},
+
+    "pace": "Pace",
+    "@pace": {},
+
+    "timeTrial": "Time Trial",
+    "@timeTrial": {},
+
+    "setObjective": "Objective",
+    "@setObjective": {},
+
+    "km": "km",
+    "@km": {},
+
+    "meters": "meters",
+    "@meters": {},
+
+    "hours": "hours",
+    "@hours": {},
+
+    "min": "min",
+    "@min": {},
+
+    "sec": "sec",
+    "@sec": {},
+
+    "targetPace": "Target pace (min/km)",
+    "@targetPace": {},
+
+    "confirm": "Confirm",
+    "@confirm": {},
+
+    "cancel": "Cancel",
+    "@cancel": {},
+
+    "pause": "Pause",
+    "@pause": {},
+
+    "stop": "Stop",
+    "@stop": {},
+
+    "resume": "Resume",
+    "@resume": {},
+
+    "finish": "Finish",
+    "@finish": {},
+
+    "setUpActivity": "Set up activity",
+    "@setUpActivity": {},
+
+    "start": "Start",
+    "@start": {},
+
+    "timeUp": "Time up",
+    "@timeUp": {},
+
+    "objectiveAchieved": "Objective achieved",
+    "@objectiveAchieved": {},
+
+    "objectiveFailed": "Objective failed",
+    "@objectiveFailed": {},
+
+    "success": "Success",
+    "@success": {},
+
+    "remaining": "Remaining",
+    "@remaining": {},
+
+    "failed": "Failed",
+    "@failed": {},
+
+    "trainingFinished": "Training finished",
+    "@trainingFinished": {},
+
+    "activitySummary": "Activity summary",
+    "@activitySummary": {},
+
+    "nextImpact": "Next impact",
+    "@nextImpact": {}
 }

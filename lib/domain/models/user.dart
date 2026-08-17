@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user.freezed.dart';
 part 'user.g.dart';
 
+
 @freezed
 abstract class User with _$User {
   const User._();
@@ -49,4 +50,6 @@ abstract class LoginResult with _$LoginResult {
   }) = _LoginResult;
 
   factory LoginResult.fromJson(Map<String, dynamic> json) => _$LoginResultFromJson(json);
+
+  String get authorizationHeader => '$tokenType $accessToken';
 }

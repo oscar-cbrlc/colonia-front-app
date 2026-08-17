@@ -101,5 +101,119 @@
     "@onlyContainUsernameChars": {},
 
     "createANameToIdentifyYou": "Crea un nombre para que otros te identifiquen",
-    "@createANameToIdentifyYou": {}
+    "@createANameToIdentifyYou": {},
+
+    "map": "Mapa",
+    "@map": {},
+
+    "team": "Equipo",
+    "@team": {},
+
+    "profile": "Perfil",
+    "@profile": {},
+
+    "startActivity": "Empezar actividad",
+    "@startActivity": {},
+
+    "walk": "Caminar",
+    "@walk": {},
+
+    "run": "Correr",
+    "@run": {},
+
+    "bike": "Bicicleta",
+    "@bike":  {},
+
+    "activity": "Actividad",
+    "@activity": {},
+
+    "training": "Entrenamiento",
+    "@training": {},
+
+    "free": "Libre",
+    "@free": {},
+
+    "distance": "Distancia",
+    "@distance": {},
+
+    "time": "Tiempo",
+    "@time": {},
+
+    "pace": "Ritmo",
+    "@pace": {},
+
+    "timeTrial": "Contrarreloj",
+    "@timeTrial": {},
+
+    "setObjective": "Objetivo",
+    "@setObjective": {},
+
+    "km": "km",
+    "@km": {},
+
+    "meters": "metros",
+    "@meters": {},
+
+    "hours": "horas",
+    "@hours": {},
+
+    "min": "min",
+    "@min": {},
+
+    "sec": "seg",
+    "@sec": {},
+
+    "targetPace": "Ritmo objetivo (min/km)",
+    "@targetPace": {},
+
+    "confirm": "Confirmar",
+    "@confirm": {},
+
+    "cancel": "Cancelar",
+    "@cancel": {},
+
+    "pause": "Pausa",
+    "@pause": {},
+
+    "stop": "Detener",
+    "@stop": {},
+
+    "resume": "Reanudar",
+    "@resume": {},
+
+    "finish": "Finalizar",
+    "@finish": {},
+
+    "setUpActivity": "Configurar actividad",
+    "@setUpActivity": {},
+
+    "start": "Iniciar",
+    "@start": {},
+
+    "timeUp": "Tiempo terminado",
+    "@timeUp": {},
+
+    "objectiveAchieved": "Objetivo logrado",
+    "@objectiveAchieved": {},
+
+    "objectiveFailed": "Objetivo no logrado",
+    "@objectiveFailed": {},
+
+    "success": "Éxito",
+    "@success": {},
+
+    "remaining": "Restante",
+    "@remaining": {},
+
+    "failed": "Fallido",
+    "@failed": {},
+
+    "trainingFinished": "Entrenamiento terminado",
+    "@trainingFinished": {},
+
+    "activitySummary": "Resumen de actividad",
+    "@activitySummary": {},
+
+    "nextImpact": "Próximo impacto",
+    "@nextImpact": {}
 }

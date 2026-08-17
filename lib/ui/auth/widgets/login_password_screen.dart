@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -145,12 +146,7 @@ class _LoginPasswordScreen extends State<LoginPasswordScreen> {
 
     if (success) {
       _passFocusNode.unfocus();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("SUCCESS"), //TODO: send to home screen
-          backgroundColor: AppTheme.fontSecondaryColor,
-        ),
-      );
+      navigateToMapScreen(context);
     } else if (model.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

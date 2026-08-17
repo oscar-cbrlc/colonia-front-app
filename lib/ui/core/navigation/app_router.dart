@@ -1,9 +1,18 @@
+import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
+import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
+import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
+import 'package:colonia_front_app/ui/activity/widgets/activity_summary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // Repositories
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 
 // ViewModels
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
@@ -11,6 +20,7 @@ import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
+import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 
 // Screens
 import 'package:colonia_front_app/ui/auth/widgets/welcome_screen.dart';
@@ -18,6 +28,7 @@ import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/create_username_screen.dart';
+import 'package:colonia_front_app/ui/navigation/main_navigation_screen.dart';
 
 class AppRouter {
   static const String welcome = '/';
@@ -25,10 +36,32 @@ class AppRouter {
   static const String loginPassword = '/login_password';
   static const String createPassword = '/create_password';
   static const String createUsername = '/create_username';
-  //static const String map = '/map';
+  static const String navigation = '/navigation';
+  static const String map = '/map';
+  static const String activity = "/activity";
+  static const String summary = "/summary";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+
+      case summary:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final session = args?['session'] as TrackingSession;
+        final activity = args?['activity'] as String? ?? 'walk';
+        final trainingName = args?['trainingName'] as String? ?? 'free';
+
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
+            create: (context) => ActivitySummaryViewModel(
+              session: session,
+              activity: activity,
+              trainingName: trainingName,
+            ),
+            child: Consumer<ActivitySummaryViewModel>(
+              builder: (context, viewModel, _) => ActivitySummaryScreen(viewModel: viewModel),
+            ),
+          ),
+        );
       case welcome:
         return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider<WelcomeViewModel>(
@@ -95,6 +128,33 @@ class AppRouter {
           ),
         );
 
+
+      case map:
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<MapViewModel>(
+            create: (context) => MapViewModel(
+              context.read<TrackingRepository>(),
+              context.read<TerritoryRepository>(),
+            ),
+            child: const MainNavigationScreen(),
+          ),
+        );
+
+      case activity:
+        return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider<ActivityViewModel>(
+            create: (context) => ActivityViewModel(
+              context.read<SessionRepository>(),
+              context.read<TrackingRepository>(),
+              context.read<TrainingRepository>(),
+              context.read<BoostRepository>(),
+              context.read<TerritoryRepository>(),
+            ),
+            child: Consumer<ActivityViewModel>(
+              builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),
+            ),
+          )
+        );
 
       default:
         return MaterialPageRoute(
