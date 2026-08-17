@@ -185,6 +185,32 @@
     "@setUpActivity": {},
 
     "start": "Start",
-    "@start": {}
+    "@start": {},
 
+    "timeUp": "Time up",
+    "@timeUp": {},
+
+    "objectiveAchieved": "Objective achieved",
+    "@objectiveAchieved": {},
+
+    "objectiveFailed": "Objective failed",
+    "@objectiveFailed": {},
+
+    "success": "Success",
+    "@success": {},
+
+    "remaining": "Remaining",
+    "@remaining": {},
+
+    "failed": "Failed",
+    "@failed": {},
+
+    "trainingFinished": "Training finished",
+    "@trainingFinished": {},
+
+    "activitySummary": "Activity summary",
+    "@activitySummary": {},
+
+    "nextImpact": "Next impact",
+    "@nextImpact": {}
 }

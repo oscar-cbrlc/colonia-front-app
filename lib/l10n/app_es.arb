@@ -188,6 +188,32 @@
     "@setUpActivity": {},
 
     "start": "Iniciar",
-    "@start": {}
+    "@start": {},
 
+    "timeUp": "Tiempo terminado",
+    "@timeUp": {},
+
+    "objectiveAchieved": "Objetivo logrado",
+    "@objectiveAchieved": {},
+
+    "objectiveFailed": "Objetivo no logrado",
+    "@objectiveFailed": {},
+
+    "success": "Éxito",
+    "@success": {},
+
+    "remaining": "Restante",
+    "@remaining": {},
+
+    "failed": "Fallido",
+    "@failed": {},
+
+    "trainingFinished": "Entrenamiento terminado",
+    "@trainingFinished": {},
+
+    "activitySummary": "Resumen de actividad",
+    "@activitySummary": {},
+
+    "nextImpact": "Próximo impacto",
+    "@nextImpact": {}
 }
