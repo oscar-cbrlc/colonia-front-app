@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
@@ -252,10 +253,11 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     final style = _mapboxMap?.style;
     if (style == null || await style.styleSourceExists("h3-grid-source")) return;
     await style.addSource(GeoJsonSource(id: "h3-grid-source", data: jsonEncode({"type": "FeatureCollection", "features": []})));
-    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ['case', ['to-boolean', ['get', 'is_current']], 'rgba(100, 138, 7, 0.4)', 'rgba(0, 0, 0, 0)']);
     await style.addLayer(LineLayer(id: "h3-grid-outline-layer", sourceId: "h3-grid-source", lineColor: AppTheme.h3GridLineColor.toARGB32(), lineWidth: 0.8));
+    
     await style.addLayer(FillLayer(id: "h3-grid-layer", sourceId: "h3-grid-source"));
-
+    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ['case', ['to-boolean', ['get', 'is_current']], 'rgba(100, 138, 7, 0.4)', 'rgba(0, 0, 0, 0)']);
+    
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
       sourceId: "h3-grid-source",
@@ -272,10 +274,17 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (style == null || await style.styleSourceExists('tracking-polygon-source')) return;
     await style.addSource(GeoJsonSource(id: 'tracking-polygon-source', data: jsonEncode({"type": "FeatureCollection", "features": []})));
 
+    final myTeam = AuthRepository.instance.currentUser?.userTeam ?? 1;
     await style.addLayer(FillLayer(id: "tracking-hexagons-fill-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'hexagon']));
-    await style.setStyleLayerProperty("tracking-hexagons-fill-layer", "fill-color", AppTheme.primaryColor.withValues(alpha: 0.4).toARGB32());
+    await style.setStyleLayerProperty("tracking-hexagons-fill-layer", "fill-color", [
+      'match', ['get', 'team_id'],
+      myTeam, AppTheme.primaryColor.withValues(alpha: 0.4).toARGB32(), // TODO: GET user team
+      0, 'rgba(150, 150, 150, 0.3)', // neutral
+      'rgba(255, 0, 0, 0.4)' // todo: get other teams
+    ]);
 
     await style.addLayer(LineLayer(id: "tracking-perimeter-line-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'perimeter'], lineColor: Colors.white.toARGB32(), lineWidth: 4.5, lineJoin: LineJoin.ROUND, lineCap: LineCap.ROUND));
+
     await style.addLayer(CircleLayer(id: "tracking-nodes-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'node'], circleRadius: 6.0, circleColor: AppTheme.secondaryColor.toARGB32(), circleStrokeWidth: 2.0, circleStrokeColor: Colors.white.toARGB32()));
     
     await style.addLayer(SymbolLayer(
@@ -290,7 +299,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     ));
     await style.setStyleLayerProperty("tracking-nodes-label-layer", "text-field", ["get", "points_label"]);
 
-    
     await style.addLayer(SymbolLayer(
       id: "tracking-hexagons-label-layer",
       sourceId: "tracking-polygon-source",
