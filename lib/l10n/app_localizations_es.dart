@@ -200,4 +200,31 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get start => 'Iniciar';
+
+  @override
+  String get timeUp => 'Tiempo terminado';
+
+  @override
+  String get objectiveAchieved => 'Objetivo logrado';
+
+  @override
+  String get objectiveFailed => 'Objetivo no logrado';
+
+  @override
+  String get success => 'Éxito';
+
+  @override
+  String get remaining => 'Restante';
+
+  @override
+  String get failed => 'Fallido';
+
+  @override
+  String get trainingFinished => 'Entrenamiento terminado';
+
+  @override
+  String get activitySummary => 'Resumen de actividad';
+
+  @override
+  String get nextImpact => 'Próximo impacto';
 }

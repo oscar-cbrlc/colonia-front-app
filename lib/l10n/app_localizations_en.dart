@@ -197,4 +197,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get start => 'Start';
+
+  @override
+  String get timeUp => 'Time up';
+
+  @override
+  String get objectiveAchieved => 'Objective achieved';
+
+  @override
+  String get objectiveFailed => 'Objective failed';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get failed => 'Failed';
+
+  @override
+  String get trainingFinished => 'Training finished';
+
+  @override
+  String get activitySummary => 'Activity summary';
+
+  @override
+  String get nextImpact => 'Next impact';
 }
