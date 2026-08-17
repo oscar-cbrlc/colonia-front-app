@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'territory.freezed.dart';
 part 'territory.g.dart';
 
+
 @freezed
 abstract class Territory with _$Territory {
   const Territory._();

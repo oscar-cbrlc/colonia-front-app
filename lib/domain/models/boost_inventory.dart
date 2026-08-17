@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'boost_inventory.freezed.dart';
 part 'boost_inventory.g.dart';
 
+
 @freezed
 abstract class BoostInventory with _$BoostInventory {
   const BoostInventory._();

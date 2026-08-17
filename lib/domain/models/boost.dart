@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'boost.freezed.dart';
 part 'boost.g.dart';
 
+
 @freezed
 abstract class Boost with _$Boost {
   const Boost._();

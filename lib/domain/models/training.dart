@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'training.freezed.dart';
 part 'training.g.dart';
 
+
 @freezed
 abstract class Training with _$Training {
   const Training._();
