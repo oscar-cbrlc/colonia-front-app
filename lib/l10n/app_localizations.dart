@@ -475,6 +475,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Iniciar'**
   String get start;
+
+  /// No description provided for @timeUp.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo terminado'**
+  String get timeUp;
+
+  /// No description provided for @objectiveAchieved.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo logrado'**
+  String get objectiveAchieved;
+
+  /// No description provided for @objectiveFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo no logrado'**
+  String get objectiveFailed;
+
+  /// No description provided for @success.
+  ///
+  /// In es, this message translates to:
+  /// **'Éxito'**
+  String get success;
+
+  /// No description provided for @remaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Restante'**
+  String get remaining;
+
+  /// No description provided for @failed.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallido'**
+  String get failed;
+
+  /// No description provided for @trainingFinished.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento terminado'**
+  String get trainingFinished;
+
+  /// No description provided for @activitySummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de actividad'**
+  String get activitySummary;
+
+  /// No description provided for @nextImpact.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximo impacto'**
+  String get nextImpact;
 }
 
 class _AppLocalizationsDelegate
