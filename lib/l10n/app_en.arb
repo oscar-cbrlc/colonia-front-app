@@ -212,5 +212,38 @@
     "@activitySummary": {},
 
     "nextImpact": "Next impact",
-    "@nextImpact": {}
+    "@nextImpact": {},
+
+    "youNotHaveTeam": "You are not part of a Colony",
+    "@youNotHaveTeam": {},
+
+    "createTeam": "Create a Colony",
+    "@createTeam": {},
+
+    "joinTeam": "Join a Colony",
+    "@joinTeam": {},
+
+    "description": "Description",
+    "@description": {},
+
+    "teamMembers": "Colony members",
+    "@teamMembers": {},
+
+    "name": "Name",
+    "@name": {},
+
+    "accessType": "Access type",
+    "@accessType": {},
+
+    "location": "Location",
+    "@location": {},
+
+    "private": "Private",
+    "@private": {},
+
+    "public": "Public",
+    "@public": {},
+
+    "color": "Color",
+    "@color": {}
 }

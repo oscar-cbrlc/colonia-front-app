@@ -529,6 +529,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Próximo impacto'**
   String get nextImpact;
+
+  /// No description provided for @youNotHaveTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'No eres miembro de una Colonia'**
+  String get youNotHaveTeam;
+
+  /// No description provided for @createTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear una Colonia'**
+  String get createTeam;
+
+  /// No description provided for @joinTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirse a una Colonia'**
+  String get joinTeam;
+
+  /// No description provided for @description.
+  ///
+  /// In es, this message translates to:
+  /// **'Descriciòn'**
+  String get description;
+
+  /// No description provided for @teamMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros de Colonia'**
+  String get teamMembers;
+
+  /// No description provided for @name.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get name;
+
+  /// No description provided for @accessType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de acceso'**
+  String get accessType;
+
+  /// No description provided for @location.
+  ///
+  /// In es, this message translates to:
+  /// **'Ubicación'**
+  String get location;
+
+  /// No description provided for @private.
+  ///
+  /// In es, this message translates to:
+  /// **'Privado'**
+  String get private;
+
+  /// No description provided for @public.
+  ///
+  /// In es, this message translates to:
+  /// **'Público'**
+  String get public;
+
+  /// No description provided for @color.
+  ///
+  /// In es, this message translates to:
+  /// **'Color'**
+  String get color;
 }
 
 class _AppLocalizationsDelegate

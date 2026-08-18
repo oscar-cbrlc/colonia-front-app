@@ -227,4 +227,37 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nextImpact => 'Próximo impacto';
+
+  @override
+  String get youNotHaveTeam => 'No eres miembro de una Colonia';
+
+  @override
+  String get createTeam => 'Crear una Colonia';
+
+  @override
+  String get joinTeam => 'Unirse a una Colonia';
+
+  @override
+  String get description => 'Descriciòn';
+
+  @override
+  String get teamMembers => 'Miembros de Colonia';
+
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get accessType => 'Tipo de acceso';
+
+  @override
+  String get location => 'Ubicación';
+
+  @override
+  String get private => 'Privado';
+
+  @override
+  String get public => 'Público';
+
+  @override
+  String get color => 'Color';
 }

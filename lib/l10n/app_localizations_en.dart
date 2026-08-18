@@ -224,4 +224,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextImpact => 'Next impact';
+
+  @override
+  String get youNotHaveTeam => 'You are not part of a Colony';
+
+  @override
+  String get createTeam => 'Create a Colony';
+
+  @override
+  String get joinTeam => 'Join a Colony';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get teamMembers => 'Colony members';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get accessType => 'Access type';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get private => 'Private';
+
+  @override
+  String get public => 'Public';
+
+  @override
+  String get color => 'Color';
 }

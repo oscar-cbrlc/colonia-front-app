@@ -215,5 +215,38 @@
     "@activitySummary": {},
 
     "nextImpact": "Próximo impacto",
-    "@nextImpact": {}
+    "@nextImpact": {},
+
+    "youNotHaveTeam": "No eres miembro de una Colonia",
+    "@youNotHaveTeam": {},
+
+    "createTeam": "Crear una Colonia",
+    "@createTeam": {},
+
+    "joinTeam": "Unirse a una Colonia",
+    "@joinTeam": {},
+
+    "description": "Descriciòn",
+    "@description": {},
+
+    "teamMembers": "Miembros de Colonia",
+    "@teamMembers": {},
+
+    "name": "Nombre",
+    "@name": {},
+
+    "accessType": "Tipo de acceso",
+    "@accessType": {},
+
+    "location": "Ubicación",
+    "@location": {},
+
+    "private": "Privado",
+    "@private": {},
+
+    "public": "Público",
+    "@public": {},
+
+    "color": "Color",
+    "@color": {}
 }
