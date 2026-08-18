@@ -67,4 +67,22 @@ class ApiClient {
       body: body != null? jsonEncode(body): null,
     ).timeout(const Duration(seconds: 10));
   }
+
+  Future<http.Response> put(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
+    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
+    return await _httpClient.put(
+      url,
+      headers: await _getHeaders(extraHeaders: headers),
+      body: body != null? jsonEncode(body): null,
+    ).timeout(const Duration(seconds: 10));
+  }
+
+  Future<http.Response> delete(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
+    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
+    return await _httpClient.delete(
+      url,
+      headers: await _getHeaders(extraHeaders: headers),
+      body: body != null? jsonEncode(body): null,
+    ).timeout(const Duration(seconds: 10));
+  }
 }
