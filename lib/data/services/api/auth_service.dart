@@ -25,13 +25,26 @@ class AuthService {
     required String password
   }) async {
     return await _apiClient.post(
-      '/auth/register',
+      '/users/',
       body: {
         'email': email,
         'user_name': username,
         'password': password,
       }
     );
+  }
+
+  // updates authenticated user
+  Future<http.Response> updateUser(Map<String, dynamic> data) async {
+    return await _apiClient.put(
+      '/users/',
+      body: data,
+    );
+  }
+
+  // deletes authenticated user
+  Future<http.Response> deleteUser() async {
+    return await _apiClient.delete('/users/');
   }
 
   Future<http.Response> login({
