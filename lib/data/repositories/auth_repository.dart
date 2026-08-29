@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:colonia_front_app/domain/models/team.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/models/user.dart';
@@ -20,6 +21,7 @@ class AuthRepository extends ChangeNotifier {
   static const String _tokenKey = 'colonia_jwt_token';
   String? _cachedToken;
   User? _currentUser;
+  Team? _userTeam;
 
   User? get currentUser => _currentUser;
   String? get cachedToken => _cachedToken;
@@ -84,7 +86,37 @@ class AuthRepository extends ChangeNotifier {
 
   Future<void> initializeSession() async {
     _cachedToken = await _secureStorage.read(key: _tokenKey);
+    if (_cachedToken != null) {
+      try {
+        await fetchCurrentUser();
+      } catch (e) {
+        debugPrint('AuthRepository: Failed to fetch user on init: $e');
+      }
+    }
     notifyListeners();
+  }
+
+  void updateCurrentUser(User user) {
+    _currentUser = user;
+    notifyListeners();
+  }
+
+  Future<User> fetchCurrentUser() async {
+    try {
+      final response = await _authService.getCurrentUserData().timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+        final user = User.fromJson(jsonMap);
+        _currentUser = user;
+        notifyListeners();
+        return user;
+      } else {
+        throw Exception('Failed to fetch current user: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('AuthRepository: fetchCurrentUser error: $e');
+      rethrow;
+    }
   }
 
   Future<User> loginUser({

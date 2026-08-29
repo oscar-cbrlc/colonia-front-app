@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 
@@ -8,6 +9,14 @@ class AuthService {
 
   Future<http.Response> getUserById(int id) async {
     return await _apiClient.get('/users/$id');
+  }
+
+  Future<http.Response> getCurrentUserData() async {
+    var currentUserId = AuthRepository.instance.currentUser?.id;
+    if (currentUserId == null) {
+      throw Exception('No authenticated user found');
+    }
+    return await _apiClient.get('/users/$currentUserId');
   }
 
   Future<http.Response> getUserByEmail(String email) async {
@@ -52,7 +61,7 @@ class AuthService {
     required String password
   }) async {
     return await _apiClient.post(
-        '/auth/login',
+        '/users/login',
         body: {
           'email': email,
           'password': password,
