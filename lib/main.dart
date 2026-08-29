@@ -19,8 +19,14 @@ import 'package:colonia_front_app/data/services/api/territory_service.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 
+import 'package:colonia_front_app/data/services/api/team_service.dart';
+import 'package:colonia_front_app/data/repositories/team_repository.dart';
+import 'package:colonia_front_app/data/services/api/team_request_service.dart';
+import 'package:colonia_front_app/data/repositories/team_request_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
+import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
+import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 
@@ -44,6 +50,14 @@ void main() {
 
         ProxyProvider<ApiClient, TerritoryService>(
           update: (_, apiClient, __) => TerritoryService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamService>(
+          update: (_, apiClient, __) => TeamService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamRequestService>(
+          update: (_, apiClient, __) => TeamRequestService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -81,6 +95,18 @@ void main() {
               previous ?? TerritoryRepository(territoryService),
         ),
 
+        ChangeNotifierProxyProvider<TeamService, TeamRepository>(
+          create: (context) => TeamRepository(context.read<TeamService>()),
+          update: (_, teamService, previous) =>
+              previous ?? TeamRepository(teamService),
+        ),
+
+        ChangeNotifierProxyProvider<TeamRequestService, TeamRequestRepository>(
+          create: (context) => TeamRequestRepository(context.read<TeamRequestService>()),
+          update: (_, teamRequestService, previous) =>
+              previous ?? TeamRequestRepository(teamRequestService),
+        ),
+
         ChangeNotifierProvider<BoostRepository>(
           create: (_) => BoostRepository(),
         ),
@@ -105,6 +131,25 @@ void main() {
           ),
           update: (_, trackingRepository, territoryRepository, previous) => 
               previous ?? SessionRepository(trackingRepository, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider2<TrackingRepository, TerritoryRepository, MapViewModel>(
+          create: (context) => MapViewModel(
+            context.read<TrackingRepository>(),
+            context.read<TerritoryRepository>(),
+          ),
+          update: (_, trackingRepository, territoryRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider3<TeamRepository, AuthRepository, TeamRequestRepository, TeamViewModel>(
+          create: (context) => TeamViewModel(
+            context.read<TeamRepository>(),
+            context.read<AuthRepository>(),
+            context.read<TeamRequestRepository>(),
+          ),
+          update: (_, teamRepository, authRepository, teamRequestRepository, previous) =>
+              previous ?? TeamViewModel(teamRepository, authRepository, teamRequestRepository),
         ),
       ],
       child: const ColoniaApp(),

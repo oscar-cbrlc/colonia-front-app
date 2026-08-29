@@ -238,7 +238,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get joinTeam => 'Unirse a una Colonia';
 
   @override
-  String get description => 'Descriciòn';
+  String get description => 'Descripción';
 
   @override
   String get teamMembers => 'Miembros de Colonia';
@@ -260,4 +260,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get color => 'Color';
+
+  @override
+  String get info => 'Info';
 }

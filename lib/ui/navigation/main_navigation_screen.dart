@@ -1,6 +1,14 @@
 import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/team_repository.dart';
+import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:colonia_front_app/ui/team/widgets/team_screen.dart';
+import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
 import 'package:colonia_front_app/ui/map/widgets/map_screen.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -48,11 +56,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
           controller: _tabController,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            const _PlaceholderScreen(title: "Team"),
+            Consumer<TeamViewModel>(
+              builder: (context, viewModel, _) => TeamScreen(viewModel: viewModel),
+            ),
             Consumer<MapViewModel>(
               builder: (context, viewModel, _) => MapScreen(viewModel: viewModel),
             ),
-            const _PlaceholderScreen(title: "Profile"),
+            const _ProfileScreen(),
           ],
         ),
         bottomNavigationBar: Container(
@@ -103,19 +113,56 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
   }
 }
 
-// TODO(nav): actual team and profile screens. Remove placeholder
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({required this.title});
+class _ProfileScreen extends StatelessWidget {
+  const _ProfileScreen();
 
   @override
   Widget build(BuildContext context) {
+    final authRepo = Provider.of<AuthRepository>(context);
+    final user = authRepo.currentUser;
+
     return Container(
       color: AppTheme.darkBackground,
       child: Center(
-        child: Text(
-          title,
-          style: TextStyle(color: Colors.white, fontSize: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.person, size: 80, color: Colors.white),
+            const SizedBox(height: 16),
+            Text(
+              user?.username ?? "User",
+              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            if (user?.email != null)
+              Text(
+                user!.email!,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              ),
+              onPressed: () async {
+                context.read<TeamRepository>().clear();
+                context.read<TerritoryRepository>().clearCache();
+                context.read<BoostRepository>().clear();
+                context.read<TrackingRepository>().clear();
+
+                await authRepo.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    AppRouter.welcome,
+                    (route) => false,
+                  );
+                }
+              },
+              child: const Text("Log Out"),
+            ),
+          ],
         ),
       ),
     );

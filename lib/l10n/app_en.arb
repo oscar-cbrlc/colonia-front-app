@@ -245,5 +245,8 @@
     "@public": {},
 
     "color": "Color",
-    "@color": {}
+    "@color": {},
+
+    "info": "Info",
+    "@info": {}
 }

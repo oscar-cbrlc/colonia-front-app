@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @description.
   ///
   /// In es, this message translates to:
-  /// **'Descriciòn'**
+  /// **'Descripción'**
   String get description;
 
   /// No description provided for @teamMembers.
@@ -595,6 +595,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Color'**
   String get color;
+
+  /// No description provided for @info.
+  ///
+  /// In es, this message translates to:
+  /// **'Info'**
+  String get info;
 }
 
 class _AppLocalizationsDelegate

@@ -226,7 +226,7 @@
     "joinTeam": "Unirse a una Colonia",
     "@joinTeam": {},
 
-    "description": "Descriciòn",
+    "description": "Descripción",
     "@description": {},
 
     "teamMembers": "Miembros de Colonia",
@@ -248,5 +248,8 @@
     "@public": {},
 
     "color": "Color",
-    "@color": {}
+    "@color": {},
+
+    "info": "Info",
+    "@info": {}
 }

@@ -5,6 +5,7 @@ import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dar
 import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/activity_summary_screen.dart';
+import 'package:colonia_front_app/ui/team/widgets/colony_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,6 @@ import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.dart';
 import 'package:colonia_front_app/ui/auth/view_models/create_username_viewmodel.dart';
-import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 
 // Screens
 import 'package:colonia_front_app/ui/auth/widgets/welcome_screen.dart';
@@ -40,6 +40,7 @@ class AppRouter {
   static const String map = '/map';
   static const String activity = "/activity";
   static const String summary = "/summary";
+  static const String colonyDetails = "/colony_details";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -51,19 +52,19 @@ class AppRouter {
         final trainingName = args?['trainingName'] as String? ?? 'free';
 
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
             create: (context) => ActivitySummaryViewModel(
               session: session,
               activity: activity,
               trainingName: trainingName,
             ),
-            child: Consumer<ActivitySummaryViewModel>(
-              builder: (context, viewModel, _) => ActivitySummaryScreen(viewModel: viewModel),
-            ),
+            child: ActivitySummaryScreen(viewModel: Provider.of<ActivitySummaryViewModel>(context, listen: false)),
           ),
         );
       case welcome:
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<WelcomeViewModel>(
             create: (context) => WelcomeViewModel(context.read<FirebaseAuthRepository>()),
             child: Consumer<WelcomeViewModel>(
@@ -74,6 +75,7 @@ class AppRouter {
 
       case email:
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<EmailViewModel>(
             create: (context) => EmailViewModel(context.read<AuthRepository>()),
             child: Consumer<EmailViewModel>(
@@ -87,6 +89,7 @@ class AppRouter {
         final userEmail = args?['email'] as String? ?? '';
 
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<LoginPasswordViewModel>(
             create: (context) => LoginPasswordViewModel(context.read<AuthRepository>())
                 ..setEmail(userEmail),
@@ -101,6 +104,7 @@ class AppRouter {
         final userEmail = args?['email'] as String? ?? '';
 
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<CreatePasswordViewModel>(
             create: (context) => CreatePasswordViewModel(context.read<AuthRepository>())
                 ..setEmail(userEmail),
@@ -117,6 +121,7 @@ class AppRouter {
         final isSocialAuth = args?['isSocialAuth'] as bool? ?? false;
 
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<CreateUsernameViewModel>(
             create: (context) => CreateUsernameViewModel(context.read<AuthRepository>())
               ..setEmail(userEmail)
@@ -129,19 +134,25 @@ class AppRouter {
         );
 
 
+      case colonyDetails:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (context) {
+             final args = settings.arguments as Map<String, dynamic>?;
+             final teamId = args?['teamId'] as int;
+             return ColonyDetailsScreen(teamId: teamId);
+          }
+        );
+
       case map:
         return MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider<MapViewModel>(
-            create: (context) => MapViewModel(
-              context.read<TrackingRepository>(),
-              context.read<TerritoryRepository>(),
-            ),
-            child: const MainNavigationScreen(),
-          ),
+          settings: settings,
+          builder: (context) => const MainNavigationScreen(),
         );
 
       case activity:
         return MaterialPageRoute(
+          settings: settings,
           builder: (context) => ChangeNotifierProvider<ActivityViewModel>(
             create: (context) => ActivityViewModel(
               context.read<SessionRepository>(),
@@ -158,6 +169,7 @@ class AppRouter {
 
       default:
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => Scaffold(
             body: Center(
               child: Text('Not defined: ${settings.name}'),
