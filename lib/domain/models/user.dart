@@ -22,10 +22,17 @@ abstract class User with _$User {
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
-  bool get isAdmin => userType == UserType.admin.name;
+  bool get isAdmin => userType?.toLowerCase() == UserType.admin.name.toLowerCase();
   bool get hasTeam => team != null;
-  bool get canModerateTeam => hasTeam && (team?.role == TeamRole.moderator.name || team?.role == TeamRole.leader.name);
-  bool get isTeamLeader => hasTeam && team?.role == TeamRole.leader.name;
+  
+  bool get canModerateTeam {
+    if (!hasTeam) return false;
+    final role = team!.role.toLowerCase();
+    return role == TeamRole.moderator.name.toLowerCase() || 
+           role == TeamRole.leader.name.toLowerCase();
+  }
+
+  bool get isTeamLeader => hasTeam && team?.role.toLowerCase() == TeamRole.leader.name.toLowerCase();
 
   bool get hasCustomAvatar =>
       avatar?.head != null ||
@@ -37,13 +44,13 @@ abstract class User with _$User {
 @freezed
 abstract class UserAvatar with _$UserAvatar {
   const factory UserAvatar({
-    @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+    @JsonKey(name: 'user_thumbnail') String? thumbnailUrl,
     @JsonKey(name: 'model_url') String? modelUrl,
-    String? head,
-    String? neck,
-    String? body,
-    String? footwear,
-    int? color,
+    @JsonKey(name: 'avatar_head') int? head,
+    @JsonKey(name: 'avatar_neck') int? neck,
+    @JsonKey(name: 'avatar_body') int? body,
+    @JsonKey(name: 'avatar_footwear') int? footwear,
+    @JsonKey(name: 'avatar_color') int? color,
   }) = _UserAvatar;
 
   factory UserAvatar.fromJson(Map<String, dynamic> json) => _$UserAvatarFromJson(json);
@@ -64,7 +71,7 @@ abstract class UserTeam with _$UserTeam {
   const factory UserTeam({
     @JsonKey(name: 'team_id') required int id,
     @JsonKey(name: 'team_name') required String name,
-    required String role,
+    @JsonKey(name: 'team_role') required String role,
   }) = _UserTeam;
 
   factory UserTeam.fromJson(Map<String, dynamic> json) => _$UserTeamFromJson(json);

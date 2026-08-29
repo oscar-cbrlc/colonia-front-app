@@ -20,9 +20,9 @@ abstract class Territory with _$Territory {
 @freezed
 abstract class TerritoryTeam with _$TerritoryTeam {
   const factory TerritoryTeam({
-    required int id,
-    required String name,
-    required int color,
+    @JsonKey(name: 'team_id') required int id,
+    @JsonKey(name: 'team_name') required String name,
+    @JsonKey(name: 'team_color') required int color,
   }) = _TerritoryTeam;
 
   factory TerritoryTeam.fromJson(Map<String, dynamic> json) => _$TerritoryTeamFromJson(json);
