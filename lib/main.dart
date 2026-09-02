@@ -133,13 +133,14 @@ void main() {
               previous ?? SessionRepository(trackingRepository, territoryRepository),
         ),
 
-        ChangeNotifierProxyProvider2<TrackingRepository, TerritoryRepository, MapViewModel>(
+        ChangeNotifierProxyProvider3<TrackingRepository, TerritoryRepository, TeamRepository, MapViewModel>(
           create: (context) => MapViewModel(
             context.read<TrackingRepository>(),
             context.read<TerritoryRepository>(),
+            context.read<TeamRepository>()
           ),
-          update: (_, trackingRepository, territoryRepository, previous) =>
-              previous ?? MapViewModel(trackingRepository, territoryRepository),
+          update: (_, trackingRepository, territoryRepository, teamRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository),
         ),
 
         ChangeNotifierProxyProvider3<TeamRepository, AuthRepository, TeamRequestRepository, TeamViewModel>(

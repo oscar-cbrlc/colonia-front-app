@@ -202,9 +202,9 @@ class ActivitySummaryViewModel extends ChangeNotifier {
       FillLayer(
         id: "h3-grid-layer",
         sourceId: "h3-grid-source",
-        fillColor: AppTheme.primaryColor.withValues(alpha: 0.4).toARGB32(),
       ),
     );
+    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
 
     await style.addLayer(
       SymbolLayer(
@@ -224,12 +224,17 @@ class ActivitySummaryViewModel extends ChangeNotifier {
       final corners = H3Helper.getHexagonCorners(hexIndex);
       final safeId = int.tryParse(hexIndex.substring(hexIndex.length - 8), radix: 16) ?? 0;
 
+      final hexTeam = territory.team;
+      final Color hexColor = hexTeam != null ? Color(hexTeam.color) : AppTheme.primaryColor;
+      final String fillColor = 'rgba(${(hexColor.r * 255).round()}, ${(hexColor.g * 255).round()}, ${(hexColor.b * 255).round()}, 0.5)';
+
       features.add({
         "type": "Feature",
         "id": safeId,
         "properties": {
           "h3_index": hexIndex,
           "health_label": territory.healthPoints.toStringAsFixed(0),
+          "fill_color": fillColor,
         },
         "geometry": {
           "type": "Polygon",

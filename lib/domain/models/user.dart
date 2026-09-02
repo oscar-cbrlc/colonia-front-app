@@ -72,6 +72,7 @@ abstract class UserTeam with _$UserTeam {
     @JsonKey(name: 'team_id') required int id,
     @JsonKey(name: 'team_name') required String name,
     @JsonKey(name: 'team_role') required String role,
+    @JsonKey(name: 'team_color') required int color,
   }) = _UserTeam;
 
   factory UserTeam.fromJson(Map<String, dynamic> json) => _$UserTeamFromJson(json);

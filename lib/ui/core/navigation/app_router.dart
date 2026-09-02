@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
+import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -59,7 +60,9 @@ class AppRouter {
               activity: activity,
               trainingName: trainingName,
             ),
-            child: ActivitySummaryScreen(viewModel: Provider.of<ActivitySummaryViewModel>(context, listen: false)),
+            child: Consumer<ActivitySummaryViewModel>(
+              builder: (context, viewModel, _) => ActivitySummaryScreen(viewModel: viewModel),
+            ),
           ),
         );
       case welcome:
@@ -160,6 +163,7 @@ class AppRouter {
               context.read<TrainingRepository>(),
               context.read<BoostRepository>(),
               context.read<TerritoryRepository>(),
+              context.read<TeamRepository>(),
             ),
             child: Consumer<ActivityViewModel>(
               builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),
