@@ -23,6 +23,8 @@ import 'package:colonia_front_app/data/services/api/team_service.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/services/api/team_request_service.dart';
 import 'package:colonia_front_app/data/repositories/team_request_repository.dart';
+import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
+import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
@@ -58,6 +60,10 @@ void main() {
 
         ProxyProvider<ApiClient, TeamRequestService>(
           update: (_, apiClient, __) => TeamRequestService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamChatService>(
+          update: (_, apiClient, __) => TeamChatService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -107,6 +113,12 @@ void main() {
               previous ?? TeamRequestRepository(teamRequestService),
         ),
 
+        ChangeNotifierProxyProvider<TeamChatService, TeamChatRepository>(
+          create: (context) => TeamChatRepository(context.read<TeamChatService>()),
+          update: (_, teamChatService, previous) =>
+              previous ?? TeamChatRepository(teamChatService),
+        ),
+
         ChangeNotifierProvider<BoostRepository>(
           create: (_) => BoostRepository(),
         ),
@@ -143,14 +155,15 @@ void main() {
               previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository),
         ),
 
-        ChangeNotifierProxyProvider3<TeamRepository, AuthRepository, TeamRequestRepository, TeamViewModel>(
+        ChangeNotifierProxyProvider4<TeamRepository, AuthRepository, TeamRequestRepository, TeamChatRepository, TeamViewModel>(
           create: (context) => TeamViewModel(
             context.read<TeamRepository>(),
             context.read<AuthRepository>(),
             context.read<TeamRequestRepository>(),
+            context.read<TeamChatRepository>(),
           ),
-          update: (_, teamRepository, authRepository, teamRequestRepository, previous) =>
-              previous ?? TeamViewModel(teamRepository, authRepository, teamRequestRepository),
+          update: (_, teamRepository, authRepository, teamRequestRepository, teamChatRepository, previous) =>
+              previous ?? TeamViewModel(teamRepository, authRepository, teamRequestRepository, teamChatRepository),
         ),
       ],
       child: const ColoniaApp(),
