@@ -445,5 +445,77 @@
     "@colonyCreatedSuccessfully": {},
 
     "accepted": "aceptado",
-    "@accepted": {}
+    "@accepted": {},
+
+    "justNow": "Justo ahora",
+    "@justNow": {},
+
+    "daysAgo": "hace {days}d",
+    "@daysAgo": {
+        "placeholders": {
+            "days": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "hoursAgo": "hace {hours}h",
+    "@hoursAgo": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "minutesAgo": "hace {minutes}m",
+    "@minutesAgo": {
+        "placeholders": {
+            "minutes": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "noDescription": "Sin descripción",
+    "@noDescription": {},
+
+    "members": "MIEMBROS",
+    "@members": {},
+
+    "territories": "TERRITORIOS",
+    "@territories": {},
+
+    "defense": "DEFENSA",
+    "@defense": {},
+
+    "leader": "LÍDER",
+    "@leader": {},
+
+    "moderators": "MODERADORES",
+    "@moderators": {},
+
+    "colonyMembers": "MIEMBROS DE COLONIA",
+    "@colonyMembers": {},
+
+    "sentRequests": "SOLICITUDES ENVIADAS",
+    "@sentRequests": {},
+
+    "sortByOldest": "Ordenar por más antiguo",
+    "@sortByOldest": {},
+
+    "sortByNewest": "Ordenar por más reciente",
+    "@sortByNewest": {},
+
+    "cancelRequest": "Cancelar solicitud",
+    "@cancelRequest": {},
+
+    "noPendingRequests": "No hay solicitudes pendientes",
+    "@noPendingRequests": {},
+
+    "noSentRequests": "No has enviado ninguna solicitud de unión",
+    "@noSentRequests": {}
 }

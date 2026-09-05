@@ -442,5 +442,77 @@
     "@colonyCreatedSuccessfully": {},
 
     "accepted": "accepted",
-    "@accepted": {}
+    "@accepted": {},
+
+    "justNow": "Just now",
+    "@justNow": {},
+
+    "daysAgo": "{days}d ago",
+    "@daysAgo": {
+        "placeholders": {
+            "days": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "hoursAgo": "{hours}h ago",
+    "@hoursAgo": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "minutesAgo": "{minutes}m ago",
+    "@minutesAgo": {
+        "placeholders": {
+            "minutes": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "noDescription": "No description",
+    "@noDescription": {},
+
+    "members": "MEMBERS",
+    "@members": {},
+
+    "territories": "TERRITORIES",
+    "@territories": {},
+
+    "defense": "DEFENSE",
+    "@defense": {},
+
+    "leader": "LEADER",
+    "@leader": {},
+
+    "moderators": "MODERATORS",
+    "@moderators": {},
+
+    "colonyMembers": "COLONY MEMBERS",
+    "@colonyMembers": {},
+
+    "sentRequests": "SENT REQUESTS",
+    "@sentRequests": {},
+
+    "sortByOldest": "Sort by Oldest",
+    "@sortByOldest": {},
+
+    "sortByNewest": "Sort by Newest",
+    "@sortByNewest": {},
+
+    "cancelRequest": "Cancel Request",
+    "@cancelRequest": {},
+
+    "noPendingRequests": "No pending requests",
+    "@noPendingRequests": {},
+
+    "noSentRequests": "You haven't sent any join requests",
+    "@noSentRequests": {}
 }

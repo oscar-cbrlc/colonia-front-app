@@ -791,13 +791,13 @@ abstract class AppLocalizations {
   /// No description provided for @memberPromotedToMod.
   ///
   /// In es, this message translates to:
-  /// **'Miembro promovido a moderador'**
+  /// **'Miembro ascendido a moderador'**
   String get memberPromotedToMod;
 
   /// No description provided for @promoteToLeaderConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres promover a {username} a Líder? Perderás tus privilegios de Líder.'**
+  /// **'¿Estás seguro de que quieres ascender a {username} a Líder? Perderás tus privilegios de Líder.'**
   String promoteToLeaderConfirm(String username);
 
   /// No description provided for @leadershipTransferred.
@@ -809,7 +809,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberDemotedToMember.
   ///
   /// In es, this message translates to:
-  /// **'Miembro degradado a miembro'**
+  /// **'Miembro descendido a miembro'**
   String get memberDemotedToMember;
 
   /// No description provided for @kickMemberConfirm.
@@ -851,25 +851,25 @@ abstract class AppLocalizations {
   /// No description provided for @promoteToModerator.
   ///
   /// In es, this message translates to:
-  /// **'Promover a moderador'**
+  /// **'Ascender a moderador'**
   String get promoteToModerator;
 
   /// No description provided for @promoteToLeader.
   ///
   /// In es, this message translates to:
-  /// **'Promover a líder'**
+  /// **'Ascender a líder'**
   String get promoteToLeader;
 
   /// No description provided for @demote.
   ///
   /// In es, this message translates to:
-  /// **'Degradar'**
+  /// **'Descender'**
   String get demote;
 
   /// No description provided for @demoteToMember.
   ///
   /// In es, this message translates to:
-  /// **'Degradar a miembro'**
+  /// **'Descender a miembro'**
   String get demoteToMember;
 
   /// No description provided for @transferLeadership.
@@ -881,7 +881,7 @@ abstract class AppLocalizations {
   /// No description provided for @promote.
   ///
   /// In es, this message translates to:
-  /// **'Promover'**
+  /// **'Ascender'**
   String get promote;
 
   /// No description provided for @cannotDelete.
@@ -913,6 +913,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'aceptado'**
   String get accepted;
+
+  /// No description provided for @justNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Justo ahora'**
+  String get justNow;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {days}d'**
+  String daysAgo(int days);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {hours}h'**
+  String hoursAgo(int hours);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {minutes}m'**
+  String minutesAgo(int minutes);
+
+  /// No description provided for @noDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin descripción'**
+  String get noDescription;
+
+  /// No description provided for @members.
+  ///
+  /// In es, this message translates to:
+  /// **'MIEMBROS'**
+  String get members;
+
+  /// No description provided for @territories.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIOS'**
+  String get territories;
+
+  /// No description provided for @defense.
+  ///
+  /// In es, this message translates to:
+  /// **'DEFENSA'**
+  String get defense;
+
+  /// No description provided for @leader.
+  ///
+  /// In es, this message translates to:
+  /// **'LÍDER'**
+  String get leader;
+
+  /// No description provided for @moderators.
+  ///
+  /// In es, this message translates to:
+  /// **'MODERADORES'**
+  String get moderators;
+
+  /// No description provided for @colonyMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'MIEMBROS DE COLONIA'**
+  String get colonyMembers;
+
+  /// No description provided for @sentRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'SOLICITUDES ENVIADAS'**
+  String get sentRequests;
+
+  /// No description provided for @sortByOldest.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar por más antiguo'**
+  String get sortByOldest;
+
+  /// No description provided for @sortByNewest.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar por más reciente'**
+  String get sortByNewest;
+
+  /// No description provided for @cancelRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar solicitud'**
+  String get cancelRequest;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay solicitudes pendientes'**
+  String get noPendingRequests;
+
+  /// No description provided for @noSentRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No has enviado ninguna solicitud de unión'**
+  String get noSentRequests;
 }
 
 class _AppLocalizationsDelegate

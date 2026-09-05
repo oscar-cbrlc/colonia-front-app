@@ -431,4 +431,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accepted => 'accepted';
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String daysAgo(int days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String hoursAgo(int hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String minutesAgo(int minutes) {
+    return '${minutes}m ago';
+  }
+
+  @override
+  String get noDescription => 'No description';
+
+  @override
+  String get members => 'MEMBERS';
+
+  @override
+  String get territories => 'TERRITORIES';
+
+  @override
+  String get defense => 'DEFENSE';
+
+  @override
+  String get leader => 'LEADER';
+
+  @override
+  String get moderators => 'MODERATORS';
+
+  @override
+  String get colonyMembers => 'COLONY MEMBERS';
+
+  @override
+  String get sentRequests => 'SENT REQUESTS';
+
+  @override
+  String get sortByOldest => 'Sort by Oldest';
+
+  @override
+  String get sortByNewest => 'Sort by Newest';
+
+  @override
+  String get cancelRequest => 'Cancel Request';
+
+  @override
+  String get noPendingRequests => 'No pending requests';
+
+  @override
+  String get noSentRequests => 'You haven\'t sent any join requests';
 }

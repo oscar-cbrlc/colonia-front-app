@@ -368,18 +368,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get requestToJoin => 'Solicitar unirse';
 
   @override
-  String get memberPromotedToMod => 'Miembro promovido a moderador';
+  String get memberPromotedToMod => 'Miembro ascendido a moderador';
 
   @override
   String promoteToLeaderConfirm(String username) {
-    return '¿Estás seguro de que quieres promover a $username a Líder? Perderás tus privilegios de Líder.';
+    return '¿Estás seguro de que quieres ascender a $username a Líder? Perderás tus privilegios de Líder.';
   }
 
   @override
   String get leadershipTransferred => 'Liderazgo transferido';
 
   @override
-  String get memberDemotedToMember => 'Miembro degradado a miembro';
+  String get memberDemotedToMember => 'Miembro descendido a miembro';
 
   @override
   String kickMemberConfirm(String username) {
@@ -403,22 +403,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kick => 'Expulsar';
 
   @override
-  String get promoteToModerator => 'Promover a moderador';
+  String get promoteToModerator => 'Ascender a moderador';
 
   @override
-  String get promoteToLeader => 'Promover a líder';
+  String get promoteToLeader => 'Ascender a líder';
 
   @override
-  String get demote => 'Degradar';
+  String get demote => 'Descender';
 
   @override
-  String get demoteToMember => 'Degradar a miembro';
+  String get demoteToMember => 'Descender a miembro';
 
   @override
   String get transferLeadership => 'Transferir Liderazgo';
 
   @override
-  String get promote => 'Promover';
+  String get promote => 'Ascender';
 
   @override
   String get cannotDelete => 'No se puede eliminar';
@@ -435,4 +435,61 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get accepted => 'aceptado';
+
+  @override
+  String get justNow => 'Justo ahora';
+
+  @override
+  String daysAgo(int days) {
+    return 'hace ${days}d';
+  }
+
+  @override
+  String hoursAgo(int hours) {
+    return 'hace ${hours}h';
+  }
+
+  @override
+  String minutesAgo(int minutes) {
+    return 'hace ${minutes}m';
+  }
+
+  @override
+  String get noDescription => 'Sin descripción';
+
+  @override
+  String get members => 'MIEMBROS';
+
+  @override
+  String get territories => 'TERRITORIOS';
+
+  @override
+  String get defense => 'DEFENSA';
+
+  @override
+  String get leader => 'LÍDER';
+
+  @override
+  String get moderators => 'MODERADORES';
+
+  @override
+  String get colonyMembers => 'MIEMBROS DE COLONIA';
+
+  @override
+  String get sentRequests => 'SOLICITUDES ENVIADAS';
+
+  @override
+  String get sortByOldest => 'Ordenar por más antiguo';
+
+  @override
+  String get sortByNewest => 'Ordenar por más reciente';
+
+  @override
+  String get cancelRequest => 'Cancelar solicitud';
+
+  @override
+  String get noPendingRequests => 'No hay solicitudes pendientes';
+
+  @override
+  String get noSentRequests => 'No has enviado ninguna solicitud de unión';
 }
