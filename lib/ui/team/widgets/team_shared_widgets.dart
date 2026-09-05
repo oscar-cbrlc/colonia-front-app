@@ -196,7 +196,7 @@ class TeamDetailsBody extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70, fontSize: 16),
                   )
                 else
-                  const Text("No description provided", style: TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic)),
+                  Text(locale.noDescription, style: const TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic)),
                 const SizedBox(height: 24),
                 
                 if (headerActions != null && headerActions!.isNotEmpty) ...[
@@ -208,17 +208,17 @@ class TeamDetailsBody extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     StatItem(
-                      label: "MEMBERS",
+                      label: locale.members,
                       value: team.stats?.memberCount.toString() ?? "0",
                       icon: Icons.person,
                     ),
                     StatItem(
-                      label: "TERRITORIES",
+                      label: locale.territories,
                       value: team.stats?.territoriesControlled.toString() ?? "0",
                       icon: Icons.map,
                     ),
                     StatItem(
-                      label: "DEFENSE",
+                      label: locale.defense,
                       value: team.stats?.totalDefensePoints.toStringAsFixed(0) ?? "0",
                       icon: Icons.shield,
                     ),
@@ -234,9 +234,9 @@ class TeamDetailsBody extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                const Text(
-                  "LEADER",
-                  style: TextStyle(
+                Text(
+                  locale.leader,
+                  style: const TextStyle(
                     color: AppTheme.primaryColor,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -266,7 +266,7 @@ class TeamDetailsBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "MODERATORS (${moderators.length})",
+                    "${locale.moderators} (${moderators.length})",
                     style: TextStyle(
                       color: AppTheme.primaryColor.withAlpha(150),
                       fontSize: 12,
@@ -312,7 +312,7 @@ class TeamDetailsBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "COLONY MEMBERS (${regularMembers.length})",
+                    "${locale.colonyMembers} (${regularMembers.length})",
                     style: TextStyle(
                       color: AppTheme.primaryColor.withAlpha(150),
                       fontSize: 12,
@@ -329,10 +329,10 @@ class TeamDetailsBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.8,
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.0,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -340,12 +340,14 @@ class TeamDetailsBody extends StatelessWidget {
                   return MemberCard(
                     member: member,
                     onTap: onMemberTap != null ? () => onMemberTap!(member) : null,
+                    color: team.color,
                   );
                 },
                 childCount: regularMembers.length,
               ),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
 
         if (bottomAction != null)
@@ -403,6 +405,7 @@ class _RequestListSheetState extends State<RequestListSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final sortedRequests = List<TeamRequest>.from(widget.requests);
     sortedRequests.sort((a, b) {
       final dateA = _parseTimestamp(a.requestTimestamp);
@@ -411,8 +414,8 @@ class _RequestListSheetState extends State<RequestListSheet> {
     });
 
     final title = widget.type == RequestListType.received 
-        ? "PENDING JOIN REQUESTS" 
-        : "MY SENT REQUESTS";
+        ? locale.joinRequests 
+        : locale.sentRequests;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
@@ -444,7 +447,7 @@ class _RequestListSheetState extends State<RequestListSheet> {
                     _isNewestFirst ? Icons.arrow_upward_sharp : Icons.arrow_downward_sharp,
                     color: Colors.white70,
                   ),
-                  tooltip: _isNewestFirst ? "Sort by Oldest" : "Sort by Newest",
+                  tooltip: _isNewestFirst ? locale.sortByOldest : locale.sortByNewest,
                   onPressed: () => setState(() => _isNewestFirst = !_isNewestFirst),
                 ),
             ],
@@ -455,8 +458,8 @@ class _RequestListSheetState extends State<RequestListSheet> {
               child: Center(
                 child: Text(
                   widget.type == RequestListType.received 
-                      ? "No pending requests" 
-                      : "You haven't sent any join requests",
+                      ? locale.noPendingRequests 
+                      : locale.noSentRequests,
                   style: const TextStyle(color: Colors.white38),
                 ),
               ),
@@ -505,7 +508,7 @@ class _RequestListSheetState extends State<RequestListSheet> {
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Text(
-                                _formatTimestamp(req.requestTimestamp),
+                                _formatTimestamp(context, req.requestTimestamp),
                                 style: const TextStyle(color: Colors.white38, fontSize: 12),
                               ),
                             ],
@@ -524,7 +527,7 @@ class _RequestListSheetState extends State<RequestListSheet> {
                           ] else 
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 32,),
-                              tooltip: "Cancel Request",
+                              tooltip: locale.cancelRequest,
                               onPressed: () => widget.onCancel(req),
                             ),
                         ] else
@@ -544,8 +547,9 @@ class _RequestListSheetState extends State<RequestListSheet> {
     );
   }
 
-  String _formatTimestamp(dynamic timestamp) {
-    if (timestamp == null) return "Just now";
+  String _formatTimestamp(BuildContext context, dynamic timestamp) {
+    final locale = AppLocalizations.of(context)!;
+    if (timestamp == null) return locale.justNow;
     
     DateTime date;
     if (timestamp is DateTime) {
@@ -559,17 +563,17 @@ class _RequestListSheetState extends State<RequestListSheet> {
         try {
           date = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp));
         } catch (_) {
-          return "Just now";
+          return locale.justNow;
         }
       }
     } else {
-      return "Just now";
+      return locale.justNow;
     }
 
     final diff = DateTime.now().difference(date);
-    if (diff.inDays > 0) return "${diff.inDays}d ago";
-    if (diff.inHours > 0) return "${diff.inHours}h ago";
-    if (diff.inMinutes > 0) return "${diff.inMinutes}m ago";
-    return "Just now";
+    if (diff.inDays > 0) return locale.daysAgo(diff.inDays);
+    if (diff.inHours > 0) return locale.hoursAgo(diff.inHours);
+    if (diff.inMinutes > 0) return locale.minutesAgo(diff.inMinutes);
+    return locale.justNow;
   }
 }
