@@ -262,6 +262,23 @@ class TrackingRepository extends ChangeNotifier {
     _startRoutinePolling();
     notifyListeners();
   }
+
+  void clear() {
+    _isActivityActive = false;
+    _isPaused = false;
+    _userPosition = null;
+    _currentCell = null;
+    _perimeter.clear();
+    _visitedCells.clear();
+    _onTrackNodes.clear();
+    _totalMetersTracked = 0.0;
+    _totalSecondsElapsed = 0;
+    _averagePace = 0.0;
+    _currentSpeed = 0.0;
+    _gameTimer?.cancel();
+    _routineTimer?.cancel();
+    notifyListeners();
+  }
 }
 
 class TrackingSession {

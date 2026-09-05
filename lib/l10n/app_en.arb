@@ -212,5 +212,307 @@
     "@activitySummary": {},
 
     "nextImpact": "Next impact",
-    "@nextImpact": {}
+    "@nextImpact": {},
+
+    "youNotHaveTeam": "You are not part of a Colony",
+    "@youNotHaveTeam": {},
+
+    "createTeam": "Create a Colony",
+    "@createTeam": {},
+
+    "joinTeam": "Join a Colony",
+    "@joinTeam": {},
+
+    "description": "Description",
+    "@description": {},
+
+    "teamMembers": "Colony members",
+    "@teamMembers": {},
+
+    "name": "Name",
+    "@name": {},
+
+    "accessType": "Access type",
+    "@accessType": {},
+
+    "location": "Location",
+    "@location": {},
+
+    "private": "Private",
+    "@private": {},
+
+    "public": "Public",
+    "@public": {},
+
+    "color": "Color",
+    "@color": {},
+
+    "info": "Info",
+    "@info": {},
+
+    "teamJoin": "{username} joined the colony",
+    "@teamJoin": {
+        "description": "Message shown when a member has joined from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamKick": "{username} has been exiled from the colony",
+    "@teamKick": {
+        "description": "Message shown when a member has been kicked from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamExit": "{username} has abandoned the colony",
+    "@teamExit": {
+        "description": "Message shown when a member has left from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "colonyChat": "Colony Chat",
+    "@colonyChat": {},
+
+    "noMessagesYet": "No messages yet",
+    "@noMessagesYet": {},
+
+    "typeMessage": "Type a message...",
+    "@typeMessage": {},
+
+    "delete": "Delete",
+    "@delete": {},
+
+    "memberKicked": "Member kicked from colony",
+    "@memberKicked": {},
+
+    "leaderLeaveError": "You cannot leave the colony as a Leader. Please promote another member to Leader first.",
+    "@leaderLeaveError": {},
+
+    "onlyMemberDeleteError": "You are the only member. Please delete the colony instead.",
+    "@onlyMemberDeleteError": {},
+
+    "leaveColonyTitle": "Leave Colony",
+    "@leaveColonyTitle": {},
+
+    "leaveColonyConfirm": "Are you sure you want to leave this colony?",
+    "@leaveColonyConfirm": {},
+
+    "leave": "Leave",
+    "@leave": {},
+
+    "leftColony": "You have left the colony",
+    "@leftColony": {},
+
+    "actionRequired": "Action Required",
+    "@actionRequired": {},
+
+    "exploreColonies": "EXPLORE COLONIES",
+    "@exploreColonies": {},
+
+    "searchByName": "Search by name...",
+    "@searchByName": {},
+
+    "noColoniesFound": "No colonies found",
+    "@noColoniesFound": {},
+
+    "requestCancelled": "Request cancelled",
+    "@requestCancelled": {},
+
+    "viewSentRequests": "VIEW SENT REQUESTS",
+    "@viewSentRequests": {},
+
+    "joinRequests": "JOIN REQUESTS",
+    "@joinRequests": {},
+
+    "leaveColony": "LEAVE COLONY",
+    "@leaveColony": {},
+
+    "ok": "OK",
+    "@ok": {},
+
+    "colonyNotFound": "Colony not found",
+    "@colonyNotFound": {},
+
+    "requestRejected": "Request rejected",
+    "@requestRejected": {},
+
+    "requestPending": "Request pending",
+    "@requestPending": {},
+
+    "failedToCancelRequest": "Failed to cancel request",
+    "@failedToCancelRequest": {},
+
+    "declineRequest": "Decline request",
+    "@declineRequest": {},
+
+    "successfullyJoinedColony": "Successfully joined the colony",
+    "@successfullyJoinedColony": {},
+
+    "requestSentSuccessfully": "Request sent successfully",
+    "@requestSentSuccessfully": {},
+
+    "requestToJoin": "Request to join",
+    "@requestToJoin": {},
+
+    "memberPromotedToMod": "Member promoted to moderator",
+    "@memberPromotedToMod": {},
+
+    "promoteToLeaderConfirm": "Are you sure you want to promote {username} to Leader? You will lose Leader privileges.",
+    "@promoteToLeaderConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
+    "leadershipTransferred": "Leadership transferred",
+    "@leadershipTransferred": {},
+
+    "memberDemotedToMember": "Member demoted to member",
+    "@memberDemotedToMember": {},
+
+    "kickMemberConfirm": "Are you sure you want to kick {username} from the colony?",
+    "@kickMemberConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
+    "colonyDeleted": "Colony deleted",
+    "@colonyDeleted": {},
+
+    "deleteColony": "Delete colony",
+    "@deleteColony": {},
+
+    "deleteColonyConfirm": "Are you sure you want to delete this colony?",
+    "@deleteColonyConfirm": {},
+
+    "kickMember": "Kick member",
+    "@kickMember": {},
+
+    "kick": "Kick",
+    "@kick": {},
+
+    "promoteToModerator": "Promote to moderator",
+    "@promoteToModerator": {},
+
+    "promoteToLeader": "Promote to leader",
+    "@promoteToLeader": {},
+
+    "demote": "Demote",
+    "@demote": {},
+
+    "demoteToMember": "Demote to member",
+    "@demoteToMember": {},
+
+    "transferLeadership": "Transfer Leadership",
+    "@transferLeadership": {},
+
+    "promote": "Promote",
+    "@promote": {},
+
+    "cannotDelete": "Cannot Delete",
+    "@cannotDelete": {},
+
+    "cannotDeleteActiveMembers": "You cannot delete a colony with active members",
+    "@cannotDeleteActiveMembers": {},
+
+    "colonyUpdatedSuccessfully": "Colony updated successfully",
+    "@colonyUpdatedSuccessfully": {},
+
+    "colonyCreatedSuccessfully": "Colony created successfully",
+    "@colonyCreatedSuccessfully": {},
+
+    "accepted": "accepted",
+    "@accepted": {},
+
+    "justNow": "Just now",
+    "@justNow": {},
+
+    "daysAgo": "{days}d ago",
+    "@daysAgo": {
+        "placeholders": {
+            "days": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "hoursAgo": "{hours}h ago",
+    "@hoursAgo": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "minutesAgo": "{minutes}m ago",
+    "@minutesAgo": {
+        "placeholders": {
+            "minutes": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "noDescription": "No description",
+    "@noDescription": {},
+
+    "members": "MEMBERS",
+    "@members": {},
+
+    "territories": "TERRITORIES",
+    "@territories": {},
+
+    "defense": "DEFENSE",
+    "@defense": {},
+
+    "leader": "LEADER",
+    "@leader": {},
+
+    "moderators": "MODERATORS",
+    "@moderators": {},
+
+    "colonyMembers": "COLONY MEMBERS",
+    "@colonyMembers": {},
+
+    "sentRequests": "SENT REQUESTS",
+    "@sentRequests": {},
+
+    "sortByOldest": "Sort by Oldest",
+    "@sortByOldest": {},
+
+    "sortByNewest": "Sort by Newest",
+    "@sortByNewest": {},
+
+    "cancelRequest": "Cancel Request",
+    "@cancelRequest": {},
+
+    "noPendingRequests": "No pending requests",
+    "@noPendingRequests": {},
+
+    "noSentRequests": "You haven't sent any join requests",
+    "@noSentRequests": {}
 }

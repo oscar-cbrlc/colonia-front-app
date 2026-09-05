@@ -227,4 +227,269 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nextImpact => 'Próximo impacto';
+
+  @override
+  String get youNotHaveTeam => 'No eres miembro de una Colonia';
+
+  @override
+  String get createTeam => 'Crear una Colonia';
+
+  @override
+  String get joinTeam => 'Unirse a una Colonia';
+
+  @override
+  String get description => 'Descripción';
+
+  @override
+  String get teamMembers => 'Miembros de Colonia';
+
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get accessType => 'Tipo de acceso';
+
+  @override
+  String get location => 'Ubicación';
+
+  @override
+  String get private => 'Privado';
+
+  @override
+  String get public => 'Público';
+
+  @override
+  String get color => 'Color';
+
+  @override
+  String get info => 'Info';
+
+  @override
+  String teamJoin(String username) {
+    return '$username se ha unido a la colonia';
+  }
+
+  @override
+  String teamKick(String username) {
+    return '$username ha sido exilidado de la colonia';
+  }
+
+  @override
+  String teamExit(String username) {
+    return '$username ha abandonado la colonia';
+  }
+
+  @override
+  String get colonyChat => 'Chat de Colonia';
+
+  @override
+  String get noMessagesYet => 'No hay mensajes aún';
+
+  @override
+  String get typeMessage => 'Escribe un mensaje...';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get memberKicked => 'Miembro expulsado de la colonia';
+
+  @override
+  String get leaderLeaveError =>
+      'No puedes dejar la colonia como Líder. Por favor, promueve a otro miembro a Líder primero.';
+
+  @override
+  String get onlyMemberDeleteError =>
+      'Eres el único miembro. Por favor, elimina la colonia en su lugar.';
+
+  @override
+  String get leaveColonyTitle => 'Dejar Colonia';
+
+  @override
+  String get leaveColonyConfirm =>
+      '¿Estás seguro de que quieres dejar esta colonia?';
+
+  @override
+  String get leave => 'Dejar';
+
+  @override
+  String get leftColony => 'Has dejado la colonia';
+
+  @override
+  String get actionRequired => 'Acción Requerida';
+
+  @override
+  String get exploreColonies => 'EXPLORAR COLONIAS';
+
+  @override
+  String get searchByName => 'Buscar por nombre...';
+
+  @override
+  String get noColoniesFound => 'No se encontraron colonias';
+
+  @override
+  String get requestCancelled => 'Solicitud cancelada';
+
+  @override
+  String get viewSentRequests => 'VER SOLICITUDES ENVIADAS';
+
+  @override
+  String get joinRequests => 'SOLICITUDES DE UNIÓN';
+
+  @override
+  String get leaveColony => 'DEJAR COLONIA';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get colonyNotFound => 'Colonia no encontrada';
+
+  @override
+  String get requestRejected => 'Solicitud rechazada';
+
+  @override
+  String get requestPending => 'Solicitud pendiente';
+
+  @override
+  String get failedToCancelRequest => 'Error al cancelar la solicitud';
+
+  @override
+  String get declineRequest => 'Rechazar solicitud';
+
+  @override
+  String get successfullyJoinedColony =>
+      'Te has unido a la colonia exitosamente';
+
+  @override
+  String get requestSentSuccessfully => 'Solicitud enviada exitosamente';
+
+  @override
+  String get requestToJoin => 'Solicitar unirse';
+
+  @override
+  String get memberPromotedToMod => 'Miembro ascendido a moderador';
+
+  @override
+  String promoteToLeaderConfirm(String username) {
+    return '¿Estás seguro de que quieres ascender a $username a Líder? Perderás tus privilegios de Líder.';
+  }
+
+  @override
+  String get leadershipTransferred => 'Liderazgo transferido';
+
+  @override
+  String get memberDemotedToMember => 'Miembro descendido a miembro';
+
+  @override
+  String kickMemberConfirm(String username) {
+    return '¿Estás seguro de que quieres expulsar a $username de la colonia?';
+  }
+
+  @override
+  String get colonyDeleted => 'Colonia eliminada';
+
+  @override
+  String get deleteColony => 'Eliminar colonia';
+
+  @override
+  String get deleteColonyConfirm =>
+      '¿Estás seguro de que quieres eliminar esta colonia?';
+
+  @override
+  String get kickMember => 'Expulsar miembro';
+
+  @override
+  String get kick => 'Expulsar';
+
+  @override
+  String get promoteToModerator => 'Ascender a moderador';
+
+  @override
+  String get promoteToLeader => 'Ascender a líder';
+
+  @override
+  String get demote => 'Descender';
+
+  @override
+  String get demoteToMember => 'Descender a miembro';
+
+  @override
+  String get transferLeadership => 'Transferir Liderazgo';
+
+  @override
+  String get promote => 'Ascender';
+
+  @override
+  String get cannotDelete => 'No se puede eliminar';
+
+  @override
+  String get cannotDeleteActiveMembers =>
+      'No puedes eliminar una colonia con miembros activos';
+
+  @override
+  String get colonyUpdatedSuccessfully => 'Colonia actualizada exitosamente';
+
+  @override
+  String get colonyCreatedSuccessfully => 'Colonia creada exitosamente';
+
+  @override
+  String get accepted => 'aceptado';
+
+  @override
+  String get justNow => 'Justo ahora';
+
+  @override
+  String daysAgo(int days) {
+    return 'hace ${days}d';
+  }
+
+  @override
+  String hoursAgo(int hours) {
+    return 'hace ${hours}h';
+  }
+
+  @override
+  String minutesAgo(int minutes) {
+    return 'hace ${minutes}m';
+  }
+
+  @override
+  String get noDescription => 'Sin descripción';
+
+  @override
+  String get members => 'MIEMBROS';
+
+  @override
+  String get territories => 'TERRITORIOS';
+
+  @override
+  String get defense => 'DEFENSA';
+
+  @override
+  String get leader => 'LÍDER';
+
+  @override
+  String get moderators => 'MODERADORES';
+
+  @override
+  String get colonyMembers => 'MIEMBROS DE COLONIA';
+
+  @override
+  String get sentRequests => 'SOLICITUDES ENVIADAS';
+
+  @override
+  String get sortByOldest => 'Ordenar por más antiguo';
+
+  @override
+  String get sortByNewest => 'Ordenar por más reciente';
+
+  @override
+  String get cancelRequest => 'Cancelar solicitud';
+
+  @override
+  String get noPendingRequests => 'No hay solicitudes pendientes';
+
+  @override
+  String get noSentRequests => 'No has enviado ninguna solicitud de unión';
 }

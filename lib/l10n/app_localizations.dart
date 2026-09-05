@@ -529,6 +529,492 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Próximo impacto'**
   String get nextImpact;
+
+  /// No description provided for @youNotHaveTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'No eres miembro de una Colonia'**
+  String get youNotHaveTeam;
+
+  /// No description provided for @createTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear una Colonia'**
+  String get createTeam;
+
+  /// No description provided for @joinTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirse a una Colonia'**
+  String get joinTeam;
+
+  /// No description provided for @description.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get description;
+
+  /// No description provided for @teamMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembros de Colonia'**
+  String get teamMembers;
+
+  /// No description provided for @name.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get name;
+
+  /// No description provided for @accessType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de acceso'**
+  String get accessType;
+
+  /// No description provided for @location.
+  ///
+  /// In es, this message translates to:
+  /// **'Ubicación'**
+  String get location;
+
+  /// No description provided for @private.
+  ///
+  /// In es, this message translates to:
+  /// **'Privado'**
+  String get private;
+
+  /// No description provided for @public.
+  ///
+  /// In es, this message translates to:
+  /// **'Público'**
+  String get public;
+
+  /// No description provided for @color.
+  ///
+  /// In es, this message translates to:
+  /// **'Color'**
+  String get color;
+
+  /// No description provided for @info.
+  ///
+  /// In es, this message translates to:
+  /// **'Info'**
+  String get info;
+
+  /// Message shown when a member has joined from the team
+  ///
+  /// In es, this message translates to:
+  /// **'{username} se ha unido a la colonia'**
+  String teamJoin(String username);
+
+  /// Message shown when a member has been kicked from the team
+  ///
+  /// In es, this message translates to:
+  /// **'{username} ha sido exilidado de la colonia'**
+  String teamKick(String username);
+
+  /// Message shown when a member has left from the team
+  ///
+  /// In es, this message translates to:
+  /// **'{username} ha abandonado la colonia'**
+  String teamExit(String username);
+
+  /// No description provided for @colonyChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Chat de Colonia'**
+  String get colonyChat;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay mensajes aún'**
+  String get noMessagesYet;
+
+  /// No description provided for @typeMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un mensaje...'**
+  String get typeMessage;
+
+  /// No description provided for @delete.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get delete;
+
+  /// No description provided for @memberKicked.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro expulsado de la colonia'**
+  String get memberKicked;
+
+  /// No description provided for @leaderLeaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes dejar la colonia como Líder. Por favor, promueve a otro miembro a Líder primero.'**
+  String get leaderLeaveError;
+
+  /// No description provided for @onlyMemberDeleteError.
+  ///
+  /// In es, this message translates to:
+  /// **'Eres el único miembro. Por favor, elimina la colonia en su lugar.'**
+  String get onlyMemberDeleteError;
+
+  /// No description provided for @leaveColonyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejar Colonia'**
+  String get leaveColonyTitle;
+
+  /// No description provided for @leaveColonyConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres dejar esta colonia?'**
+  String get leaveColonyConfirm;
+
+  /// No description provided for @leave.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejar'**
+  String get leave;
+
+  /// No description provided for @leftColony.
+  ///
+  /// In es, this message translates to:
+  /// **'Has dejado la colonia'**
+  String get leftColony;
+
+  /// No description provided for @actionRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Acción Requerida'**
+  String get actionRequired;
+
+  /// No description provided for @exploreColonies.
+  ///
+  /// In es, this message translates to:
+  /// **'EXPLORAR COLONIAS'**
+  String get exploreColonies;
+
+  /// No description provided for @searchByName.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre...'**
+  String get searchByName;
+
+  /// No description provided for @noColoniesFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron colonias'**
+  String get noColoniesFound;
+
+  /// No description provided for @requestCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud cancelada'**
+  String get requestCancelled;
+
+  /// No description provided for @viewSentRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'VER SOLICITUDES ENVIADAS'**
+  String get viewSentRequests;
+
+  /// No description provided for @joinRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'SOLICITUDES DE UNIÓN'**
+  String get joinRequests;
+
+  /// No description provided for @leaveColony.
+  ///
+  /// In es, this message translates to:
+  /// **'DEJAR COLONIA'**
+  String get leaveColony;
+
+  /// No description provided for @ok.
+  ///
+  /// In es, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @colonyNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia no encontrada'**
+  String get colonyNotFound;
+
+  /// No description provided for @requestRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud rechazada'**
+  String get requestRejected;
+
+  /// No description provided for @requestPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud pendiente'**
+  String get requestPending;
+
+  /// No description provided for @failedToCancelRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cancelar la solicitud'**
+  String get failedToCancelRequest;
+
+  /// No description provided for @declineRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar solicitud'**
+  String get declineRequest;
+
+  /// No description provided for @successfullyJoinedColony.
+  ///
+  /// In es, this message translates to:
+  /// **'Te has unido a la colonia exitosamente'**
+  String get successfullyJoinedColony;
+
+  /// No description provided for @requestSentSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud enviada exitosamente'**
+  String get requestSentSuccessfully;
+
+  /// No description provided for @requestToJoin.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar unirse'**
+  String get requestToJoin;
+
+  /// No description provided for @memberPromotedToMod.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro ascendido a moderador'**
+  String get memberPromotedToMod;
+
+  /// No description provided for @promoteToLeaderConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres ascender a {username} a Líder? Perderás tus privilegios de Líder.'**
+  String promoteToLeaderConfirm(String username);
+
+  /// No description provided for @leadershipTransferred.
+  ///
+  /// In es, this message translates to:
+  /// **'Liderazgo transferido'**
+  String get leadershipTransferred;
+
+  /// No description provided for @memberDemotedToMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro descendido a miembro'**
+  String get memberDemotedToMember;
+
+  /// No description provided for @kickMemberConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres expulsar a {username} de la colonia?'**
+  String kickMemberConfirm(String username);
+
+  /// No description provided for @colonyDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia eliminada'**
+  String get colonyDeleted;
+
+  /// No description provided for @deleteColony.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar colonia'**
+  String get deleteColony;
+
+  /// No description provided for @deleteColonyConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres eliminar esta colonia?'**
+  String get deleteColonyConfirm;
+
+  /// No description provided for @kickMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Expulsar miembro'**
+  String get kickMember;
+
+  /// No description provided for @kick.
+  ///
+  /// In es, this message translates to:
+  /// **'Expulsar'**
+  String get kick;
+
+  /// No description provided for @promoteToModerator.
+  ///
+  /// In es, this message translates to:
+  /// **'Ascender a moderador'**
+  String get promoteToModerator;
+
+  /// No description provided for @promoteToLeader.
+  ///
+  /// In es, this message translates to:
+  /// **'Ascender a líder'**
+  String get promoteToLeader;
+
+  /// No description provided for @demote.
+  ///
+  /// In es, this message translates to:
+  /// **'Descender'**
+  String get demote;
+
+  /// No description provided for @demoteToMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Descender a miembro'**
+  String get demoteToMember;
+
+  /// No description provided for @transferLeadership.
+  ///
+  /// In es, this message translates to:
+  /// **'Transferir Liderazgo'**
+  String get transferLeadership;
+
+  /// No description provided for @promote.
+  ///
+  /// In es, this message translates to:
+  /// **'Ascender'**
+  String get promote;
+
+  /// No description provided for @cannotDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede eliminar'**
+  String get cannotDelete;
+
+  /// No description provided for @cannotDeleteActiveMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes eliminar una colonia con miembros activos'**
+  String get cannotDeleteActiveMembers;
+
+  /// No description provided for @colonyUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia actualizada exitosamente'**
+  String get colonyUpdatedSuccessfully;
+
+  /// No description provided for @colonyCreatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia creada exitosamente'**
+  String get colonyCreatedSuccessfully;
+
+  /// No description provided for @accepted.
+  ///
+  /// In es, this message translates to:
+  /// **'aceptado'**
+  String get accepted;
+
+  /// No description provided for @justNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Justo ahora'**
+  String get justNow;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {days}d'**
+  String daysAgo(int days);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {hours}h'**
+  String hoursAgo(int hours);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In es, this message translates to:
+  /// **'hace {minutes}m'**
+  String minutesAgo(int minutes);
+
+  /// No description provided for @noDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin descripción'**
+  String get noDescription;
+
+  /// No description provided for @members.
+  ///
+  /// In es, this message translates to:
+  /// **'MIEMBROS'**
+  String get members;
+
+  /// No description provided for @territories.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIOS'**
+  String get territories;
+
+  /// No description provided for @defense.
+  ///
+  /// In es, this message translates to:
+  /// **'DEFENSA'**
+  String get defense;
+
+  /// No description provided for @leader.
+  ///
+  /// In es, this message translates to:
+  /// **'LÍDER'**
+  String get leader;
+
+  /// No description provided for @moderators.
+  ///
+  /// In es, this message translates to:
+  /// **'MODERADORES'**
+  String get moderators;
+
+  /// No description provided for @colonyMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'MIEMBROS DE COLONIA'**
+  String get colonyMembers;
+
+  /// No description provided for @sentRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'SOLICITUDES ENVIADAS'**
+  String get sentRequests;
+
+  /// No description provided for @sortByOldest.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar por más antiguo'**
+  String get sortByOldest;
+
+  /// No description provided for @sortByNewest.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar por más reciente'**
+  String get sortByNewest;
+
+  /// No description provided for @cancelRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar solicitud'**
+  String get cancelRequest;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay solicitudes pendientes'**
+  String get noPendingRequests;
+
+  /// No description provided for @noSentRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'No has enviado ninguna solicitud de unión'**
+  String get noSentRequests;
 }
 
 class _AppLocalizationsDelegate

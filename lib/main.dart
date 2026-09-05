@@ -19,8 +19,16 @@ import 'package:colonia_front_app/data/services/api/territory_service.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 
+import 'package:colonia_front_app/data/services/api/team_service.dart';
+import 'package:colonia_front_app/data/repositories/team_repository.dart';
+import 'package:colonia_front_app/data/services/api/team_request_service.dart';
+import 'package:colonia_front_app/data/repositories/team_request_repository.dart';
+import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
+import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
+import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
+import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 
@@ -44,6 +52,18 @@ void main() {
 
         ProxyProvider<ApiClient, TerritoryService>(
           update: (_, apiClient, __) => TerritoryService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamService>(
+          update: (_, apiClient, __) => TeamService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamRequestService>(
+          update: (_, apiClient, __) => TeamRequestService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, TeamChatService>(
+          update: (_, apiClient, __) => TeamChatService(apiClient),
         ),
 
         ChangeNotifierProxyProvider<AuthService, AuthRepository>(
@@ -81,6 +101,24 @@ void main() {
               previous ?? TerritoryRepository(territoryService),
         ),
 
+        ChangeNotifierProxyProvider<TeamService, TeamRepository>(
+          create: (context) => TeamRepository(context.read<TeamService>()),
+          update: (_, teamService, previous) =>
+              previous ?? TeamRepository(teamService),
+        ),
+
+        ChangeNotifierProxyProvider<TeamRequestService, TeamRequestRepository>(
+          create: (context) => TeamRequestRepository(context.read<TeamRequestService>()),
+          update: (_, teamRequestService, previous) =>
+              previous ?? TeamRequestRepository(teamRequestService),
+        ),
+
+        ChangeNotifierProxyProvider<TeamChatService, TeamChatRepository>(
+          create: (context) => TeamChatRepository(context.read<TeamChatService>()),
+          update: (_, teamChatService, previous) =>
+              previous ?? TeamChatRepository(teamChatService),
+        ),
+
         ChangeNotifierProvider<BoostRepository>(
           create: (_) => BoostRepository(),
         ),
@@ -105,6 +143,27 @@ void main() {
           ),
           update: (_, trackingRepository, territoryRepository, previous) => 
               previous ?? SessionRepository(trackingRepository, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider3<TrackingRepository, TerritoryRepository, TeamRepository, MapViewModel>(
+          create: (context) => MapViewModel(
+            context.read<TrackingRepository>(),
+            context.read<TerritoryRepository>(),
+            context.read<TeamRepository>()
+          ),
+          update: (_, trackingRepository, territoryRepository, teamRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository),
+        ),
+
+        ChangeNotifierProxyProvider4<TeamRepository, AuthRepository, TeamRequestRepository, TeamChatRepository, TeamViewModel>(
+          create: (context) => TeamViewModel(
+            context.read<TeamRepository>(),
+            context.read<AuthRepository>(),
+            context.read<TeamRequestRepository>(),
+            context.read<TeamChatRepository>(),
+          ),
+          update: (_, teamRepository, authRepository, teamRequestRepository, teamChatRepository, previous) =>
+              previous ?? TeamViewModel(teamRepository, authRepository, teamRequestRepository, teamChatRepository),
         ),
       ],
       child: const ColoniaApp(),

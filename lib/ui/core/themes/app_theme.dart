@@ -16,7 +16,7 @@ class AppTheme {
   static const Color fontSecondaryColor = Color(0xFF475467);
   static const Color fontVeryLightColor = Color(0xFF667085);
   static const Color fontUnderlineColor = Color(0xFF344054);
-  static const Color lightBackground = Color.fromRGBO(240,241,245,1);
+  static const Color lightBackground = Color.fromRGBO(147, 146, 143, 1.0);
   static const Color darkBackground = Color.fromRGBO(48,38,33,1);
   static const Color lightTextColor = Color(0xFF475467);
   static const Color lightBtBorderColor = Color(0xFFD0D5DD);

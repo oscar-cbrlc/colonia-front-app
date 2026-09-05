@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -14,6 +18,7 @@ import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 class MapViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final TerritoryRepository _territoryRepository;
+  final TeamRepository _teamRepository;
 
   static const double minZoomToRender = 13.0;
   static const double maxRenderRadius = 5000.0;
@@ -36,9 +41,10 @@ class MapViewModel extends ChangeNotifier {
   double get currentBearing => _trackingRepository.currentBearing;
   String? get currentCell => _trackingRepository.currentCell;
 
-  MapViewModel(this._trackingRepository, this._territoryRepository) {
+  MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _territoryRepository.addListener(_onTerritoriesChanged);
+    //_teamRepository.addListener(())
     _lastActivityState = _trackingRepository.isActivityActive;
   }
 
@@ -71,6 +77,8 @@ class MapViewModel extends ChangeNotifier {
       centerOnUser();
     } else {
       _trackingRepository.updateCurrentPosition();
+      final currentUser = AuthRepository.instance.currentUser;
+      if (currentUser != null && currentUser.team != null) _teamRepository.fetchTeamDetails(currentUser.team!.id);
     }
 
     notifyListeners();
@@ -143,6 +151,19 @@ class MapViewModel extends ChangeNotifier {
     _debounceTimer = Timer(const Duration(milliseconds: 100), () => _updateH3Grid());
   }
 
+  String _colorToRgba(Color c, double alpha) {
+    final r = (c.r * 255).round();
+    final g = (c.g * 255).round();
+    final b = (c.b * 255).round();
+    return 'rgba($r, $g, $b, $alpha)';
+  }
+
+  Color _getUserTeamColor() {
+    final currentUser = AuthRepository.instance.currentUser;
+    if (currentUser != null && currentUser.team != null) return Color(_teamRepository.currentTeam!.color);
+    return AppTheme.primaryColor;
+  }
+
   Future<void> _initializeH3Layer() async {
     final style = _mapboxMap?.style;
     if (style == null) return;
@@ -165,7 +186,7 @@ class MapViewModel extends ChangeNotifier {
       id: "h3-grid-layer",
       sourceId: "h3-grid-source",
     ));
-    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ['case', ['to-boolean', ['get', 'is_current']], 'rgba(100, 138, 7, 0.4)', 'rgba(0, 0, 0, 0)']);
+    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
 
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
@@ -205,16 +226,49 @@ class MapViewModel extends ChangeNotifier {
     if (_setEquals(_lastH3Indexes, indexSet)) return;
     _lastH3Indexes = indexSet;
 
+    final currentUser = AuthRepository.instance.currentUser;
+    final userTeamId = currentUser?.team?.id;
+    final userTeamColor = _getUserTeamColor();
+
     final features = currentIndexes.map((hexId) {
       final territory = _territoryRepository.getTerritoryOrDefault(hexId);
+      final bool isCurrent = hexId == currentCell;
+      final TerritoryTeam? claimedTeam = territory.team;
+
+      String fillColor;
+      if (isCurrent) {
+        if (claimedTeam == null) {
+          fillColor = _colorToRgba(userTeamColor, 0.55);
+        } else {
+          final claimedColor = Color(claimedTeam.color);
+          if (userTeamId != null && claimedTeam.id == userTeamId) {
+            fillColor = _colorToRgba(userTeamColor, 0.70);
+          } else {
+            final blended = Color.fromARGB(
+              255,
+              (((userTeamColor.r * 255) + (claimedColor.r * 255)) ~/ 2),
+              (((userTeamColor.g * 255) + (claimedColor.g * 255)) ~/ 2),
+              (((userTeamColor.b * 255) + (claimedColor.b * 255)) ~/ 2),
+            );
+            fillColor = _colorToRgba(blended, 0.65);
+          }
+        }
+      } else if (claimedTeam != null) {
+        final claimedColor = Color(claimedTeam.color);
+        fillColor = _colorToRgba(claimedColor, 0.40);
+      } else {
+        fillColor = 'rgba(0, 0, 0, 0)';
+      }
+
       return {
         "type": "Feature",
         "properties": {
           "h3_index": hexId, 
-          "is_current": hexId == currentCell,
+          "is_current": isCurrent,
           "health": territory.healthPoints,
           "health_label": territory.healthPoints.toStringAsFixed(0),
-          "team_id": territory.teamId,
+          "team_id": territory.team?.id,
+          "fill_color": fillColor,
         },
         "geometry": {"type": "Polygon", "coordinates": [H3Helper.getHexagonCorners(hexId)]}
       };

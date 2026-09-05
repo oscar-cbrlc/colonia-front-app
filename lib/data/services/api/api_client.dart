@@ -34,12 +34,22 @@ class ApiClient {
     return headers;
   }
 
-  Future<http.Response> post(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
-    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
+  Future<http.Response> post(
+    String endpoint, {
+    Map<String, String>? queryParameters,
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+  }) async {
+    var url = Uri.parse(Env.apiUrl).resolve(endpoint);
+
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      url = url.replace(queryParameters: queryParameters);
+    }
+
     return await _httpClient.post(
       url,
       headers: await _getHeaders(extraHeaders: headers),
-      body: body != null? jsonEncode(body): null,
+      body: body != null ? jsonEncode(body) : null,
     ).timeout(const Duration(seconds: 10));
   }
 
@@ -59,9 +69,47 @@ class ApiClient {
     ).timeout(const Duration(seconds: 10));
   }
 
-  Future<http.Response> patch(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
-    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
+  Future<http.Response> patch(
+    String endpoint, {
+    Map<String, String>? queryParameters,
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+  }) async {
+    var url = Uri.parse(Env.apiUrl).resolve(endpoint);
+
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      url = url.replace(queryParameters: queryParameters);
+    }
+
     return await _httpClient.patch(
+      url,
+      headers: await _getHeaders(extraHeaders: headers),
+      body: body != null? jsonEncode(body): null,
+    ).timeout(const Duration(seconds: 10));
+  }
+
+  Future<http.Response> put(
+    String endpoint, {
+    Map<String, String>? queryParameters,
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+  }) async {
+    var url = Uri.parse(Env.apiUrl).resolve(endpoint);
+
+    if (queryParameters != null && queryParameters.isNotEmpty) {
+      url = url.replace(queryParameters: queryParameters);
+    }
+
+    return await _httpClient.put(
+      url,
+      headers: await _getHeaders(extraHeaders: headers),
+      body: body != null ? jsonEncode(body) : null,
+    ).timeout(const Duration(seconds: 10));
+  }
+
+  Future<http.Response> delete(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
+    final url = Uri.parse(Env.apiUrl).resolve(endpoint);
+    return await _httpClient.delete(
       url,
       headers: await _getHeaders(extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
