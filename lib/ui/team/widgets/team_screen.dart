@@ -1,9 +1,11 @@
+import 'package:colonia_front_app/domain/models/team_chat_message.dart';
 import 'package:flutter/material.dart';
 import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/enums/team_role.dart';
+import '../../../domain/models/enums/message_type.dart';
 import '../../../ui/core/navigation/app_router.dart';
 import 'team_shared_widgets.dart';
 
@@ -57,8 +59,9 @@ class TeamScreen extends StatelessWidget {
           onCancel: (req) async {
             final success = await viewModel.cancelRequest(req.team!.id);
             if (success && context.mounted) {
+              final locale = AppLocalizations.of(context)!;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Request cancelled"))
+                SnackBar(content: Text(locale.requestCancelled))
               );
             }
           },
@@ -168,6 +171,7 @@ class _TeamDetailsView extends StatelessWidget {
     final isLeader = viewModel.currentUser?.isTeamLeader ?? false;
     final canModerate = viewModel.currentUser?.canModerateTeam ?? false;
     final pendingRequestsCount = viewModel.teamReceivedRequests.length;
+    final locale = AppLocalizations.of(context)!;
 
     return Container(
       color: AppTheme.darkBackground,
@@ -184,7 +188,19 @@ class _TeamDetailsView extends StatelessWidget {
         headerActions: [
           Row(
             children: [
-              if (canModerate)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _showTeamChatSheet(context, viewModel),
+                  icon: const Icon(Icons.chat_bubble_outline, color: Colors.black),
+                  label: const Text("TEAM CHAT", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              if (canModerate) ...[
+                const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _showJoinRequestsSheet(context, viewModel),
@@ -203,27 +219,29 @@ class _TeamDetailsView extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (viewModel.userMadeRequests.isNotEmpty) ...[
-                if (canModerate) const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => TeamScreen.showSentRequestsSheet(context, viewModel),
-                    icon: Badge(
-                      label: Text("${viewModel.userMadeRequests.length}"),
-                      backgroundColor: Colors.blueAccent,
-                      child: const Icon(Icons.send_outlined),
-                    ),
-                    label: const Text("SENT"),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.blueAccent.withAlpha(100)),
-                      foregroundColor: Colors.blueAccent,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
               ],
             ],
           ),
+          if (viewModel.userMadeRequests.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => TeamScreen.showSentRequestsSheet(context, viewModel),
+                icon: Badge(
+                  label: Text("${viewModel.userMadeRequests.length}"),
+                  backgroundColor: Colors.blueAccent,
+                  child: const Icon(Icons.send_outlined),
+                ),
+                label: Text(locale.viewSentRequests),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.blueAccent.withAlpha(100)),
+                  foregroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
         ],
         onMemberTap: (member) => _showMemberActions(context, viewModel, member),
         bottomAction: OutlinedButton(
@@ -233,9 +251,18 @@ class _TeamDetailsView extends StatelessWidget {
             foregroundColor: Colors.redAccent,
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text("LEAVE COLONY", style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(locale.leaveColony, style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ),
+    );
+  }
+
+  void _showTeamChatSheet(BuildContext context, TeamViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _TeamChatSheet(viewModel: viewModel),
     );
   }
 
@@ -253,15 +280,16 @@ class _TeamDetailsView extends StatelessWidget {
             final success = await viewModel.acceptRequest(req.user!.id);
             if (success && context.mounted) {
                ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${req.user?.name ?? 'Member'} accepted"))
+                SnackBar(content: Text("${req.user?.name ?? 'Member'} ${AppLocalizations.of(context)!.accepted}"))
               );
             }
           },
           onReject: (req) async {
             final success = await viewModel.rejectRequest(req.user!.id);
             if (success && context.mounted) {
+              final locale = AppLocalizations.of(context)!;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Request rejected"), backgroundColor: Colors.redAccent)
+                SnackBar(content: Text(locale.requestRejected), backgroundColor: Colors.redAccent)
               );
             }
           },
@@ -290,6 +318,7 @@ class _TeamDetailsView extends StatelessWidget {
 
     final targetIsModerator = member.role == TeamRole.moderator.name;
     final targetIsMember = member.role == TeamRole.member.name;
+    final locale = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -312,29 +341,29 @@ class _TeamDetailsView extends StatelessWidget {
               if (targetIsMember)
                 ListTile(
                   leading: const Icon(Icons.security, color: Colors.blue),
-                  title: const Text("Promote to Moderator", style: TextStyle(color: Colors.white)),
+                  title: Text(locale.promoteToModerator, style: TextStyle(color: Colors.white)),
                   onTap: () async {
                     Navigator.pop(context);
                     final success = await viewModel.promoteMember(member.userId);
                     if (success && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Member promoted to Moderator")));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberPromotedToMod)));
                     }
                   },
                 ),
               if (targetIsModerator)
                 ListTile(
                   leading: const Icon(Icons.star, color: Colors.amber),
-                  title: const Text("Promote to Leader", style: TextStyle(color: Colors.white)),
+                  title: Text(locale.promoteToLeader, style: const TextStyle(color: Colors.white)),
                   onTap: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
                         backgroundColor: AppTheme.darkBackground,
-                        title: const Text("Transfer Leadership", style: TextStyle(color: Colors.white)),
-                        content: Text("Are you sure you want to promote ${member.userName} to Leader? You will lose Leader permissions."),
+                        title: Text(locale.transferLeadership, style: const TextStyle(color: Colors.white)),
+                        content: Text(locale.promoteToLeaderConfirm(member.userName)),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCEL")),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("PROMOTE", style: TextStyle(color: Colors.amber))),
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
+                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.promote.toUpperCase(), style: const TextStyle(color: Colors.amber))),
                         ],
                       ),
                     );
@@ -342,7 +371,7 @@ class _TeamDetailsView extends StatelessWidget {
                       Navigator.pop(context);
                       final success = await viewModel.promoteMember(member.userId);
                       if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Leadership transferred")));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.leadershipTransferred)));
                       }
                     }
                   },
@@ -352,12 +381,12 @@ class _TeamDetailsView extends StatelessWidget {
             if ((isLeader || isModerator) && targetIsModerator)
               ListTile(
                 leading: const Icon(Icons.keyboard_arrow_down, color: Colors.orange),
-                title: const Text("Demote to Member", style: TextStyle(color: Colors.white)),
+                title: Text(locale.demoteToMember, style: const TextStyle(color: Colors.white)),
                 onTap: () async {
                   Navigator.pop(context);
                   final success = await viewModel.demoteMember(member.userId);
                   if (success && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Member demoted to Member")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberDemotedToMember)));
                   }
                 },
               ),
@@ -365,17 +394,17 @@ class _TeamDetailsView extends StatelessWidget {
             if (isLeader || (isModerator && targetIsMember))
               ListTile(
                 leading: const Icon(Icons.person_remove, color: Colors.redAccent),
-                title: const Text("Kick from Colony", style: TextStyle(color: Colors.redAccent)),
+                title: Text(locale.kickMember, style: const TextStyle(color: Colors.redAccent)),
                 onTap: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
                       backgroundColor: AppTheme.darkBackground,
-                      title: const Text("Kick Member", style: TextStyle(color: Colors.white)),
-                      content: Text("Are you sure you want to kick ${member.userName} from the colony?"),
+                      title: Text(locale.kickMember, style: const TextStyle(color: Colors.white)),
+                      content: Text(locale.kickMemberConfirm(member.userName)),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCEL")),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("KICK", style: TextStyle(color: Colors.redAccent))),
+                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
+                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.kick.toUpperCase(), style: const TextStyle(color: Colors.redAccent))),
                       ],
                     ),
                   );
@@ -383,7 +412,7 @@ class _TeamDetailsView extends StatelessWidget {
                     Navigator.pop(context);
                     final success = await viewModel.kickMember(member.userId);
                     if (success && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Member kicked from colony")));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberKicked)));
                     }
                   }
                 },
@@ -395,15 +424,16 @@ class _TeamDetailsView extends StatelessWidget {
   }
 
   void _handleLeaveTeam(BuildContext context, TeamViewModel viewModel) async {
+    final locale = AppLocalizations.of(context)!;
     final isLeader = viewModel.currentUser?.isTeamLeader ?? false;
     final memberCount = viewModel.teamMembers.length;
 
     if (isLeader) {
       if (memberCount > 1) {
-        _showErrorDialog(context, "You cannot leave the colony as a Leader. Please promote another member to Leader first.");
+        _showErrorDialog(context, locale.leaderLeaveError);
         return;
       } else {
-        _showErrorDialog(context, "You are the only member. Please delete the colony instead.");
+        _showErrorDialog(context, locale.onlyMemberDeleteError);
         return;
       }
     }
@@ -412,11 +442,11 @@ class _TeamDetailsView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.darkBackground,
-        title: const Text("Leave Colony", style: TextStyle(color: Colors.white)),
-        content: const Text("Are you sure you want to leave this colony?", style: TextStyle(color: Colors.white70)),
+        title: Text(locale.leaveColonyTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(locale.leaveColonyConfirm, style: const TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCEL")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("LEAVE", style: TextStyle(color: Colors.redAccent))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.leave.toUpperCase(), style: const TextStyle(color: Colors.redAccent))),
         ],
       ),
     );
@@ -424,21 +454,22 @@ class _TeamDetailsView extends StatelessWidget {
     if (confirm == true) {
       final success = await viewModel.leaveTeam();
       if (success && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("You have left the colony")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.leftColony)));
         TeamScreen.showExploreTeamsSheet(context, viewModel);
       }
     }
   }
 
   void _showErrorDialog(BuildContext context, String message) {
+    final locale = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.darkBackground,
-        title: const Text("Action Required", style: TextStyle(color: Colors.white)),
+        title: Text(locale.actionRequired, style: const TextStyle(color: Colors.white)),
         content: Text(message, style: const TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(locale.ok.toUpperCase())),
         ],
       ),
     );
@@ -743,6 +774,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       padding: const EdgeInsets.all(24),
@@ -758,9 +790,9 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "EXPLORE COLONIES",
-                style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontFamily: 'Oswald', fontSize: 24),
+              Text(
+                locale.exploreColonies,
+                style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontFamily: 'Oswald', fontSize: 24),
               ),
 
             ],
@@ -771,7 +803,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
             onChanged: _searchTeams,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: "Search by name...",
+              hintText: locale.searchByName,
               hintStyle: const TextStyle(color: Colors.white24),
               prefixIcon: const Icon(Icons.search, color: Colors.white54),
               filled: true,
@@ -784,7 +816,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
                 : _teams.isEmpty
-                    ? const Center(child: Text("No colonies found", style: TextStyle(color: Colors.white54)))
+                    ? Center(child: Text(locale.noColoniesFound, style: const TextStyle(color: Colors.white54)))
                     : ListView.builder(
                         itemCount: _teams.length,
                         itemBuilder: (context, index) {
@@ -816,6 +848,7 @@ class _TeamListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: ShapeDecoration(
@@ -849,7 +882,7 @@ class _TeamListItem extends StatelessWidget {
                 border: Border.all(color: team.isPublic ? Colors.green : Colors.orange, width: 0.5),
               ),
               child: Text(
-                (team.isPublic ? "PUBLIC" : "PRIVATE"),
+                (team.isPublic ? locale.public.toUpperCase() : locale.private.toUpperCase()),
                 style: TextStyle(
                   color: team.isPublic ? Colors.green : Colors.orange,
                   fontSize: 8,
@@ -951,6 +984,363 @@ class _HueSlider extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _TeamChatSheet extends StatefulWidget {
+  final TeamViewModel viewModel;
+  const _TeamChatSheet({required this.viewModel});
+
+  @override
+  State<_TeamChatSheet> createState() => _TeamChatSheetState();
+}
+
+class _TeamChatSheetState extends State<_TeamChatSheet> {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  int? _selectedMessageId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.fetchChatMessages().then((_) => _scrollToBottom());
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  String _getLocalizedSystemMessage(AppLocalizations locale, TeamChatMessage msg) {
+    final username = msg.user?.name ?? 'User';
+    switch (msg.type) {
+      case 'team_join':
+        return locale.teamJoin(username);
+      case 'team_kick':
+        return locale.teamKick(username);
+      case 'team_exit':
+        return locale.teamExit(username);
+      default:
+        return msg.message;
+    }
+  }
+
+  String _formatTimestamp(BuildContext context, dynamic timestamp) {
+    final locale = AppLocalizations.of(context)!;
+    if (timestamp == null) return locale.justNow;
+
+    DateTime date;
+    if (timestamp is DateTime) {
+      date = timestamp;
+    } else if (timestamp is int) {
+      date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    } else if (timestamp is String) {
+      try {
+        date = DateTime.parse(timestamp);
+      } catch (_) {
+        try {
+          date = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp));
+        } catch (_) {
+          return locale.justNow;
+        }
+      }
+    } else {
+      return locale.justNow;
+    }
+
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) return locale.daysAgo(diff.inDays);
+    if (diff.inHours > 0) return locale.hoursAgo(diff.inHours);
+    if (diff.inMinutes > 0) return locale.minutesAgo(diff.inMinutes);
+    return locale.justNow;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final teamVm = widget.viewModel;
+        final currentUser = teamVm.currentUser;
+        final isLeader = currentUser?.isTeamLeader ?? false;
+        final isModerator = currentUser?.isTeamMod ?? false;
+
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: ShapeDecoration(
+            color: AppTheme.darkBackground,
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              )
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: ShapeDecoration(
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  )
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          locale.colonyChat.toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.white.withAlpha(100),
+                            fontFamily: 'Oswald',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          teamVm.currentTeam!.name,
+                          style: TextStyle(
+                            color: Color(teamVm.currentTeam!.color),
+                            fontFamily: 'Oswald',
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Messages List
+              Expanded(
+                child: teamVm.isChatLoading && teamVm.chatMessages.isEmpty
+                    ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                    : teamVm.chatMessages.isEmpty
+                        ? Center(child: Text(locale.noMessagesYet, style: const TextStyle(color: Colors.white38)))
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: teamVm.chatMessages.length,
+                            itemBuilder: (context, index) {
+                              final msg = teamVm.chatMessages[index];
+                              final type = msg.type ?? 'user_message';
+                              final isUserMessage = type == 'user_message' || type == MessageType.user_message.name;
+                              final isOwnMessage = msg.user?.id == currentUser?.id;
+                              final targetRole = msg.user?.role?.toLowerCase() ?? '';
+                              final isTargetLeader = targetRole == TeamRole.leader.name.toLowerCase();
+                              final isTargetModerator = targetRole == TeamRole.moderator.name.toLowerCase();
+                              final canDelete = isLeader || 
+                                                (isModerator && !isTargetLeader && !isTargetModerator) || 
+                                                isOwnMessage;
+                              final isSelected = _selectedMessageId == msg.id;
+
+                              if (!isUserMessage) {
+                                // System message
+                                final locale = AppLocalizations.of(context)!;
+                                final systemText = _getLocalizedSystemMessage(locale, msg);
+
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: ShapeDecoration(
+                                      color: Colors.white.withAlpha(10),
+                                      shape: BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      )
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.info_outline, color: AppTheme.primaryColor, size: 16),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          systemText,
+                                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        _formatTimestamp(context, msg.date),
+                                        style: const TextStyle(color: Colors.white38, fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              // User message
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedMessageId = isSelected ? null : msg.id;
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 6),
+                                  padding: const EdgeInsets.all(12),
+
+                                  decoration: ShapeDecoration(
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    color: isOwnMessage 
+                                        ? Color(teamVm.currentTeam!.color).withAlpha(20)
+                                        : Colors.white.withAlpha(10),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                    children: [
+                                      Row(
+
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 14,
+                                            backgroundColor: Colors.white24,
+                                            child: msg.user?.thumbnail != null && msg.user!.thumbnail!.isNotEmpty
+                                                ? ClipOval(child: Image.network(msg.user!.thumbnail!))
+                                                : Text(
+                                                    (msg.user?.name ?? 'U')[0].toUpperCase(),
+                                                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                  ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            msg.user?.name ?? 'Unknown',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryColor.withAlpha(40),
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              (msg.user?.role ?? 'member').toUpperCase(),
+                                              style: const TextStyle(
+                                                color: AppTheme.primaryColor,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Text(
+                                            _formatTimestamp(context, msg.date),
+                                            style: const TextStyle(color: Colors.white38, fontSize: 10),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        msg.message,
+                                        style: TextStyle(color: Colors.white.withAlpha(220), fontSize: 14),
+                                      ),
+                                      if (isSelected && canDelete) ...[
+                                        const SizedBox(height: 8),
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: ElevatedButton.icon(
+                                            onPressed: () async {
+                                              final success = await teamVm.deleteChatMessage(msg.id);
+                                              if (success) {
+                                                setState(() => _selectedMessageId = null);
+                                              }
+                                            },
+                                            icon: const Icon(Icons.delete, size: 16, color: Colors.black),
+                                            label: Text(locale.delete.toUpperCase(), style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold)),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.redAccent,
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+              ),
+
+              // Input Bar
+              Container(
+                padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(100),
+                  border: Border(top: BorderSide(color: Colors.white.withAlpha(20))),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: locale.typeMessage,
+                          hintStyle: const TextStyle(color: Colors.white38),
+                          filled: true,
+                          fillColor: Colors.white.withAlpha(10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(0),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () async {
+                        final text = _messageController.text.trim();
+                        if (text.isNotEmpty) {
+                          _messageController.clear();
+                          final success = await teamVm.sendChatMessage(text);
+                          if (success) {
+                            _scrollToBottom();
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.send, color: AppTheme.primaryColor),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor.withAlpha(30),
+                        padding: const EdgeInsets.all(12),
+                        shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(0)
+                        )
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },

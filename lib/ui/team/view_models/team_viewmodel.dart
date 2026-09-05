@@ -4,25 +4,34 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/team_repository.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/team_request_repository.dart';
+import '../../../data/repositories/team_chat_repository.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/user.dart';
 import '../../../domain/models/team_request.dart';
+import '../../../domain/models/team_chat_message.dart';
 
 
 class TeamViewModel extends ChangeNotifier {
   final TeamRepository _teamRepository;
   final AuthRepository _authRepository;
   final TeamRequestRepository _teamRequestRepository;
+  final TeamChatRepository _teamChatRepository;
   LoadingState _state = LoadingState.idle;
   
   Future<void>? _initOperation;
 
   bool get isLoading => _state == LoadingState.loading;
 
-  TeamViewModel(this._teamRepository, this._authRepository, this._teamRequestRepository) {
+  TeamViewModel(
+    this._teamRepository,
+    this._authRepository,
+    this._teamRequestRepository,
+    this._teamChatRepository,
+  ) {
     _authRepository.addListener(_onAuthChanged);
     _teamRepository.addListener(_onRepoChanged);
     _teamRequestRepository.addListener(_onRepoChanged);
+    _teamChatRepository.addListener(_onRepoChanged);
     _init();
   }
 
@@ -30,6 +39,14 @@ class TeamViewModel extends ChangeNotifier {
   User? get currentUser => _authRepository.currentUser;
   List<TeamRequest> get userMadeRequests => _teamRequestRepository.userMadeRequests;
   List<TeamRequest> get teamReceivedRequests => _teamRequestRepository.teamReceivedRequests;
+
+  // Chat
+  List<TeamChatMessage> get chatMessages => _teamChatRepository.messagesReversed;
+  bool get isChatLoading => _teamChatRepository.isLoading;
+
+  Future<void> fetchChatMessages() => _teamChatRepository.fetchMessages();
+  Future<bool> sendChatMessage(String message) => _teamChatRepository.sendMessage(message);
+  Future<bool> deleteChatMessage(int id) => _teamChatRepository.deleteMessage(id);
 
   List<TeamMemberSummary> get teamMembers {
     final members = List<TeamMemberSummary>.from(_teamRepository.teamMembers);
@@ -61,6 +78,7 @@ class TeamViewModel extends ChangeNotifier {
     _authRepository.removeListener(_onAuthChanged);
     _teamRepository.removeListener(_onRepoChanged);
     _teamRequestRepository.removeListener(_onRepoChanged);
+    _teamChatRepository.removeListener(_onRepoChanged);
     super.dispose();
   }
 
@@ -104,6 +122,7 @@ class TeamViewModel extends ChangeNotifier {
       debugPrint('TeamViewModel: No team detected for user, clearing repository.');
       _teamRepository.clear();
       _teamRequestRepository.clear();
+      _teamChatRepository.clear();
       _state = LoadingState.idle;
     }
     notifyListeners();

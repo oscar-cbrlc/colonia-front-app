@@ -33,6 +33,7 @@ abstract class User with _$User {
   }
 
   bool get isTeamLeader => hasTeam && team?.role.toLowerCase() == TeamRole.leader.name.toLowerCase();
+  bool get isTeamMod => hasTeam && team?.role.toLowerCase() == TeamRole.moderator.name.toLowerCase();
 
   bool get hasCustomAvatar =>
       avatar?.head != null ||
