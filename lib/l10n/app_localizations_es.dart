@@ -263,4 +263,176 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get info => 'Info';
+
+  @override
+  String teamJoin(String username) {
+    return '$username se ha unido a la colonia';
+  }
+
+  @override
+  String teamKick(String username) {
+    return '$username ha sido exilidado de la colonia';
+  }
+
+  @override
+  String teamExit(String username) {
+    return '$username ha abandonado la colonia';
+  }
+
+  @override
+  String get colonyChat => 'Chat de Colonia';
+
+  @override
+  String get noMessagesYet => 'No hay mensajes aún';
+
+  @override
+  String get typeMessage => 'Escribe un mensaje...';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get memberKicked => 'Miembro expulsado de la colonia';
+
+  @override
+  String get leaderLeaveError =>
+      'No puedes dejar la colonia como Líder. Por favor, promueve a otro miembro a Líder primero.';
+
+  @override
+  String get onlyMemberDeleteError =>
+      'Eres el único miembro. Por favor, elimina la colonia en su lugar.';
+
+  @override
+  String get leaveColonyTitle => 'Dejar Colonia';
+
+  @override
+  String get leaveColonyConfirm =>
+      '¿Estás seguro de que quieres dejar esta colonia?';
+
+  @override
+  String get leave => 'Dejar';
+
+  @override
+  String get leftColony => 'Has dejado la colonia';
+
+  @override
+  String get actionRequired => 'Acción Requerida';
+
+  @override
+  String get exploreColonies => 'EXPLORAR COLONIAS';
+
+  @override
+  String get searchByName => 'Buscar por nombre...';
+
+  @override
+  String get noColoniesFound => 'No se encontraron colonias';
+
+  @override
+  String get requestCancelled => 'Solicitud cancelada';
+
+  @override
+  String get viewSentRequests => 'VER SOLICITUDES ENVIADAS';
+
+  @override
+  String get joinRequests => 'SOLICITUDES DE UNIÓN';
+
+  @override
+  String get leaveColony => 'DEJAR COLONIA';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get colonyNotFound => 'Colonia no encontrada';
+
+  @override
+  String get requestRejected => 'Solicitud rechazada';
+
+  @override
+  String get requestPending => 'Solicitud pendiente';
+
+  @override
+  String get failedToCancelRequest => 'Error al cancelar la solicitud';
+
+  @override
+  String get declineRequest => 'Rechazar solicitud';
+
+  @override
+  String get successfullyJoinedColony =>
+      'Te has unido a la colonia exitosamente';
+
+  @override
+  String get requestSentSuccessfully => 'Solicitud enviada exitosamente';
+
+  @override
+  String get requestToJoin => 'Solicitar unirse';
+
+  @override
+  String get memberPromotedToMod => 'Miembro promovido a moderador';
+
+  @override
+  String promoteToLeaderConfirm(String username) {
+    return '¿Estás seguro de que quieres promover a $username a Líder? Perderás tus privilegios de Líder.';
+  }
+
+  @override
+  String get leadershipTransferred => 'Liderazgo transferido';
+
+  @override
+  String get memberDemotedToMember => 'Miembro degradado a miembro';
+
+  @override
+  String kickMemberConfirm(String username) {
+    return '¿Estás seguro de que quieres expulsar a $username de la colonia?';
+  }
+
+  @override
+  String get colonyDeleted => 'Colonia eliminada';
+
+  @override
+  String get deleteColony => 'Eliminar colonia';
+
+  @override
+  String get deleteColonyConfirm =>
+      '¿Estás seguro de que quieres eliminar esta colonia?';
+
+  @override
+  String get kickMember => 'Expulsar miembro';
+
+  @override
+  String get kick => 'Expulsar';
+
+  @override
+  String get promoteToModerator => 'Promover a moderador';
+
+  @override
+  String get promoteToLeader => 'Promover a líder';
+
+  @override
+  String get demote => 'Degradar';
+
+  @override
+  String get demoteToMember => 'Degradar a miembro';
+
+  @override
+  String get transferLeadership => 'Transferir Liderazgo';
+
+  @override
+  String get promote => 'Promover';
+
+  @override
+  String get cannotDelete => 'No se puede eliminar';
+
+  @override
+  String get cannotDeleteActiveMembers =>
+      'No puedes eliminar una colonia con miembros activos';
+
+  @override
+  String get colonyUpdatedSuccessfully => 'Colonia actualizada exitosamente';
+
+  @override
+  String get colonyCreatedSuccessfully => 'Colonia creada exitosamente';
+
+  @override
+  String get accepted => 'aceptado';
 }

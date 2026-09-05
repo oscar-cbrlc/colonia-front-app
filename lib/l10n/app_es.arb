@@ -251,5 +251,199 @@
     "@color": {},
 
     "info": "Info",
-    "@info": {}
+    "@info": {},
+
+    "teamJoin": "{username} se ha unido a la colonia",
+    "@teamJoin": {
+        "description": "Message shown when a member has joined from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamKick": "{username} ha sido exilidado de la colonia",
+    "@teamKick": {
+        "description": "Message shown when a member has been kicked from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamExit": "{username} ha abandonado la colonia",
+    "@teamExit": {
+        "description": "Message shown when a member has left from the team",
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "colonyChat": "Chat de Colonia",
+    "@colonyChat": {},
+
+    "noMessagesYet": "No hay mensajes aún",
+    "@noMessagesYet": {},
+
+    "typeMessage": "Escribe un mensaje...",
+    "@typeMessage": {},
+
+    "delete": "Eliminar",
+    "@delete": {},
+
+    "memberKicked": "Miembro expulsado de la colonia",
+    "@memberKicked": {},
+
+    "leaderLeaveError": "No puedes dejar la colonia como Líder. Por favor, promueve a otro miembro a Líder primero.",
+    "@leaderLeaveError": {},
+
+    "onlyMemberDeleteError": "Eres el único miembro. Por favor, elimina la colonia en su lugar.",
+    "@onlyMemberDeleteError": {},
+
+    "leaveColonyTitle": "Dejar Colonia",
+    "@leaveColonyTitle": {},
+
+    "leaveColonyConfirm": "¿Estás seguro de que quieres dejar esta colonia?",
+    "@leaveColonyConfirm": {},
+
+    "leave": "Dejar",
+    "@leave": {},
+
+    "leftColony": "Has dejado la colonia",
+    "@leftColony": {},
+
+    "actionRequired": "Acción Requerida",
+    "@actionRequired": {},
+
+    "exploreColonies": "EXPLORAR COLONIAS",
+    "@exploreColonies": {},
+
+    "searchByName": "Buscar por nombre...",
+    "@searchByName": {},
+
+    "noColoniesFound": "No se encontraron colonias",
+    "@noColoniesFound": {},
+
+    "requestCancelled": "Solicitud cancelada",
+    "@requestCancelled": {},
+
+    "viewSentRequests": "VER SOLICITUDES ENVIADAS",
+    "@viewSentRequests": {},
+
+    "joinRequests": "SOLICITUDES DE UNIÓN",
+    "@joinRequests": {},
+
+    "leaveColony": "DEJAR COLONIA",
+    "@leaveColony": {},
+
+    "ok": "OK",
+    "@ok": {},
+
+    "colonyNotFound": "Colonia no encontrada",
+    "@colonyNotFound": {},
+
+    "requestRejected": "Solicitud rechazada",
+    "@requestRejected": {},
+
+    "requestPending": "Solicitud pendiente",
+    "@requestPending": {},
+
+    "failedToCancelRequest": "Error al cancelar la solicitud",
+    "@failedToCancelRequest": {},
+
+    "declineRequest": "Rechazar solicitud",
+    "@declineRequest": {},
+
+    "successfullyJoinedColony": "Te has unido a la colonia exitosamente",
+    "@successfullyJoinedColony": {},
+
+    "requestSentSuccessfully": "Solicitud enviada exitosamente",
+    "@requestSentSuccessfully": {},
+
+    "requestToJoin": "Solicitar unirse",
+    "@requestToJoin": {},
+
+    "memberPromotedToMod": "Miembro ascendido a moderador",
+    "@memberPromotedToMod": {},
+
+    "promoteToLeaderConfirm": "¿Estás seguro de que quieres ascender a {username} a Líder? Perderás tus privilegios de Líder.",
+    "@promoteToLeaderConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
+    "leadershipTransferred": "Liderazgo transferido",
+    "@leadershipTransferred": {},
+
+    "memberDemotedToMember": "Miembro descendido a miembro",
+    "@memberDemotedToMember": {},
+
+    "kickMemberConfirm": "¿Estás seguro de que quieres expulsar a {username} de la colonia?",
+    "@kickMemberConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
+    "colonyDeleted": "Colonia eliminada",
+    "@colonyDeleted": {},
+
+    "deleteColony": "Eliminar colonia",
+    "@deleteColony": {},
+
+    "deleteColonyConfirm": "¿Estás seguro de que quieres eliminar esta colonia?",
+    "@deleteColonyConfirm": {},
+
+    "kickMember": "Expulsar miembro",
+    "@kickMember": {},
+
+    "kick": "Expulsar",
+    "@kick": {},
+
+    "promoteToModerator": "Ascender a moderador",
+    "@promoteToModerator": {},
+
+    "promoteToLeader": "Ascender a líder",
+    "@promoteToLeader": {},
+
+    "demote": "Descender",
+    "@demote": {},
+
+    "demoteToMember": "Descender a miembro",
+    "@demoteToMember": {},
+
+    "transferLeadership": "Transferir Liderazgo",
+    "@transferLeadership": {},
+
+    "promote": "Ascender",
+    "@promote": {},
+
+    "cannotDelete": "No se puede eliminar",
+    "@cannotDelete": {},
+
+    "cannotDeleteActiveMembers": "No puedes eliminar una colonia con miembros activos",
+    "@cannotDeleteActiveMembers": {},
+
+    "colonyUpdatedSuccessfully": "Colonia actualizada exitosamente",
+    "@colonyUpdatedSuccessfully": {},
+
+    "colonyCreatedSuccessfully": "Colonia creada exitosamente",
+    "@colonyCreatedSuccessfully": {},
+
+    "accepted": "aceptado",
+    "@accepted": {}
 }

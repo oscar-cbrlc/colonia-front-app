@@ -260,4 +260,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get info => 'Info';
+
+  @override
+  String teamJoin(String username) {
+    return '$username joined the colony';
+  }
+
+  @override
+  String teamKick(String username) {
+    return '$username has been exiled from the colony';
+  }
+
+  @override
+  String teamExit(String username) {
+    return '$username has abandoned the colony';
+  }
+
+  @override
+  String get colonyChat => 'Colony Chat';
+
+  @override
+  String get noMessagesYet => 'No messages yet';
+
+  @override
+  String get typeMessage => 'Type a message...';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get memberKicked => 'Member kicked from colony';
+
+  @override
+  String get leaderLeaveError =>
+      'You cannot leave the colony as a Leader. Please promote another member to Leader first.';
+
+  @override
+  String get onlyMemberDeleteError =>
+      'You are the only member. Please delete the colony instead.';
+
+  @override
+  String get leaveColonyTitle => 'Leave Colony';
+
+  @override
+  String get leaveColonyConfirm =>
+      'Are you sure you want to leave this colony?';
+
+  @override
+  String get leave => 'Leave';
+
+  @override
+  String get leftColony => 'You have left the colony';
+
+  @override
+  String get actionRequired => 'Action Required';
+
+  @override
+  String get exploreColonies => 'EXPLORE COLONIES';
+
+  @override
+  String get searchByName => 'Search by name...';
+
+  @override
+  String get noColoniesFound => 'No colonies found';
+
+  @override
+  String get requestCancelled => 'Request cancelled';
+
+  @override
+  String get viewSentRequests => 'VIEW SENT REQUESTS';
+
+  @override
+  String get joinRequests => 'JOIN REQUESTS';
+
+  @override
+  String get leaveColony => 'LEAVE COLONY';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get colonyNotFound => 'Colony not found';
+
+  @override
+  String get requestRejected => 'Request rejected';
+
+  @override
+  String get requestPending => 'Request pending';
+
+  @override
+  String get failedToCancelRequest => 'Failed to cancel request';
+
+  @override
+  String get declineRequest => 'Decline request';
+
+  @override
+  String get successfullyJoinedColony => 'Successfully joined the colony';
+
+  @override
+  String get requestSentSuccessfully => 'Request sent successfully';
+
+  @override
+  String get requestToJoin => 'Request to join';
+
+  @override
+  String get memberPromotedToMod => 'Member promoted to moderator';
+
+  @override
+  String promoteToLeaderConfirm(String username) {
+    return 'Are you sure you want to promote $username to Leader? You will lose Leader privileges.';
+  }
+
+  @override
+  String get leadershipTransferred => 'Leadership transferred';
+
+  @override
+  String get memberDemotedToMember => 'Member demoted to member';
+
+  @override
+  String kickMemberConfirm(String username) {
+    return 'Are you sure you want to kick $username from the colony?';
+  }
+
+  @override
+  String get colonyDeleted => 'Colony deleted';
+
+  @override
+  String get deleteColony => 'Delete colony';
+
+  @override
+  String get deleteColonyConfirm =>
+      'Are you sure you want to delete this colony?';
+
+  @override
+  String get kickMember => 'Kick member';
+
+  @override
+  String get kick => 'Kick';
+
+  @override
+  String get promoteToModerator => 'Promote to moderator';
+
+  @override
+  String get promoteToLeader => 'Promote to leader';
+
+  @override
+  String get demote => 'Demote';
+
+  @override
+  String get demoteToMember => 'Demote to member';
+
+  @override
+  String get transferLeadership => 'Transfer Leadership';
+
+  @override
+  String get promote => 'Promote';
+
+  @override
+  String get cannotDelete => 'Cannot Delete';
+
+  @override
+  String get cannotDeleteActiveMembers =>
+      'You cannot delete a colony with active members';
+
+  @override
+  String get colonyUpdatedSuccessfully => 'Colony updated successfully';
+
+  @override
+  String get colonyCreatedSuccessfully => 'Colony created successfully';
+
+  @override
+  String get accepted => 'accepted';
 }
