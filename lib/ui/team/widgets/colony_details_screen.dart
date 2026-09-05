@@ -62,7 +62,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
       return Scaffold(
         backgroundColor: AppTheme.darkBackground,
         appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
-        body: const Center(child: Text("Colony not found", style: TextStyle(color: Colors.white))),
+        body: Center(child: Text(locale.colonyNotFound, style: const TextStyle(color: Colors.white))),
       );
     }
 
@@ -92,7 +92,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                     disabledForegroundColor: Colors.white38,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text("REQUEST PENDING"),
+                  child: Text(locale.requestPending.toUpperCase()),
                 ),
               ),
               const SizedBox(height: 12),
@@ -103,17 +103,17 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                     final success = await viewModel.cancelRequest(team.id);
                     if (success && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Request cancelled"))
+                        SnackBar(content: Text(locale.requestCancelled))
                       );
                       _loadTeamDetails();
                     } else if (!success && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Failed to cancel request"))
+                        SnackBar(content: Text(locale.failedToCancelRequest))
                       );
                     }
                   },
                   style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-                  child: const Text("DECLINE REQUEST"),
+                  child: Text(locale.declineRequest.toUpperCase()),
                 ),
               ),
             ] else 
@@ -129,8 +129,8 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                     if (team.isPublic) {
                       final success = await viewModel.joinTeam(team.id);
                       if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Successfully joined the colony"),
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(locale.successfullyJoinedColony),
                         ));
                         Navigator.of(context).pop();
                         if (Navigator.of(context).canPop()) {
@@ -140,15 +140,15 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                     } else {
                       final success = await viewModel.requestJoin(team.id);
                       if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Request sent successfully"),
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(locale.requestSentSuccessfully),
                         ));
                       }
                     }
                   },
                   child: viewModel.isLoading 
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                    : Text((team.isPublic ? locale.joinTeam : "REQUEST TO JOIN").toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    : Text((team.isPublic ? locale.joinTeam : locale.requestToJoin).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
           ],
