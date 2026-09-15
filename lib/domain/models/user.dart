@@ -57,11 +57,19 @@ abstract class UserAvatar with _$UserAvatar {
   factory UserAvatar.fromJson(Map<String, dynamic> json) => _$UserAvatarFromJson(json);
 }
 
+Object? _parseNumOrString(Map json, String key) {
+  final val = json[key];
+  if (val == null) return null;
+  if (val is num) return val.toDouble();
+  if (val is String) return double.tryParse(val) ?? 0.0;
+  return val;
+}
+
 @freezed
 abstract class UserStats with _$UserStats {
   const factory UserStats({
-    @JsonKey(name: 'total_time') @Default(0.0) double totalTime,
-    @JsonKey(name: 'total_distance') @Default(0.0) double totalDistance,
+    @JsonKey(name: 'total_time', readValue: _parseNumOrString) @Default(0.0) double totalTime,
+    @JsonKey(name: 'total_distance', readValue: _parseNumOrString) @Default(0.0) double totalDistance,
   }) = _UserStats;
 
   factory UserStats.fromJson(Map<String, dynamic> json) => _$UserStatsFromJson(json);
