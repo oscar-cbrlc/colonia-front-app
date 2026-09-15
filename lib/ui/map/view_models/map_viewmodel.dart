@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
@@ -21,12 +20,14 @@ class MapViewModel extends ChangeNotifier {
   final TeamRepository _teamRepository;
 
   static const double minZoomToRender = 13.0;
+  static const double minZoomToShowPoints = 14.0;
   static const double maxRenderRadius = 5000.0;
 
   MapboxMap? _mapboxMap;
   bool _isLocationPermissionGranted = false;
   bool _hasInitialCenter = false;
   bool _lastActivityState = false;
+  bool _showPoints = true;
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
@@ -35,6 +36,14 @@ class MapViewModel extends ChangeNotifier {
   bool get isLocationPermissionGranted => _isLocationPermissionGranted;
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
+  bool get showPoints => _showPoints;
+
+  void toggleShowPoints() {
+    _showPoints = !_showPoints;
+    _lastH3Indexes = {};
+    _updateH3Grid();
+    notifyListeners();
+  }
 
   bool get inActivity => _trackingRepository.isActivityActive;
   Point? get userPosition => _trackingRepository.userPosition;
@@ -44,11 +53,12 @@ class MapViewModel extends ChangeNotifier {
   MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _territoryRepository.addListener(_onTerritoriesChanged);
-    //_teamRepository.addListener(())
     _lastActivityState = _trackingRepository.isActivityActive;
+    _territoryRepository.fetchAllTerritories();
   }
 
   void _onTerritoriesChanged() {
+    _lastH3Indexes = {};
     _updateH3Grid();
   }
 
@@ -60,6 +70,8 @@ class MapViewModel extends ChangeNotifier {
 
     if (_lastActivityState == true && !_trackingRepository.isActivityActive) {
       centerOnUser();
+      _lastH3Indexes = {};
+      _territoryRepository.fetchAllTerritories();
     }
     _lastActivityState = _trackingRepository.isActivityActive;
 
@@ -90,6 +102,7 @@ class MapViewModel extends ChangeNotifier {
       _hasInitialCenter = true;
       centerOnUser();
     }
+    unawaited(_territoryRepository.fetchAllTerritories());
     await _updateH3Grid();
   }
 
@@ -151,6 +164,19 @@ class MapViewModel extends ChangeNotifier {
     _debounceTimer = Timer(const Duration(milliseconds: 100), () => _updateH3Grid());
   }
 
+  Territory? getClaimedTerritoryAt(double lat, double lon) {
+    final hexId = H3Helper.getHexagonAt(
+      lat: lat,
+      lon: lon,
+      resolution: GameConfig.h3Resolution,
+    );
+    final territory = _territoryRepository.getTerritoryOrDefault(hexId);
+    if (territory.team != null) {
+      return territory;
+    }
+    return null;
+  }
+
   String _colorToRgba(Color c, double alpha) {
     final r = (c.r * 255).round();
     final g = (c.g * 255).round();
@@ -185,17 +211,22 @@ class MapViewModel extends ChangeNotifier {
     await style.addLayer(FillLayer(
       id: "h3-grid-layer",
       sourceId: "h3-grid-source",
+      fillEmissiveStrength: 0.6
     ));
     await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
 
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
       sourceId: "h3-grid-source",
-      textSize: 12.0,
+      textSize: 14.0,
+      textFont: ["Oswald", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
+      textLetterSpacing: 0.1,
       textHaloWidth: 1.0,
       textOffset: [0, 0],
+      textAllowOverlap: true,
+      textIgnorePlacement: true,
     ));
     await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
   }
@@ -206,58 +237,42 @@ class MapViewModel extends ChangeNotifier {
     if (map == null || style == null) return;
 
     final camera = await map.getCameraState();
-    if (camera.zoom < minZoomToRender) {
-      await style.setStyleSourceProperty("h3-grid-source", "data", {
-        "type": "FeatureCollection", 
-        "features": []
-      });
-      _lastH3Indexes = {};
-      return;
+
+    List<String> currentIndexes = [];
+    if (camera.zoom >= minZoomToRender) {
+      currentIndexes = H3Helper.getHexagonsInRadius(
+        centerLat: camera.center.coordinates.lat.toDouble(),
+        centerLon: camera.center.coordinates.lng.toDouble(),
+        radiusMeters: maxRenderRadius / camera.zoom,
+        resolution: GameConfig.h3Resolution,
+      );
     }
 
-    final currentIndexes = H3Helper.getHexagonsInRadius(
-      centerLat: camera.center.coordinates.lat.toDouble(),
-      centerLon: camera.center.coordinates.lng.toDouble(),
-      radiusMeters: maxRenderRadius / camera.zoom,
-      resolution: GameConfig.h3Resolution,
-    );
+    final Set<String> allHexIndexes = {
+      ...currentIndexes,
+      for (final t in _territoryRepository.territories) t.id,
+    };
 
-    final Set<String> indexSet = currentIndexes.toSet();
-    if (_setEquals(_lastH3Indexes, indexSet)) return;
-    _lastH3Indexes = indexSet;
+    if (_setEquals(_lastH3Indexes, allHexIndexes)) return;
+    _lastH3Indexes = allHexIndexes;
 
     final currentUser = AuthRepository.instance.currentUser;
     final userTeamId = currentUser?.team?.id;
     final userTeamColor = _getUserTeamColor();
+    final bool canShowPoints = _showPoints && camera.zoom >= minZoomToShowPoints;
 
-    final features = currentIndexes.map((hexId) {
+    final features = allHexIndexes.map((hexId) {
       final territory = _territoryRepository.getTerritoryOrDefault(hexId);
       final bool isCurrent = hexId == currentCell;
       final TerritoryTeam? claimedTeam = territory.team;
 
       String fillColor;
-      if (isCurrent) {
-        if (claimedTeam == null) {
-          fillColor = _colorToRgba(userTeamColor, 0.55);
-        } else {
-          final claimedColor = Color(claimedTeam.color);
-          if (userTeamId != null && claimedTeam.id == userTeamId) {
-            fillColor = _colorToRgba(userTeamColor, 0.70);
-          } else {
-            final blended = Color.fromARGB(
-              255,
-              (((userTeamColor.r * 255) + (claimedColor.r * 255)) ~/ 2),
-              (((userTeamColor.g * 255) + (claimedColor.g * 255)) ~/ 2),
-              (((userTeamColor.b * 255) + (claimedColor.b * 255)) ~/ 2),
-            );
-            fillColor = _colorToRgba(blended, 0.65);
-          }
-        }
-      } else if (claimedTeam != null) {
+      if (claimedTeam == null) {
+          fillColor = 'rgba(0, 0, 0, 0)';
+      }
+      else {
         final claimedColor = Color(claimedTeam.color);
-        fillColor = _colorToRgba(claimedColor, 0.40);
-      } else {
-        fillColor = 'rgba(0, 0, 0, 0)';
+        fillColor = _colorToRgba(claimedColor, 0.5);
       }
 
       return {
@@ -266,7 +281,7 @@ class MapViewModel extends ChangeNotifier {
           "h3_index": hexId, 
           "is_current": isCurrent,
           "health": territory.healthPoints,
-          "health_label": territory.healthPoints.toStringAsFixed(0),
+          "health_label": (canShowPoints && territory.healthPoints > 0) ? territory.healthPoints.toStringAsFixed(0) : "",
           "team_id": territory.team?.id,
           "fill_color": fillColor,
         },
