@@ -4,7 +4,9 @@ import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -34,23 +36,60 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    
     return ListenableBuilder(
       listenable: widget.viewModel,
       builder: (context, _) {
         return Stack(
           children: [
             mapbox.MapWidget(
-              key: const ValueKey("mapWidget"),
+              key: const ValueKey("activity_screen_mapbox"),
               styleUri: mapbox.MapboxStyles.STANDARD,
               onMapCreated: widget.viewModel.onMapCreated,
-              onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
+              onStyleLoadedListener: (data) {
+                widget.viewModel.onStyleLoaded();
+
+                final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                  final lat = gestureContext.point.coordinates.lat.toDouble();
+                  final lon = gestureContext.point.coordinates.lng.toDouble();
+
+                  final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
+                  if (territory != null) {
+                    showTerritorySummaryBottomSheet(context, territory);
+                  }
+                });
+
+                widget.viewModel.mapboxMap?.addInteraction(
+                  tapInteraction,
+                  interactionID: 'hexagon-click',
+                );
+              },
               onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-              viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
-                center: widget.viewModel.userPosition!,
-                zoom: 17.0,
-              ) : null),
+              viewport: widget.viewModel.viewport ??
+                  (widget.viewModel.userPosition != null
+                      ? mapbox.CameraViewportState(
+                    center: widget.viewModel.userPosition!,
+                    zoom: 17.0,
+                  )
+                      : null),
             ),
+
+            if (widget.viewModel.isSaving)
+              Container(
+                color: Colors.black.withAlpha(220),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppTheme.secondaryColor),
+                      SizedBox(height: 16),
+                      Text(
+                        locale.savingActivity,
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decorationStyle: null),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             if (widget.viewModel.playingState == PlayingState.stopped)
               Align(
@@ -76,14 +115,35 @@ class _ActivityScreenState extends State<ActivityScreen> {
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 124, right: 16),
-                  child: IconButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      widget.viewModel.centerOnUser();
-                    },
-                    icon: const Icon(Icons.location_searching),
-                    color: Colors.redAccent,
-                    iconSize: 32,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          widget.viewModel.centerOnUser();
+                        },
+                        icon: const Icon(Icons.location_searching),
+                        color: Colors.redAccent,
+                        iconSize: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          widget.viewModel.toggleShowPoints();
+                        },
+                        icon: Icon(
+                          widget.viewModel.showPoints
+                              ? Icons.shield_sharp
+                              : Icons.shield_outlined,
+                        ),
+                        color: widget.viewModel.showPoints
+                            ? AppTheme.primaryColor
+                            : Colors.white38,
+                        iconSize: 30,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -247,8 +307,8 @@ class _PreActivityOverview extends StatelessWidget {
                     if (viewModel.selectedPace != null && viewModel.selectedPace! > 0)
                       _OverviewStat(
                         label: locale.targetPace.toUpperCase(),
-                        value: viewModel.selectedPace!.toStringAsFixed(1),
-                        unit: "M/KM",
+                        value: viewModel.formattedSelectedPace,
+                        unit: "MIN/KM",
                       ),
                   ],
                 ),
@@ -635,7 +695,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "TARGET PACE: ${targetPace.toStringAsFixed(1)}",
+                  "TARGET PACE: ${viewModel.formattedSelectedPace}",
                   style: const TextStyle(
                     color: Colors.white54,
                     fontWeight: FontWeight.bold,
@@ -813,10 +873,10 @@ class _ActivityProgressPanel extends StatelessWidget {
                     unit: "",
                   ),
                   _StatDisplay(
-                label: locale.pace.toUpperCase(),
-                value: viewModel.currentPace.toStringAsFixed(1),
-                unit: "MIN/KM",
-              ),
+                    label: locale.pace.toUpperCase(),
+                    value: viewModel.formattedCurrentPace,
+                    unit: "MIN/KM",
+                  ),
             ],
           ),
               const SizedBox(height: 16),
@@ -876,13 +936,23 @@ class _ActivityProgressPanel extends StatelessWidget {
                           borderColor: Colors.redAccent,
                           onTap: () async {
                             HapticFeedback.heavyImpact();
+                            final nav = Navigator.of(context);
                             final result = await viewModel.onPushStopButton();
-                            if (result != null && context.mounted) {
-                              Navigator.pushReplacementNamed(
-                                context, 
-                                '/summary', 
-                                arguments: result
+                            debugPrint("ActivityScreen.onTap: result=$result");
+                            if (result != null) {
+                              nav.pushReplacementNamed(
+                                AppRouter.summary, 
+                                arguments: result,
                               );
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(locale.errorSavingActivity),
+                                    backgroundColor: AppTheme.errorColor,
+                                  ),
+                                );
+                              }
                             }
                           },
                           shape: const StarBorder(
