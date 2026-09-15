@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:colonia_front_app/domain/models/team.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/models/user.dart';
@@ -19,9 +18,9 @@ class AuthRepository extends ChangeNotifier {
   final FlutterSecureStorage _secureStorage;
 
   static const String _tokenKey = 'colonia_jwt_token';
+  static const String _userKey = 'colonia_user_data';
   String? _cachedToken;
   User? _currentUser;
-  Team? _userTeam;
 
   User? get currentUser => _currentUser;
   String? get cachedToken => _cachedToken;
@@ -29,7 +28,9 @@ class AuthRepository extends ChangeNotifier {
   AuthRepository(
       this._authService, {
         FlutterSecureStorage? secureStorage,
-      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage() {
+      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage(
+          aOptions: AndroidOptions(),
+        ) {
     _instance = this;
   }
 
@@ -86,11 +87,21 @@ class AuthRepository extends ChangeNotifier {
 
   Future<void> initializeSession() async {
     _cachedToken = await _secureStorage.read(key: _tokenKey);
+    final userJson = await _secureStorage.read(key: _userKey);
+    
+    if (userJson != null) {
+      try {
+        _currentUser = User.fromJson(jsonDecode(userJson));
+      } catch (e) {
+        debugPrint('AuthRepository: Error decoding cached user: $e');
+      }
+    }
+
     if (_cachedToken != null) {
       try {
         await fetchCurrentUser();
       } catch (e) {
-        debugPrint('AuthRepository: Failed to fetch user on init: $e');
+        debugPrint('AuthRepository: Failed to refresh user on init: $e');
       }
     }
     notifyListeners();
@@ -98,6 +109,7 @@ class AuthRepository extends ChangeNotifier {
 
   void updateCurrentUser(User user) {
     _currentUser = user;
+    _secureStorage.write(key: _userKey, value: jsonEncode(user.toJson()));
     notifyListeners();
   }
 
@@ -108,6 +120,12 @@ class AuthRepository extends ChangeNotifier {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final user = User.fromJson(jsonMap);
         _currentUser = user;
+        
+        await _secureStorage.write(
+          key: _userKey,
+          value: jsonEncode(user.toJson()),
+        );
+
         notifyListeners();
         return user;
       } else {
@@ -134,6 +152,11 @@ class AuthRepository extends ChangeNotifier {
           key: _tokenKey,
           value: loginResult.accessToken,
         );
+        
+        await _secureStorage.write(
+          key: _userKey,
+          value: jsonEncode(loginResult.user.toJson()),
+        );
 
         _cachedToken = loginResult.accessToken;
         _currentUser = loginResult.user;
@@ -153,6 +176,7 @@ class AuthRepository extends ChangeNotifier {
 
   Future<void> logout() async {
     await _secureStorage.delete(key: _tokenKey);
+    await _secureStorage.delete(key: _userKey);
     _cachedToken = null;
     _currentUser = null;
     notifyListeners();
@@ -165,6 +189,10 @@ class AuthRepository extends ChangeNotifier {
     await _secureStorage.write(
       key: _tokenKey,
       value: token,
+    );
+    await _secureStorage.write(
+      key: _userKey,
+      value: jsonEncode(user.toJson()),
     );
     _cachedToken = token;
     _currentUser = user;
