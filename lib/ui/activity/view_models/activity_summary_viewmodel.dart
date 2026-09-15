@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/domain/models/activity_result.dart';
+import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 import 'package:flutter/material.dart';
@@ -7,23 +10,73 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class ActivitySummaryViewModel extends ChangeNotifier {
   final TrackingSession session;
+  final ActivityResult? activityResult;
   final String activity;
   final String trainingName;
   MapboxMap? _mapboxMap;
-  bool _isMapReady = false;
+  bool _isMapReady = true;
   ViewportState? _viewport;
 
   ActivitySummaryViewModel({
     required this.session,
+    this.activityResult,
     required this.activity,
     required this.trainingName,
-  });
+  }) {
+    debugPrint("ActivitySummaryViewModel: Created with activity=$activity, trainingName=$trainingName, distance=${session.totalDistance}");
+  }
+
+  bool _showStats = true;
 
   bool get isMapReady => _isMapReady;
   ViewportState? get viewport => _viewport;
+  bool get showStats => _showStats;
+
+  MapboxMap? get mapboxMap => _mapboxMap;
+
+
+  void toggleShowStats() {
+    _showStats = !_showStats;
+    notifyListeners();
+  }
 
   double get distanceKm => session.totalDistance / 1000;
   double get impactPoints => session.impactPoints;
+
+  int get attackedCount {
+    if (activityResult == null) return 0;
+    return activityResult!.territories.where((t) => t.action?.toLowerCase() == 'attack').length;
+  }
+
+  int get defendedCount {
+    if (activityResult == null) return 0;
+    return activityResult!.territories.where((t) => t.action?.toLowerCase() == 'defend' || t.action?.toLowerCase() == 'defense').length;
+  }
+
+  int get capturedCount {
+    if (activityResult == null) return 0;
+    return activityResult!.territories.where((t) => t.action?.toLowerCase() == 'capture' || t.action?.toLowerCase() == 'claimed').length;
+  }
+
+  Territory? getAffectedTerritoryAt(double lat, double lon) {
+    final hexId = H3Helper.getHexagonAt(
+      lat: lat,
+      lon: lon,
+      resolution: GameConfig.h3Resolution,
+    );
+
+    if (activityResult != null) {
+      for (final t in activityResult!.territories) {
+        if (t.id == hexId) return t;
+      }
+    }
+
+    for (final t in session.territories) {
+      if (t.id == hexId) return t;
+    }
+
+    return null;
+  }
 
   String get formattedTime {
     final d = Duration(seconds: session.durationSeconds);
@@ -37,21 +90,31 @@ class ActivitySummaryViewModel extends ChangeNotifier {
   }
 
   String get formattedPace {
-    if (session.averagePace == 0) return "--";
-    return session.averagePace.toStringAsFixed(1);
+    final pace = session.averagePace;
+    if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
+    int minutes = pace.toInt();
+    int seconds = ((pace - minutes) * 60).round();
+    if (seconds >= 60) {
+      minutes += 1;
+      seconds = 0;
+    }
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
   }
 
   double get score => (session.totalDistance * 0.1);
 
   void onMapCreated(MapboxMap map) {
     _mapboxMap = map;
-    _fitCameraToRoute();
-    _drawRoute();
-    _configureOrnaments();
-    _setMapDaylight();
-
     _isMapReady = true;
     notifyListeners();
+
+    try {
+      _fitCameraToRoute();
+      _configureOrnaments();
+      _setMapDaylight();
+    } catch (e) {
+      debugPrint("ActivitySummaryViewModel: Error in onMapCreated: $e");
+    }
   }
 
   void onStyleLoaded() async {
@@ -85,6 +148,8 @@ class ActivitySummaryViewModel extends ChangeNotifier {
       );
 
       await map.setCamera(camera);
+      _viewport = CameraViewportState(center: camera.center, zoom: camera.zoom ?? 12.0);
+      notifyListeners();
     } catch (e) {
       debugPrint("Summary Map Centering Error: $e");
     }
@@ -92,19 +157,21 @@ class ActivitySummaryViewModel extends ChangeNotifier {
 
   Future<void> _drawRoute() async {
     final map = _mapboxMap;
-    if (map == null || session.route.isEmpty) return;
+    if (map == null) return;
     final style = map.style;
 
-    final List<Map<String, dynamic>> features = [
-      {
+    final List<Map<String, dynamic>> features = [];
+
+    if (session.route.length >= 2) {
+      features.add({
         "type": "Feature",
         "properties": {"type": "perimeter"},
         "geometry": {
           "type": "LineString",
           "coordinates": session.route.map((c) => [c.lon, c.lat]).toList(),
         }
-      }
-    ];
+      });
+    }
 
     for (final node in session.nodes) {
       features.add({
@@ -218,15 +285,19 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     );
     await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
 
+    final List<Territory> displayTerritories = activityResult?.territories ?? session.territories;
     final List<Map<String, dynamic>> features = [];
-    for (final territory in session.territories) {
+
+    for (final territory in displayTerritories) {
       final hexIndex = territory.id;
+      if (hexIndex.isEmpty) continue;
       final corners = H3Helper.getHexagonCorners(hexIndex);
-      final safeId = int.tryParse(hexIndex.substring(hexIndex.length - 8), radix: 16) ?? 0;
+      final sub = hexIndex.length >= 8 ? hexIndex.substring(hexIndex.length - 8) : hexIndex;
+      final safeId = int.tryParse(sub, radix: 16) ?? 0;
 
       final hexTeam = territory.team;
-      final Color hexColor = hexTeam != null ? Color(hexTeam.color) : AppTheme.primaryColor;
-      final String fillColor = 'rgba(${(hexColor.r * 255).round()}, ${(hexColor.g * 255).round()}, ${(hexColor.b * 255).round()}, 0.5)';
+      final Color teamColor = hexTeam != null ? Color(hexTeam.color) : AppTheme.primaryColor;
+      final String fillColor = 'rgba(${(teamColor.r * 255).round()}, ${(teamColor.g * 255).round()}, ${(teamColor.b * 255).round()}, 0.5)';
 
       features.add({
         "type": "Feature",
