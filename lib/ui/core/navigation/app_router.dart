@@ -2,6 +2,7 @@ import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
+import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
@@ -47,16 +48,34 @@ class AppRouter {
     switch (settings.name) {
 
       case summary:
+        debugPrint("AppRouter: Generating route for summary!");
         final args = settings.arguments as Map<String, dynamic>?;
-        final session = args?['session'] as TrackingSession;
+        debugPrint("AppRouter: summary args = $args");
+        final session = args?['session'] as TrackingSession?;
+        final activityResult = args?['activityResult'] as ActivityResult?;
         final activity = args?['activity'] as String? ?? 'walk';
         final trainingName = args?['trainingName'] as String? ?? 'free';
 
+        if (session == null) {
+          debugPrint("AppRouter: ERROR! session is null!");
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text("Error")),
+              body: const Center(
+                child: Text("Error: Session data missing"),
+              ),
+            ),
+          );
+        }
+
+        debugPrint("AppRouter: Session is valid! Returning MaterialPageRoute for ActivitySummaryScreen!");
         return MaterialPageRoute(
           settings: settings,
           builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
             create: (context) => ActivitySummaryViewModel(
               session: session,
+              activityResult: activityResult,
               activity: activity,
               trainingName: trainingName,
             ),
