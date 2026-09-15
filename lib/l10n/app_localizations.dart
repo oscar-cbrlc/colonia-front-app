@@ -524,6 +524,12 @@ abstract class AppLocalizations {
   /// **'Resumen de actividad'**
   String get activitySummary;
 
+  /// No description provided for @errorSavingActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar la actividad'**
+  String get errorSavingActivity;
+
   /// No description provided for @nextImpact.
   ///
   /// In es, this message translates to:
@@ -1015,6 +1021,132 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No has enviado ninguna solicitud de unión'**
   String get noSentRequests;
+
+  /// No description provided for @results.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultados'**
+  String get results;
+
+  /// No description provided for @missionComplete.
+  ///
+  /// In es, this message translates to:
+  /// **'MISIÓN COMPLETADA'**
+  String get missionComplete;
+
+  /// No description provided for @objectiveNotMet.
+  ///
+  /// In es, this message translates to:
+  /// **'OBJETIVO NO LOGRADO'**
+  String get objectiveNotMet;
+
+  /// No description provided for @claimedTerritory.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO RECLAMADO'**
+  String get claimedTerritory;
+
+  /// No description provided for @territoryAttacked.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO ATACADO'**
+  String get territoryAttacked;
+
+  /// No description provided for @territoryDefended.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO DEFENDIDO'**
+  String get territoryDefended;
+
+  /// No description provided for @territoryCaptured.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO CAPTURADO'**
+  String get territoryCaptured;
+
+  /// No description provided for @healthPoints.
+  ///
+  /// In es, this message translates to:
+  /// **'PUNTOS DE SALUD'**
+  String get healthPoints;
+
+  /// No description provided for @hexagonId.
+  ///
+  /// In es, this message translates to:
+  /// **'ID DE HEXÁGONO'**
+  String get hexagonId;
+
+  /// No description provided for @visitColony.
+  ///
+  /// In es, this message translates to:
+  /// **'VISITAR COLONIA'**
+  String get visitColony;
+
+  /// No description provided for @claimed.
+  ///
+  /// In es, this message translates to:
+  /// **'RECLAMADOS'**
+  String get claimed;
+
+  /// No description provided for @impacted.
+  ///
+  /// In es, this message translates to:
+  /// **'IMPACTADOS'**
+  String get impacted;
+
+  /// No description provided for @hexagons.
+  ///
+  /// In es, this message translates to:
+  /// **'HEXÁGONOS'**
+  String get hexagons;
+
+  /// No description provided for @captured.
+  ///
+  /// In es, this message translates to:
+  /// **'CAPTURADOS'**
+  String get captured;
+
+  /// No description provided for @attacked.
+  ///
+  /// In es, this message translates to:
+  /// **'ATACADOS'**
+  String get attacked;
+
+  /// No description provided for @defended.
+  ///
+  /// In es, this message translates to:
+  /// **'DEFENDIDOS'**
+  String get defended;
+
+  /// No description provided for @backToMap.
+  ///
+  /// In es, this message translates to:
+  /// **'VOLVER AL MAPA'**
+  String get backToMap;
+
+  /// No description provided for @avgPace.
+  ///
+  /// In es, this message translates to:
+  /// **'RITMO PROMEDIO'**
+  String get avgPace;
+
+  /// No description provided for @savingActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando actividad y aplicando impactos...'**
+  String get savingActivity;
+
+  /// No description provided for @behind.
+  ///
+  /// In es, this message translates to:
+  /// **'DETRÁS'**
+  String get behind;
+
+  /// No description provided for @ahead.
+  ///
+  /// In es, this message translates to:
+  /// **'ADELANTE'**
+  String get ahead;
 }
 
 class _AppLocalizationsDelegate

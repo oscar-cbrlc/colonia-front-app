@@ -226,6 +226,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get activitySummary => 'Resumen de actividad';
 
   @override
+  String get errorSavingActivity => 'Error al guardar la actividad';
+
+  @override
   String get nextImpact => 'Próximo impacto';
 
   @override
@@ -492,4 +495,67 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noSentRequests => 'No has enviado ninguna solicitud de unión';
+
+  @override
+  String get results => 'Resultados';
+
+  @override
+  String get missionComplete => 'MISIÓN COMPLETADA';
+
+  @override
+  String get objectiveNotMet => 'OBJETIVO NO LOGRADO';
+
+  @override
+  String get claimedTerritory => 'TERRITORIO RECLAMADO';
+
+  @override
+  String get territoryAttacked => 'TERRITORIO ATACADO';
+
+  @override
+  String get territoryDefended => 'TERRITORIO DEFENDIDO';
+
+  @override
+  String get territoryCaptured => 'TERRITORIO CAPTURADO';
+
+  @override
+  String get healthPoints => 'PUNTOS DE SALUD';
+
+  @override
+  String get hexagonId => 'ID DE HEXÁGONO';
+
+  @override
+  String get visitColony => 'VISITAR COLONIA';
+
+  @override
+  String get claimed => 'RECLAMADOS';
+
+  @override
+  String get impacted => 'IMPACTADOS';
+
+  @override
+  String get hexagons => 'HEXÁGONOS';
+
+  @override
+  String get captured => 'CAPTURADOS';
+
+  @override
+  String get attacked => 'ATACADOS';
+
+  @override
+  String get defended => 'DEFENDIDOS';
+
+  @override
+  String get backToMap => 'VOLVER AL MAPA';
+
+  @override
+  String get avgPace => 'RITMO PROMEDIO';
+
+  @override
+  String get savingActivity => 'Guardando actividad y aplicando impactos...';
+
+  @override
+  String get behind => 'DETRÁS';
+
+  @override
+  String get ahead => 'ADELANTE';
 }

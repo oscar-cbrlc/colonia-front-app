@@ -223,6 +223,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activitySummary => 'Activity summary';
 
   @override
+  String get errorSavingActivity => 'Error saving activity';
+
+  @override
   String get nextImpact => 'Next impact';
 
   @override
@@ -488,4 +491,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSentRequests => 'You haven\'t sent any join requests';
+
+  @override
+  String get results => 'Results';
+
+  @override
+  String get missionComplete => 'MISSION COMPLETE';
+
+  @override
+  String get objectiveNotMet => 'OBJECTIVE NOT MET';
+
+  @override
+  String get claimedTerritory => 'CLAIMED TERRITORY';
+
+  @override
+  String get territoryAttacked => 'TERRITORY ATTACKED';
+
+  @override
+  String get territoryDefended => 'TERRITORY DEFENDED';
+
+  @override
+  String get territoryCaptured => 'TERRITORY CAPTURED';
+
+  @override
+  String get healthPoints => 'HEALTH POINTS';
+
+  @override
+  String get hexagonId => 'HEXAGON ID';
+
+  @override
+  String get visitColony => 'VISIT COLONY';
+
+  @override
+  String get claimed => 'CLAIMED';
+
+  @override
+  String get impacted => 'IMPACTED';
+
+  @override
+  String get hexagons => 'HEXAGONS';
+
+  @override
+  String get captured => 'CAPTURED';
+
+  @override
+  String get attacked => 'ATTACKED';
+
+  @override
+  String get defended => 'DEFENDED';
+
+  @override
+  String get backToMap => 'BACK TO MAP';
+
+  @override
+  String get avgPace => 'AVG PACE';
+
+  @override
+  String get savingActivity =>
+      'Saving activity & applying territory impacts...';
+
+  @override
+  String get behind => 'BEHIND';
+
+  @override
+  String get ahead => 'AHEAD';
 }
