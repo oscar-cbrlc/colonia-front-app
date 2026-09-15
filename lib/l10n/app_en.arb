@@ -211,6 +211,9 @@
     "activitySummary": "Activity summary",
     "@activitySummary": {},
 
+    "errorSavingActivity": "Error saving activity",
+    "@errorSavingActivity": {},
+
     "nextImpact": "Next impact",
     "@nextImpact": {},
 
@@ -514,5 +517,68 @@
     "@noPendingRequests": {},
 
     "noSentRequests": "You haven't sent any join requests",
-    "@noSentRequests": {}
+    "@noSentRequests": {},
+
+    "results": "Results",
+    "@results": {},
+
+    "missionComplete": "MISSION COMPLETE",
+    "@missionComplete": {},
+
+    "objectiveNotMet": "OBJECTIVE NOT MET",
+    "@objectiveNotMet": {},
+
+    "claimedTerritory": "CLAIMED TERRITORY",
+    "@claimedTerritory": {},
+
+    "territoryAttacked": "TERRITORY ATTACKED",
+    "@territoryAttacked": {},
+
+    "territoryDefended": "TERRITORY DEFENDED",
+    "@territoryDefended": {},
+
+    "territoryCaptured": "TERRITORY CAPTURED",
+    "@territoryCaptured": {},
+
+    "healthPoints": "HEALTH POINTS",
+    "@healthPoints": {},
+
+    "hexagonId": "HEXAGON ID",
+    "@hexagonId": {},
+
+    "visitColony": "VISIT COLONY",
+    "@visitColony": {},
+
+    "claimed": "CLAIMED",
+    "@claimed": {},
+
+    "impacted": "IMPACTED",
+    "@impacted": {},
+
+    "hexagons": "HEXAGONS",
+    "@hexagons": {},
+
+    "captured": "CAPTURED",
+    "@captured": {},
+
+    "attacked": "ATTACKED",
+    "@attacked": {},
+
+    "defended": "DEFENDED",
+    "@defended": {},
+
+    "backToMap": "BACK TO MAP",
+    "@backToMap": {},
+
+    "avgPace": "AVG PACE",
+    "@avgPace": {},
+
+    "savingActivity": "Saving activity & applying territory impacts...",
+    "@savingActivity": {},
+
+    "behind": "BEHIND",
+    "@behind": {},
+
+    "ahead": "AHEAD",
+    "@ahead": {}
 }
