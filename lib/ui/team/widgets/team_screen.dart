@@ -358,11 +358,15 @@ class _TeamDetailsView extends StatelessWidget {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
+                        shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            side: BorderSide(color: Colors.white.withAlpha(30))
+                        ),
                         backgroundColor: AppTheme.darkBackground,
                         title: Text(locale.transferLeadership, style: const TextStyle(color: Colors.white)),
-                        content: Text(locale.promoteToLeaderConfirm(member.userName)),
+                        content: Text(locale.promoteToLeaderConfirm(member.userName), style: const TextStyle(color: Colors.white)),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase(), style: TextStyle(color: AppTheme.secondaryColor.withAlpha(80)))),
                           TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.promote.toUpperCase(), style: const TextStyle(color: Colors.amber))),
                         ],
                       ),
