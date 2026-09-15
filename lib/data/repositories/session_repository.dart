@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
@@ -41,11 +40,11 @@ class SessionRepository extends ChangeNotifier {
   void _handleNodeCompleted(OnTrackNode node) {
     if (_trainingConfig == null || _playingState != PlayingState.playing) return;
 
-    final cellId = H3Helper.getHexagonAt(
-      lat: node.lat,
-      lon: node.lon,
-      resolution: GameConfig.h3Resolution,
-    );
+    //final cellId = H3Helper.getHexagonAt(
+      //lat: node.lat,
+      //lon: node.lon,
+      //resolution: GameConfig.h3Resolution,
+    //);
 
     final baseEffect = GameConfig.basePointsEffect;
     final baseDamage = _trainingConfig!.training.attackPoints;
@@ -54,8 +53,6 @@ class SessionRepository extends ChangeNotifier {
     _accumulatedImpactPoints += totalEffect;
 
     _trackingRepository.updateLastNodePoints(totalEffect);
-
-    _territoryRepository.impactTerritory(id: cellId, points: totalEffect);
 
     notifyListeners();
   }
@@ -90,7 +87,7 @@ class SessionRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<TrackingSession?> stopAndSaveSession() async {
+  Future<({TrackingSession session, ActivityResult? activityResult})?> stopAndSaveSession() async {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
 
@@ -101,13 +98,41 @@ class SessionRepository extends ChangeNotifier {
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
     session.isSuccess = isValid;
 
+    ActivityResult? activityResult;
+
     if (isValid) {
       _affectedTerritories = List.from(session.territories);
+
+      try {
+        Map<String, double> territoryPointsMap = {};
+        for (final node in session.nodes) {
+          final cellId = H3Helper.getHexagonAt(
+            lat: node.lat,
+            lon: node.lon,
+            resolution: GameConfig.h3Resolution,
+          );
+          territoryPointsMap[cellId] = (territoryPointsMap[cellId] ?? 0.0) + node.points;
+        }
+
+        final territoriesJson = territoryPointsMap.entries.map((entry) => {
+          'territory_id': entry.key,
+          'points': entry.value,
+        }).toList();
+
+        activityResult = await _territoryRepository.applyTerritoryImpact(
+          totalDistance: finalDistance,
+          totalTime: finalSeconds,
+          timestamp: DateTime.now().toIso8601String(),
+          territories: territoriesJson,
+        );
+      } catch (e) {
+        debugPrint('SessionRepository: Error applying territory impact: $e');
+      }
     }
 
     _resetSessionData();
     notifyListeners();
-    return session;
+    return (session: session, activityResult: activityResult);
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
