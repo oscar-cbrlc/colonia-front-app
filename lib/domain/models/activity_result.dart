@@ -18,6 +18,7 @@ abstract class ActivityResult with _$ActivityResult{
   const factory ActivityResult({
     @JsonKey(name: 'user') required ActivityResultUser user,
     @JsonKey(name: 'territories') required List<Territory> territories,
+    @JsonKey(name: 'boost_id') int? boostId,
   }) = _ActivityResult;
 
   factory ActivityResult.fromJson(Map<String, dynamic> json) => _$ActivityResultFromJson(json);
