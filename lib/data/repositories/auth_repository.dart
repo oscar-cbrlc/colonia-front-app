@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:colonia_front_app/data/services/local_storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/models/user.dart';
 import '../services/api/auth_service.dart';
 
@@ -15,27 +15,19 @@ class AuthRepository extends ChangeNotifier {
   static AuthRepository get instance => _instance!;
 
   final AuthService _authService;
-  final FlutterSecureStorage _secureStorage;
+  final LocalStorageService _localStorageService;
 
-  static const String _tokenKey = 'colonia_jwt_token';
-  static const String _userKey = 'colonia_user_data';
   String? _cachedToken;
   User? _currentUser;
 
   User? get currentUser => _currentUser;
   String? get cachedToken => _cachedToken;
 
-  AuthRepository(
-      this._authService, {
-        FlutterSecureStorage? secureStorage,
-      }) : _secureStorage = secureStorage ?? const FlutterSecureStorage(
-          aOptions: AndroidOptions(),
-        ) {
+  AuthRepository(this._authService, this._localStorageService) {
     _instance = this;
   }
 
   Future<User> getUserByEmail(String email) async {
-
     try {
       final response = await _authService.getUserByEmail(email);
       if (response.statusCode == 200) {
@@ -47,8 +39,7 @@ class AuthRepository extends ChangeNotifier {
         }
       } else if (response.statusCode == 404) {
         throw UserNotFoundException('User not found');
-      }
-      else {
+      } else {
         final errorDetail = jsonDecode(response.body)['detail'] ?? 'Server error';
         throw Exception(errorDetail);
       }
@@ -73,8 +64,7 @@ class AuthRepository extends ChangeNotifier {
         }
       } else if (response.statusCode == 404) {
         throw UserNotFoundException('User not found');
-      }
-      else {
+      } else {
         final errorDetail = jsonDecode(response.body)['detail'] ?? 'Server error';
         throw Exception(errorDetail);
       }
@@ -86,16 +76,9 @@ class AuthRepository extends ChangeNotifier {
   }
 
   Future<void> initializeSession() async {
-    _cachedToken = await _secureStorage.read(key: _tokenKey);
-    final userJson = await _secureStorage.read(key: _userKey);
+    _currentUser = await _localStorageService.user;
     
-    if (userJson != null) {
-      try {
-        _currentUser = User.fromJson(jsonDecode(userJson));
-      } catch (e) {
-        debugPrint('AuthRepository: Error decoding cached user: $e');
-      }
-    }
+    _cachedToken = await _localStorageService.authToken;
 
     if (_cachedToken != null) {
       try {
@@ -107,9 +90,9 @@ class AuthRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCurrentUser(User user) {
+  Future<void> updateCurrentUser(User user) async {
     _currentUser = user;
-    _secureStorage.write(key: _userKey, value: jsonEncode(user.toJson()));
+    await _localStorageService.saveUser(user);
     notifyListeners();
   }
 
@@ -119,13 +102,10 @@ class AuthRepository extends ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final user = User.fromJson(jsonMap);
-        _currentUser = user;
         
-        await _secureStorage.write(
-          key: _userKey,
-          value: jsonEncode(user.toJson()),
-        );
-
+        _currentUser = user;
+        await _localStorageService.saveUser(user);
+        
         notifyListeners();
         return user;
       } else {
@@ -148,18 +128,11 @@ class AuthRepository extends ChangeNotifier {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final loginResult = LoginResult.fromJson(jsonMap);
 
-        await _secureStorage.write(
-          key: _tokenKey,
-          value: loginResult.accessToken,
-        );
-        
-        await _secureStorage.write(
-          key: _userKey,
-          value: jsonEncode(loginResult.user.toJson()),
-        );
-
         _cachedToken = loginResult.accessToken;
         _currentUser = loginResult.user;
+
+        await _localStorageService.saveAuthToken(loginResult.accessToken);
+        await _localStorageService.saveUser(loginResult.user);
 
         notifyListeners();
         return loginResult.user;
@@ -175,8 +148,7 @@ class AuthRepository extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _secureStorage.delete(key: _tokenKey);
-    await _secureStorage.delete(key: _userKey);
+    await _localStorageService.clearSession();
     _cachedToken = null;
     _currentUser = null;
     notifyListeners();
@@ -186,16 +158,12 @@ class AuthRepository extends ChangeNotifier {
     required User user,
     required String token,
   }) async {
-    await _secureStorage.write(
-      key: _tokenKey,
-      value: token,
-    );
-    await _secureStorage.write(
-      key: _userKey,
-      value: jsonEncode(user.toJson()),
-    );
     _cachedToken = token;
     _currentUser = user;
+    
+    await _localStorageService.saveAuthToken(token);
+    await _localStorageService.saveUser(user);
+    
     notifyListeners();
   }
 
@@ -203,34 +171,35 @@ class AuthRepository extends ChangeNotifier {
     required String email,
     required String username,
     required String password,
-    }) async {
-      try {
-        final response = await _authService.register(
+  }) async {
+    try {
+      final response = await _authService.register(
         email: email,
         username: username,
         password: password,
-        );
+      );
 
-        if (response.statusCode == 201) {
-          try {
-            final loggedInUser = await loginUser(email: email, password: password);
-            return loggedInUser;
-          } catch (loginError) {
-            final Map<String, dynamic> jsonMap = jsonDecode(response.body);
-            _currentUser = User.fromJson(jsonMap);
-            notifyListeners();
-            return _currentUser!;
-          }
-        } else {
-          final errorDetail = jsonDecode(response.body)['detail'] ?? 'Process error';
-          throw Exception(errorDetail);
+      if (response.statusCode == 201) {
+        try {
+          return await loginUser(email: email, password: password);
+        } catch (loginError) {
+          final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+          final user = User.fromJson(jsonMap);
+          _currentUser = user;
+          await _localStorageService.saveUser(user);
+          notifyListeners();
+          return _currentUser!;
         }
-      } on SocketException {
-        throw Exception('Network error');
-      } catch (e) {
-        rethrow;
+      } else {
+        final errorDetail = jsonDecode(response.body)['detail'] ?? 'Process error';
+        throw Exception(errorDetail);
       }
+    } on SocketException {
+      throw Exception('Network error');
+    } catch (e) {
+      rethrow;
     }
+  }
 
   bool get hasActiveSession => _cachedToken != null && _cachedToken!.isNotEmpty;
 }
