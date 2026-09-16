@@ -124,7 +124,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profile => 'Perfil';
 
   @override
-  String get startActivity => 'Empezar actividad';
+  String get startActivity => 'Empezar excursión';
 
   @override
   String get walk => 'Caminar';
@@ -196,7 +196,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get finish => 'Finalizar';
 
   @override
-  String get setUpActivity => 'Configurar actividad';
+  String get setUpActivity => 'Configurar excursión';
 
   @override
   String get start => 'Iniciar';
@@ -223,10 +223,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get trainingFinished => 'Entrenamiento terminado';
 
   @override
-  String get activitySummary => 'Resumen de actividad';
+  String get activitySummary => 'Resumen de excursión';
 
   @override
-  String get errorSavingActivity => 'Error al guardar la actividad';
+  String get errorSavingActivity => 'Error al guardar la excursión';
 
   @override
   String get nextImpact => 'Próximo impacto';
@@ -274,7 +274,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String teamKick(String username) {
-    return '$username ha sido exilidado de la colonia';
+    return '$username ha sido exiliado de la colonia';
   }
 
   @override
@@ -386,7 +386,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String kickMemberConfirm(String username) {
-    return '¿Estás seguro de que quieres expulsar a $username de la colonia?';
+    return '¿Estás seguro de que quieres exiliar a $username de la colonia?';
   }
 
   @override
@@ -400,10 +400,10 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Estás seguro de que quieres eliminar esta colonia?';
 
   @override
-  String get kickMember => 'Expulsar miembro';
+  String get kickMember => 'Exiliar miembro';
 
   @override
-  String get kick => 'Expulsar';
+  String get kick => 'Exiliar';
 
   @override
   String get promoteToModerator => 'Ascender a moderador';
@@ -551,11 +551,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get avgPace => 'RITMO PROMEDIO';
 
   @override
-  String get savingActivity => 'Guardando actividad y aplicando impactos...';
+  String get savingActivity => 'Guardando excursión y aplicando impactos...';
 
   @override
   String get behind => 'DETRÁS';
 
   @override
   String get ahead => 'ADELANTE';
+
+  @override
+  String get activitySavedLocally =>
+      'Sin conexión a internet. La excursión se guardó localmente y se subirá cuando vuelvas a estar en línea.';
+
+  @override
+  String get pendingActivitiesSynced =>
+      'Las excursiones pendientes se han subido con éxito.';
 }

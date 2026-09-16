@@ -121,7 +121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile => 'Profile';
 
   @override
-  String get startActivity => 'Start activity';
+  String get startActivity => 'Start excursion';
 
   @override
   String get walk => 'Walk';
@@ -133,7 +133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bike => 'Bike';
 
   @override
-  String get activity => 'Activity';
+  String get activity => 'Excursion';
 
   @override
   String get training => 'Training';
@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finish => 'Finish';
 
   @override
-  String get setUpActivity => 'Set up activity';
+  String get setUpActivity => 'Set up excursion';
 
   @override
   String get start => 'Start';
@@ -223,7 +223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activitySummary => 'Activity summary';
 
   @override
-  String get errorSavingActivity => 'Error saving activity';
+  String get errorSavingActivity => 'Error saving excursion';
 
   @override
   String get nextImpact => 'Next impact';
@@ -292,7 +292,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
-  String get memberKicked => 'Member kicked from colony';
+  String get memberKicked => 'Member exiled from colony';
 
   @override
   String get leaderLeaveError =>
@@ -382,7 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String kickMemberConfirm(String username) {
-    return 'Are you sure you want to kick $username from the colony?';
+    return 'Are you sure you want to exile $username from the colony?';
   }
 
   @override
@@ -396,10 +396,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to delete this colony?';
 
   @override
-  String get kickMember => 'Kick member';
+  String get kickMember => 'Exile member';
 
   @override
-  String get kick => 'Kick';
+  String get kick => 'Exile';
 
   @override
   String get promoteToModerator => 'Promote to moderator';
@@ -548,11 +548,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingActivity =>
-      'Saving activity & applying territory impacts...';
+      'Saving excursion & applying territory impacts...';
 
   @override
   String get behind => 'BEHIND';
 
   @override
   String get ahead => 'AHEAD';
+
+  @override
+  String get activitySavedLocally =>
+      'No internet connection. Activity saved locally and will be uploaded when back online.';
+
+  @override
+  String get pendingActivitiesSynced =>
+      'Pending excursions have been successfully uploaded.';
 }

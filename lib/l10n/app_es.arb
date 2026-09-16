@@ -112,7 +112,7 @@
     "profile": "Perfil",
     "@profile": {},
 
-    "startActivity": "Empezar actividad",
+    "startActivity": "Empezar excursión",
     "@startActivity": {},
 
     "walk": "Caminar",
@@ -184,7 +184,7 @@
     "finish": "Finalizar",
     "@finish": {},
 
-    "setUpActivity": "Configurar actividad",
+    "setUpActivity": "Configurar excursión",
     "@setUpActivity": {},
 
     "start": "Iniciar",
@@ -211,10 +211,10 @@
     "trainingFinished": "Entrenamiento terminado",
     "@trainingFinished": {},
 
-    "activitySummary": "Resumen de actividad",
+    "activitySummary": "Resumen de excursión",
     "@activitySummary": {},
 
-    "errorSavingActivity": "Error al guardar la actividad",
+    "errorSavingActivity": "Error al guardar la excursión",
     "@errorSavingActivity": {},
 
     "nextImpact": "Próximo impacto",
@@ -267,9 +267,9 @@
         }
     },
 
-    "teamKick": "{username} ha sido exilidado de la colonia",
+    "teamKick": "{username} ha sido exiliado de la colonia",
     "@teamKick": {
-        "description": "Message shown when a member has been kicked from the team",
+        "description": "Message shown when a member has been exiled from the team",
         "placeholders": {
             "username": {
                 "type": "String",
@@ -392,7 +392,7 @@
     "memberDemotedToMember": "Miembro descendido a miembro",
     "@memberDemotedToMember": {},
 
-    "kickMemberConfirm": "¿Estás seguro de que quieres expulsar a {username} de la colonia?",
+    "kickMemberConfirm": "¿Estás seguro de que quieres exiliar a {username} de la colonia?",
     "@kickMemberConfirm": {
         "placeholders": {
             "username": {
@@ -411,10 +411,10 @@
     "deleteColonyConfirm": "¿Estás seguro de que quieres eliminar esta colonia?",
     "@deleteColonyConfirm": {},
 
-    "kickMember": "Expulsar miembro",
+    "kickMember": "Exiliar miembro",
     "@kickMember": {},
 
-    "kick": "Expulsar",
+    "kick": "Exiliar",
     "@kick": {},
 
     "promoteToModerator": "Ascender a moderador",
@@ -576,12 +576,18 @@
     "avgPace": "RITMO PROMEDIO",
     "@avgPace": {},
 
-    "savingActivity": "Guardando actividad y aplicando impactos...",
+    "savingActivity": "Guardando excursión y aplicando impactos...",
     "@savingActivity": {},
 
     "behind": "DETRÁS",
     "@behind": {},
 
     "ahead": "ADELANTE",
-    "@ahead": {}
+    "@ahead": {},
+
+    "activitySavedLocally": "Sin conexión a internet. La excursión se guardó localmente y se subirá cuando vuelvas a estar en línea.",
+    "@activitySavedLocally": {},
+
+    "pendingActivitiesSynced": "Las excursiones pendientes se han subido con éxito.",
+    "@pendingActivitiesSynced": {}
 }

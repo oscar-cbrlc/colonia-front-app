@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @startActivity.
   ///
   /// In es, this message translates to:
-  /// **'Empezar actividad'**
+  /// **'Empezar excursión'**
   String get startActivity;
 
   /// No description provided for @walk.
@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @setUpActivity.
   ///
   /// In es, this message translates to:
-  /// **'Configurar actividad'**
+  /// **'Configurar excursión'**
   String get setUpActivity;
 
   /// No description provided for @start.
@@ -521,13 +521,13 @@ abstract class AppLocalizations {
   /// No description provided for @activitySummary.
   ///
   /// In es, this message translates to:
-  /// **'Resumen de actividad'**
+  /// **'Resumen de excursión'**
   String get activitySummary;
 
   /// No description provided for @errorSavingActivity.
   ///
   /// In es, this message translates to:
-  /// **'Error al guardar la actividad'**
+  /// **'Error al guardar la excursión'**
   String get errorSavingActivity;
 
   /// No description provided for @nextImpact.
@@ -614,10 +614,10 @@ abstract class AppLocalizations {
   /// **'{username} se ha unido a la colonia'**
   String teamJoin(String username);
 
-  /// Message shown when a member has been kicked from the team
+  /// Message shown when a member has been exiled from the team
   ///
   /// In es, this message translates to:
-  /// **'{username} ha sido exilidado de la colonia'**
+  /// **'{username} ha sido exiliado de la colonia'**
   String teamKick(String username);
 
   /// Message shown when a member has left from the team
@@ -821,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @kickMemberConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres expulsar a {username} de la colonia?'**
+  /// **'¿Estás seguro de que quieres exiliar a {username} de la colonia?'**
   String kickMemberConfirm(String username);
 
   /// No description provided for @colonyDeleted.
@@ -845,13 +845,13 @@ abstract class AppLocalizations {
   /// No description provided for @kickMember.
   ///
   /// In es, this message translates to:
-  /// **'Expulsar miembro'**
+  /// **'Exiliar miembro'**
   String get kickMember;
 
   /// No description provided for @kick.
   ///
   /// In es, this message translates to:
-  /// **'Expulsar'**
+  /// **'Exiliar'**
   String get kick;
 
   /// No description provided for @promoteToModerator.
@@ -1133,7 +1133,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingActivity.
   ///
   /// In es, this message translates to:
-  /// **'Guardando actividad y aplicando impactos...'**
+  /// **'Guardando excursión y aplicando impactos...'**
   String get savingActivity;
 
   /// No description provided for @behind.
@@ -1147,6 +1147,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'ADELANTE'**
   String get ahead;
+
+  /// No description provided for @activitySavedLocally.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión a internet. La excursión se guardó localmente y se subirá cuando vuelvas a estar en línea.'**
+  String get activitySavedLocally;
+
+  /// No description provided for @pendingActivitiesSynced.
+  ///
+  /// In es, this message translates to:
+  /// **'Las excursiones pendientes se han subido con éxito.'**
+  String get pendingActivitiesSynced;
 }
 
 class _AppLocalizationsDelegate
