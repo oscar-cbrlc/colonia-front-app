@@ -5,6 +5,8 @@ import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
+import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
+import 'package:colonia_front_app/data/services/local_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
@@ -14,6 +16,8 @@ import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 class SessionRepository extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final TerritoryRepository _territoryRepository;
+  final LocalStorageService _localStorageService;
+  LocalStorageService get localStorageService => _localStorageService;
 
   PlayingState _playingState = PlayingState.stopped;
   String _activeActivity = "walk";
@@ -32,10 +36,12 @@ class SessionRepository extends ChangeNotifier {
 
   List<Territory> get affectedTerritories => _affectedTerritories;
 
-  SessionRepository(this._trackingRepository, this._territoryRepository) {
+  SessionRepository(this._trackingRepository, this._territoryRepository, this._localStorageService) {
     _trackingRepository.addListener(_onMetricsUpdated);
     _trackingRepository.onNodeCompleted = _handleNodeCompleted;
   }
+
+  void Function()? onSyncNotification;
 
   void _handleNodeCompleted(OnTrackNode node) {
     if (_trainingConfig == null || _playingState != PlayingState.playing) return;
@@ -119,12 +125,27 @@ class SessionRepository extends ChangeNotifier {
           'points': entry.value,
         }).toList();
 
-        activityResult = await _territoryRepository.applyTerritoryImpact(
+        final impact = PendingActivityImpact(
           totalDistance: finalDistance,
           totalTime: finalSeconds,
           timestamp: DateTime.now().toIso8601String(),
           territories: territoriesJson,
+          boostId: _trainingConfig?.boost?.id,
         );
+
+        activityResult = await _territoryRepository.applyTerritoryImpact(
+          totalDistance: impact.totalDistance,
+          totalTime: impact.totalTime,
+          timestamp: impact.timestamp,
+          territories: impact.territories,
+        );
+
+        if (activityResult == null) {
+          final pending = await _localStorageService.getPendingActivityImpacts();
+          pending.add(impact);
+          await _localStorageService.savePendingActivityImpacts(pending);
+          debugPrint('SessionRepository: Saved impact locally for later sync');
+        }
       } catch (e) {
         debugPrint('SessionRepository: Error applying territory impact: $e');
       }
@@ -133,6 +154,36 @@ class SessionRepository extends ChangeNotifier {
     _resetSessionData();
     notifyListeners();
     return (session: session, activityResult: activityResult);
+  }
+
+  Future<void> syncPendingImpacts() async {
+    final pending = await _localStorageService.getPendingActivityImpacts();
+    if (pending.isEmpty) return;
+
+    debugPrint('SessionRepository: Attempting to sync ${pending.length} pending impacts');
+    final List<PendingActivityImpact> remaining = [];
+
+    for (final impact in pending) {
+      try {
+        final result = await _territoryRepository.applyTerritoryImpact(
+          totalDistance: impact.totalDistance,
+          totalTime: impact.totalTime,
+          timestamp: impact.timestamp,
+          territories: impact.territories,
+        );
+        if (result == null) remaining.add(impact);
+      } catch (_) {
+        remaining.add(impact);
+      }
+    }
+
+    final int syncedCount = pending.length - remaining.length;
+    await _localStorageService.savePendingActivityImpacts(remaining);
+    
+    if (syncedCount > 0) {
+      debugPrint('SessionRepository: $syncedCount pending impacts synced successfully');
+      onSyncNotification?.call();
+    }
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
