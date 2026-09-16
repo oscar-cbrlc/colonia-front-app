@@ -12,7 +12,6 @@ import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
-import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -101,6 +100,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Duration? get selectedTime => trainingConfig?.time;
   double? get selectedPace => trainingConfig?.pace;
   double get selectedDistanceMeters => selectedDistance ?? 0.0;
+
+  SessionRepository get sessionRepository => _sessionRepository;
 
   List<Training> get trainings => _trainingRepository.trainings;
   List<Boost> get availableBoosts => _boostRepository.userBoostInventory;

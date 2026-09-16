@@ -412,6 +412,7 @@ class _DistanceProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -454,7 +455,7 @@ class _DistanceProgressPanel extends StatelessWidget {
                 ),
                 if (targetDistanceMeters > 0)
                   Text(
-                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM REMAINING",
+                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM ${locale.remaining.toUpperCase()}",
                     style: const TextStyle(
                       color: Colors.white54,
                       fontWeight: FontWeight.bold,
@@ -522,6 +523,7 @@ class _TimeProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -564,7 +566,7 @@ class _TimeProgressPanel extends StatelessWidget {
                 ),
                 if (targetSeconds > 0)
                   Text(
-                    _formatRemainingTime(targetSeconds - viewModel.totalSecondsElapsed.toDouble()),
+                    _formatRemainingTime(targetSeconds - viewModel.totalSecondsElapsed.toDouble(), locale),
                     style: const TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.bold,
@@ -580,16 +582,16 @@ class _TimeProgressPanel extends StatelessWidget {
     );
   }
 
-  String _formatRemainingTime(double seconds) {
-    if (seconds <= 0) return "TIME UP";
+  String _formatRemainingTime(double seconds, AppLocalizations locale) {
+    if (seconds <= 0) locale.timeUp.toUpperCase();
     final Duration d = Duration(seconds: seconds.toInt());
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String minutes = twoDigits(d.inMinutes.remainder(60));
     String secs = twoDigits(d.inSeconds.remainder(60));
     if (d.inHours > 0) {
-      return "${twoDigits(d.inHours)}:$minutes:$secs REMAINING";
+      return "${twoDigits(d.inHours)}:$minutes:$secs ${locale.remaining.toUpperCase()} ";
     }
-    return "$minutes:$secs REMAINING";
+    return "$minutes:$secs ${locale.remaining.toUpperCase()}";
   }
 }
 
@@ -649,6 +651,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -686,7 +689,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "BEHIND",
+                  locale.behind.toUpperCase(),
                   style: TextStyle(
                     color: currentPace > targetPace ? activityColor : Colors.white24,
                     fontWeight: FontWeight.bold,
@@ -695,7 +698,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "TARGET PACE: ${viewModel.formattedSelectedPace}",
+                  "${locale.targetPace.toUpperCase()}: ${viewModel.formattedSelectedPace}",
                   style: const TextStyle(
                     color: Colors.white54,
                     fontWeight: FontWeight.bold,
@@ -704,7 +707,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "AHEAD",
+                  locale.ahead.toUpperCase(),
                   style: TextStyle(
                     color: currentPace < targetPace && currentPace > 0 ? activityColor : Colors.white24,
                     fontWeight: FontWeight.bold,
@@ -937,22 +940,33 @@ class _ActivityProgressPanel extends StatelessWidget {
                           onTap: () async {
                             HapticFeedback.heavyImpact();
                             final nav = Navigator.of(context);
+                            final scaf = ScaffoldMessenger.of(context);
+                            
                             final result = await viewModel.onPushStopButton();
                             debugPrint("ActivityScreen.onTap: result=$result");
+                            
                             if (result != null) {
+                              if (result['activityResult'] == null) {
+                                scaf.showSnackBar(
+                                  SnackBar(
+                                    content: Text(locale.activitySavedLocally),
+                                    backgroundColor: Colors.orangeAccent,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                              
                               nav.pushReplacementNamed(
                                 AppRouter.summary, 
                                 arguments: result,
                               );
                             } else {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(locale.errorSavingActivity),
-                                    backgroundColor: AppTheme.errorColor,
-                                  ),
-                                );
-                              }
+                              scaf.showSnackBar(
+                                SnackBar(
+                                  content: Text(locale.errorSavingActivity),
+                                  backgroundColor: AppTheme.errorColor,
+                                ),
+                              );
                             }
                           },
                           shape: const StarBorder(
