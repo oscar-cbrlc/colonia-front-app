@@ -226,6 +226,21 @@ class _MapScreenState extends State<MapScreen> {
   );
 
 
+  void _showSyncNotification(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppTheme.successColor,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      widget.viewModel.clearSyncMessage();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -236,10 +251,18 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    return Stack(
-      children: [
-        mapbox.MapWidget(
-          key: const ValueKey("map_screen_mapbox"),
+    
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        if (widget.viewModel.didSync) {
+          _showSyncNotification(locale.pendingActivitiesSynced);
+        }
+        
+        return Stack(
+          children: [
+            mapbox.MapWidget(
+              key: const ValueKey("map_screen_mapbox"),
           styleUri: mapbox.MapboxStyles.STANDARD,
           onMapCreated: widget.viewModel.onMapCreated,
           onStyleLoadedListener: (data) {
@@ -330,6 +353,8 @@ class _MapScreenState extends State<MapScreen> {
         //_profileGroup,
         //_activityGroup,
       ],
+    );
+      },
     );
   }
 }

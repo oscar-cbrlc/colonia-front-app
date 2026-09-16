@@ -12,12 +12,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 
+import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 
 class MapViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final TerritoryRepository _territoryRepository;
   final TeamRepository _teamRepository;
+  final SessionRepository _sessionRepository;
 
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 14.0;
@@ -50,11 +52,34 @@ class MapViewModel extends ChangeNotifier {
   double get currentBearing => _trackingRepository.currentBearing;
   String? get currentCell => _trackingRepository.currentCell;
 
-  MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository) {
+  MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository, this._sessionRepository) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _territoryRepository.addListener(_onTerritoriesChanged);
     _lastActivityState = _trackingRepository.isActivityActive;
     _territoryRepository.fetchAllTerritories();
+    
+    _sessionRepository.onSyncNotification = () {
+        _didSync = true;
+        notifyListeners();
+    };
+    
+    _checkPendingActivities();
+  }
+
+  bool _didSync = false;
+  bool get didSync => _didSync;
+
+  void clearSyncMessage() {
+    _didSync = false;
+    notifyListeners();
+  }
+
+  Future<void> _checkPendingActivities() async {
+    final pendingCount = (await _sessionRepository.localStorageService.getPendingActivityImpacts()).length;
+    if (pendingCount > 0) {
+      await Future.delayed(const Duration(seconds: 1));
+      await _sessionRepository.syncPendingImpacts();
+    }
   }
 
   void _onTerritoriesChanged() {
