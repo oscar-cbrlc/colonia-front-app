@@ -1159,6 +1159,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Las excursiones pendientes se han subido con éxito.'**
   String get pendingActivitiesSynced;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Error desconocido'**
+  String get errorUnknown;
+
+  /// No description provided for @errorUnexpected.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado. Por favor, intenta de nuevo.'**
+  String get errorUnexpected;
+
+  /// No description provided for @logout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
 }
 
 class _AppLocalizationsDelegate

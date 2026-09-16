@@ -563,4 +563,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pendingActivitiesSynced =>
       'Pending excursions have been successfully uploaded.';
+
+  @override
+  String get errorUnknown => 'Unknown error';
+
+  @override
+  String get errorUnexpected =>
+      'An unexpected error occurred. Please try again.';
+
+  @override
+  String get logout => 'Log out';
 }

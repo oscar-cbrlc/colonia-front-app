@@ -566,4 +566,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get pendingActivitiesSynced =>
       'Las excursiones pendientes se han subido con éxito.';
+
+  @override
+  String get errorUnknown => 'Error desconocido';
+
+  @override
+  String get errorUnexpected =>
+      'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
+
+  @override
+  String get logout => 'Cerrar sesión';
 }

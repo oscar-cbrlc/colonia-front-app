@@ -586,5 +586,14 @@
     "@activitySavedLocally": {},
 
     "pendingActivitiesSynced": "Pending excursions have been successfully uploaded.",
-    "@pendingActivitiesSynced": {}
+    "@pendingActivitiesSynced": {},
+
+    "errorUnknown": "Unknown error",
+    "@errorUnknown": {},
+
+    "errorUnexpected": "An unexpected error occurred. Please try again.",
+    "@errorUnexpected": {},
+
+    "logout": "Log out",
+    "@logout": {}
 }
