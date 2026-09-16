@@ -41,9 +41,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         _handleSocialAuthNavigation(result);
       }
     } else if (widget.viewModel.state == WelcomeState.error) {
+      final locale = AppLocalizations.of(context)!;
+      final error = widget.viewModel.errorMessage.isEmpty 
+          ? locale.errorUnexpected 
+          : widget.viewModel.errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.viewModel.errorMessage),
+          content: Text(error),
           backgroundColor: AppTheme.errorColor,
         ),
       );

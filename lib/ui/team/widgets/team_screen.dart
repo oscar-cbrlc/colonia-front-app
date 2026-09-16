@@ -136,7 +136,7 @@ class _NoTeamView extends StatelessWidget {
                     textColor: Colors.black,
                     child: const Icon(Icons.send_outlined),
                   ),
-                  label: const Text("VIEW SENT REQUESTS"),
+                  label: Text(locale.viewSentRequests),
                   style: TextButton.styleFrom(foregroundColor: Colors.white70),
                 ),
               ],
@@ -192,7 +192,7 @@ class _TeamDetailsView extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _showTeamChatSheet(context, viewModel),
                   icon: const Icon(Icons.chat_bubble_outline, color: Colors.black),
-                  label: const Text("TEAM CHAT", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  label: Text(locale.colonyChat.toUpperCase(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -211,7 +211,7 @@ class _TeamDetailsView extends StatelessWidget {
                       textColor: Colors.black,
                       child: const Icon(Icons.person_add_outlined),
                     ),
-                    label: const Text("JOIN REQUESTS"),
+                    label: Text(locale.joinRequests.toUpperCase()),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppTheme.primaryColor.withAlpha(100)),
                       foregroundColor: AppTheme.primaryColor,
@@ -538,23 +538,25 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
     }
 
     if (success && mounted) {
+      final locale = AppLocalizations.of(context)!;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.team != null ? "Colony updated successfully" : "Colony created successfully"))
+        SnackBar(content: Text(widget.team != null ? locale.colonyUpdatedSuccessfully : locale.colonyCreatedSuccessfully))
       );
     }
   }
 
   void _onDelete() async {
+    final locale = AppLocalizations.of(context)!;
     if (widget.viewModel.teamMembers.length > 1) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: AppTheme.darkBackground,
-          title: const Text("Cannot Delete", style: TextStyle(color: Colors.white)),
-          content: const Text("You cannot delete a colony with active members", style: TextStyle(color: Colors.white70)),
+          title: Text(locale.cannotDelete, style: const TextStyle(color: Colors.white)),
+          content: Text(locale.cannotDeleteActiveMembers, style: const TextStyle(color: Colors.white70)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK")),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(locale.ok)),
           ],
         ),
       );
@@ -565,11 +567,11 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.darkBackground,
-        title: const Text("Delete Colony", style: TextStyle(color: Colors.white)),
-        content: const Text("Are you sure you want to delete this colony? This action cannot be undone.", style: TextStyle(color: Colors.white70)),
+        title: Text(locale.deleteColony, style: const TextStyle(color: Colors.white)),
+        content: Text(locale.deleteColonyConfirm, style: const TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("CANCEL")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("DELETE", style: TextStyle(color: Colors.redAccent))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.delete, style: const TextStyle(color: Colors.redAccent))),
         ],
       ),
     );
@@ -578,7 +580,7 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
       final success = await widget.viewModel.deleteTeam();
       if (success && mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Colony deleted")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.colonyDeleted)));
       }
     }
   }
