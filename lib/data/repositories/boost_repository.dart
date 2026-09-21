@@ -1,68 +1,82 @@
+import 'dart:convert';
+
+import 'package:colonia_front_app/data/services/api/boost_service.dart';
+import 'package:colonia_front_app/data/services/local_storage_service.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/boost_type.dart';
 import 'package:flutter/cupertino.dart';
 
 class BoostRepository extends ChangeNotifier {
+  final LocalStorageService _localStorageService;
+  final BoostService _boostService;
 
   List<BoostInventory> _inventory = [];
-  List<Boost> _availableBoosts = [];
 
-  List<Boost> get userBoostInventory => _inventory.isEmpty ? _dummyBoosts : _availableBoosts;
+  BoostRepository(this._localStorageService, this._boostService) {
+    _loadFromCache();
+  }
+
+  Future<void> _loadFromCache() async {
+    _inventory = await _localStorageService.getInventory();
+    notifyListeners();
+  }
+
+  List<BoostInventory> get userBoostInventory => _inventory.isEmpty ? _dummyInventory : _inventory;
 
   int getBoostCount(int boostId) {
-    if (_inventory.isEmpty) {
-      final dummy = _dummyInventory.firstWhere((i) => i.boostId == boostId, orElse: () => const BoostInventory(boostId: 0, userId: 0, amount: 0));
-      return dummy.amount;
+    final list = _inventory.isEmpty ? _dummyInventory : _inventory;
+    try {
+      final item = list.firstWhere((i) => i.id == boostId);
+      return item.quantity;
+    } catch (_) {
+      return 0;
     }
-    final item = _inventory.firstWhere((i) => i.boostId == boostId, orElse: () => BoostInventory(boostId: boostId, userId: 0, amount: 0));
-    return item.amount;
   }
 
   // TODO: replace dummies
-  final List<Boost> _dummyBoosts = [
-    Boost(id: 1, name: "attack", description: "Increases attack by 15%", effect: 1.15, image: "assets/images/attack.png"),
-    Boost(id: 2, name: "defense", description: "Increases defense power by 15%", effect: 1.15, image: "assets/images/defense.png"),
-    Boost(id: 3, name: "power", description: "Increases attack and defense by 15%", effect: 1.15, image: "assets/images/shield.png"),
-  ];
   final List<BoostInventory> _dummyInventory = [
-    BoostInventory(boostId: 1, userId: 1, amount: 2),
-    BoostInventory(boostId: 2, userId: 1, amount: 2),
-    BoostInventory(boostId: 3, userId: 1, amount: 2),
+    BoostInventory(id: 1, type: BoostType.score.name, quantity: 5, effect: 2.0),
+    BoostInventory(id: 2, type: BoostType.impact_area.name, quantity: 3, effect: 0.5),
+    BoostInventory(id: 3, type: BoostType.impact_distance.name, quantity: 1, effect: 0.75),
   ];
 
   Future<List<Boost>> getAvailableBoosts() async {
-    // TODO: Implement API call to fetch available boosts
+    try {
+      final response = await _boostService.getAllBoosts();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Boost.fromJson(json)).toList();
+      }
+    } catch (e) {
+      debugPrint('BoostRepository: Error fetching boosts: $e');
+    }
     return [];
   }
 
-  Future<List<BoostInventory>> getUserInventory(int userId) async {
-    // TODO: Implement API call to fetch user inventory
-    return [];
+  Future<void> fetchMyInventory() async {
+    try {
+      final response = await _boostService.getMyInventory();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        _inventory = data.map((json) => BoostInventory.fromJson(json)).toList();
+        await _localStorageService.saveInventory(_inventory);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('BoostRepository: Error fetching inventory: $e');
+    }
   }
 
-  Future<void> addBoostToInventory(int userId, int boostId) async {
-    // TODO: Implement API call to add boost to user inventory
-    return;
-  }
-
-  Future<void> removeBoostFromInventory(int userId, int boostId) async {
-    // TODO: Implement API call to remove boost from user inventory
-    return;
-  }
-
-  Future<void> fetchAndSetUserBoosts(int userId) async {
-    final inventory = await getUserInventory(userId);
-    final availableBoosts = await getAvailableBoosts();
-
-    final List<Boost> boosts = inventory.map((item) {
-      return availableBoosts.firstWhere(
-        (boost) => boost.id == item.boostId, orElse: () => throw Exception('Boost not found'),
-      );
-    }).toList();
-
-    _inventory = inventory;
-    _availableBoosts = boosts;
-    notifyListeners();
+  Future<void> updateBoostInventory(int userId, int boostId, int amount) async {
+    try {
+      final response = await _boostService.updateBoostInventory(userId, boostId, amount);
+      if (response.statusCode == 200) {
+        await fetchMyInventory();
+      }
+    } catch (e) {
+      debugPrint('BoostRepository: Error updating boost inventory: $e');
+    }
   }
 
 
