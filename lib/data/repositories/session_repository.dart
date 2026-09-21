@@ -1,7 +1,9 @@
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/config/session_config.dart';
+import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -17,6 +19,10 @@ class SessionRepository extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final TerritoryRepository _territoryRepository;
   final LocalStorageService _localStorageService;
+  final BoostRepository _boostRepository;
+  
+  SessionConfig _sessionConfig = SessionConfig.fromBase();
+  
   LocalStorageService get localStorageService => _localStorageService;
 
   PlayingState _playingState = PlayingState.stopped;
@@ -25,18 +31,20 @@ class SessionRepository extends ChangeNotifier {
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
 
+  final Map<String, double> _sessionTerritoryImpacts = {};
+
   PlayingState get playingState => _playingState;
   String? get sportActivity => _activeActivity;
   TrainingConfig? get trainingConfig => _trainingConfig;
   double get targetDistance => _trainingConfig?.distance ?? 0.0;
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
   double get targetPace => _trainingConfig?.pace ?? 0.0;
-  Boost? get boost => _trainingConfig?.boost;
+  BoostInventory? get boost => _trainingConfig?.boost;
   double get accumulatedImpactPoints => _accumulatedImpactPoints;
 
   List<Territory> get affectedTerritories => _affectedTerritories;
 
-  SessionRepository(this._trackingRepository, this._territoryRepository, this._localStorageService) {
+  SessionRepository(this._trackingRepository, this._territoryRepository, this._localStorageService, this._boostRepository) {
     _trackingRepository.addListener(_onMetricsUpdated);
     _trackingRepository.onNodeCompleted = _handleNodeCompleted;
   }
@@ -46,21 +54,39 @@ class SessionRepository extends ChangeNotifier {
   void _handleNodeCompleted(OnTrackNode node) {
     if (_trainingConfig == null || _playingState != PlayingState.playing) return;
 
-    //final cellId = H3Helper.getHexagonAt(
-      //lat: node.lat,
-      //lon: node.lon,
-      //resolution: GameConfig.h3Resolution,
-    //);
+    final String? centerCell = H3Helper.getHexagonAt(
+      lat: node.lat,
+      lon: node.lon,
+      resolution: GameConfig.h3Resolution,
+    );
 
-    final baseEffect = GameConfig.basePointsEffect;
-    final baseDamage = _trainingConfig!.training.attackPoints;
-    final boostEffect = boost?.effect ?? 1.0;
-    final totalEffect = baseEffect * baseDamage * boostEffect;
-    _accumulatedImpactPoints += totalEffect;
+    if (centerCell == null) return;
 
-    _trackingRepository.updateLastNodePoints(totalEffect);
+    final double trainingImpact = _trainingConfig!.training.impactPoints;
+    final double primaryImpact = _sessionConfig.baseImpactPoints * trainingImpact;
+    double nodeTotalImpact = 0;
+
+    _applyImpactToCell(centerCell, primaryImpact);
+    nodeTotalImpact += primaryImpact;
+
+    if (_sessionConfig.impactAreaLevel > 0) {
+      final neighbors = H3Helper.getNeighbors(centerCell, ring: _sessionConfig.impactAreaLevel);
+      final double secondaryImpact = primaryImpact * _sessionConfig.areaImpactMultiplier;
+      
+      for (final cellId in neighbors) {
+        _applyImpactToCell(cellId, secondaryImpact);
+        nodeTotalImpact += secondaryImpact;
+      }
+    }
+
+    _accumulatedImpactPoints += nodeTotalImpact;
+    _trackingRepository.updateLastNodePoints(nodeTotalImpact);
 
     notifyListeners();
+  }
+
+  void _applyImpactToCell(String cellId, double points) {
+    _sessionTerritoryImpacts[cellId] = (_sessionTerritoryImpacts[cellId] ?? 0.0) + points;
   }
 
   void setupSession({
@@ -68,6 +94,11 @@ class SessionRepository extends ChangeNotifier {
   }) {
     _activeActivity = config.activity;
     _trainingConfig = config;
+    
+    _sessionConfig = SessionConfig.fromTrainingConfig(config);
+    
+    _trackingRepository.setMetersBetweenNodes(_sessionConfig.metersBetweenNodes);
+    
     notifyListeners();
   }
 
@@ -75,6 +106,7 @@ class SessionRepository extends ChangeNotifier {
     if (_playingState == PlayingState.playing) return;
     _playingState = PlayingState.playing;
     _accumulatedImpactPoints = 0.0;
+    _sessionTerritoryImpacts.clear();
     _trackingRepository.startActivity();
     notifyListeners();
   }
@@ -110,17 +142,7 @@ class SessionRepository extends ChangeNotifier {
       _affectedTerritories = List.from(session.territories);
 
       try {
-        Map<String, double> territoryPointsMap = {};
-        for (final node in session.nodes) {
-          final cellId = H3Helper.getHexagonAt(
-            lat: node.lat,
-            lon: node.lon,
-            resolution: GameConfig.h3Resolution,
-          );
-          territoryPointsMap[cellId] = (territoryPointsMap[cellId] ?? 0.0) + node.points;
-        }
-
-        final territoriesJson = territoryPointsMap.entries.map((entry) => {
+        final territoriesJson = _sessionTerritoryImpacts.entries.map((entry) => {
           'territory_id': entry.key,
           'points': entry.value,
         }).toList();
@@ -138,9 +160,14 @@ class SessionRepository extends ChangeNotifier {
           totalTime: impact.totalTime,
           timestamp: impact.timestamp,
           territories: impact.territories,
+          boostId: impact.boostId,
         );
 
-        if (activityResult == null) {
+        if (activityResult != null) {
+          if (impact.boostId != null) {
+            _boostRepository.fetchMyInventory();
+          }
+        } else {
           final pending = await _localStorageService.getPendingActivityImpacts();
           pending.add(impact);
           await _localStorageService.savePendingActivityImpacts(pending);
@@ -170,8 +197,15 @@ class SessionRepository extends ChangeNotifier {
           totalTime: impact.totalTime,
           timestamp: impact.timestamp,
           territories: impact.territories,
+          boostId: impact.boostId,
         );
-        if (result == null) remaining.add(impact);
+        if (result == null) {
+          remaining.add(impact);
+        } else {
+          if (impact.boostId != null) {
+            _boostRepository.fetchMyInventory();
+          }
+        }
       } catch (_) {
         remaining.add(impact);
       }
