@@ -21,12 +21,14 @@ class TerritoryService {
     required int totalTime,
     required String timestamp,
     required List<Map<String, dynamic>> territories,
+    int? boostId,
   }) async {
     return await _apiClient.patch('/territory/apply-points', body: {
       'total_distance': totalDistance,
       'total_time': totalTime,
       'timestamp': timestamp,
       'territories': territories,
+      'boost_id': ?boostId,
     });
   }
 }
