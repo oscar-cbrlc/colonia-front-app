@@ -35,6 +35,7 @@ class TerritoryRepository extends ChangeNotifier {
     required int totalTime,
     required String timestamp,
     required List<Map<String, dynamic>> territories,
+    int? boostId,
   }) async {
     try {
       final response = await _territoryService.applyPoints(
@@ -42,6 +43,7 @@ class TerritoryRepository extends ChangeNotifier {
         totalTime: totalTime,
         timestamp: timestamp,
         territories: territories,
+        boostId: boostId,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final dynamic decoded = jsonDecode(response.body);
