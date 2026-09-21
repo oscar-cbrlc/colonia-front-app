@@ -597,4 +597,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String boostDistanceDescription(int percent) {
     return 'Reduces the distance between impacts by $percent%';
   }
+
+  @override
+  String get boosts => 'Boosts';
+
+  @override
+  String get impact => 'Impact';
 }

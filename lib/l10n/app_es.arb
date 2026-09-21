@@ -634,5 +634,11 @@
                 "example": "25"
             }
         }
-    }
+    },
+
+    "boosts": "Potenciadores",
+    "@boosts": {},
+
+    "impact": "Impacto",
+    "@impact": {}
 }

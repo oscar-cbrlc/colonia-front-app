@@ -631,5 +631,11 @@
                 "example": "25"
             }
         }
-    }
+    },
+
+    "boosts": "Boosts",
+    "@boosts": {},
+
+    "impact": "Impact",
+    "@impact": {}
 }

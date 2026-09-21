@@ -1213,6 +1213,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Reduce {percent}% la distancia entre impactos'**
   String boostDistanceDescription(int percent);
+
+  /// No description provided for @boosts.
+  ///
+  /// In es, this message translates to:
+  /// **'Potenciadores'**
+  String get boosts;
+
+  /// No description provided for @impact.
+  ///
+  /// In es, this message translates to:
+  /// **'Impacto'**
+  String get impact;
 }
 
 class _AppLocalizationsDelegate
