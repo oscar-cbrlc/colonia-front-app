@@ -124,7 +124,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profile => 'Perfil';
 
   @override
-  String get startActivity => 'Empezar actividad';
+  String get startActivity => 'Empezar excursión';
 
   @override
   String get walk => 'Caminar';
@@ -196,7 +196,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get finish => 'Finalizar';
 
   @override
-  String get setUpActivity => 'Configurar actividad';
+  String get setUpActivity => 'Configurar excursión';
 
   @override
   String get start => 'Iniciar';
@@ -223,7 +223,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get trainingFinished => 'Entrenamiento terminado';
 
   @override
-  String get activitySummary => 'Resumen de actividad';
+  String get activitySummary => 'Resumen de excursión';
+
+  @override
+  String get errorSavingActivity => 'Error al guardar la excursión';
 
   @override
   String get nextImpact => 'Próximo impacto';
@@ -271,7 +274,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String teamKick(String username) {
-    return '$username ha sido exilidado de la colonia';
+    return '$username ha sido exiliado de la colonia';
   }
 
   @override
@@ -383,7 +386,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String kickMemberConfirm(String username) {
-    return '¿Estás seguro de que quieres expulsar a $username de la colonia?';
+    return '¿Estás seguro de que quieres exiliar a $username de la colonia?';
   }
 
   @override
@@ -397,10 +400,10 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Estás seguro de que quieres eliminar esta colonia?';
 
   @override
-  String get kickMember => 'Expulsar miembro';
+  String get kickMember => 'Exiliar miembro';
 
   @override
-  String get kick => 'Expulsar';
+  String get kick => 'Exiliar';
 
   @override
   String get promoteToModerator => 'Ascender a moderador';
@@ -492,4 +495,115 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noSentRequests => 'No has enviado ninguna solicitud de unión';
+
+  @override
+  String get results => 'Resultados';
+
+  @override
+  String get missionComplete => 'MISIÓN COMPLETADA';
+
+  @override
+  String get objectiveNotMet => 'OBJETIVO NO LOGRADO';
+
+  @override
+  String get claimedTerritory => 'TERRITORIO RECLAMADO';
+
+  @override
+  String get territoryAttacked => 'TERRITORIO ATACADO';
+
+  @override
+  String get territoryDefended => 'TERRITORIO DEFENDIDO';
+
+  @override
+  String get territoryCaptured => 'TERRITORIO CAPTURADO';
+
+  @override
+  String get healthPoints => 'PUNTOS DE SALUD';
+
+  @override
+  String get hexagonId => 'ID DE HEXÁGONO';
+
+  @override
+  String get visitColony => 'VISITAR COLONIA';
+
+  @override
+  String get claimed => 'RECLAMADOS';
+
+  @override
+  String get impacted => 'IMPACTADOS';
+
+  @override
+  String get hexagons => 'HEXÁGONOS';
+
+  @override
+  String get captured => 'CAPTURADOS';
+
+  @override
+  String get attacked => 'ATACADOS';
+
+  @override
+  String get defended => 'DEFENDIDOS';
+
+  @override
+  String get backToMap => 'VOLVER AL MAPA';
+
+  @override
+  String get avgPace => 'RITMO PROMEDIO';
+
+  @override
+  String get savingActivity => 'Guardando excursión y aplicando impactos...';
+
+  @override
+  String get behind => 'DETRÁS';
+
+  @override
+  String get ahead => 'ADELANTE';
+
+  @override
+  String get activitySavedLocally =>
+      'Sin conexión a internet. La excursión se guardó localmente y se subirá cuando vuelvas a estar en línea.';
+
+  @override
+  String get pendingActivitiesSynced =>
+      'Las excursiones pendientes se han subido con éxito.';
+
+  @override
+  String get errorUnknown => 'Error desconocido';
+
+  @override
+  String get errorUnexpected =>
+      'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
+
+  @override
+  String get logout => 'Cerrar sesión';
+
+  @override
+  String get boostMultiplierName => 'Multiplicador de Puntaje';
+
+  @override
+  String boostMultiplierDescription(double effect) {
+    return 'Aplica x$effect puntos en cada impacto';
+  }
+
+  @override
+  String get boostRadioName => 'Impacto en Área';
+
+  @override
+  String boostRadioDescription(int percent) {
+    return 'Aplica $percent% puntos en cada territorio vecino después de un impacto';
+  }
+
+  @override
+  String get boostDistanceName => 'Reductor de Distancia';
+
+  @override
+  String boostDistanceDescription(int percent) {
+    return 'Reduce $percent% la distancia entre impactos';
+  }
+
+  @override
+  String get boosts => 'Potenciadores';
+
+  @override
+  String get impact => 'Impacto';
 }

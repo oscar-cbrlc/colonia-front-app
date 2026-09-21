@@ -83,4 +83,22 @@ class H3Helper {
     }
     return corners;
   }
+
+  static List<String> getNeighbors(String h3Index, {int ring = 1}) {
+    try {
+      final BigInt index = BigInt.parse(h3Index, radix: 16);
+      final List<BigInt> neighbors = h3.gridDisk(index, ring);
+      return neighbors
+          .where((n) => n != index)
+          .map((n) => n.toRadixString(16))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static GeoCoord getCellCenter(String h3Index) {
+    final BigInt index = BigInt.parse(h3Index, radix: 16);
+    return h3.cellToGeo(index);
+  }
 }

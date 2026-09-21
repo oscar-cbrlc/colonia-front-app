@@ -6,7 +6,7 @@ import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
@@ -31,10 +31,12 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final TeamRepository _teamRepository;
 
   static const double minZoomToRender = 13.0;
+  static const double minZoomToShowPoints = 14.0;
   static const double maxRenderRadius = 5000.0;
 
   MapboxMap? _mapboxMap;
   bool _isLocationPermissionGranted = false;
+  bool _showPoints = true;
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
@@ -48,16 +50,23 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
   bool get inActivity => _trackingRepository.isActivityActive;
+  bool get showPoints => _showPoints;
+
+  void toggleShowPoints() {
+    _showPoints = !_showPoints;
+    _updateMapLayers();
+    notifyListeners();
+  }
 
   String? _selectedPreActivity = "walk";
   String? _selectedPreTrainingName = "free";
-  Boost? _selectedBoost;
+  BoostInventory? _selectedBoost;
   String? get selectedPreActivity => _selectedPreActivity;
   set selectedPreActivity(String? value) { _selectedPreActivity = value; notifyListeners(); }
   String? get selectedPreTrainingName => _selectedPreTrainingName;
   set selectedPreTrainingName(String? value) { _selectedPreTrainingName = value; notifyListeners(); }
-  Boost? get selectedBoost => _selectedBoost;
-  set selectedBoost(Boost? value) { _selectedBoost = value; notifyListeners(); }
+  BoostInventory? get selectedBoost => _selectedBoost;
+  set selectedBoost(BoostInventory? value) { _selectedBoost = value; notifyListeners(); }
 
   PlayingState get playingState => _sessionRepository.playingState;
   Point? get userPosition => _trackingRepository.userPosition;
@@ -67,7 +76,22 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
   double get currentPace => _trackingRepository.currentPace;
   double get averagePace => _trackingRepository.averagePace;
-  int get distanceTilNextNode => max(0, (GameConfig.minMetersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
+  int get distanceTilNextNode => max(0, (_trackingRepository.metersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
+
+  static String formatPace(double pace) {
+    if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
+    int minutes = pace.toInt();
+    int seconds = ((pace - minutes) * 60).round();
+    if (seconds >= 60) {
+      minutes += 1;
+      seconds = 0;
+    }
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
+  }
+
+  String get formattedCurrentPace => formatPace(currentPace);
+  String get formattedAveragePace => formatPace(averagePace);
+  String get formattedSelectedPace => selectedPace != null ? formatPace(selectedPace!) : "--";
 
   TrainingConfig? get trainingConfig => _sessionRepository.trainingConfig;
   String? get selectedActivity => trainingConfig?.activity;
@@ -77,26 +101,17 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   double? get selectedPace => trainingConfig?.pace;
   double get selectedDistanceMeters => selectedDistance ?? 0.0;
 
+  SessionRepository get sessionRepository => _sessionRepository;
+
   List<Training> get trainings => _trainingRepository.trainings;
-  List<Boost> get availableBoosts => _boostRepository.userBoostInventory;
+  List<BoostInventory> get availableBoosts => _boostRepository.userBoostInventory;
   int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
   bool get readyToStart => trainingConfig != null;
 
-  double get currentAttackMultiplier {
+  double get currentMultiplier {
     final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
     final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
-    double m = tObj.attackPoints;
-    final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    if (b != null) m *= b.effect;
-    return m;
-  }
-
-  double get currentDefenseMultiplier {
-    final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
-    final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
-    double m = tObj.defensePoints;
-    final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    if (b != null) m *= b.effect;
+    double m = tObj.impactPoints;
     return m;
   }
 
@@ -106,7 +121,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _trainingRepository.addListener(notifyListeners);
     _boostRepository.addListener(notifyListeners);
     _territoryRepository.addListener(_onTerritoriesChanged);
-    //_teamRepository.addListener(notifyListeners);
+    _territoryRepository.fetchAllTerritories();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -147,58 +162,50 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     final currentUser = AuthRepository.instance.currentUser;
     final userTeamId = currentUser?.team?.id;
     final userTeamColor = _getUserTeamColor();
+    final bool canShowPoints = _showPoints && camera.zoom >= minZoomToShowPoints;
 
+    List<String> currentIndexes = [];
     if (camera.zoom >= minZoomToRender) {
-      final currentIndexes = H3Helper.getHexagonsInRadius(
+      currentIndexes = H3Helper.getHexagonsInRadius(
         centerLat: camera.center.coordinates.lat.toDouble(),
         centerLon: camera.center.coordinates.lng.toDouble(),
         radiusMeters: maxRenderRadius / camera.zoom,
         resolution: GameConfig.h3Resolution,
       );
-      final features = currentIndexes.map((hexId) {
-        final territory = _territoryRepository.getTerritoryOrDefault(hexId);
-        final bool isCurrent = hexId == currentCell;
-        final TerritoryTeam? claimedTeam = territory.team;
-
-        String fillColor;
-        if (isCurrent) {
-          if (claimedTeam == null) {
-            fillColor = _colorToRgba(userTeamColor, 0.55);
-          } else {
-            final claimedColor = Color(claimedTeam.color);
-            if (userTeamId != null && claimedTeam.id == userTeamId) {
-              fillColor = _colorToRgba(userTeamColor, 0.70);
-            } else {
-              final blended = Color.fromARGB(
-                255,
-                (((userTeamColor.r * 255) + (claimedColor.r * 255)) ~/ 2),
-                (((userTeamColor.g * 255) + (claimedColor.g * 255)) ~/ 2),
-                (((userTeamColor.b * 255) + (claimedColor.b * 255)) ~/ 2),
-              );
-              fillColor = _colorToRgba(blended, 0.65);
-            }
-          }
-        } else if (claimedTeam != null) {
-          final claimedColor = Color(claimedTeam.color);
-          fillColor = _colorToRgba(claimedColor, 0.40);
-        } else {
-          fillColor = 'rgba(0, 0, 0, 0)';
-        }
-
-        return {
-          "type": "Feature",
-          "properties": {
-            "h3_index": hexId, 
-            "is_current": isCurrent,
-            "health_label": territory.healthPoints.toStringAsFixed(0),
-            "team_id": territory.team?.id,
-            "fill_color": fillColor,
-          },
-          "geometry": {"type": "Polygon", "coordinates": [H3Helper.getHexagonCorners(hexId)]}
-        };
-      }).toList();
-      await style.setStyleSourceProperty("h3-grid-source", "data", jsonEncode({"type": "FeatureCollection", "features": features}));
     }
+
+    final Set<String> allHexIndexes = {
+      ...currentIndexes,
+      for (final t in _territoryRepository.territories) t.id,
+    };
+
+    final features = allHexIndexes.map((hexId) {
+      final territory = _territoryRepository.getTerritoryOrDefault(hexId);
+      final bool isCurrent = hexId == currentCell;
+      final TerritoryTeam? claimedTeam = territory.team;
+
+      String fillColor;
+      if (claimedTeam == null) {
+        fillColor = 'rgba(0, 0, 0, 0)';
+      }
+      else {
+        final claimedColor = Color(claimedTeam.color);
+        fillColor = _colorToRgba(claimedColor, 0.5);
+      }
+
+      return {
+        "type": "Feature",
+        "properties": {
+          "h3_index": hexId, 
+          "is_current": isCurrent,
+          "health_label": (canShowPoints && territory.healthPoints > 0) ? territory.healthPoints.toStringAsFixed(0) : "",
+          "team_id": territory.team?.id,
+          "fill_color": fillColor,
+        },
+        "geometry": {"type": "Polygon", "coordinates": [H3Helper.getHexagonCorners(hexId)]}
+      };
+    }).toList();
+    await style.setStyleSourceProperty("h3-grid-source", "data", jsonEncode({"type": "FeatureCollection", "features": features}));
 
     if (inActivity) {
       final features = <Map<String, dynamic>>[];
@@ -210,7 +217,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
           "type": "Feature", 
           "properties": {
             "type": "hexagon",
-            "health_label": territory.healthPoints.toStringAsFixed(0),
             "team_id": territory.team?.id,
             "fill_color": _colorToRgba(hexColor, 0.45),
           },
@@ -227,7 +233,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
           "type": "Feature", 
           "properties": {
             "type": "node",
-            "points_label": node.points > 0 ? "+${node.points.toStringAsFixed(0)}" : "",
+            "node_type": node.type.name,
+            "points_label": node.points > 0 ? node.points.toStringAsFixed(0) : "",
           }, 
           "geometry": {"type": "Point", "coordinates": [node.lon, node.lat]}
         });
@@ -250,6 +257,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       final currentUser = AuthRepository.instance.currentUser;
       if (currentUser != null && currentUser.team != null) _teamRepository.fetchTeamDetails(currentUser.team!.id);
     }
+
   }
 
   Future<void> onStyleLoaded() async {
@@ -258,7 +266,21 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (userPosition != null) {
         centerOnUser();
     }
+    unawaited(_territoryRepository.fetchAllTerritories());
     await _updateMapLayers();
+  }
+
+  Territory? getClaimedTerritoryAt(double lat, double lon) {
+    final hexId = H3Helper.getHexagonAt(
+      lat: lat,
+      lon: lon,
+      resolution: GameConfig.h3Resolution,
+    );
+    final territory = _territoryRepository.getTerritoryOrDefault(hexId);
+    if (territory.team != null) {
+      return territory;
+    }
+    return null;
   }
 
   Future<void> centerOnUser() async {
@@ -274,7 +296,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void setActivityConfig({required String activity, required String training, required double distance, required Duration time, required double pace, Boost? boost}) {
+  void setActivityConfig({required String activity, required String training, required double distance, required Duration time, required double pace, BoostInventory? boost}) {
     _selectedPreActivity = activity; _selectedPreTrainingName = training; _selectedBoost = boost;
     final config = TrainingConfig(activity: activity, training: trainings.firstWhere((tr) => tr.name == training, orElse: () => trainings.first), distance: distance, time: time, pace: pace, boost: boost);
     _sessionRepository.setupSession(config: config);
@@ -287,18 +309,36 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     else if (playingState == PlayingState.paused) _sessionRepository.resumeGame();
   }
 
+  bool _isSaving = false;
+  bool get isSaving => _isSaving;
+
   Future<Map<String, dynamic>?> onPushStopButton() async {
-    final activity = selectedActivity ?? _selectedPreActivity ?? "walk";
-    final trainingName = selectedTrainingName ?? _selectedPreTrainingName ?? "free";
-    
-    final session = await _sessionRepository.stopAndSaveSession();
-    if (session == null) return null;
-    
-    return {
-      'session': session, 
-      'activity': activity, 
-      'trainingName': trainingName
-    };
+    _isSaving = true;
+    notifyListeners();
+    try {
+      final activity = selectedActivity ?? _selectedPreActivity ?? "walk";
+      final trainingName = selectedTrainingName ?? _selectedPreTrainingName ?? "free";
+      
+      final result = await _sessionRepository.stopAndSaveSession();
+      if (result == null) {
+        debugPrint("ActivityViewModel.onPushStopButton: stopAndSaveSession returned null");
+        return null;
+      }
+      
+      debugPrint("ActivityViewModel.onPushStopButton: Session saved successfully! Activity: $activity, Training: $trainingName");
+      return {
+        'session': result.session, 
+        'activityResult': result.activityResult,
+        'activity': activity, 
+        'trainingName': trainingName
+      };
+    } catch (e, stackTrace) {
+      debugPrint("Error in onPushStopButton: $e\n$stackTrace");
+      return null;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
   }
 
   void onCameraChanged(CameraChangedEventData data) {
@@ -312,16 +352,21 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     await style.addSource(GeoJsonSource(id: "h3-grid-source", data: jsonEncode({"type": "FeatureCollection", "features": []})));
     await style.addLayer(LineLayer(id: "h3-grid-outline-layer", sourceId: "h3-grid-source", lineColor: AppTheme.h3GridLineColor.toARGB32(), lineWidth: 0.8));
     
-    await style.addLayer(FillLayer(id: "h3-grid-layer", sourceId: "h3-grid-source"));
+    await style.addLayer(FillLayer(id: "h3-grid-layer", sourceId: "h3-grid-source", fillEmissiveStrength: 0.6));
     await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
-    
+
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
       sourceId: "h3-grid-source",
-      textSize: 12.0,
+      textSize: 14.0,
+      textFont: ["Oswald", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
+      textLetterSpacing: 0.1,
       textHaloWidth: 1.0,
+      textOffset: [0, 0],
+      textAllowOverlap: true,
+      textIgnorePlacement: true,
     ));
     await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
   }
@@ -336,30 +381,44 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
     await style.addLayer(LineLayer(id: "tracking-perimeter-line-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'perimeter'], lineColor: Colors.white.toARGB32(), lineWidth: 4.5, lineJoin: LineJoin.ROUND, lineCap: LineCap.ROUND));
 
-    await style.addLayer(CircleLayer(id: "tracking-nodes-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'node'], circleRadius: 6.0, circleColor: AppTheme.secondaryColor.toARGB32(), circleStrokeWidth: 2.0, circleStrokeColor: Colors.white.toARGB32()));
+    await style.addLayer(CircleLayer(
+      id: "tracking-nodes-layer", 
+      sourceId: "tracking-polygon-source", 
+      filter: <Object>['==', ['get', 'type'], 'node'], 
+      circleStrokeWidth: 2.0,
+      circleStrokeColor: Colors.white.toARGB32(),
+    ));
+
+    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-radius", [
+      "match",
+      ["get", "node_type"],
+      "path", 6.0,
+      "area", 4.5,
+      6.0
+    ]);
+
+    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-color", [
+      "match",
+      ["get", "node_type"],
+      "path", AppTheme.secondaryColor.toARGB32(),
+      "area", AppTheme.tertiaryColor.toARGB32(),
+      AppTheme.secondaryColor.toARGB32()
+    ]);
     
     await style.addLayer(SymbolLayer(
       id: "tracking-nodes-label-layer",
       sourceId: "tracking-polygon-source",
       filter: <Object>['==', ['get', 'type'], 'node'],
       textSize: 12.0,
+      textFont: ["Oswald", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
       textHaloWidth: 1.0,
       textOffset: [0, -1.5],
+      textAllowOverlap: true,
+      textIgnorePlacement: true,
     ));
     await style.setStyleLayerProperty("tracking-nodes-label-layer", "text-field", ["get", "points_label"]);
-
-    await style.addLayer(SymbolLayer(
-      id: "tracking-hexagons-label-layer",
-      sourceId: "tracking-polygon-source",
-      filter: <Object>['==', ['get', 'type'], 'hexagon'],
-      textSize: 12.0,
-      textColor: Colors.white.toARGB32(),
-      textHaloColor: Colors.black.toARGB32(),
-      textHaloWidth: 1.0,
-    ));
-    await style.setStyleLayerProperty("tracking-hexagons-label-layer", "text-field", ["get", "health_label"]);
   }
 
   void _configureOrnaments() {

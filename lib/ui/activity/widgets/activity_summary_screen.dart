@@ -1,8 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
 class ActivitySummaryScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
   @override
   void initState() {
     super.initState();
+    debugPrint("ActivitySummaryScreen: initState executed!");
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3000),
@@ -43,6 +45,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("ActivitySummaryScreen: build executed!");
     return Scaffold(
       backgroundColor: Colors.black,
       body: ListenableBuilder(
@@ -52,14 +55,28 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
             children: [
               Positioned.fill(
                 child: mapbox.MapWidget(
-                  key: const ValueKey("mapWidget"),
+                  key: const ValueKey("summary_screen_mapbox"),
                   styleUri: mapbox.MapboxStyles.STANDARD,
                   onMapCreated: widget.viewModel.onMapCreated,
-                  onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
-                  viewport: widget.viewModel.viewport ?? mapbox.CameraViewportState(
-                    center: mapbox.Point(coordinates: mapbox.Position(0, 0)),
-                    zoom: 12.0,
-                  ),
+                  onStyleLoadedListener: (data) {
+                    widget.viewModel.onStyleLoaded();
+
+                    final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                      final lat = gestureContext.point.coordinates.lat.toDouble();
+                      final lon = gestureContext.point.coordinates.lng.toDouble();
+
+                      final territory = widget.viewModel.getAffectedTerritoryAt(lat, lon);
+                      if (territory != null) {
+                        showTerritorySummaryBottomSheet(context, territory);
+                      }
+                    });
+
+                    widget.viewModel.mapboxMap?.addInteraction(
+                      tapInteraction,
+                      interactionID: 'hexagon-click',
+                    );
+                  },
+                  viewport: widget.viewModel.viewport,
                   gestureRecognizers: const {},
                 )
               ),
@@ -111,11 +128,15 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(context),
-                    const SizedBox(height: 8),
-                    _buildMissionStatus(context),
-                    const Spacer(),
-                    _buildSummaryCard(),
-                    const SizedBox(height: 32),
+                    if (widget.viewModel.showStats) ...[
+                      const SizedBox(height: 8),
+                      _buildMissionStatus(context),
+                      const Spacer(),
+                      _buildSummaryCard(context),
+                      const SizedBox(height: 32),
+                    ] else ...[
+                      const Spacer(),
+                    ],
                     _buildActionButtons(context),
                     const SizedBox(height: 20),
                   ],
@@ -129,6 +150,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
   }
 
   Widget _buildHeader(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final String activity = widget.viewModel.activity;
     final String training = widget.viewModel.trainingName;
     final IconData activityIcon = activity == "walk"
@@ -184,31 +206,43 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
                   fontSize: 14,
                 ),
               ),
-              const SizedBox(width: 6),
-              /*Text(
-                " • ",
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.3),
-                  fontSize: 14,
-                ),
-              ),*/
-
             ],
           ),
-          Text(
-            "RESULTS",
-            style: TextStyle(
-              color: widget.viewModel.session.isSuccess ? AppTheme.secondaryColor : Colors.white54,
-              fontWeight: FontWeight.bold,
-              fontSize: 32,
-              fontFamily: 'Oswald',
-              shadows: widget.viewModel.session.isSuccess ? [
-                Shadow(
-                  color: AppTheme.secondaryColor.withAlpha(100),
-                  blurRadius: 10,
-                )
-              ] : null,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                locale.results.toUpperCase(),
+                style: TextStyle(
+                  color: widget.viewModel.session.isSuccess ? AppTheme.secondaryColor : Colors.white54,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                  fontFamily: 'Oswald',
+                  shadows: widget.viewModel.session.isSuccess ? [
+                    Shadow(
+                      color: AppTheme.secondaryColor.withAlpha(100),
+                      blurRadius: 10,
+                    )
+                  ] : null,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  widget.viewModel.toggleShowStats();
+                },
+                icon: Icon(
+                  widget.viewModel.showStats
+                      ? Icons.bar_chart
+                      : Icons.bar_chart_outlined,
+                ),
+                color: widget.viewModel.showStats
+                    ? AppTheme.primaryColor
+                    : Colors.white38,
+                iconSize: 28,
+              ),
+            ],
           ),
         ],
       ),
@@ -216,9 +250,10 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
   }
 
   Widget _buildMissionStatus(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final bool success = widget.viewModel.session.isSuccess;
     final Color statusColor = success ? AppTheme.successColor : AppTheme.errorColor;
-    final String statusText = success ? "MISSION COMPLETE" : "OBJECTIVE NOT MET";
+    final String statusText = success ? locale.missionComplete : locale.objectiveNotMet;
     final IconData statusIcon = success ? Icons.check_circle_outline : Icons.error_outline;
 
     return Padding(
@@ -253,7 +288,8 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
     );
   }
 
-  Widget _buildSummaryCard() {
+  Widget _buildSummaryCard(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.all(24),
@@ -271,37 +307,66 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _SummaryStat(
-                  label: "DISTANCE",
+                  label: locale.distance.toUpperCase(),
                   value: widget.viewModel.distanceKm.toStringAsFixed(2),
-                  unit: "KM",
+                  unit: locale.km.toUpperCase(),
                 ),
                 _SummaryStat(
-                  label: "TIME",
+                  label: locale.time.toUpperCase(),
                   value: widget.viewModel.formattedTime,
                   unit: "",
                 ),
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
+              padding: EdgeInsets.symmetric(vertical: 12),
               child: Divider(color: Colors.white10),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _SummaryStat(
-                  label: "AVG PACE",
+                  label: locale.avgPace,
                   value: widget.viewModel.formattedPace,
                   unit: "MIN/KM",
                 ),
                 _SummaryStat(
-                  label: "CLAIMED",
+                  label: locale.impacted,
                   value: widget.viewModel.session.territories.length.toString(),
-                  unit: "TERRITORIES",
+                  unit: locale.hexagons,
                   color: AppTheme.secondaryColor,
                 ),
               ],
             ),
+            if (widget.viewModel.activityResult != null) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: Colors.white10),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _SummaryStat(
+                    label: locale.captured,
+                    value: widget.viewModel.capturedCount.toString(),
+                    unit: "",
+                    color: AppTheme.primaryColor,
+                  ),
+                  _SummaryStat(
+                    label: locale.attacked,
+                    value: widget.viewModel.attackedCount.toString(),
+                    unit: "",
+                    color: Colors.redAccent,
+                  ),
+                  _SummaryStat(
+                    label: locale.defended,
+                    value: widget.viewModel.defendedCount.toString(),
+                    unit: "",
+                    color: AppTheme.tertiaryColor,
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -309,6 +374,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
   }
 
   Widget _buildActionButtons(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: SizedBox(
@@ -326,9 +392,9 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
-          child: const Text(
-            "BACK TO MAP",
-            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          child: Text(
+            locale.backToMap,
+            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
           ),
         ),
       ),

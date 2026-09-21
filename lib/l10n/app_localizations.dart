@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @startActivity.
   ///
   /// In es, this message translates to:
-  /// **'Empezar actividad'**
+  /// **'Empezar excursión'**
   String get startActivity;
 
   /// No description provided for @walk.
@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @setUpActivity.
   ///
   /// In es, this message translates to:
-  /// **'Configurar actividad'**
+  /// **'Configurar excursión'**
   String get setUpActivity;
 
   /// No description provided for @start.
@@ -521,8 +521,14 @@ abstract class AppLocalizations {
   /// No description provided for @activitySummary.
   ///
   /// In es, this message translates to:
-  /// **'Resumen de actividad'**
+  /// **'Resumen de excursión'**
   String get activitySummary;
+
+  /// No description provided for @errorSavingActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar la excursión'**
+  String get errorSavingActivity;
 
   /// No description provided for @nextImpact.
   ///
@@ -608,10 +614,10 @@ abstract class AppLocalizations {
   /// **'{username} se ha unido a la colonia'**
   String teamJoin(String username);
 
-  /// Message shown when a member has been kicked from the team
+  /// Message shown when a member has been exiled from the team
   ///
   /// In es, this message translates to:
-  /// **'{username} ha sido exilidado de la colonia'**
+  /// **'{username} ha sido exiliado de la colonia'**
   String teamKick(String username);
 
   /// Message shown when a member has left from the team
@@ -815,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @kickMemberConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que quieres expulsar a {username} de la colonia?'**
+  /// **'¿Estás seguro de que quieres exiliar a {username} de la colonia?'**
   String kickMemberConfirm(String username);
 
   /// No description provided for @colonyDeleted.
@@ -839,13 +845,13 @@ abstract class AppLocalizations {
   /// No description provided for @kickMember.
   ///
   /// In es, this message translates to:
-  /// **'Expulsar miembro'**
+  /// **'Exiliar miembro'**
   String get kickMember;
 
   /// No description provided for @kick.
   ///
   /// In es, this message translates to:
-  /// **'Expulsar'**
+  /// **'Exiliar'**
   String get kick;
 
   /// No description provided for @promoteToModerator.
@@ -1015,6 +1021,210 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No has enviado ninguna solicitud de unión'**
   String get noSentRequests;
+
+  /// No description provided for @results.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultados'**
+  String get results;
+
+  /// No description provided for @missionComplete.
+  ///
+  /// In es, this message translates to:
+  /// **'MISIÓN COMPLETADA'**
+  String get missionComplete;
+
+  /// No description provided for @objectiveNotMet.
+  ///
+  /// In es, this message translates to:
+  /// **'OBJETIVO NO LOGRADO'**
+  String get objectiveNotMet;
+
+  /// No description provided for @claimedTerritory.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO RECLAMADO'**
+  String get claimedTerritory;
+
+  /// No description provided for @territoryAttacked.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO ATACADO'**
+  String get territoryAttacked;
+
+  /// No description provided for @territoryDefended.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO DEFENDIDO'**
+  String get territoryDefended;
+
+  /// No description provided for @territoryCaptured.
+  ///
+  /// In es, this message translates to:
+  /// **'TERRITORIO CAPTURADO'**
+  String get territoryCaptured;
+
+  /// No description provided for @healthPoints.
+  ///
+  /// In es, this message translates to:
+  /// **'PUNTOS DE SALUD'**
+  String get healthPoints;
+
+  /// No description provided for @hexagonId.
+  ///
+  /// In es, this message translates to:
+  /// **'ID DE HEXÁGONO'**
+  String get hexagonId;
+
+  /// No description provided for @visitColony.
+  ///
+  /// In es, this message translates to:
+  /// **'VISITAR COLONIA'**
+  String get visitColony;
+
+  /// No description provided for @claimed.
+  ///
+  /// In es, this message translates to:
+  /// **'RECLAMADOS'**
+  String get claimed;
+
+  /// No description provided for @impacted.
+  ///
+  /// In es, this message translates to:
+  /// **'IMPACTADOS'**
+  String get impacted;
+
+  /// No description provided for @hexagons.
+  ///
+  /// In es, this message translates to:
+  /// **'HEXÁGONOS'**
+  String get hexagons;
+
+  /// No description provided for @captured.
+  ///
+  /// In es, this message translates to:
+  /// **'CAPTURADOS'**
+  String get captured;
+
+  /// No description provided for @attacked.
+  ///
+  /// In es, this message translates to:
+  /// **'ATACADOS'**
+  String get attacked;
+
+  /// No description provided for @defended.
+  ///
+  /// In es, this message translates to:
+  /// **'DEFENDIDOS'**
+  String get defended;
+
+  /// No description provided for @backToMap.
+  ///
+  /// In es, this message translates to:
+  /// **'VOLVER AL MAPA'**
+  String get backToMap;
+
+  /// No description provided for @avgPace.
+  ///
+  /// In es, this message translates to:
+  /// **'RITMO PROMEDIO'**
+  String get avgPace;
+
+  /// No description provided for @savingActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando excursión y aplicando impactos...'**
+  String get savingActivity;
+
+  /// No description provided for @behind.
+  ///
+  /// In es, this message translates to:
+  /// **'DETRÁS'**
+  String get behind;
+
+  /// No description provided for @ahead.
+  ///
+  /// In es, this message translates to:
+  /// **'ADELANTE'**
+  String get ahead;
+
+  /// No description provided for @activitySavedLocally.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión a internet. La excursión se guardó localmente y se subirá cuando vuelvas a estar en línea.'**
+  String get activitySavedLocally;
+
+  /// No description provided for @pendingActivitiesSynced.
+  ///
+  /// In es, this message translates to:
+  /// **'Las excursiones pendientes se han subido con éxito.'**
+  String get pendingActivitiesSynced;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Error desconocido'**
+  String get errorUnknown;
+
+  /// No description provided for @errorUnexpected.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado. Por favor, intenta de nuevo.'**
+  String get errorUnexpected;
+
+  /// No description provided for @logout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
+
+  /// No description provided for @boostMultiplierName.
+  ///
+  /// In es, this message translates to:
+  /// **'Multiplicador de Puntaje'**
+  String get boostMultiplierName;
+
+  /// No description provided for @boostMultiplierDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplica x{effect} puntos en cada impacto'**
+  String boostMultiplierDescription(double effect);
+
+  /// No description provided for @boostRadioName.
+  ///
+  /// In es, this message translates to:
+  /// **'Impacto en Área'**
+  String get boostRadioName;
+
+  /// No description provided for @boostRadioDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplica {percent}% puntos en cada territorio vecino después de un impacto'**
+  String boostRadioDescription(int percent);
+
+  /// No description provided for @boostDistanceName.
+  ///
+  /// In es, this message translates to:
+  /// **'Reductor de Distancia'**
+  String get boostDistanceName;
+
+  /// No description provided for @boostDistanceDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce {percent}% la distancia entre impactos'**
+  String boostDistanceDescription(int percent);
+
+  /// No description provided for @boosts.
+  ///
+  /// In es, this message translates to:
+  /// **'Potenciadores'**
+  String get boosts;
+
+  /// No description provided for @impact.
+  ///
+  /// In es, this message translates to:
+  /// **'Impacto'**
+  String get impact;
 }
 
 class _AppLocalizationsDelegate

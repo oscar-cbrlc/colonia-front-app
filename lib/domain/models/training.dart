@@ -11,8 +11,7 @@ abstract class Training with _$Training {
   const factory Training({
     @JsonKey(name: 'training_id') required int id,
     @JsonKey(name: 'training_name') required String name,
-    @JsonKey(name: 'attack_points') @Default(1.0) double attackPoints,
-    @JsonKey(name: 'deffence_points') @Default(1.0) double defensePoints,
+    @JsonKey(name: 'impact_points') @Default(1.0) double impactPoints,
   }) = _Training;
 
   factory Training.fromJson(Map<String, dynamic> json) => _$TrainingFromJson(json);

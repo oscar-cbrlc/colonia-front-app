@@ -1,13 +1,6 @@
-import 'package:colonia_front_app/data/repositories/auth_repository.dart';
-import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
-import 'package:colonia_front_app/ui/auth/view_models/create_password_viewmodel.dart';
-import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
-import 'package:colonia_front_app/ui/auth/widgets/create_password_screen.dart';
-import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/email_viewmodel.dart';
@@ -196,9 +189,10 @@ class _EmailScreenState extends State<EmailScreen> {
     if (!mounted) return;
 
     if (viewModel.userFoundState == UserFoundState.error) {
+      final locale = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${viewModel.errorMessage ?? "Unknown error"}'),
+          content: Text('${locale.info}: ${viewModel.errorMessage ?? locale.errorUnknown}'),
           backgroundColor: AppTheme.errorColor,
         ),
       );

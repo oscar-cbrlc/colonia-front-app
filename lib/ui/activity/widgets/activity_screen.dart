@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -34,23 +36,60 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    
     return ListenableBuilder(
       listenable: widget.viewModel,
       builder: (context, _) {
         return Stack(
           children: [
             mapbox.MapWidget(
-              key: const ValueKey("mapWidget"),
+              key: const ValueKey("activity_screen_mapbox"),
               styleUri: mapbox.MapboxStyles.STANDARD,
               onMapCreated: widget.viewModel.onMapCreated,
-              onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
+              onStyleLoadedListener: (data) {
+                widget.viewModel.onStyleLoaded();
+
+                final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                  final lat = gestureContext.point.coordinates.lat.toDouble();
+                  final lon = gestureContext.point.coordinates.lng.toDouble();
+
+                  final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
+                  if (territory != null) {
+                    showTerritorySummaryBottomSheet(context, territory);
+                  }
+                });
+
+                widget.viewModel.mapboxMap?.addInteraction(
+                  tapInteraction,
+                  interactionID: 'hexagon-click',
+                );
+              },
               onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-              viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
-                center: widget.viewModel.userPosition!,
-                zoom: 17.0,
-              ) : null),
+              viewport: widget.viewModel.viewport ??
+                  (widget.viewModel.userPosition != null
+                      ? mapbox.CameraViewportState(
+                    center: widget.viewModel.userPosition!,
+                    zoom: 17.0,
+                  )
+                      : null),
             ),
+
+            if (widget.viewModel.isSaving)
+              Container(
+                color: Colors.black.withAlpha(220),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppTheme.secondaryColor),
+                      SizedBox(height: 16),
+                      Text(
+                        locale.savingActivity,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decorationStyle: null),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             if (widget.viewModel.playingState == PlayingState.stopped)
               Align(
@@ -76,14 +115,35 @@ class _ActivityScreenState extends State<ActivityScreen> {
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 124, right: 16),
-                  child: IconButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      widget.viewModel.centerOnUser();
-                    },
-                    icon: const Icon(Icons.location_searching),
-                    color: Colors.redAccent,
-                    iconSize: 32,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          widget.viewModel.centerOnUser();
+                        },
+                        icon: const Icon(Icons.location_searching),
+                        color: Colors.redAccent,
+                        iconSize: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          widget.viewModel.toggleShowPoints();
+                        },
+                        icon: Icon(
+                          widget.viewModel.showPoints
+                              ? Icons.shield_sharp
+                              : Icons.shield_outlined,
+                        ),
+                        color: widget.viewModel.showPoints
+                            ? AppTheme.primaryColor
+                            : Colors.white38,
+                        iconSize: 30,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -119,7 +179,16 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: AppTheme.secondaryColor,
                             ),
-                            child: Text(locale.start.toUpperCase(), style: const TextStyle(color: AppTheme.darkBackground, fontWeight: FontWeight.bold)),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                locale.start.toUpperCase(), 
+                                style: const TextStyle(
+                                  color: AppTheme.darkBackground, 
+                                  fontWeight: FontWeight.bold
+                                )
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -137,11 +206,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           foregroundColor: AppTheme.primaryColor,
                           splashFactory: InkRipple.splashFactory,
                         ),
-                        child: Text(
-                            locale.setUpActivity.toUpperCase(),
-                            style: const TextStyle(color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold
-                            )
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                              locale.setUpActivity.toUpperCase(),
+                              style: const TextStyle(color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold
+                              )
+                          ),
                         ),
                       ),
                     ),
@@ -177,7 +249,7 @@ class _PreActivityOverview extends StatelessWidget {
         builder: (context, _) {
           final String activity = viewModel.selectedActivity ?? "walk";
           final String training = viewModel.selectedTrainingName ?? "free";
-          final Boost? boost = viewModel.selectedBoost;
+          final BoostInventory? boost = viewModel.selectedBoost;
           final Color activityColor =
               activity == "walk" ? AppTheme.walkColor :
               activity == "run" ? AppTheme.runColor :
@@ -232,23 +304,23 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    if (viewModel.selectedDistance != null && viewModel.selectedDistance! > 0)
+                    if (training == "distance" || training == "pace" || training == "timeTrial")
                       _OverviewStat(
                         label: locale.distance.toUpperCase(),
                         value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
                         unit: "KM",
                       ),
-                    if (viewModel.selectedTime != null && viewModel.selectedTime! > Duration.zero)
+                    if (training == "time" || training == "timeTrial")
                       _OverviewStat(
                         label: locale.time.toUpperCase(),
                         value: _formatDurationShort(viewModel.selectedTime!),
                         unit: "",
                       ),
-                    if (viewModel.selectedPace != null && viewModel.selectedPace! > 0)
+                    if (training == "pace")
                       _OverviewStat(
                         label: locale.targetPace.toUpperCase(),
-                        value: viewModel.selectedPace!.toStringAsFixed(1),
-                        unit: "M/KM",
+                        value: viewModel.formattedSelectedPace,
+                        unit: "MIN/KM",
                       ),
                   ],
                 ),
@@ -259,18 +331,18 @@ class _PreActivityOverview extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Image.asset(boost.image, width: 24, height: 24, errorBuilder: (c,e,s) => const Icon(Icons.bolt, color: AppTheme.tertiaryColor, size: 20)),
+                      Icon(boost.icon, color: AppTheme.tertiaryColor, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              boost.name.toUpperCase(),
+                              boost.getName(locale).toUpperCase(),
                               style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 14, decoration: TextDecoration.none),
                             ),
                             Text(
-                              boost.description,
+                              boost.getDescription(locale),
                               style: const TextStyle(color: Colors.white54, fontSize: 12, decoration: TextDecoration.none),
                             ),
                           ],
@@ -283,9 +355,7 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
-                    const SizedBox(width: 24),
-                    _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
+                    _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                   ],
                 )
               ],
@@ -311,16 +381,16 @@ class _OverviewStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
         const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
             if (unit.isNotEmpty) ...[
               const SizedBox(width: 2),
-              Text(unit, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+              Text(unit, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
             ]
           ],
         )
@@ -352,6 +422,7 @@ class _DistanceProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -394,7 +465,7 @@ class _DistanceProgressPanel extends StatelessWidget {
                 ),
                 if (targetDistanceMeters > 0)
                   Text(
-                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM REMAINING",
+                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM ${locale.remaining.toUpperCase()}",
                     style: const TextStyle(
                       color: Colors.white54,
                       fontWeight: FontWeight.bold,
@@ -462,6 +533,7 @@ class _TimeProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -504,7 +576,7 @@ class _TimeProgressPanel extends StatelessWidget {
                 ),
                 if (targetSeconds > 0)
                   Text(
-                    _formatRemainingTime(targetSeconds - viewModel.totalSecondsElapsed.toDouble()),
+                    _formatRemainingTime(targetSeconds - viewModel.totalSecondsElapsed.toDouble(), locale),
                     style: const TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.bold,
@@ -520,16 +592,16 @@ class _TimeProgressPanel extends StatelessWidget {
     );
   }
 
-  String _formatRemainingTime(double seconds) {
-    if (seconds <= 0) return "TIME UP";
+  String _formatRemainingTime(double seconds, AppLocalizations locale) {
+    if (seconds <= 0) return locale.timeUp.toUpperCase();
     final Duration d = Duration(seconds: seconds.toInt());
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String minutes = twoDigits(d.inMinutes.remainder(60));
     String secs = twoDigits(d.inSeconds.remainder(60));
     if (d.inHours > 0) {
-      return "${twoDigits(d.inHours)}:$minutes:$secs REMAINING";
+      return "${twoDigits(d.inHours)}:$minutes:$secs ${locale.remaining.toUpperCase()} ";
     }
-    return "$minutes:$secs REMAINING";
+    return "$minutes:$secs ${locale.remaining.toUpperCase()}";
   }
 }
 
@@ -589,6 +661,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -626,7 +699,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "BEHIND",
+                  locale.behind.toUpperCase(),
                   style: TextStyle(
                     color: currentPace > targetPace ? activityColor : Colors.white24,
                     fontWeight: FontWeight.bold,
@@ -635,7 +708,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "TARGET PACE: ${targetPace.toStringAsFixed(1)}",
+                  "${locale.targetPace.toUpperCase()}: ${viewModel.formattedSelectedPace}",
                   style: const TextStyle(
                     color: Colors.white54,
                     fontWeight: FontWeight.bold,
@@ -644,7 +717,7 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "AHEAD",
+                  locale.ahead.toUpperCase(),
                   style: TextStyle(
                     color: currentPace < targetPace && currentPace > 0 ? activityColor : Colors.white24,
                     fontWeight: FontWeight.bold,
@@ -672,13 +745,12 @@ class _NextImpactPanel extends StatelessWidget {
     return ListenableBuilder(
         listenable: viewModel,
         builder: (context, _) {
-          final String distanceLeft = "${viewModel.distanceTilNextNode} M";
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             decoration: ShapeDecoration(
               shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
                   side: BorderSide(
                     color: AppTheme.primaryColor.withAlpha(150),
                     width: 1,
@@ -724,7 +796,7 @@ class _ActivityProgressPanel extends StatelessWidget {
       listenable: viewModel,
       builder: (context, _) {
         final String activity = viewModel.selectedActivity ?? "walk";
-        final String training = viewModel.selectedPreTrainingName ?? "free";
+        final String training = viewModel.selectedTrainingName ?? "free";
         final IconData activityIcon = activity == "walk"
             ? Icons.directions_walk
             : activity == "run"
@@ -750,7 +822,7 @@ class _ActivityProgressPanel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: ShapeDecoration(
             shape: BeveledRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
               side: BorderSide(
                 color: activityColor,
                 width: 1.5,
@@ -770,7 +842,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         (viewModel.selectedActivity ?? "").toUpperCase(),
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
                       ),
                     ],
                   ),
@@ -813,20 +885,18 @@ class _ActivityProgressPanel extends StatelessWidget {
                     unit: "",
                   ),
                   _StatDisplay(
-                label: locale.pace.toUpperCase(),
-                value: viewModel.currentPace.toStringAsFixed(1),
-                unit: "MIN/KM",
-              ),
+                    label: locale.pace.toUpperCase(),
+                    value: viewModel.formattedCurrentPace,
+                    unit: "MIN/KM",
+                  ),
             ],
           ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
-                  const SizedBox(width: 24),
-                  _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
-                ],
+                  _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                ]
               ),
               if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
                 const SizedBox(height: 12),
@@ -876,12 +946,33 @@ class _ActivityProgressPanel extends StatelessWidget {
                           borderColor: Colors.redAccent,
                           onTap: () async {
                             HapticFeedback.heavyImpact();
+                            final nav = Navigator.of(context);
+                            final scaf = ScaffoldMessenger.of(context);
+                            
                             final result = await viewModel.onPushStopButton();
-                            if (result != null && context.mounted) {
-                              Navigator.pushReplacementNamed(
-                                context, 
-                                '/summary', 
-                                arguments: result
+                            debugPrint("ActivityScreen.onTap: result=$result");
+                            
+                            if (result != null) {
+                              if (result['activityResult'] == null) {
+                                scaf.showSnackBar(
+                                  SnackBar(
+                                    content: Text(locale.activitySavedLocally),
+                                    backgroundColor: Colors.orangeAccent,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                              
+                              nav.pushReplacementNamed(
+                                AppRouter.summary, 
+                                arguments: result,
+                              );
+                            } else {
+                              scaf.showSnackBar(
+                                SnackBar(
+                                  content: Text(locale.errorSavingActivity),
+                                  backgroundColor: AppTheme.errorColor,
+                                ),
                               );
                             }
                           },
@@ -965,45 +1056,59 @@ class _ActivitySelectorSheet extends StatefulWidget {
 }
 
 class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
-  late final TextEditingController _kmController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? widget.viewModel.selectedDistance!.toInt().toString() : "0"));
-  late final TextEditingController _mController = TextEditingController(text: (widget.viewModel.selectedDistance != null ? ((widget.viewModel.selectedDistance! * 1000) % 1000).toInt().toString() : "0"));
-  late final TextEditingController _hController = TextEditingController(text: (widget.viewModel.selectedTime?.inHours.toString() ?? "0"));
-  late final TextEditingController _minController = TextEditingController(text: (widget.viewModel.selectedTime?.inMinutes.remainder(60).toString() ?? "0"));
-  late final TextEditingController _secController = TextEditingController(text: (widget.viewModel.selectedTime?.inSeconds.remainder(60).toString() ?? "0"));
-  late final TextEditingController _paceController = TextEditingController(text: widget.viewModel.selectedPace?.toString() ?? "0.0");
-
+  int _km = 0;
+  int _m = 0;
+  int _h = 0;
+  int _min = 0;
+  int _sec = 0;
+  int _paceMin = 0;
+  int _paceSec = 0;
 
   @override
-  void dispose() {
-    _kmController.dispose();
-    _mController.dispose();
-    _hController.dispose();
-    _minController.dispose();
-    _secController.dispose();
-    _paceController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    final d = widget.viewModel.selectedDistance ?? 0.0;
+    _km = (d / 1000).floor();
+    _m = (d % 1000).toInt();
+
+    final t = widget.viewModel.selectedTime ?? Duration.zero;
+    _h = t.inHours;
+    _min = t.inMinutes.remainder(60);
+    _sec = t.inSeconds.remainder(60);
+
+    final p = widget.viewModel.selectedPace ?? 5.5;
+    _paceMin = p.toInt();
+    _paceSec = ((p - _paceMin) * 60).round();
+  }
+
+  bool get _isValid {
+    final training = widget.viewModel.selectedPreTrainingName ?? "free";
+    if (training == "free") return true;
+    if (training == "distance") return (_km * 1000 + _m) > 0;
+    if (training == "time") return (_h * 3600 + _min * 60 + _sec) > 0;
+    if (training == "pace") return (_km * 1000 + _m) > 0 && (_paceMin * 60 + _paceSec) > 0;
+    if (training == "timeTrial") return (_km * 1000 + _m) > 0 && (_h * 3600 + _min * 60 + _sec) > 0;
+    return false;
   }
 
   void _onConfirm() {
-    final double km = double.tryParse(_kmController.text) ?? 0;
-    final double m = double.tryParse(_mController.text) ?? 0;
-    final int h = int.tryParse(_hController.text) ?? 0;
-    final int min = int.tryParse(_minController.text) ?? 0;
-    final int sec = int.tryParse(_secController.text) ?? 0;
-    final double pace = double.tryParse(_paceController.text) ?? 0.0;
+    if (!_isValid) return;
 
     double distance = 0.0;
-    Duration time = Duration();
+    Duration time = Duration.zero;
 
     final training = widget.viewModel.selectedPreTrainingName ?? "free";
     final activity = widget.viewModel.selectedPreActivity ?? "walk";
 
     if (training == "distance" || training == "pace" || training == "timeTrial") {
-      distance = (km * 1000) + m;
+      distance = (_km * 1000.0) + _m;
     }
     if (training == "time" || training == "timeTrial") {
-      time = Duration(hours: h, minutes: min, seconds: sec);
+      time = Duration(hours: _h, minutes: _min, seconds: _sec);
     }
+
+    final double pace = _paceMin + (_paceSec / 60.0);
+    
     widget.viewModel.setActivityConfig(
         activity: activity,
         training: training,
@@ -1035,315 +1140,318 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
         ),
         color: AppTheme.darkBackground.withAlpha(240),
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-          child: ListenableBuilder(
-            listenable: Listenable.merge([widget.viewModel, _kmController, _mController, _hController, _minController, _secController]),
-            builder: (context, _) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListenableBuilder(
+        listenable: widget.viewModel,
+        builder: (context, _) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  locale.activity.toUpperCase(),
+                  style: const TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    fontSize: 12,
+                    decoration: TextDecoration.none
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1,
                   children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                    _ChoiceChip(
+                      label: locale.walk,
+                      icon: Icons.directions_walk,
+                      isSelected: widget.viewModel.selectedPreActivity == "walk",
+                      onSelected: () => widget.viewModel.selectedPreActivity = "walk",
+                      color: AppTheme.walkColor,
                     ),
-                    Text(
-                      locale.activity.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        fontSize: 12,
-                      ),
+                    _ChoiceChip(
+                      label: locale.run,
+                      icon: Icons.directions_run,
+                      isSelected: widget.viewModel.selectedPreActivity == "run",
+                      onSelected: () => widget.viewModel.selectedPreActivity = "run",
+                      color: AppTheme.runColor,
                     ),
-                    const SizedBox(height: 8),
-                    GridView.count(
+                    _ChoiceChip(
+                      label: locale.bike,
+                      icon: Icons.directions_bike,
+                      isSelected: widget.viewModel.selectedPreActivity == "bike",
+                      onSelected: () => widget.viewModel.selectedPreActivity = "bike",
+                      color: AppTheme.bikeColor,
+                    ),
+                  ]
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  locale.training.toUpperCase(),
+                  style: const TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    fontSize: 12,
+                    decoration: TextDecoration.none
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1,
+                  children: [
+                    _ChoiceChip(
+                      label: locale.free,
+                      icon: Icons.timer_off,
+                      isSelected: widget.viewModel.selectedPreTrainingName == "free",
+                      onSelected: () => widget.viewModel.selectedPreTrainingName = "free",
+                      color: AppTheme.primaryColor,
+                    ),
+                    _ChoiceChip(
+                      label: locale.distance,
+                      icon: Icons.straighten,
+                      isSelected: widget.viewModel.selectedPreTrainingName == "distance",
+                      onSelected: () => widget.viewModel.selectedPreTrainingName = "distance",
+                      color: AppTheme.primaryColor,
+                    ),
+                    _ChoiceChip(
+                      label: locale.time,
+                      icon: Icons.timer,
+                      isSelected: widget.viewModel.selectedPreTrainingName == "time",
+                      onSelected: () => widget.viewModel.selectedPreTrainingName = "time",
+                      color: AppTheme.primaryColor,
+                    ),
+                    _ChoiceChip(
+                      label: locale.pace,
+                      icon: Icons.linear_scale,
+                      isSelected: widget.viewModel.selectedPreTrainingName == "pace",
+                      onSelected: () => widget.viewModel.selectedPreTrainingName = "pace",
+                      color: AppTheme.primaryColor,
+                    ),
+                    _ChoiceChip(
+                      label: locale.timeTrial,
+                      icon: Icons.av_timer_sharp,
+                      isSelected: widget.viewModel.selectedPreTrainingName == "timeTrial",
+                      onSelected: () => widget.viewModel.selectedPreTrainingName = "timeTrial",
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                if (widget.viewModel.availableBoosts.isNotEmpty) ...[
+                  Text(
+                    locale.boosts.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 12,
+                      decoration: TextDecoration.none
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                       childAspectRatio: 1,
-                      children: [
-                        _ChoiceChip(
-                          label: locale.walk,
-                          icon: Icons.directions_walk,
-                          isSelected: widget.viewModel.selectedPreActivity == "walk",
-                          onSelected: () => widget.viewModel.selectedPreActivity = "walk",
-                          color: AppTheme.walkColor,
-                        ),
-                        _ChoiceChip(
-                          label: locale.run,
-                          icon: Icons.directions_run,
-                          isSelected: widget.viewModel.selectedPreActivity == "run",
-                          onSelected: () => widget.viewModel.selectedPreActivity = "run",
-                          color: AppTheme.runColor,
-                        ),
-                        _ChoiceChip(
-                          label: locale.bike,
-                          icon: Icons.directions_bike,
-                          isSelected: widget.viewModel.selectedPreActivity == "bike",
-                          onSelected: () => widget.viewModel.selectedPreActivity = "bike",
-                          color: AppTheme.bikeColor,
-                        ),
-                      ]
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      locale.training.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        fontSize: 12,
-                      ),
+                    itemCount: widget.viewModel.availableBoosts.length,
+                    itemBuilder: (context, index) {
+                      final boost = widget.viewModel.availableBoosts[index];
+                      final isSelected = widget.viewModel.selectedBoost == boost;
+                      final int count = widget.viewModel.getBoostCount(boost.id);
+                      
+                      return GestureDetector(
+                        onTap: () {
+                          if (count <= 0) return;
+                          if (isSelected) {
+                            widget.viewModel.selectedBoost = null;
+                          } else {
+                            widget.viewModel.selectedBoost = boost;
+                          }
+                        },
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              decoration: ShapeDecoration(
+                                color: isSelected 
+                                    ? AppTheme.tertiaryColor 
+                                    : count > 0 
+                                        ? Colors.white.withAlpha(20) 
+                                        : Colors.white.withAlpha(5),
+                                shape: BeveledRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: isSelected ? Colors.white : AppTheme.tertiaryColor.withAlpha(100),
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(boost.icon, color: Colors.white),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    boost.getName(locale).toUpperCase(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.black : Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (count > 0)
+                              Positioned(
+                                right: 1.5,
+                                top: 1.5,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: ShapeDecoration(
+                                      color: isSelected? AppTheme.secondaryColor.withAlpha(180): AppTheme.secondaryColor.withAlpha(30),
+                                      shape:  BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.only(topRight: Radius.circular(11)),
+                                        side: BorderSide(color: isSelected? AppTheme.secondaryColor.withAlpha(100) : Colors.transparent, width: 0.5)
+                                      )
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 22,
+                                    minHeight: 22,
+                                  ),
+                                  child: Text(
+                                    "$count",
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                if (widget.viewModel.selectedBoost != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.tertiaryColor.withAlpha(20),
+                      borderRadius: BorderRadius.circular(0),
+                      border: Border.all(color: AppTheme.tertiaryColor.withAlpha(210)),
                     ),
-                    const SizedBox(height: 8),
-                    GridView.count(
-                      crossAxisCount: 3,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _ChoiceChip(
-                          label: locale.free,
-                          icon: Icons.timer_off,
-                          isSelected: widget.viewModel.selectedPreTrainingName == "free",
-                          onSelected: () => widget.viewModel.selectedPreTrainingName = "free",
-                          color: AppTheme.primaryColor,
+                        Text(
+                          widget.viewModel.selectedBoost!.getName(locale).toUpperCase(),
+                          style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
                         ),
-                        _ChoiceChip(
-                          label: locale.distance,
-                          icon: Icons.straighten,
-                          isSelected: widget.viewModel.selectedPreTrainingName == "distance",
-                          onSelected: () => widget.viewModel.selectedPreTrainingName = "distance",
-                          color: AppTheme.primaryColor,
-                        ),
-                        _ChoiceChip(
-                          label: locale.time,
-                          icon: Icons.timer,
-                          isSelected: widget.viewModel.selectedPreTrainingName == "time",
-                          onSelected: () => widget.viewModel.selectedPreTrainingName = "time",
-                          color: AppTheme.primaryColor,
-                        ),
-                        _ChoiceChip(
-                          label: locale.pace,
-                          icon: Icons.linear_scale,
-                          isSelected: widget.viewModel.selectedPreTrainingName == "pace",
-                          onSelected: () => widget.viewModel.selectedPreTrainingName = "pace",
-                          color: AppTheme.primaryColor,
-                        ),
-                        _ChoiceChip(
-                          label: locale.timeTrial,
-                          icon: Icons.av_timer_sharp,
-                          isSelected: widget.viewModel.selectedPreTrainingName == "timeTrial",
-                          onSelected: () => widget.viewModel.selectedPreTrainingName = "timeTrial",
-                          color: AppTheme.primaryColor,
+                        const SizedBox(height: 4),
+
+                        Text(
+                          widget.viewModel.selectedBoost!.getDescription(locale),
+                          style: const TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.none),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    if (widget.viewModel.availableBoosts.isNotEmpty) ...[
-                      Text(
-                        "BOOSTS",
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 1,
-                        ),
-                        itemCount: widget.viewModel.availableBoosts.length,
-                        itemBuilder: (context, index) {
-                          final boost = widget.viewModel.availableBoosts[index];
-                          final isSelected = widget.viewModel.selectedBoost == boost;
-                          final int count = widget.viewModel.getBoostCount(boost.id);
-                          
-                          return GestureDetector(
-                            onTap: () {
-                              if (count <= 0) return;
-                              if (isSelected) {
-                                widget.viewModel.selectedBoost = null;
-                              } else {
-                                widget.viewModel.selectedBoost = boost;
-                              }
-                            },
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  decoration: ShapeDecoration(
-                                    color: isSelected 
-                                        ? AppTheme.tertiaryColor 
-                                        : count > 0 
-                                            ? Colors.white.withAlpha(20) 
-                                            : Colors.white.withAlpha(5),
-                                    shape: BeveledRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(
-                                        color: isSelected ? Colors.white : AppTheme.tertiaryColor.withAlpha(100),
-                                        width: 1,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(boost.image, height: 40, width: 40, errorBuilder: (c, e, s) => const Icon(Icons.bolt, color: Colors.white)),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        boost.name.toUpperCase(),
-                                        style: TextStyle(
-                                          color: isSelected ? Colors.black : Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (count > 0)
-                                  Positioned(
-                                    right: 1.5,
-                                    top: 1.5,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: ShapeDecoration(
-                                          color: isSelected? AppTheme.secondaryColor.withAlpha(180): AppTheme.secondaryColor.withAlpha(30),
-                                          shape:  BeveledRectangleBorder(
-                                            borderRadius: BorderRadius.only(topRight: Radius.circular(11)),
-                                            side: BorderSide(color: isSelected? AppTheme.secondaryColor.withAlpha(100) : Colors.transparent, width: 0.5)
-                                          )
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 22,
-                                        minHeight: 22,
-                                      ),
-                                      child: Text(
-                                        "$count",
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                    if (widget.viewModel.selectedBoost != null) ...[
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.tertiaryColor.withAlpha(20),
-                          borderRadius: BorderRadius.circular(0),
-                          border: Border.all(color: AppTheme.tertiaryColor.withAlpha(210)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.viewModel.selectedBoost!.name.toUpperCase(),
-                              style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                            const SizedBox(height: 4),
-
-                            Text(
-                              widget.viewModel.selectedBoost!.description,
-                              style: const TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.none),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                    if (widget.viewModel.selectedPreTrainingName != "free" && widget.viewModel.selectedPreTrainingName != null) ...[
-                      Text(
-                        locale.setObjective.toUpperCase(),
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildObjectiveInputs(context),
-                      const SizedBox(height: 32),
-                    ],
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(10),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _MultiplierItem(
-                            label: "ATTACK",
-                            multiplier: widget.viewModel.currentAttackMultiplier,
-                            color: Colors.redAccent,
-                          ),
-                          _MultiplierItem(
-                            label: "DEFENSE",
-                            multiplier: widget.viewModel.currentDefenseMultiplier,
-                            color: Colors.blueAccent,
-                          ),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                if (widget.viewModel.selectedPreTrainingName != "free" && widget.viewModel.selectedPreTrainingName != null) ...[
+                  Text(
+                    locale.setObjective.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 12,
+                      decoration: TextDecoration.none
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _onConfirm,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: AppTheme.primaryColor,
-                        ),
-                        child: Text(locale.confirm.toUpperCase(), style: TextStyle(color: Colors.black87) ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildObjectiveInputs(context),
+                  const SizedBox(height: 32),
+                ],
+
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(10),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _MultiplierItem(
+                        label: locale.impact.toUpperCase(),
+                        multiplier: widget.viewModel.currentMultiplier,
+                        color: Colors.redAccent,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                    ],
+                  ),
                 ),
-              );
-            },
-          ),
-        ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isValid ? _onConfirm : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppTheme.primaryColor,
+                      disabledBackgroundColor: Colors.white10,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        locale.confirm.toUpperCase(), 
+                        style: TextStyle(color: _isValid ? Colors.black87 : Colors.white24) 
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -1351,110 +1459,172 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   Widget _buildObjectiveInputs(BuildContext context) {
     final training = widget.viewModel.selectedPreTrainingName;
     final locale = AppLocalizations.of(context)!;
+    
+    Widget subtitle(String text) => Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white38,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.1,
+        ),
+      ),
+    );
+
     if (training == "distance") {
-      return Row(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-              child: _TargetInputField(
-                  controller: _kmController,
-                  inputType: TextInputType.number,
-                  label: locale.km.toUpperCase(),
-                  value: (widget.viewModel.selectedDistance != null ? (widget.viewModel.selectedDistance! ~/ 1000) : 0))
+          subtitle(locale.distance),
+          Row(
+            children: [
+              Expanded(
+                  child: _NumberPickerField(
+                      label: locale.km.toUpperCase(),
+                      value: _km,
+                      min: 0,
+                      max: 99,
+                      onChanged: (v) => setState(() => _km = v))
+              ),
+              const SizedBox(width: 16),
+              Expanded(child: _NumberPickerField(
+                  label: locale.meters.toUpperCase(),
+                  value: _m,
+                  min: 0,
+                  max: 999,
+                  step: 50,
+                  onChanged: (v) => setState(() => _m = v))),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(child: _TargetInputField(
-              controller: _mController,
-              inputType: TextInputType.number,
-              label: locale.meters.toUpperCase(),
-              value: int.tryParse(_mController.text) ?? 0)),
         ],
       );
     } else if (training == "time") {
-      return Row(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _TargetInputField(
-              controller: _hController,
-              inputType: TextInputType.number,
-              label: locale.hours.toUpperCase(),
-              value: int.tryParse(_hController.text) ?? 0)),
-          const SizedBox(width: 12),
-          Expanded(child: _TargetInputField(
-              controller: _minController,
-              inputType: TextInputType.number,
-              label: locale.min.toUpperCase(),
-              value: int.tryParse(_minController.text) ?? 0)),
-          const SizedBox(width: 12),
-          Expanded(child: _TargetInputField(
-              controller: _secController,
-              inputType: TextInputType.number,
-              label: locale.sec.toUpperCase(),
-              value: int.tryParse(_secController.text) ?? 0)),
+          subtitle(locale.time),
+          Row(
+            children: [
+              Expanded(child: _NumberPickerField(
+                  label: locale.hours.toUpperCase(),
+                  value: _h,
+                  min: 0,
+                  max: 23,
+                  onChanged: (v) => setState(() => _h = v))),
+              const SizedBox(width: 8),
+              Expanded(child: _NumberPickerField(
+                  label: locale.min.toUpperCase(),
+                  value: _min,
+                  min: 0,
+                  max: 59,
+                  onChanged: (v) => setState(() => _min = v))),
+              const SizedBox(width: 8),
+              Expanded(child: _NumberPickerField(
+                  label: locale.sec.toUpperCase(),
+                  value: _sec,
+                  min: 0,
+                  max: 59,
+                  step: 10,
+                  onChanged: (v) => setState(() => _sec = v))),
+            ],
+          ),
         ],
       );
     } else if (training == "pace") {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          subtitle(locale.distance),
           Row(
             children: [
-              Expanded(child: _TargetInputField(
-                  controller: _kmController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.km.toUpperCase(),
-                  value: int.tryParse(_kmController.text) ?? 0)),
+                  value: _km,
+                  min: 0,
+                  max: 99,
+                  onChanged: (v) => setState(() => _km = v))),
               const SizedBox(width: 16),
-              Expanded(child: _TargetInputField(
-                  controller: _mController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.meters.toUpperCase(),
-                  value: int.tryParse(_mController.text) ?? 0)),
+                  value: _m,
+                  min: 0,
+                  max: 999,
+                  step: 50,
+                  onChanged: (v) => setState(() => _m = v))),
             ],
           ),
           const SizedBox(height: 16),
-          _TargetInputField(
-              controller: _paceController,
-              inputType: const TextInputType.numberWithOptions(decimal: true),
-              label: locale.targetPace.toUpperCase(),
-              value: double.tryParse(_paceController.text) ?? 0.0),
+          subtitle(locale.targetPace),
+          Row(
+            children: [
+              Expanded(child: _NumberPickerField(
+                  label: locale.min.toUpperCase(),
+                  value: _paceMin,
+                  min: 2,
+                  max: 20,
+                  onChanged: (v) => setState(() => _paceMin = v))),
+              const SizedBox(width: 12),
+              Expanded(child: _NumberPickerField(
+                  label: locale.sec.toUpperCase(),
+                  value: _paceSec,
+                  min: 0,
+                  max: 59,
+                  step: 5,
+                  onChanged: (v) => setState(() => _paceSec = v))),
+            ],
+          ),
         ],
       );
     } else if (training == "timeTrial") {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          subtitle(locale.distance),
           Row(
             children: [
-              Expanded(child: _TargetInputField(
-                  controller: _kmController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.km.toUpperCase(),
-                  value: int.tryParse(_kmController.text) ?? 0)),
+                  value: _km,
+                  min: 0,
+                  max: 99,
+                  onChanged: (v) => setState(() => _km = v))),
               const SizedBox(width: 16),
-              Expanded(child: _TargetInputField(
-                  controller: _mController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.meters.toUpperCase(),
-                  value: int.tryParse(_mController.text) ?? 0)),
+                  value: _m,
+                  min: 0,
+                  max: 999,
+                  step: 50,
+                  onChanged: (v) => setState(() => _m = v))),
             ],
           ),
           const SizedBox(height: 16),
+          subtitle(locale.time),
           Row(
             children: [
-              Expanded(child: _TargetInputField(
-                  controller: _hController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.hours.toUpperCase(),
-                  value: int.tryParse(_hController.text) ?? 0)),
+                  value: _h,
+                  min: 0,
+                  max: 23,
+                  onChanged: (v) => setState(() => _h = v))),
               const SizedBox(width: 12),
-              Expanded(child: _TargetInputField(
-                  controller: _minController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.min.toUpperCase(),
-                  value: int.tryParse(_minController.text) ?? 0)),
+                  value: _min,
+                  min: 0,
+                  max: 59,
+                  onChanged: (v) => setState(() => _min = v))),
               const SizedBox(width: 12),
-              Expanded(child: _TargetInputField(
-                  controller: _secController,
-                  inputType: TextInputType.number,
+              Expanded(child: _NumberPickerField(
                   label: locale.sec.toUpperCase(),
-                  value: int.tryParse(_secController.text) ?? 0)),
+                  value: _sec,
+                  min: 0,
+                  max: 59,
+                  step: 10,
+                  onChanged: (v) => setState(() => _sec = v))),
             ],
           ),
         ],
@@ -1464,44 +1634,102 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   }
 }
 
-class _TargetInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final TextInputType inputType;
+class _NumberPickerField extends StatelessWidget {
   final String label;
-  final num value;
+  final int value;
+  final int min;
+  final int max;
+  final int step;
+  final ValueChanged<int> onChanged;
 
-  const _TargetInputField({required this.controller, required this.inputType, required this.label, required this.value});
+  const _NumberPickerField({
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+    this.step = 1,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            label, 
+            style: const TextStyle(
+              color: Colors.white54, 
+              fontSize: 10, 
+              fontWeight: FontWeight.bold, 
+              decoration: TextDecoration.none
+            )
+          ),
+        ),
         const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: inputType,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-          inputFormatters: [
-            inputType == const TextInputType.numberWithOptions(decimal: true) ? FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')) : FilteringTextInputFormatter.digitsOnly
-          ],
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white.withAlpha(10),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white24),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppTheme.primaryColor),
-            ),
+        Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white.withAlpha(10),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white24),
+          ),
+          child: Row(
+            children: [
+              _PickerButton(
+                icon: Icons.remove,
+                onPressed: value > min ? () => onChanged(value - step < min ? min : value - step) : null,
+              ),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    value.toString(),
+                    style: const TextStyle(
+                      color: Colors.white, 
+                      fontSize: 24, 
+                      fontWeight: FontWeight.bold, 
+                      fontFamily: 'Oswald', 
+                      decoration: TextDecoration.none
+                    ),
+                  ),
+                ),
+              ),
+              _PickerButton(
+                icon: Icons.add,
+                onPressed: value < max ? () => onChanged(value + step > max ? max : value + step) : null,
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PickerButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  const _PickerButton({required this.icon, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 28,
+        height: double.infinity,
+        alignment: Alignment.center,
+        child: Icon(
+          icon, 
+          size: 16, 
+          color: onPressed != null ? AppTheme.primaryColor : Colors.white10
+        ),
+      ),
     );
   }
 }
@@ -1554,12 +1782,15 @@ class _ChoiceChip extends StatelessWidget {
               size: 20,
             ),
             const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isSelected ? AppTheme.darkBackground : Colors.white,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isSelected ? AppTheme.darkBackground : Colors.white,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
           ],
@@ -1582,12 +1813,12 @@ class _MultiplierItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
         ),
         const SizedBox(height: 4),
         Text(
           "x${multiplier.toStringAsFixed(2)}",
-          style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald'),
+          style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
         ),
       ],
     );

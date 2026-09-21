@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -225,6 +226,21 @@ class _MapScreenState extends State<MapScreen> {
   );
 
 
+  void _showSyncNotification(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppTheme.successColor,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      widget.viewModel.clearSyncMessage();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -235,13 +251,38 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    return Stack(
-      children: [
-        mapbox.MapWidget(
-          key: const ValueKey("mapWidget"),
+    
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        if (widget.viewModel.didSync) {
+          _showSyncNotification(locale.pendingActivitiesSynced);
+        }
+        
+        return Stack(
+          children: [
+            mapbox.MapWidget(
+              key: const ValueKey("map_screen_mapbox"),
           styleUri: mapbox.MapboxStyles.STANDARD,
           onMapCreated: widget.viewModel.onMapCreated,
-          onStyleLoadedListener: (data) => widget.viewModel.onStyleLoaded(),
+          onStyleLoadedListener: (data) {
+            widget.viewModel.onStyleLoaded();
+
+            final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+              final lat = gestureContext.point.coordinates.lat.toDouble();
+              final lon = gestureContext.point.coordinates.lng.toDouble();
+
+              final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
+              if (territory != null) {
+                showTerritorySummaryBottomSheet(context, territory);
+              }
+            });
+
+            widget.viewModel.mapboxMap?.addInteraction(
+              tapInteraction,
+              interactionID: 'hexagon-click',
+            );
+          },
           onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
           viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
             center: widget.viewModel.userPosition!,
@@ -254,14 +295,40 @@ class _MapScreenState extends State<MapScreen> {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(top: 124, right: 16),
-              child: IconButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  widget.viewModel.centerOnUser();
-                },
-                icon: const Icon(Icons.location_searching),
-                color: Colors.redAccent,
-                iconSize: 32,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      widget.viewModel.centerOnUser();
+                    },
+                    icon: const Icon(Icons.location_searching),
+                    color: Colors.redAccent,
+                    iconSize: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  ListenableBuilder(
+                    listenable: widget.viewModel,
+                    builder: (context, _) {
+                      return IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          widget.viewModel.toggleShowPoints();
+                        },
+                        icon: Icon(
+                          widget.viewModel.showPoints
+                              ? Icons.shield_sharp
+                              : Icons.shield_outlined,
+                        ),
+                        color: widget.viewModel.showPoints
+                            ? AppTheme.primaryColor
+                            : Colors.white38,
+                        iconSize: 30,
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -286,6 +353,8 @@ class _MapScreenState extends State<MapScreen> {
         //_profileGroup,
         //_activityGroup,
       ],
+    );
+      },
     );
   }
 }

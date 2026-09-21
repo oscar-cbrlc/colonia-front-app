@@ -121,7 +121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile => 'Profile';
 
   @override
-  String get startActivity => 'Start activity';
+  String get startActivity => 'Start excursion';
 
   @override
   String get walk => 'Walk';
@@ -133,7 +133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bike => 'Bike';
 
   @override
-  String get activity => 'Activity';
+  String get activity => 'Excursion';
 
   @override
   String get training => 'Training';
@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finish => 'Finish';
 
   @override
-  String get setUpActivity => 'Set up activity';
+  String get setUpActivity => 'Set up excursion';
 
   @override
   String get start => 'Start';
@@ -221,6 +221,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activitySummary => 'Activity summary';
+
+  @override
+  String get errorSavingActivity => 'Error saving excursion';
 
   @override
   String get nextImpact => 'Next impact';
@@ -289,7 +292,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
-  String get memberKicked => 'Member kicked from colony';
+  String get memberKicked => 'Member exiled from colony';
 
   @override
   String get leaderLeaveError =>
@@ -379,7 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String kickMemberConfirm(String username) {
-    return 'Are you sure you want to kick $username from the colony?';
+    return 'Are you sure you want to exile $username from the colony?';
   }
 
   @override
@@ -393,10 +396,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to delete this colony?';
 
   @override
-  String get kickMember => 'Kick member';
+  String get kickMember => 'Exile member';
 
   @override
-  String get kick => 'Kick';
+  String get kick => 'Exile';
 
   @override
   String get promoteToModerator => 'Promote to moderator';
@@ -488,4 +491,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSentRequests => 'You haven\'t sent any join requests';
+
+  @override
+  String get results => 'Results';
+
+  @override
+  String get missionComplete => 'MISSION COMPLETE';
+
+  @override
+  String get objectiveNotMet => 'OBJECTIVE NOT MET';
+
+  @override
+  String get claimedTerritory => 'CLAIMED TERRITORY';
+
+  @override
+  String get territoryAttacked => 'TERRITORY ATTACKED';
+
+  @override
+  String get territoryDefended => 'TERRITORY DEFENDED';
+
+  @override
+  String get territoryCaptured => 'TERRITORY CAPTURED';
+
+  @override
+  String get healthPoints => 'HEALTH POINTS';
+
+  @override
+  String get hexagonId => 'HEXAGON ID';
+
+  @override
+  String get visitColony => 'VISIT COLONY';
+
+  @override
+  String get claimed => 'CLAIMED';
+
+  @override
+  String get impacted => 'IMPACTED';
+
+  @override
+  String get hexagons => 'HEXAGONS';
+
+  @override
+  String get captured => 'CAPTURED';
+
+  @override
+  String get attacked => 'ATTACKED';
+
+  @override
+  String get defended => 'DEFENDED';
+
+  @override
+  String get backToMap => 'BACK TO MAP';
+
+  @override
+  String get avgPace => 'AVG PACE';
+
+  @override
+  String get savingActivity =>
+      'Saving excursion & applying territory impacts...';
+
+  @override
+  String get behind => 'BEHIND';
+
+  @override
+  String get ahead => 'AHEAD';
+
+  @override
+  String get activitySavedLocally =>
+      'No internet connection. Activity saved locally and will be uploaded when back online.';
+
+  @override
+  String get pendingActivitiesSynced =>
+      'Pending excursions have been successfully uploaded.';
+
+  @override
+  String get errorUnknown => 'Unknown error';
+
+  @override
+  String get errorUnexpected =>
+      'An unexpected error occurred. Please try again.';
+
+  @override
+  String get logout => 'Log out';
+
+  @override
+  String get boostMultiplierName => 'Score Multiplier';
+
+  @override
+  String boostMultiplierDescription(double effect) {
+    return 'Applies x$effect points every impact';
+  }
+
+  @override
+  String get boostRadioName => 'Impact Area';
+
+  @override
+  String boostRadioDescription(int percent) {
+    return 'Applies $percent% points in every neighboring territory after an impact';
+  }
+
+  @override
+  String get boostDistanceName => 'Distance Reducer';
+
+  @override
+  String boostDistanceDescription(int percent) {
+    return 'Reduces the distance between impacts by $percent%';
+  }
+
+  @override
+  String get boosts => 'Boosts';
+
+  @override
+  String get impact => 'Impact';
 }
