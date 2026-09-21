@@ -3,7 +3,6 @@ import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
-import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -149,7 +148,7 @@ class _ProfileScreen extends StatelessWidget {
               onPressed: () async {
                 context.read<TeamRepository>().clear();
                 context.read<TerritoryRepository>().clearCache();
-                context.read<BoostRepository>().clear();
+                //context.read<BoostRepository>().clear();
                 context.read<TrackingRepository>().clear();
 
                 await authRepo.logout();
@@ -160,7 +159,7 @@ class _ProfileScreen extends StatelessWidget {
                   );
                 }
               },
-              child: const Text("Log Out"),
+              child: Text(AppLocalizations.of(context)!.logout),
             ),
           ],
         ),
