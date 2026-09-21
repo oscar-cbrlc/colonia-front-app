@@ -69,6 +69,8 @@ class SessionRepository extends ChangeNotifier {
     _applyImpactToCell(centerCell, primaryImpact);
     nodeTotalImpact += primaryImpact;
 
+    final List<OnTrackNode> secondaryNodes = [];
+
     if (_sessionConfig.impactAreaLevel > 0) {
       final neighbors = H3Helper.getNeighbors(centerCell, ring: _sessionConfig.impactAreaLevel);
       final double secondaryImpact = primaryImpact * _sessionConfig.areaImpactMultiplier;
@@ -76,11 +78,24 @@ class SessionRepository extends ChangeNotifier {
       for (final cellId in neighbors) {
         _applyImpactToCell(cellId, secondaryImpact);
         nodeTotalImpact += secondaryImpact;
+
+        final center = H3Helper.getCellCenter(cellId);
+        secondaryNodes.add(OnTrackNode(
+          lat: center.lat-10,
+          lon: center.lon,
+          pace: node.pace,
+          points: secondaryImpact,
+          timestamp: node.timestamp,
+          type: OnTrackNodeType.area,
+        ));
       }
     }
 
     _accumulatedImpactPoints += nodeTotalImpact;
-    _trackingRepository.updateLastNodePoints(nodeTotalImpact);
+    _trackingRepository.updateLastNodePoints(primaryImpact);
+    if (secondaryNodes.isNotEmpty) {
+      _trackingRepository.addSecondaryNodes(secondaryNodes);
+    }
 
     notifyListeners();
   }

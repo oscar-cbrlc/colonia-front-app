@@ -57,6 +57,8 @@ class TrackingRepository extends ChangeNotifier {
   List<OnTrackNode> get onTrackNodes => _onTrackNodes;
   double get metersSinceLastNode => _metersSinceLastNode;
 
+  double get metersBetweenNodes => _metersBetweenNodes;
+
   TrackingRepository(this._locationService, this._territoryRepository) {
     _initPassiveTracking();
   }
@@ -137,9 +139,23 @@ class TrackingRepository extends ChangeNotifier {
         pace: lastNode.pace,
         points: points,
         timestamp: lastNode.timestamp,
+        type: lastNode.type,
       );
       notifyListeners();
     }
+  }
+
+  void addSecondaryNodes(List<OnTrackNode> nodes) {
+    _onTrackNodes.addAll(nodes);
+    for (final node in nodes) {
+      final cellId = H3Helper.getHexagonAt(
+        lat: node.lat, 
+        lon: node.lon, 
+        resolution: GameConfig.h3Resolution
+      );
+      _visitedCells.add(cellId);
+    }
+    notifyListeners();
   }
 
   void _onLocationReceived(geo.Position position) {

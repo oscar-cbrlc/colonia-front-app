@@ -76,7 +76,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
   double get currentPace => _trackingRepository.currentPace;
   double get averagePace => _trackingRepository.averagePace;
-  int get distanceTilNextNode => max(0, (GameConfig.baseMetersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
+  int get distanceTilNextNode => max(0, (_trackingRepository.metersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
 
   static String formatPace(double pace) {
     if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
@@ -233,6 +233,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
           "type": "Feature", 
           "properties": {
             "type": "node",
+            "node_type": node.type.name,
             "points_label": node.points > 0 ? node.points.toStringAsFixed(0) : "",
           }, 
           "geometry": {"type": "Point", "coordinates": [node.lon, node.lat]}
@@ -380,17 +381,42 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
     await style.addLayer(LineLayer(id: "tracking-perimeter-line-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'perimeter'], lineColor: Colors.white.toARGB32(), lineWidth: 4.5, lineJoin: LineJoin.ROUND, lineCap: LineCap.ROUND));
 
-    await style.addLayer(CircleLayer(id: "tracking-nodes-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'node'], circleRadius: 6.0, circleColor: AppTheme.secondaryColor.toARGB32(), circleStrokeWidth: 2.0, circleStrokeColor: Colors.white.toARGB32()));
+    await style.addLayer(CircleLayer(
+      id: "tracking-nodes-layer", 
+      sourceId: "tracking-polygon-source", 
+      filter: <Object>['==', ['get', 'type'], 'node'], 
+      circleStrokeWidth: 2.0,
+      circleStrokeColor: Colors.white.toARGB32(),
+    ));
+
+    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-radius", [
+      "match",
+      ["get", "node_type"],
+      "path", 6.0,
+      "area", 4.5,
+      6.0
+    ]);
+
+    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-color", [
+      "match",
+      ["get", "node_type"],
+      "path", AppTheme.secondaryColor.toARGB32(),
+      "area", AppTheme.tertiaryColor.toARGB32(),
+      AppTheme.secondaryColor.toARGB32()
+    ]);
     
     await style.addLayer(SymbolLayer(
       id: "tracking-nodes-label-layer",
       sourceId: "tracking-polygon-source",
       filter: <Object>['==', ['get', 'type'], 'node'],
       textSize: 12.0,
+      textFont: ["Oswald", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
       textHaloWidth: 1.0,
       textOffset: [0, -1.5],
+      textAllowOverlap: true,
+      textIgnorePlacement: true,
     ));
     await style.setStyleLayerProperty("tracking-nodes-label-layer", "text-field", ["get", "points_label"]);
   }

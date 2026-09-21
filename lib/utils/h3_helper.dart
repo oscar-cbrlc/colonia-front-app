@@ -96,4 +96,9 @@ class H3Helper {
       return [];
     }
   }
+
+  static GeoCoord getCellCenter(String h3Index) {
+    final BigInt index = BigInt.parse(h3Index, radix: 16);
+    return h3.cellToGeo(index);
+  }
 }

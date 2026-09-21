@@ -178,6 +178,7 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         "type": "Feature",
         "properties": {
           "type": "node",
+          "node_type": node.type.name,
           "points_label": node.points > 0 ? "+${node.points.toStringAsFixed(0)}" : "",
         },
         "geometry": {
@@ -220,12 +221,26 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         id: "route-nodes-layer",
         sourceId: "route-source",
         filter: <Object>['==', ['get', 'type'], 'node'],
-        circleRadius: 5.0,
-        circleColor: AppTheme.secondaryColor.toARGB32(),
         circleStrokeWidth: 2.0,
         circleStrokeColor: Colors.white.toARGB32(),
       ),
     );
+
+    await style.setStyleLayerProperty("route-nodes-layer", "circle-radius", [
+      "match",
+      ["get", "node_type"],
+      "path", 5.0,
+      "area", 3.5,
+      5.0
+    ]);
+
+    await style.setStyleLayerProperty("route-nodes-layer", "circle-color", [
+      "match",
+      ["get", "node_type"],
+      "path", AppTheme.secondaryColor.toARGB32(),
+      "area", AppTheme.tertiaryColor.toARGB32(),
+      AppTheme.secondaryColor.toARGB32()
+    ]);
 
     await style.addLayer(
       SymbolLayer(
@@ -233,10 +248,13 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         sourceId: "route-source",
         filter: <Object>['==', ['get', 'type'], 'node'],
         textSize: 10.0,
+        textFont: ["Oswald", "Arial Unicode MS Bold"],
         textColor: Colors.white.toARGB32(),
         textHaloColor: Colors.black.toARGB32(),
         textHaloWidth: 1.0,
         textOffset: [0, -1.2],
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
       ),
     );
     await style.setStyleLayerProperty("route-nodes-label-layer", "text-field", ["get", "points_label"]);
