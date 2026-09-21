@@ -6,7 +6,7 @@ import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
@@ -60,13 +60,13 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   String? _selectedPreActivity = "walk";
   String? _selectedPreTrainingName = "free";
-  Boost? _selectedBoost;
+  BoostInventory? _selectedBoost;
   String? get selectedPreActivity => _selectedPreActivity;
   set selectedPreActivity(String? value) { _selectedPreActivity = value; notifyListeners(); }
   String? get selectedPreTrainingName => _selectedPreTrainingName;
   set selectedPreTrainingName(String? value) { _selectedPreTrainingName = value; notifyListeners(); }
-  Boost? get selectedBoost => _selectedBoost;
-  set selectedBoost(Boost? value) { _selectedBoost = value; notifyListeners(); }
+  BoostInventory? get selectedBoost => _selectedBoost;
+  set selectedBoost(BoostInventory? value) { _selectedBoost = value; notifyListeners(); }
 
   PlayingState get playingState => _sessionRepository.playingState;
   Point? get userPosition => _trackingRepository.userPosition;
@@ -76,7 +76,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
   double get currentPace => _trackingRepository.currentPace;
   double get averagePace => _trackingRepository.averagePace;
-  int get distanceTilNextNode => max(0, (GameConfig.minMetersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
+  int get distanceTilNextNode => max(0, (GameConfig.baseMetersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
 
   static String formatPace(double pace) {
     if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
@@ -104,25 +104,22 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   SessionRepository get sessionRepository => _sessionRepository;
 
   List<Training> get trainings => _trainingRepository.trainings;
-  List<Boost> get availableBoosts => _boostRepository.userBoostInventory;
+  List<BoostInventory> get availableBoosts => _boostRepository.userBoostInventory;
   int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
   bool get readyToStart => trainingConfig != null;
 
-  double get currentAttackMultiplier {
+  double get currentMultiplier {
     final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
     final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
-    double m = tObj.attackPoints;
+    double m = tObj.impactPoints;
     final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    if (b != null) m *= b.effect;
     return m;
   }
 
-  double get currentDefenseMultiplier {
-    final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
-    final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
-    double m = tObj.defensePoints;
+  String get currentBonus {
     final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    if (b != null) m *= b.effect;
+    String m = "--";
+    if (b != null) m = b.effect.toString();
     return m;
   }
 
@@ -306,7 +303,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void setActivityConfig({required String activity, required String training, required double distance, required Duration time, required double pace, Boost? boost}) {
+  void setActivityConfig({required String activity, required String training, required double distance, required Duration time, required double pace, BoostInventory? boost}) {
     _selectedPreActivity = activity; _selectedPreTrainingName = training; _selectedBoost = boost;
     final config = TrainingConfig(activity: activity, training: trainings.firstWhere((tr) => tr.name == training, orElse: () => trainings.first), distance: distance, time: time, pace: pace, boost: boost);
     _sessionRepository.setupSession(config: config);

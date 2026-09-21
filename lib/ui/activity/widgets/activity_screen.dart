@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -237,7 +237,7 @@ class _PreActivityOverview extends StatelessWidget {
         builder: (context, _) {
           final String activity = viewModel.selectedActivity ?? "walk";
           final String training = viewModel.selectedTrainingName ?? "free";
-          final Boost? boost = viewModel.selectedBoost;
+          final BoostInventory? boost = viewModel.selectedBoost;
           final Color activityColor =
               activity == "walk" ? AppTheme.walkColor :
               activity == "run" ? AppTheme.runColor :
@@ -319,18 +319,18 @@ class _PreActivityOverview extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Image.asset(boost.image, width: 24, height: 24, errorBuilder: (c,e,s) => const Icon(Icons.bolt, color: AppTheme.tertiaryColor, size: 20)),
+                      Icon(boost.icon, color: AppTheme.tertiaryColor, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              boost.name.toUpperCase(),
+                              boost.getName(locale).toUpperCase(),
                               style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 14, decoration: TextDecoration.none),
                             ),
                             Text(
-                              boost.description,
+                              boost.getDescription(locale),
                               style: const TextStyle(color: Colors.white54, fontSize: 12, decoration: TextDecoration.none),
                             ),
                           ],
@@ -343,9 +343,7 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
-                    const SizedBox(width: 24),
-                    _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
+                    _MultiplierMini(label: "IMP", multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                   ],
                 )
               ],
@@ -886,10 +884,8 @@ class _ActivityProgressPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _MultiplierMini(label: "ATK", multiplier: viewModel.currentAttackMultiplier, color: Colors.redAccent),
-                  const SizedBox(width: 24),
-                  _MultiplierMini(label: "DEF", multiplier: viewModel.currentDefenseMultiplier, color: Colors.blueAccent),
-                ],
+                  _MultiplierMini(label: "IMP", multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                ]
               ),
               if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
                 const SizedBox(height: 12),
@@ -1297,10 +1293,10 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Image.asset(boost.image, height: 40, width: 40, errorBuilder: (c, e, s) => const Icon(Icons.bolt, color: Colors.white)),
+                                      Icon(boost.icon, color: Colors.white),
                                       const SizedBox(height: 4),
                                       Text(
-                                        boost.name.toUpperCase(),
+                                        boost.getName(locale).toUpperCase(),
                                         style: TextStyle(
                                           color: isSelected ? Colors.black : Colors.white,
                                           fontSize: 10,
@@ -1358,13 +1354,13 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.viewModel.selectedBoost!.name.toUpperCase(),
+                              widget.viewModel.selectedBoost!.getName(locale).toUpperCase(),
                               style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12),
                             ),
                             const SizedBox(height: 4),
 
                             Text(
-                              widget.viewModel.selectedBoost!.description,
+                              widget.viewModel.selectedBoost!.getDescription(locale),
                               style: const TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.none),
                             ),
                           ],
@@ -1397,14 +1393,9 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _MultiplierItem(
-                            label: "ATTACK",
-                            multiplier: widget.viewModel.currentAttackMultiplier,
+                            label: "IMPACT",
+                            multiplier: widget.viewModel.currentMultiplier,
                             color: Colors.redAccent,
-                          ),
-                          _MultiplierItem(
-                            label: "DEFENSE",
-                            multiplier: widget.viewModel.currentDefenseMultiplier,
-                            color: Colors.blueAccent,
                           ),
                         ],
                       ),
