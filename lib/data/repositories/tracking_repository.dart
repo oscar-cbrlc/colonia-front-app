@@ -31,6 +31,7 @@ class TrackingRepository extends ChangeNotifier {
   double _totalMetersTracked = 0.0;
   double _metersSinceLastPerimeterPoint = 0.0;
   double _metersSinceLastNode = 0.0;
+  double _metersBetweenNodes = GameConfig.baseMetersBetweenNodes;
   int _totalSecondsElapsed = 0;
   DateTime? _lastTrackTime;
   double _currentSpeed = 0.0; 
@@ -58,6 +59,11 @@ class TrackingRepository extends ChangeNotifier {
 
   TrackingRepository(this._locationService, this._territoryRepository) {
     _initPassiveTracking();
+  }
+
+  void setMetersBetweenNodes(double meters) {
+    _metersBetweenNodes = meters;
+    notifyListeners();
   }
 
   void _initPassiveTracking() async {
@@ -203,7 +209,7 @@ class TrackingRepository extends ChangeNotifier {
           _metersSinceLastPerimeterPoint = 0;
         }
 
-        if (_metersSinceLastNode >= GameConfig.minMetersBetweenNodes) {
+        if (_metersSinceLastNode >= _metersBetweenNodes) {
           final node = OnTrackNode(
             lat: position.latitude, 
             lon: position.longitude, 
@@ -214,7 +220,7 @@ class TrackingRepository extends ChangeNotifier {
           if (_currentCell != null) _visitedCells.add(_currentCell!);
           _onTrackNodes.add(node);
           
-          _metersSinceLastNode -= GameConfig.minMetersBetweenNodes;
+          _metersSinceLastNode -= _metersBetweenNodes;
 
           onNodeCompleted?.call(node);
         }
