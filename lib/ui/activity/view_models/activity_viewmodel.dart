@@ -112,14 +112,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
     final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
     double m = tObj.impactPoints;
-    final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    return m;
-  }
-
-  String get currentBonus {
-    final b = (playingState == PlayingState.stopped) ? _selectedBoost : trainingConfig?.boost;
-    String m = "--";
-    if (b != null) m = b.effect.toString();
     return m;
   }
 
