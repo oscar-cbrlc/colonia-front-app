@@ -595,5 +595,41 @@
     "@errorUnexpected": {},
 
     "logout": "Log out",
-    "@logout": {}
+    "@logout": {},
+
+    "boostMultiplierName": "Score Multiplier",
+    "@boostMultiplierName": {},
+    "boostMultiplierDescription": "Applies x{effect} points every impact",
+    "@boostMultiplierDescription": {
+        "placeholders": {
+            "effect": {
+                "type": "double",
+                "example": "2"
+            }
+        }
+    },
+
+    "boostRadioName": "Impact Area",
+    "@boostRadioName": {},
+    "boostRadioDescription": "Applies {percent}% points in every neighboring territory after an impact",
+    "@boostRadioDescription": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "50"
+            }
+        }
+    },
+
+    "boostDistanceName": "Distance Reducer",
+    "@boostDistanceName": {},
+    "boostDistanceDescription": "Reduces the distance between impacts by {percent}%",
+    "@boostDistanceDescription": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "25"
+            }
+        }
+    }
 }

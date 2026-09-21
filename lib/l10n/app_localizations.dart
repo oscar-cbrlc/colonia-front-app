@@ -1177,6 +1177,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cerrar sesión'**
   String get logout;
+
+  /// No description provided for @boostMultiplierName.
+  ///
+  /// In es, this message translates to:
+  /// **'Multiplicador de Puntaje'**
+  String get boostMultiplierName;
+
+  /// No description provided for @boostMultiplierDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplica x{effect} puntos en cada impacto'**
+  String boostMultiplierDescription(double effect);
+
+  /// No description provided for @boostRadioName.
+  ///
+  /// In es, this message translates to:
+  /// **'Impacto en Área'**
+  String get boostRadioName;
+
+  /// No description provided for @boostRadioDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplica {percent}% puntos en cada territorio vecino después de un impacto'**
+  String boostRadioDescription(int percent);
+
+  /// No description provided for @boostDistanceName.
+  ///
+  /// In es, this message translates to:
+  /// **'Reductor de Distancia'**
+  String get boostDistanceName;
+
+  /// No description provided for @boostDistanceDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce {percent}% la distancia entre impactos'**
+  String boostDistanceDescription(int percent);
 }
 
 class _AppLocalizationsDelegate

@@ -576,4 +576,28 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get logout => 'Cerrar sesión';
+
+  @override
+  String get boostMultiplierName => 'Multiplicador de Puntaje';
+
+  @override
+  String boostMultiplierDescription(double effect) {
+    return 'Aplica x$effect puntos en cada impacto';
+  }
+
+  @override
+  String get boostRadioName => 'Impacto en Área';
+
+  @override
+  String boostRadioDescription(int percent) {
+    return 'Aplica $percent% puntos en cada territorio vecino después de un impacto';
+  }
+
+  @override
+  String get boostDistanceName => 'Reductor de Distancia';
+
+  @override
+  String boostDistanceDescription(int percent) {
+    return 'Reduce $percent% la distancia entre impactos';
+  }
 }

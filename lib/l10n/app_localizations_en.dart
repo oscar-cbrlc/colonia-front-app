@@ -573,4 +573,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Log out';
+
+  @override
+  String get boostMultiplierName => 'Score Multiplier';
+
+  @override
+  String boostMultiplierDescription(double effect) {
+    return 'Applies x$effect points every impact';
+  }
+
+  @override
+  String get boostRadioName => 'Impact Area';
+
+  @override
+  String boostRadioDescription(int percent) {
+    return 'Applies $percent% points in every neighboring territory after an impact';
+  }
+
+  @override
+  String get boostDistanceName => 'Distance Reducer';
+
+  @override
+  String boostDistanceDescription(int percent) {
+    return 'Reduces the distance between impacts by $percent%';
+  }
 }

@@ -598,5 +598,41 @@
     "@errorUnexpected": {},
 
     "logout": "Cerrar sesión",
-    "@logout": {}
+    "@logout": {},
+
+    "boostMultiplierName": "Multiplicador de Puntaje",
+    "@boostMultiplierName": {},
+    "boostMultiplierDescription": "Aplica x{effect} puntos en cada impacto",
+    "@boostMultiplierDescription": {
+        "placeholders": {
+            "effect": {
+                "type": "double",
+                "example": "2"
+            }
+        }
+    },
+
+    "boostRadioName": "Impacto en Área",
+    "@boostRadioName": {},
+    "boostRadioDescription": "Aplica {percent}% puntos en cada territorio vecino después de un impacto",
+    "@boostRadioDescription": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "50"
+            }
+        }
+    },
+
+    "boostDistanceName": "Reductor de Distancia",
+    "@boostDistanceName": {},
+    "boostDistanceDescription": "Reduce {percent}% la distancia entre impactos",
+    "@boostDistanceDescription": {
+        "placeholders": {
+            "percent": {
+                "type": "int",
+                "example": "25"
+            }
+        }
+    }
 }
