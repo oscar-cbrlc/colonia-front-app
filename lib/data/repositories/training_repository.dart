@@ -11,11 +11,11 @@ class TrainingRepository extends ChangeNotifier {
   // TODO: get trainings from API
   // placeholders
   List<Training> _trainings = [
-    Training(id: 1, name: "free", attackPoints: 1, defensePoints: 1),
-    Training(id: 2, name: "distance", attackPoints: 1.5, defensePoints: 1.5),
-    Training(id: 3, name: "time", attackPoints: 1.25, defensePoints: 1.25),
-    Training(id: 4, name: "pace", attackPoints: 1.75, defensePoints: 1.75),
-    Training(id: 5, name: "timeTrial", attackPoints: 1.75, defensePoints: 1.75),
+    Training(id: 1, name: "free", impactPoints: 1),
+    Training(id: 2, name: "distance", impactPoints: 1.5),
+    Training(id: 3, name: "time", impactPoints: 1.25),
+    Training(id: 4, name: "pace", impactPoints: 1.75),
+    Training(id: 5, name: "timeTrial", impactPoints: 1.75),
   ];
   List<Training> get trainings => _trainings;
 
@@ -28,8 +28,7 @@ class TrainingRepository extends ChangeNotifier {
     }
   }
 
-  TrainingRepository({required TrainingService trainingService})
-      : _trainingService = trainingService {
+  TrainingRepository({required this._trainingService}) {
     //fetchAllTrainings();
   }
 

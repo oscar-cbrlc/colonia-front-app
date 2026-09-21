@@ -1,4 +1,4 @@
-import 'package:colonia_front_app/domain/models/boost.dart';
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
 
 class TrainingConfig {
@@ -7,7 +7,7 @@ class TrainingConfig {
   final double distance;
   final Duration time;
   final double pace;
-  final Boost? boost;
+  final BoostInventory? boost;
 
   const TrainingConfig({
     required this.activity,
