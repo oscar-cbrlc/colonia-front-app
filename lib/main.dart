@@ -26,6 +26,7 @@ import 'package:colonia_front_app/data/services/api/team_request_service.dart';
 import 'package:colonia_front_app/data/repositories/team_request_repository.dart';
 import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
 import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
+import 'package:colonia_front_app/data/services/api/boost_service.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
@@ -69,6 +70,10 @@ void main() {
 
         ProxyProvider<ApiClient, TeamChatService>(
           update: (_, apiClient, previous) => previous ?? TeamChatService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, BoostService>(
+          update: (_, apiClient, previous) => previous ?? BoostService(apiClient),
         ),
 
         ChangeNotifierProxyProvider2<AuthService, LocalStorageService, AuthRepository>(
@@ -127,10 +132,13 @@ void main() {
               previous ?? TeamChatRepository(teamChatService),
         ),
 
-        ChangeNotifierProxyProvider<LocalStorageService, BoostRepository>(
-          create: (context) => BoostRepository(context.read<LocalStorageService>()),
-          update: (_, localStorageService, previous) =>
-              previous ?? BoostRepository(localStorageService),
+        ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
+          create: (context) => BoostRepository(
+            context.read<LocalStorageService>(),
+            context.read<BoostService>(),
+          ),
+          update: (_, localStorageService, boostService, previous) =>
+              previous ?? BoostRepository(localStorageService, boostService),
         ),
 
         Provider<LocationService>(
@@ -146,14 +154,15 @@ void main() {
               previous ?? TrackingRepository(locationService, territoryRepository),
         ),
 
-        ChangeNotifierProxyProvider3<TrackingRepository, TerritoryRepository, LocalStorageService, SessionRepository>(
+        ChangeNotifierProxyProvider4<TrackingRepository, TerritoryRepository, LocalStorageService, BoostRepository, SessionRepository>(
           create: (context) => SessionRepository(
             context.read<TrackingRepository>(),
             context.read<TerritoryRepository>(),
             context.read<LocalStorageService>(),
+            context.read<BoostRepository>(),
           ),
-          update: (_, trackingRepository, territoryRepository, localStorageService, previous) => 
-              previous ?? SessionRepository(trackingRepository, territoryRepository, localStorageService),
+          update: (_, trackingRepository, territoryRepository, localStorageService, boostRepository, previous) => 
+              previous ?? SessionRepository(trackingRepository, territoryRepository, localStorageService, boostRepository),
         ),
 
         ChangeNotifierProxyProvider4<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, MapViewModel>(
