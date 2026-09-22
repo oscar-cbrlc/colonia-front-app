@@ -97,6 +97,7 @@ void main() {
             apiClient.setAuthRepository(authRepository);
             
             authRepository.onSessionInitialized = () {
+              boostRepository.getAvailableBoosts();
               boostRepository.fetchMyInventory();
             };
 

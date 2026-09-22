@@ -10,6 +10,7 @@ class BoostRepository extends ChangeNotifier {
   final LocalStorageService _localStorageService;
   final BoostService _boostService;
 
+  List<Boost> _availableBoosts = [];
   List<BoostInventory> _inventory = [];
 
   BoostRepository(this._localStorageService, this._boostService) {
@@ -17,11 +18,27 @@ class BoostRepository extends ChangeNotifier {
   }
 
   Future<void> _loadFromCache() async {
+    _availableBoosts = await _localStorageService.getAvailableBoosts();
     _inventory = await _localStorageService.getInventory();
     notifyListeners();
   }
 
   List<BoostInventory> get userBoostInventory => _inventory;
+  List<Boost> get availableBoosts => _availableBoosts;
+  List<BoostInventory> get availableBoostsInventory {
+    final List<BoostInventory> inventory = [];
+    for (final boost in availableBoosts) {
+      inventory.add(
+          BoostInventory(
+            id: boost.id,
+            type: boost.type,
+            quantity: getBoostCount(boost.id),
+            effect: boost.effect,
+          )
+      );
+    }
+    return inventory;
+  }
 
   int getBoostCount(int boostId) {
     final list =_inventory;
@@ -45,10 +62,12 @@ class BoostRepository extends ChangeNotifier {
       final response = await _boostService.getAllBoosts();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => Boost.fromJson(json)).toList();
+        _availableBoosts = data.map((json) => Boost.fromJson(json)).toList();
+        await _localStorageService.saveAvailableBoosts(_availableBoosts);
+        notifyListeners();
       }
     } catch (e) {
-      debugPrint('BoostRepository: Error fetching boosts: $e');
+      debugPrint('BoostRepository: Error fetching available boosts: $e');
     }
     return [];
   }

@@ -59,6 +59,7 @@ class MapViewModel extends ChangeNotifier {
     _territoryRepository.addListener(_onTerritoriesChanged);
     _lastActivityState = _trackingRepository.isActivityActive;
     _territoryRepository.fetchAllTerritories();
+    _boostRepository.getAvailableBoosts();
     _boostRepository.fetchMyInventory();
     
     _sessionRepository.onSyncNotification = () {
