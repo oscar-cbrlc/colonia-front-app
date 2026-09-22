@@ -29,9 +29,9 @@ abstract class BoostInventory with _$BoostInventory {
   IconData get icon => _boostTypeIcons[type] ?? Icons.bolt;
 
   String getName(AppLocalizations locale) {
-    if (type == BoostType.score.name) return '${locale.boostMultiplierName} ($effect)';
-    if (type == BoostType.impact_area.name) return '${locale.boostRadioName} ($effect)';
-    if (type == BoostType.impact_distance.name) return '${locale.boostDistanceName} ($effect)';
+    if (type == BoostType.score.name) return '${locale.boostMultiplierName} x$effect';
+    if (type == BoostType.impact_area.name) return '${locale.boostRadioName} ${(effect*100).round()}%';
+    if (type == BoostType.impact_distance.name) return '${locale.boostDistanceName} ${(effect*100).round()}%';
     return locale.errorUnknown;
   }
 
