@@ -7,7 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class LocalStorageService {
   final FlutterSecureStorage _secureStorage;
 
-  static const String _tokenKey = 'colonia_jwt_token';
+  static const String _accessTokenKey = 'colonia_jwt_access_token';
+  static const String _refreshTokenKey = 'colonia_jwt_refresh_token';
   static const String _userKey = 'colonia_user_data';
   static const String _activityKey = 'colonia_pending_activity_data';
   static const String _inventoryKey = 'colonia_inventory_data';
@@ -32,7 +33,11 @@ class LocalStorageService {
   }
 
   Future<String?> get authToken async {
-    return await _secureStorage.read(key: _tokenKey);
+    return await _secureStorage.read(key: _accessTokenKey);
+  }
+
+  Future<String?> get refreshToken async {
+    return await _secureStorage.read(key: _refreshTokenKey);
   }
 
   Future<void> saveUser(User user) async {
@@ -40,11 +45,16 @@ class LocalStorageService {
   }
 
   Future<void> saveAuthToken(String token) async {
-    await _secureStorage.write(key: _tokenKey, value: token);
+    await _secureStorage.write(key: _accessTokenKey, value: token);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    await _secureStorage.write(key: _refreshTokenKey, value: token);
   }
 
   Future<void> clearSession() async {
-    await _secureStorage.delete(key: _tokenKey);
+    await _secureStorage.delete(key: _accessTokenKey);
+    await _secureStorage.delete(key: _refreshTokenKey);
     await _secureStorage.delete(key: _userKey);
   }
 

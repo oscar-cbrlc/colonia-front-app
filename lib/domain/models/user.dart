@@ -93,6 +93,7 @@ abstract class LoginResult with _$LoginResult {
 
   const factory LoginResult({
     @JsonKey(name: 'access_token') required String accessToken,
+    @JsonKey(name: 'refresh_token') required String refreshToken,
     @JsonKey(name: 'token_type') required String tokenType,
     required User user,
   }) = _LoginResult;

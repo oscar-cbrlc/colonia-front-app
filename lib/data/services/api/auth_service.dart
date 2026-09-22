@@ -7,7 +7,12 @@ class AuthService {
   AuthService(this._apiClient);
 
   Future<http.Response> getUserById(int id) async {
-    return await _apiClient.get('/users/$id');
+    return await _apiClient.get(
+      '/users/',
+      queryParameters: {
+        'user_id': id.toString(),
+      },
+    );
   }
 
   Future<http.Response> getCurrentUserData() async {
@@ -38,15 +43,13 @@ class AuthService {
     );
   }
 
-  // updates authenticated user
   Future<http.Response> updateUser(Map<String, dynamic> data) async {
-    return await _apiClient.put(
+    return await _apiClient.patch(
       '/users/',
       body: data,
     );
   }
 
-  // deletes authenticated user
   Future<http.Response> deleteUser() async {
     return await _apiClient.delete('/users/');
   }
@@ -56,11 +59,20 @@ class AuthService {
     required String password
   }) async {
     return await _apiClient.post(
-        '/users/login',
+        '/session/login',
         body: {
           'email': email,
           'password': password,
         }
+    );
+  }
+
+  Future<http.Response> logout(String refreshToken) async {
+    return await _apiClient.post(
+      '/session/logout',
+      queryParameters: {
+        'refresh_token': refreshToken,
+      },
     );
   }
 
@@ -71,6 +83,15 @@ class AuthService {
       '/auth/firebase',
       headers: {
         'Authorization': 'Bearer $idToken',
+      },
+    );
+  }
+
+  Future<http.Response> refresh(String refreshToken) async {
+    return await _apiClient.post(
+      '/session/refresh',
+      queryParameters: {
+        'refresh_token': refreshToken,
       },
     );
   }
