@@ -201,26 +201,39 @@ class ColoniaApp extends StatefulWidget {
 
 class _ColoniaAppState extends State<ColoniaApp> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _isInitializing = true;
+  String _initialRoute = AppRouter.welcome;
 
   @override
   void initState() {
     super.initState();
+    _initApp();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final authRepo = Provider.of<AuthRepository>(context, listen: false);
+  Future<void> _initApp() async {
+    final authRepo = Provider.of<AuthRepository>(context, listen: false);
 
-      await authRepo.initializeSession();
+    await authRepo.initializeSession();
 
-      if (authRepo.hasActiveSession) {
-        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.map);
-      } else {
-        _navigatorKey.currentState?.pushReplacementNamed(AppRouter.welcome);
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _initialRoute = authRepo.hasActiveSession ? AppRouter.map : AppRouter.welcome;
+        _isInitializing = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return Container(
+        color: AppTheme.darkBackground,
+        child: const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
+      );
+    }
+
     return MaterialApp(
       title: 'Colonia',
       theme: AppTheme.theme,
@@ -241,7 +254,7 @@ class _ColoniaAppState extends State<ColoniaApp> {
         Locale('en'),
       ],
 
-      initialRoute: AppRouter.welcome,
+      initialRoute: _initialRoute,
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

@@ -17,11 +17,12 @@ class AuthRepository extends ChangeNotifier {
   final AuthService _authService;
   final LocalStorageService _localStorageService;
 
-  String? _cachedToken;
+  String? _cachedAuthToken;
+  String? _cachedRefreshToken;
   User? _currentUser;
 
   User? get currentUser => _currentUser;
-  String? get cachedToken => _cachedToken;
+  String? get cachedToken => _cachedAuthToken;
 
   AuthRepository(this._authService, this._localStorageService) {
     _instance = this;
@@ -77,17 +78,73 @@ class AuthRepository extends ChangeNotifier {
 
   Future<void> initializeSession() async {
     _currentUser = await _localStorageService.user;
-    
-    _cachedToken = await _localStorageService.authToken;
+    _cachedAuthToken = await _localStorageService.authToken;
+    _cachedRefreshToken = await _localStorageService.refreshToken;
 
-    if (_cachedToken != null) {
-      try {
-        await fetchCurrentUser();
-      } catch (e) {
-        debugPrint('AuthRepository: Failed to refresh user on init: $e');
+    if (_cachedAuthToken != null) {
+      if (_isTokenExpired(_cachedAuthToken!)) {
+        if (_cachedRefreshToken != null && !_isTokenExpired(_cachedRefreshToken!)) {
+          await refreshSession();
+        } else {
+          await _localStorageService.clearSession();
+          _clearLocalCache();
+        }
+      } else {
+        fetchCurrentUser().catchError((e) {
+          debugPrint('AuthRepository: Background refresh failed: $e');
+        });
       }
+    } else if (_cachedRefreshToken != null) {
+      if (!_isTokenExpired(_cachedRefreshToken!)) {
+        await refreshSession();
+      } else {
+        await _localStorageService.clearSession();
+        _clearLocalCache();
+      }
+    } else {
+      await _localStorageService.clearSession();
+      _clearLocalCache();
     }
     notifyListeners();
+  }
+
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      final payload = parts[1];
+      final String decoded = utf8.decode(base64Url.decode(base64Url.normalize(payload)));
+      final Map<String, dynamic> map = json.decode(decoded);
+      if (!map.containsKey('exp')) return false;
+      final exp = map['exp'] as int;
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      return DateTime.now().isAfter(expiryDate);
+    } catch (_) {
+      return true;
+    }
+  }
+
+  Future<bool> refreshSession() async {
+    final refreshToken = _cachedRefreshToken ?? await _localStorageService.refreshToken;
+    if (refreshToken == null) return false;
+
+    try {
+      final response = await _authService.refresh(refreshToken);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        _cachedAuthToken = data['access_token'];
+        _cachedRefreshToken = data['refresh_token'];
+        
+        await _localStorageService.saveAuthToken(_cachedAuthToken!);
+        await _localStorageService.saveRefreshToken(_cachedRefreshToken!);
+        
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('AuthRepository: Refresh session error: $e');
+    }
+    return false;
   }
 
   Future<void> updateCurrentUser(User user) async {
@@ -108,6 +165,14 @@ class AuthRepository extends ChangeNotifier {
         
         notifyListeners();
         return user;
+      } else if (response.statusCode == 401) {
+        final success = await refreshSession();
+        if (success) {
+           return await fetchCurrentUser();
+        } else {
+          await logout();
+          throw Exception('Session expired');
+        }
       } else {
         throw Exception('Failed to fetch current user: ${response.statusCode}');
       }
@@ -128,10 +193,12 @@ class AuthRepository extends ChangeNotifier {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final loginResult = LoginResult.fromJson(jsonMap);
 
-        _cachedToken = loginResult.accessToken;
+        _cachedAuthToken = loginResult.accessToken;
+        _cachedRefreshToken = loginResult.refreshToken;
         _currentUser = loginResult.user;
 
         await _localStorageService.saveAuthToken(loginResult.accessToken);
+        await _localStorageService.saveRefreshToken(loginResult.refreshToken);
         await _localStorageService.saveUser(loginResult.user);
 
         notifyListeners();
@@ -148,20 +215,36 @@ class AuthRepository extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    final refreshToken = _cachedRefreshToken ?? await _localStorageService.refreshToken;
+    if (refreshToken != null) {
+      try {
+        await _authService.logout(refreshToken);
+      } catch (e) {
+        debugPrint('AuthRepository: Remote logout failed: $e');
+      }
+    }
     await _localStorageService.clearSession();
-    _cachedToken = null;
+    _clearLocalCache();
+  }
+
+  void _clearLocalCache() {
+    _cachedAuthToken = null;
+    _cachedRefreshToken = null;
     _currentUser = null;
     notifyListeners();
   }
 
   Future<void> completeSocialLogin({
     required User user,
-    required String token,
+    required String accessToken,
+    required String refreshToken,
   }) async {
-    _cachedToken = token;
+    _cachedAuthToken = accessToken;
+    _cachedRefreshToken = refreshToken;
     _currentUser = user;
     
-    await _localStorageService.saveAuthToken(token);
+    await _localStorageService.saveAuthToken(accessToken);
+    await _localStorageService.saveRefreshToken(refreshToken);
     await _localStorageService.saveUser(user);
     
     notifyListeners();
@@ -201,5 +284,5 @@ class AuthRepository extends ChangeNotifier {
     }
   }
 
-  bool get hasActiveSession => _cachedToken != null && _cachedToken!.isNotEmpty;
+  bool get hasActiveSession => _cachedRefreshToken != null && _cachedRefreshToken!.isNotEmpty;
 }

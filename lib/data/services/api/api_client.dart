@@ -13,7 +13,7 @@ class ApiClient {
     _authRepository = repository;
   }
 
-  Future<Map<String, String>> _getHeaders({Map<String, String>? extraHeaders}) async {
+  Map<String, String> _getHeaders({Map<String, String>? extraHeaders}) {
     final headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
@@ -34,6 +34,23 @@ class ApiClient {
     return headers;
   }
 
+  Future<http.Response> _requestWithRetry(Future<http.Response> Function() request, String endpoint) async {
+    final response = await request();
+
+    final bool isAuthAction = endpoint.contains('/session/refresh') || endpoint.contains('/session/logout');
+
+    if (response.statusCode == 401 && _authRepository != null && !isAuthAction) {
+      final refreshed = await _authRepository!.refreshSession();
+      if (refreshed) {
+        return await request();
+      } else {
+        _authRepository!.logout();
+      }
+    }
+
+    return response;
+  }
+
   Future<http.Response> post(
     String endpoint, {
     Map<String, String>? queryParameters,
@@ -46,11 +63,11 @@ class ApiClient {
       url = url.replace(queryParameters: queryParameters);
     }
 
-    return await _httpClient.post(
+    return await _requestWithRetry(() => _httpClient.post(
       url,
-      headers: await _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(extraHeaders: headers),
       body: body != null ? jsonEncode(body) : null,
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 10)), endpoint);
   }
 
   Future<http.Response> get(
@@ -63,10 +80,10 @@ class ApiClient {
     if (queryParameters != null && queryParameters.isNotEmpty) {
       url = url.replace(queryParameters: queryParameters);
     }
-    return await _httpClient.get(
+    return await _requestWithRetry(() => _httpClient.get(
       url,
-      headers: await _getHeaders(extraHeaders: headers),
-    ).timeout(const Duration(seconds: 10));
+      headers: _getHeaders(extraHeaders: headers),
+    ).timeout(const Duration(seconds: 10)), endpoint);
   }
 
   Future<http.Response> patch(
@@ -81,11 +98,11 @@ class ApiClient {
       url = url.replace(queryParameters: queryParameters);
     }
 
-    return await _httpClient.patch(
+    return await _requestWithRetry(() => _httpClient.patch(
       url,
-      headers: await _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 10)), endpoint);
   }
 
   Future<http.Response> put(
@@ -100,19 +117,19 @@ class ApiClient {
       url = url.replace(queryParameters: queryParameters);
     }
 
-    return await _httpClient.put(
+    return await _requestWithRetry(() => _httpClient.put(
       url,
-      headers: await _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(extraHeaders: headers),
       body: body != null ? jsonEncode(body) : null,
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 10)), endpoint);
   }
 
   Future<http.Response> delete(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
     final url = Uri.parse(Env.apiUrl).resolve(endpoint);
-    return await _httpClient.delete(
+    return await _requestWithRetry(() => _httpClient.delete(
       url,
-      headers: await _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 10)), endpoint);
   }
 }

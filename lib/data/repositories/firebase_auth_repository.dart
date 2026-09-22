@@ -66,7 +66,8 @@ class FirebaseAuthRepository extends ChangeNotifier {
         if (!result.isNewUser && result.user != null && result.accessToken != null) {
           await _authRepository.completeSocialLogin(
             user: result.user!,
-            token: result.accessToken!,
+            accessToken: result.accessToken!,
+            refreshToken: result.refreshToken!,
           );
         }
         

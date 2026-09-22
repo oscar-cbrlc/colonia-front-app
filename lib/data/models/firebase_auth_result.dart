@@ -5,6 +5,7 @@ class FirebaseAuthResult {
   final String email;
   final String? providerUid;
   final String? accessToken;
+  final String? refreshToken;
   final User? user;
 
   FirebaseAuthResult({
@@ -12,6 +13,7 @@ class FirebaseAuthResult {
     required this.email,
     this.providerUid,
     this.accessToken,
+    this.refreshToken,
     this.user,
   });
 
@@ -21,6 +23,7 @@ class FirebaseAuthResult {
       email: json['email'] ?? '',
       providerUid: json['provider_uid'],
       accessToken: json['access_token'],
+      refreshToken: json['refresh_token'],
       user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
   }
