@@ -1284,7 +1284,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     itemBuilder: (context, index) {
                       final boost = widget.viewModel.availableBoosts[index];
                       final isSelected = widget.viewModel.selectedBoost == boost;
-                      final int count = widget.viewModel.getBoostCount(boost.id);
+                      final int count = boost.quantity;
                       
                       return GestureDetector(
                         onTap: () {

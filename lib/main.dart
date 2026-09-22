@@ -76,16 +76,30 @@ void main() {
           update: (_, apiClient, previous) => previous ?? BoostService(apiClient),
         ),
 
-        ChangeNotifierProxyProvider2<AuthService, LocalStorageService, AuthRepository>(
+        ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
+          create: (context) => BoostRepository(
+            context.read<LocalStorageService>(),
+            context.read<BoostService>(),
+          ),
+          update: (_, localStorageService, boostService, previous) =>
+              previous ?? BoostRepository(localStorageService, boostService),
+        ),
+
+        ChangeNotifierProxyProvider3<AuthService, LocalStorageService, BoostRepository, AuthRepository>(
           create: (context) => AuthRepository(
             context.read<AuthService>(),
             context.read<LocalStorageService>(),
           ),
-          update: (context, authService, localStorageService, previous) {
+          update: (context, authService, localStorageService, boostRepository, previous) {
             final authRepository = previous ?? AuthRepository(authService, localStorageService);
 
             final apiClient = Provider.of<ApiClient>(context, listen: false);
             apiClient.setAuthRepository(authRepository);
+            
+            authRepository.onSessionInitialized = () {
+              boostRepository.getAvailableBoosts();
+              boostRepository.fetchMyInventory();
+            };
 
             return authRepository;
           },
@@ -165,15 +179,16 @@ void main() {
               previous ?? SessionRepository(trackingRepository, territoryRepository, localStorageService, boostRepository),
         ),
 
-        ChangeNotifierProxyProvider4<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, MapViewModel>(
+        ChangeNotifierProxyProvider5<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, BoostRepository, MapViewModel>(
           create: (context) => MapViewModel(
             context.read<TrackingRepository>(),
             context.read<TerritoryRepository>(),
             context.read<TeamRepository>(),
             context.read<SessionRepository>(),
+            context.read<BoostRepository>(),
           ),
-          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, previous) =>
-              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository),
+          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository),
         ),
 
         ChangeNotifierProxyProvider4<TeamRepository, AuthRepository, TeamRequestRepository, TeamChatRepository, TeamViewModel>(
@@ -211,15 +226,19 @@ class _ColoniaAppState extends State<ColoniaApp> {
   }
 
   Future<void> _initApp() async {
-    final authRepo = Provider.of<AuthRepository>(context, listen: false);
-
-    await authRepo.initializeSession();
-
-    if (mounted) {
-      setState(() {
-        _initialRoute = authRepo.hasActiveSession ? AppRouter.map : AppRouter.welcome;
-        _isInitializing = false;
-      });
+    try {
+      final authRepo = Provider.of<AuthRepository>(context, listen: false);
+      await authRepo.initializeSession().timeout(const Duration(seconds: 15));
+    } catch (e) {
+      debugPrint('Main: Error during session initialization: $e');
+    } finally {
+      if (mounted) {
+        final authRepo = Provider.of<AuthRepository>(context, listen: false);
+        setState(() {
+          _initialRoute = authRepo.hasActiveSession ? AppRouter.map : AppRouter.welcome;
+          _isInitializing = false;
+        });
+      }
     }
   }
 

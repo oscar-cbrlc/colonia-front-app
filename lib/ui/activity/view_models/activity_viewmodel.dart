@@ -6,6 +6,7 @@ import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
@@ -104,8 +105,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   SessionRepository get sessionRepository => _sessionRepository;
 
   List<Training> get trainings => _trainingRepository.trainings;
-  List<BoostInventory> get availableBoosts => _boostRepository.userBoostInventory;
-  int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
+  List<BoostInventory> get availableBoosts => _boostRepository.availableBoostsInventory;
+  //int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
   bool get readyToStart => trainingConfig != null;
 
   double get currentMultiplier {
@@ -122,6 +123,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _boostRepository.addListener(notifyListeners);
     _territoryRepository.addListener(_onTerritoriesChanged);
     _territoryRepository.fetchAllTerritories();
+    _boostRepository.getAvailableBoosts();
+    _boostRepository.fetchMyInventory();
     WidgetsBinding.instance.addObserver(this);
   }
 

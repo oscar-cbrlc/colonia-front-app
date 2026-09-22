@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:colonia_front_app/env/env.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiClient {
   final http.Client _httpClient;
@@ -13,14 +14,18 @@ class ApiClient {
     _authRepository = repository;
   }
 
-  Map<String, String> _getHeaders({Map<String, String>? extraHeaders}) {
+  Map<String, String> _getHeaders(String endpoint, {Map<String, String>? extraHeaders}) {
     final headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
       'X_API_Key': Env.apiKey,
     };
 
-    if (_authRepository != null) {
+    final bool isPublicEndpoint = endpoint.contains('/session/login') ||
+                                 endpoint.contains('/session/refresh') ||
+                                 (endpoint == '/users/' && extraHeaders?.containsKey('X-Action-Register') == true);
+
+    if (_authRepository != null && !isPublicEndpoint) {
       final token = _authRepository?.cachedToken;
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
@@ -29,26 +34,36 @@ class ApiClient {
 
     if (extraHeaders != null) {
       headers.addAll(extraHeaders);
+      headers.remove('X-Action-Register');
     }
 
     return headers;
   }
 
   Future<http.Response> _requestWithRetry(Future<http.Response> Function() request, String endpoint) async {
-    final response = await request();
+    try {
+      final response = await request();
 
-    final bool isAuthAction = endpoint.contains('/session/refresh') || endpoint.contains('/session/logout');
+      final bool isAuthAction = endpoint.contains('/session/refresh') || endpoint.contains('/session/logout');
 
-    if (response.statusCode == 401 && _authRepository != null && !isAuthAction) {
-      final refreshed = await _authRepository!.refreshSession();
-      if (refreshed) {
-        return await request();
-      } else {
-        _authRepository!.logout();
+      if (response.statusCode == 401 && _authRepository != null && !isAuthAction) {
+        debugPrint('ApiClient: 401 Unauthorized for $endpoint. Attempting token refresh...');
+        
+        final refreshed = await _authRepository!.refreshSession();
+        if (refreshed) {
+          debugPrint('ApiClient: Token refreshed. Retrying $endpoint...');
+          return await request();
+        } else {
+          debugPrint('ApiClient: Refresh failed. Logging out...');
+          await _authRepository!.logout();
+        }
       }
-    }
 
-    return response;
+      return response;
+    } catch (e) {
+      debugPrint('ApiClient: Error during request to $endpoint: $e');
+      rethrow;
+    }
   }
 
   Future<http.Response> post(
@@ -65,7 +80,7 @@ class ApiClient {
 
     return await _requestWithRetry(() => _httpClient.post(
       url,
-      headers: _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(endpoint, extraHeaders: headers),
       body: body != null ? jsonEncode(body) : null,
     ).timeout(const Duration(seconds: 10)), endpoint);
   }
@@ -82,7 +97,7 @@ class ApiClient {
     }
     return await _requestWithRetry(() => _httpClient.get(
       url,
-      headers: _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(endpoint, extraHeaders: headers),
     ).timeout(const Duration(seconds: 10)), endpoint);
   }
 
@@ -100,7 +115,7 @@ class ApiClient {
 
     return await _requestWithRetry(() => _httpClient.patch(
       url,
-      headers: _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(endpoint, extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
     ).timeout(const Duration(seconds: 10)), endpoint);
   }
@@ -119,7 +134,7 @@ class ApiClient {
 
     return await _requestWithRetry(() => _httpClient.put(
       url,
-      headers: _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(endpoint, extraHeaders: headers),
       body: body != null ? jsonEncode(body) : null,
     ).timeout(const Duration(seconds: 10)), endpoint);
   }
@@ -128,7 +143,7 @@ class ApiClient {
     final url = Uri.parse(Env.apiUrl).resolve(endpoint);
     return await _requestWithRetry(() => _httpClient.delete(
       url,
-      headers: _getHeaders(extraHeaders: headers),
+      headers: _getHeaders(endpoint, extraHeaders: headers),
       body: body != null? jsonEncode(body): null,
     ).timeout(const Duration(seconds: 10)), endpoint);
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
@@ -12,6 +13,8 @@ class LocalStorageService {
   static const String _userKey = 'colonia_user_data';
   static const String _activityKey = 'colonia_pending_activity_data';
   static const String _inventoryKey = 'colonia_inventory_data';
+  static const String _availableBoostsKey = 'colonia_available_boosts_data';
+
 
   LocalStorageService({FlutterSecureStorage? secureStorage})
       : _secureStorage = secureStorage ??
@@ -69,11 +72,22 @@ class LocalStorageService {
     await _secureStorage.write(key: _activityKey, value: jsonEncode(impacts.map((e) => e.toJson()).toList()));
   }
 
+  Future<List<Boost>> getAvailableBoosts() async {
+    final data = await _secureStorage.read(key: _availableBoostsKey);
+    if (data == null) return [];
+    final List<dynamic> decoded = jsonDecode(data);
+    return decoded.map((e) => Boost.fromJson(e)).toList();
+  }
+
   Future<List<BoostInventory>> getInventory() async {
     final data = await _secureStorage.read(key: _inventoryKey);
     if (data == null) return [];
     final List<dynamic> decoded = jsonDecode(data);
     return decoded.map((e) => BoostInventory.fromJson(e)).toList();
+  }
+
+  Future<void> saveAvailableBoosts(List<Boost> boosts) async {
+    await _secureStorage.write(key: _availableBoostsKey, value: jsonEncode(boosts.map((e) => e.toJson()).toList()));
   }
 
   Future<void> saveInventory(List<BoostInventory> boostInventory) async {
