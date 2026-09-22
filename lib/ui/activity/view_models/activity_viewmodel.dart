@@ -122,6 +122,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _boostRepository.addListener(notifyListeners);
     _territoryRepository.addListener(_onTerritoriesChanged);
     _territoryRepository.fetchAllTerritories();
+    _boostRepository.fetchMyInventory();
     WidgetsBinding.instance.addObserver(this);
   }
 

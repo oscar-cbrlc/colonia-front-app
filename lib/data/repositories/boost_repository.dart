@@ -4,7 +4,6 @@ import 'package:colonia_front_app/data/services/api/boost_service.dart';
 import 'package:colonia_front_app/data/services/local_storage_service.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
-import 'package:colonia_front_app/domain/models/enums/boost_type.dart';
 import 'package:flutter/cupertino.dart';
 
 class BoostRepository extends ChangeNotifier {
@@ -22,10 +21,10 @@ class BoostRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<BoostInventory> get userBoostInventory => _inventory.isEmpty ? _dummyInventory : _inventory;
+  List<BoostInventory> get userBoostInventory => _inventory;
 
   int getBoostCount(int boostId) {
-    final list = _inventory.isEmpty ? _dummyInventory : _inventory;
+    final list =_inventory;
     try {
       final item = list.firstWhere((i) => i.id == boostId);
       return item.quantity;
@@ -35,11 +34,11 @@ class BoostRepository extends ChangeNotifier {
   }
 
   // TODO: replace dummies
-  final List<BoostInventory> _dummyInventory = [
+  /*final List<BoostInventory> _dummyInventory = [
     BoostInventory(id: 1, type: BoostType.score.name, quantity: 5, effect: 2.0),
     BoostInventory(id: 2, type: BoostType.impact_area.name, quantity: 3, effect: 0.5),
     BoostInventory(id: 3, type: BoostType.impact_distance.name, quantity: 1, effect: 0.75),
-  ];
+  ];*/
 
   Future<List<Boost>> getAvailableBoosts() async {
     try {
@@ -77,6 +76,12 @@ class BoostRepository extends ChangeNotifier {
     } catch (e) {
       debugPrint('BoostRepository: Error updating boost inventory: $e');
     }
+  }
+
+  void clearCache() {
+    _inventory = [];
+    _localStorageService.saveInventory([]);
+    notifyListeners();
   }
 
 

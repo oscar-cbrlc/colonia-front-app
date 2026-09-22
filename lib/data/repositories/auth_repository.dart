@@ -24,6 +24,8 @@ class AuthRepository extends ChangeNotifier {
   User? get currentUser => _currentUser;
   String? get cachedToken => _cachedAuthToken;
 
+  VoidCallback? onSessionInitialized;
+
   AuthRepository(this._authService, this._localStorageService) {
     _instance = this;
   }
@@ -77,35 +79,42 @@ class AuthRepository extends ChangeNotifier {
   }
 
   Future<void> initializeSession() async {
-    _currentUser = await _localStorageService.user;
-    _cachedAuthToken = await _localStorageService.authToken;
-    _cachedRefreshToken = await _localStorageService.refreshToken;
+    try {
+      _currentUser = await _localStorageService.user;
+      _cachedAuthToken = await _localStorageService.authToken;
+      _cachedRefreshToken = await _localStorageService.refreshToken;
 
-    if (_cachedAuthToken != null) {
-      if (_isTokenExpired(_cachedAuthToken!)) {
-        if (_cachedRefreshToken != null && !_isTokenExpired(_cachedRefreshToken!)) {
+      if (_cachedAuthToken != null) {
+        if (_isTokenExpired(_cachedAuthToken!)) {
+          if (_cachedRefreshToken != null && !_isTokenExpired(_cachedRefreshToken!)) {
+            await refreshSession();
+          } else {
+            await _localStorageService.clearSession();
+            _clearLocalCache();
+          }
+        } else {
+          fetchCurrentUser().catchError((e) {
+            debugPrint('AuthRepository: Background refresh failed: $e');
+          });
+        }
+        onSessionInitialized?.call();
+      } else if (_cachedRefreshToken != null) {
+        if (!_isTokenExpired(_cachedRefreshToken!)) {
           await refreshSession();
         } else {
           await _localStorageService.clearSession();
           _clearLocalCache();
         }
-      } else {
-        fetchCurrentUser().catchError((e) {
-          debugPrint('AuthRepository: Background refresh failed: $e');
-        });
-      }
-    } else if (_cachedRefreshToken != null) {
-      if (!_isTokenExpired(_cachedRefreshToken!)) {
-        await refreshSession();
+        onSessionInitialized?.call();
       } else {
         await _localStorageService.clearSession();
         _clearLocalCache();
       }
-    } else {
-      await _localStorageService.clearSession();
-      _clearLocalCache();
+    } catch (e) {
+      debugPrint('AuthRepository: Error during initializeSession: $e');
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   bool _isTokenExpired(String token) {
@@ -129,6 +138,9 @@ class AuthRepository extends ChangeNotifier {
     if (refreshToken == null) return false;
 
     try {
+      if (_isRefreshing) return false;
+      _isRefreshing = true;
+
       final response = await _authService.refresh(refreshToken);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -143,9 +155,13 @@ class AuthRepository extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('AuthRepository: Refresh session error: $e');
+    } finally {
+      _isRefreshing = false;
     }
     return false;
   }
+
+  bool _isRefreshing = false;
 
   Future<void> updateCurrentUser(User user) async {
     _currentUser = user;
@@ -202,6 +218,7 @@ class AuthRepository extends ChangeNotifier {
         await _localStorageService.saveUser(loginResult.user);
 
         notifyListeners();
+        onSessionInitialized?.call();
         return loginResult.user;
       } else {
         final errorDetail = jsonDecode(response.body)['detail'] ?? 'Incorrect credentials';
@@ -248,6 +265,7 @@ class AuthRepository extends ChangeNotifier {
     await _localStorageService.saveUser(user);
     
     notifyListeners();
+    onSessionInitialized?.call();
   }
 
   Future<User> registerUser({
