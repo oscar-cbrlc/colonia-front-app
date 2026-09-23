@@ -146,14 +146,39 @@ class TrackingRepository extends ChangeNotifier {
   }
 
   void addSecondaryNodes(List<OnTrackNode> nodes) {
-    _onTrackNodes.addAll(nodes);
     for (final node in nodes) {
       final cellId = H3Helper.getHexagonAt(
         lat: node.lat, 
         lon: node.lon, 
-        resolution: GameConfig.h3Resolution
+        resolution: GameConfig.h3Resolution,
       );
-      _visitedCells.add(cellId);
+      if (cellId.isNotEmpty) {
+        _visitedCells.add(cellId);
+      }
+
+      final existingIndex = _onTrackNodes.indexWhere((existing) {
+        if (existing.type != node.type) return false;
+        final existingCell = H3Helper.getHexagonAt(
+          lat: existing.lat,
+          lon: existing.lon,
+          resolution: GameConfig.h3Resolution,
+        );
+        return existingCell == cellId;
+      });
+
+      if (existingIndex != -1) {
+        final existing = _onTrackNodes[existingIndex];
+        _onTrackNodes[existingIndex] = OnTrackNode(
+          lat: existing.lat,
+          lon: existing.lon,
+          pace: node.pace,
+          points: existing.points + node.points,
+          timestamp: node.timestamp,
+          type: existing.type,
+        );
+      } else {
+        _onTrackNodes.add(node);
+      }
     }
     notifyListeners();
   }

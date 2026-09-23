@@ -6,7 +6,6 @@ import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
-import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
@@ -101,6 +100,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Duration? get selectedTime => trainingConfig?.time;
   double? get selectedPace => trainingConfig?.pace;
   double get selectedDistanceMeters => selectedDistance ?? 0.0;
+  BoostInventory? get equippedBoost => trainingConfig?.boost ?? _selectedBoost;
 
   SessionRepository get sessionRepository => _sessionRepository;
 
@@ -237,7 +237,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
           "properties": {
             "type": "node",
             "node_type": node.type.name,
-            "points_label": node.points > 0 ? node.points.toStringAsFixed(0) : "",
+            "points_label": (_showPoints && node.points > 0) ? node.points.toStringAsFixed(0) : "",
           }, 
           "geometry": {"type": "Point", "coordinates": [node.lon, node.lat]}
         });
@@ -355,14 +355,19 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     await style.addSource(GeoJsonSource(id: "h3-grid-source", data: jsonEncode({"type": "FeatureCollection", "features": []})));
     await style.addLayer(LineLayer(id: "h3-grid-outline-layer", sourceId: "h3-grid-source", lineColor: AppTheme.h3GridLineColor.toARGB32(), lineWidth: 0.8));
     
-    await style.addLayer(FillLayer(id: "h3-grid-layer", sourceId: "h3-grid-source", fillEmissiveStrength: 0.6));
-    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
+    await style.addLayer(FillLayer(
+      id: "h3-grid-layer", 
+      sourceId: "h3-grid-source", 
+      fillEmissiveStrength: 0.6,
+      fillColorExpression: <Object>['get', 'fill_color'],
+    ));
 
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
       sourceId: "h3-grid-source",
       textSize: 14.0,
-      textFont: ["Oswald", "Arial Unicode MS Bold"],
+      textFieldExpression: <Object>['get', 'health_label'],
+      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
       textLetterSpacing: 0.1,
@@ -371,7 +376,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       textAllowOverlap: true,
       textIgnorePlacement: true,
     ));
-    await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
   }
 
   Future<void> _initializeTrackingPolygon() async {
@@ -379,10 +383,25 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (style == null || await style.styleSourceExists('tracking-polygon-source')) return;
     await style.addSource(GeoJsonSource(id: 'tracking-polygon-source', data: jsonEncode({"type": "FeatureCollection", "features": []})));
 
-    await style.addLayer(FillLayer(id: "tracking-hexagons-fill-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'hexagon']));
-    await style.setStyleLayerProperty("tracking-hexagons-fill-layer", "fill-color", ["get", "fill_color"]);
+    await style.addLayer(FillLayer(
+      id: "tracking-hexagons-fill-layer", 
+      sourceId: "tracking-polygon-source", 
+      filter: <Object>['==', ['get', 'type'], 'hexagon'],
+      fillColorExpression: <Object>['get', 'fill_color'],
+    ));
 
-    await style.addLayer(LineLayer(id: "tracking-perimeter-line-layer", sourceId: "tracking-polygon-source", filter: <Object>['==', ['get', 'type'], 'perimeter'], lineColor: Colors.white.toARGB32(), lineWidth: 4.5, lineJoin: LineJoin.ROUND, lineCap: LineCap.ROUND));
+    await style.addLayer(LineLayer(
+      id: "tracking-perimeter-line-layer", 
+      sourceId: "tracking-polygon-source", 
+      filter: <Object>['==', ['get', 'type'], 'perimeter'], 
+      lineColor: Colors.white.toARGB32(), 
+      lineWidth: 4.5, 
+      lineJoin: LineJoin.ROUND, 
+      lineCap: LineCap.ROUND,
+    ));
+
+    final String pathColorRgba = _colorToRgba(AppTheme.secondaryColor, 1.0);
+    final String areaColorRgba = _colorToRgba(AppTheme.tertiaryColor, 1.0);
 
     await style.addLayer(CircleLayer(
       id: "tracking-nodes-layer", 
@@ -390,30 +409,29 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       filter: <Object>['==', ['get', 'type'], 'node'], 
       circleStrokeWidth: 2.0,
       circleStrokeColor: Colors.white.toARGB32(),
+      circleRadiusExpression: <Object>[
+        "match",
+        ["get", "node_type"],
+        "path", 6.0,
+        "area", 4.5,
+        6.0
+      ],
+      circleColorExpression: <Object>[
+        "match",
+        ["get", "node_type"],
+        "path", pathColorRgba,
+        "area", areaColorRgba,
+        pathColorRgba
+      ],
     ));
 
-    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-radius", [
-      "match",
-      ["get", "node_type"],
-      "path", 6.0,
-      "area", 4.5,
-      6.0
-    ]);
-
-    await style.setStyleLayerProperty("tracking-nodes-layer", "circle-color", [
-      "match",
-      ["get", "node_type"],
-      "path", AppTheme.secondaryColor.toARGB32(),
-      "area", AppTheme.tertiaryColor.toARGB32(),
-      AppTheme.secondaryColor.toARGB32()
-    ]);
-    
     await style.addLayer(SymbolLayer(
       id: "tracking-nodes-label-layer",
       sourceId: "tracking-polygon-source",
       filter: <Object>['==', ['get', 'type'], 'node'],
       textSize: 12.0,
-      textFont: ["Oswald", "Arial Unicode MS Bold"],
+      textFieldExpression: <Object>['get', 'points_label'],
+      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
       textHaloWidth: 1.0,
@@ -421,7 +439,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       textAllowOverlap: true,
       textIgnorePlacement: true,
     ));
-    await style.setStyleLayerProperty("tracking-nodes-label-layer", "text-field", ["get", "points_label"]);
   }
 
   void _configureOrnaments() {

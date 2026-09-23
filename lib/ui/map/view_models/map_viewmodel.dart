@@ -240,15 +240,16 @@ class MapViewModel extends ChangeNotifier {
     await style.addLayer(FillLayer(
       id: "h3-grid-layer",
       sourceId: "h3-grid-source",
-      fillEmissiveStrength: 0.6
+      fillEmissiveStrength: 0.6,
+      fillColorExpression: <Object>['get', 'fill_color'],
     ));
-    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
 
     await style.addLayer(SymbolLayer(
       id: "h3-health-label-layer",
       sourceId: "h3-grid-source",
       textSize: 14.0,
-      textFont: ["Oswald", "Arial Unicode MS Bold"],
+      textFieldExpression: <Object>['get', 'health_label'],
+      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
       textColor: Colors.white.toARGB32(),
       textHaloColor: Colors.black.toARGB32(),
       textLetterSpacing: 0.1,
@@ -257,7 +258,6 @@ class MapViewModel extends ChangeNotifier {
       textAllowOverlap: true,
       textIgnorePlacement: true,
     ));
-    await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
   }
 
   Future<void> _updateH3Grid() async {
