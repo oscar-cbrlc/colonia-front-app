@@ -47,6 +47,13 @@ abstract class BoostInventory with _$BoostInventory {
     }
     return "";
   }
+
+  String getEffectFormatted() {
+    if (type == BoostType.score.name) {
+      return effect.toStringAsFixed(2);
+    }
+    return '${(effect*100).round()}%';
+  }
 }
 
 final Map<String, IconData> _boostTypeIcons = {

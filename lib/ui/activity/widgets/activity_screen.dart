@@ -154,6 +154,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 alignment: Alignment.topCenter,
                 child: _NextImpactPanel(viewModel: widget.viewModel),
               ),
+              if (widget.viewModel.equippedBoost != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
+                ),
             
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
@@ -772,7 +777,7 @@ class _NextImpactPanel extends StatelessWidget {
                   children: [
                     _StatDisplay(
                       value: viewModel.distanceTilNextNode.toString(),
-                      unit: "M"
+                      unit: "M",
                     )
                   ]
                 ),
@@ -780,6 +785,42 @@ class _NextImpactPanel extends StatelessWidget {
             )
           );
         }
+    );
+  }
+}
+
+class _EquippedBoostBadge extends StatelessWidget {
+  final BoostInventory boost;
+  const _EquippedBoostBadge({required this.boost});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: ShapeDecoration(
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.only(topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
+          side: BorderSide(color: Colors.white, width: 1.0),
+        ),
+        color: AppTheme.tertiaryColor.withAlpha(60),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(boost.icon, color: AppTheme.tertiaryColor, size: 28),
+          const SizedBox(width: 4),
+          Text(
+            boost.getEffectFormatted(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -797,6 +838,7 @@ class _ActivityProgressPanel extends StatelessWidget {
       builder: (context, _) {
         final String activity = viewModel.selectedActivity ?? "walk";
         final String training = viewModel.selectedTrainingName ?? "free";
+
         final IconData activityIcon = activity == "walk"
             ? Icons.directions_walk
             : activity == "run"
@@ -846,27 +888,31 @@ class _ActivityProgressPanel extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: ShapeDecoration(
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      color: AppTheme.secondaryColor.withAlpha(180),
-                    ),
-                    child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(trainingIcon, color: AppTheme.lightBackground, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            (viewModel.selectedTrainingName ?? locale.free).toUpperCase(),
-                            style: TextStyle(color: AppTheme.lightBackground.withAlpha(240), fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: ShapeDecoration(
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
-                        ],
-                    ),
+                          color: AppTheme.secondaryColor.withAlpha(180),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(trainingIcon, color: Colors.white.withAlpha(200), size: 18),
+                            const SizedBox(width: 6),
+                            Text(
+                              (viewModel.selectedTrainingName ?? locale.free).toUpperCase(),
+                              style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -889,14 +935,14 @@ class _ActivityProgressPanel extends StatelessWidget {
                     value: viewModel.formattedCurrentPace,
                     unit: "MIN/KM",
                   ),
-            ],
-          ),
+                ],
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
-                ]
+                ],
               ),
               if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
                 const SizedBox(height: 12),
@@ -910,9 +956,9 @@ class _ActivityProgressPanel extends StatelessWidget {
                 const SizedBox(height: 12),
                 _PaceEquilibriumPanel(viewModel: viewModel),
               ],
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.bottomCenter,
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: Row(
@@ -1466,7 +1512,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
         text.toUpperCase(),
         style: const TextStyle(
           color: Colors.white38,
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.1,
         ),

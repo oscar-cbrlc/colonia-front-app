@@ -100,6 +100,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Duration? get selectedTime => trainingConfig?.time;
   double? get selectedPace => trainingConfig?.pace;
   double get selectedDistanceMeters => selectedDistance ?? 0.0;
+  BoostInventory? get equippedBoost => trainingConfig?.boost ?? _selectedBoost;
 
   SessionRepository get sessionRepository => _sessionRepository;
 
