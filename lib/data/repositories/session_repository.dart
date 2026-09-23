@@ -52,7 +52,7 @@ class SessionRepository extends ChangeNotifier {
   void Function()? onSyncNotification;
 
   void _handleNodeCompleted(OnTrackNode node) {
-    if (_trainingConfig == null || _playingState != PlayingState.playing) return;
+    if (_playingState != PlayingState.playing) return;
 
     final String? centerCell = H3Helper.getHexagonAt(
       lat: node.lat,
@@ -62,7 +62,7 @@ class SessionRepository extends ChangeNotifier {
 
     if (centerCell == null) return;
 
-    final double trainingImpact = _trainingConfig!.training.impactPoints;
+    final double trainingImpact = _trainingConfig?.training.impactPoints ?? 1.0;
     final double primaryImpact = _sessionConfig.baseImpactPoints * trainingImpact;
     double nodeTotalImpact = 0;
 
@@ -81,7 +81,7 @@ class SessionRepository extends ChangeNotifier {
 
         final center = H3Helper.getCellCenter(cellId);
         secondaryNodes.add(OnTrackNode(
-          lat: center.lat-10,
+          lat: center.lat - 0.0001,
           lon: center.lon,
           pace: node.pace,
           points: secondaryImpact,

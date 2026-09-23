@@ -34,6 +34,13 @@ class ActivitySummaryViewModel extends ChangeNotifier {
 
   MapboxMap? get mapboxMap => _mapboxMap;
 
+  String _colorToRgba(Color c, double alpha) {
+    final r = (c.r * 255).round();
+    final g = (c.g * 255).round();
+    final b = (c.b * 255).round();
+    return 'rgba($r, $g, $b, $alpha)';
+  }
+
 
   void toggleShowStats() {
     _showStats = !_showStats;
@@ -179,7 +186,7 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         "properties": {
           "type": "node",
           "node_type": node.type.name,
-          "points_label": node.points > 0 ? "+${node.points.toStringAsFixed(0)}" : "",
+          "points_label": node.points > 0 ? node.points.toStringAsFixed(0) : "",
         },
         "geometry": {
           "type": "Point",
@@ -216,6 +223,9 @@ class ActivitySummaryViewModel extends ChangeNotifier {
       ),
     );
 
+    final String pathColorRgba = _colorToRgba(AppTheme.secondaryColor, 1.0);
+    final String areaColorRgba = _colorToRgba(AppTheme.tertiaryColor, 1.0);
+
     await style.addLayer(
       CircleLayer(
         id: "route-nodes-layer",
@@ -223,24 +233,22 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         filter: <Object>['==', ['get', 'type'], 'node'],
         circleStrokeWidth: 2.0,
         circleStrokeColor: Colors.white.toARGB32(),
+        circleRadiusExpression: <Object>[
+          "match",
+          ["get", "node_type"],
+          "path", 5.0,
+          "area", 3.5,
+          5.0
+        ],
+        circleColorExpression: <Object>[
+          "match",
+          ["get", "node_type"],
+          "path", pathColorRgba,
+          "area", areaColorRgba,
+          pathColorRgba
+        ],
       ),
     );
-
-    await style.setStyleLayerProperty("route-nodes-layer", "circle-radius", [
-      "match",
-      ["get", "node_type"],
-      "path", 5.0,
-      "area", 3.5,
-      5.0
-    ]);
-
-    await style.setStyleLayerProperty("route-nodes-layer", "circle-color", [
-      "match",
-      ["get", "node_type"],
-      "path", AppTheme.secondaryColor.toARGB32(),
-      "area", AppTheme.tertiaryColor.toARGB32(),
-      AppTheme.secondaryColor.toARGB32()
-    ]);
 
     await style.addLayer(
       SymbolLayer(
@@ -248,7 +256,8 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         sourceId: "route-source",
         filter: <Object>['==', ['get', 'type'], 'node'],
         textSize: 10.0,
-        textFont: ["Oswald", "Arial Unicode MS Bold"],
+        textFieldExpression: <Object>['get', 'points_label'],
+        textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
         textColor: Colors.white.toARGB32(),
         textHaloColor: Colors.black.toARGB32(),
         textHaloWidth: 1.0,
@@ -257,7 +266,6 @@ class ActivitySummaryViewModel extends ChangeNotifier {
         textIgnorePlacement: true,
       ),
     );
-    await style.setStyleLayerProperty("route-nodes-label-layer", "text-field", ["get", "points_label"]);
   }
 
   Future<void> _drawRouteHexagons() async {
@@ -287,21 +295,22 @@ class ActivitySummaryViewModel extends ChangeNotifier {
       FillLayer(
         id: "h3-grid-layer",
         sourceId: "h3-grid-source",
+        fillColorExpression: <Object>['get', 'fill_color'],
       ),
     );
-    await style.setStyleLayerProperty("h3-grid-layer", "fill-color", ["get", "fill_color"]);
 
     await style.addLayer(
       SymbolLayer(
         id: "h3-health-label-layer",
         sourceId: "h3-grid-source",
         textSize: 12.0,
+        textFieldExpression: <Object>['get', 'health_label'],
+        textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
         textColor: Colors.white.toARGB32(),
         textHaloColor: Colors.black.toARGB32(),
         textHaloWidth: 1.0,
       ),
     );
-    await style.setStyleLayerProperty("h3-health-label-layer", "text-field", ["get", "health_label"]);
 
     final List<Territory> displayTerritories = activityResult?.territories ?? session.territories;
     final List<Map<String, dynamic>> features = [];
