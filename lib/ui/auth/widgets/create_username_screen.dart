@@ -22,7 +22,6 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
     super.initState();
     _usernameController = TextEditingController(text: widget.viewModel.username);
 
-    // auto-focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _usernameController.text.isEmpty) {
         _usernameFocusNode.requestFocus();
@@ -204,9 +203,10 @@ class _CreateUsernameScreen extends State<CreateUsernameScreen> {
       _usernameFocusNode.unfocus();
       navigateToMapScreen(context);
     } else if (viewModel.errorMessage != null) {
+      final locale = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(viewModel.errorMessage!),
+          content: Text(locale.errorUnexpected),
           backgroundColor: AppTheme.errorColor,
         ),
       );
