@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/enums/team_role.dart';
 import 'package:colonia_front_app/domain/models/enums/user_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,6 +19,7 @@ abstract class User with _$User {
     UserAvatar? avatar,
     UserStats? stats,
     UserTeam? team,
+    @JsonKey(name: 'achievements') required List<Achievement> achievements,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -40,6 +42,8 @@ abstract class User with _$User {
       avatar?.neck != null ||
       avatar?.body != null ||
       avatar?.footwear != null;
+
+  List<Achievement> get obtainedAchievements => achievements.where((a) => a.acquisitionDate != null).toList();
 }
 
 @freezed
