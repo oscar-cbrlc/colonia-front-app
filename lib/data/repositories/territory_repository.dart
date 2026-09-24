@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,7 @@ class TerritoryRepository extends ChangeNotifier {
     }
   }
 
-  Future<ActivityResult?> applyTerritoryImpact({
+  Future<({ActivityResult? result, bool isOffline, String? error})> applyTerritoryImpact({
     required double totalDistance,
     required int totalTime,
     required String timestamp,
@@ -54,12 +56,21 @@ class TerritoryRepository extends ChangeNotifier {
         }
         notifyListeners();
 
-        return result;
+        return (result: result, isOffline: false, error: null);
+      } else {
+        debugPrint('TerritoryRepository: API error ${response.statusCode}: ${response.body}');
+        return (result: null, isOffline: false, error: 'Server error');
       }
+    } on SocketException catch (e) {
+      debugPrint('TerritoryRepository: SocketException applying territory impact: $e');
+      return (result: null, isOffline: true, error: 'Network error');
+    } on http.ClientException catch (e) {
+      debugPrint('TerritoryRepository: ClientException applying territory impact: $e');
+      return (result: null, isOffline: true, error: 'Network error');
     } catch (e) {
       debugPrint('TerritoryRepository: Error applying territory impact: $e');
+      return (result: null, isOffline: true, error: e.toString());
     }
-    return null;
   }
 
   Territory getTerritoryOrDefault(String id) {

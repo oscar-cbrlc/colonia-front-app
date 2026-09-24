@@ -140,7 +140,7 @@ class SessionRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<({TrackingSession session, ActivityResult? activityResult})?> stopAndSaveSession() async {
+  Future<({TrackingSession session, ActivityResult? activityResult, bool isOffline, String? error})?> stopAndSaveSession() async {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
 
@@ -152,6 +152,8 @@ class SessionRepository extends ChangeNotifier {
     session.isSuccess = isValid;
 
     ActivityResult? activityResult;
+    bool isOffline = false;
+    String? error;
 
     if (isValid) {
       _affectedTerritories = List.from(session.territories);
@@ -170,68 +172,88 @@ class SessionRepository extends ChangeNotifier {
           boostId: _trainingConfig?.boost?.id,
         );
 
-        activityResult = await _territoryRepository.applyTerritoryImpact(
+        final impactResult = await _territoryRepository.applyTerritoryImpact(
           totalDistance: impact.totalDistance,
           totalTime: impact.totalTime,
           timestamp: impact.timestamp,
           territories: impact.territories,
           boostId: impact.boostId,
         );
+
+        activityResult = impactResult.result;
+        isOffline = impactResult.isOffline;
+        error = impactResult.error;
 
         if (activityResult != null) {
           if (impact.boostId != null) {
             _boostRepository.fetchMyInventory();
           }
         } else {
+          if (impact.boostId != null) {
+            _boostRepository.consumeLocalBoost(impact.boostId!);
+          }
           final pending = await _localStorageService.getPendingActivityImpacts();
           pending.add(impact);
           await _localStorageService.savePendingActivityImpacts(pending);
-          debugPrint('SessionRepository: Saved impact locally for later sync');
+          debugPrint('SessionRepository: Saved impact locally for later sync (isOffline: $isOffline, error: $error)');
         }
       } catch (e) {
         debugPrint('SessionRepository: Error applying territory impact: $e');
+        isOffline = true;
+        error = e.toString();
       }
     }
 
     _resetSessionData();
     notifyListeners();
-    return (session: session, activityResult: activityResult);
+    return (session: session, activityResult: activityResult, isOffline: isOffline, error: error);
   }
 
   Future<void> syncPendingImpacts() async {
-    final pending = await _localStorageService.getPendingActivityImpacts();
-    if (pending.isEmpty) return;
+    try {
+      final pending = await _localStorageService.getPendingActivityImpacts();
+      if (pending.isEmpty) return;
 
-    debugPrint('SessionRepository: Attempting to sync ${pending.length} pending impacts');
-    final List<PendingActivityImpact> remaining = [];
+      debugPrint('SessionRepository: Attempting to sync ${pending.length} pending impacts');
+      final List<PendingActivityImpact> remaining = [];
+      bool syncedAny = false;
 
-    for (final impact in pending) {
-      try {
-        final result = await _territoryRepository.applyTerritoryImpact(
-          totalDistance: impact.totalDistance,
-          totalTime: impact.totalTime,
-          timestamp: impact.timestamp,
-          territories: impact.territories,
-          boostId: impact.boostId,
-        );
-        if (result == null) {
-          remaining.add(impact);
-        } else {
-          if (impact.boostId != null) {
-            _boostRepository.fetchMyInventory();
+      for (final impact in pending) {
+        try {
+          final impactResult = await _territoryRepository.applyTerritoryImpact(
+            totalDistance: impact.totalDistance,
+            totalTime: impact.totalTime,
+            timestamp: impact.timestamp,
+            territories: impact.territories,
+            boostId: impact.boostId,
+          );
+          if (impactResult.result == null) {
+            debugPrint('SessionRepository: Sync failed for impact (isOffline: ${impactResult.isOffline}, error: ${impactResult.error})');
+            remaining.add(impact);
+          } else {
+            debugPrint('SessionRepository: Successfully synced pending impact');
+            syncedAny = true;
           }
+        } catch (e) {
+          debugPrint('SessionRepository: Error syncing pending impact: $e');
+          remaining.add(impact);
         }
-      } catch (_) {
-        remaining.add(impact);
       }
-    }
 
-    final int syncedCount = pending.length - remaining.length;
-    await _localStorageService.savePendingActivityImpacts(remaining);
-    
-    if (syncedCount > 0) {
-      debugPrint('SessionRepository: $syncedCount pending impacts synced successfully');
-      onSyncNotification?.call();
+      final int syncedCount = pending.length - remaining.length;
+      await _localStorageService.savePendingActivityImpacts(remaining);
+      
+      if (syncedAny) {
+        await _boostRepository.fetchMyInventory();
+        await _territoryRepository.fetchAllTerritories();
+      }
+
+      if (syncedCount > 0) {
+        debugPrint('SessionRepository: $syncedCount pending impacts synced successfully');
+        onSyncNotification?.call();
+      }
+    } catch (e) {
+      debugPrint('SessionRepository.syncPendingImpacts error: $e');
     }
   }
 

@@ -46,8 +46,8 @@ class ApiClient {
 
       final bool isAuthAction = endpoint.contains('/session/refresh') || endpoint.contains('/session/logout');
 
-      if (response.statusCode == 401 && _authRepository != null && !isAuthAction) {
-        debugPrint('ApiClient: 401 Unauthorized for $endpoint. Attempting token refresh...');
+      if ((response.statusCode == 401 || response.statusCode == 403) && _authRepository != null && !isAuthAction) {
+        debugPrint('ApiClient: ${response.statusCode} Unauthorized/Forbidden for $endpoint. Attempting token refresh...');
         
         final refreshed = await _authRepository!.refreshSession();
         if (refreshed) {
