@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
@@ -62,10 +63,17 @@ class LocalStorageService {
   }
 
   Future<List<PendingActivityImpact>> getPendingActivityImpacts() async {
-    final data = await _secureStorage.read(key: _activityKey);
-    if (data == null) return [];
-    final List<dynamic> decoded = jsonDecode(data);
-    return decoded.map((e) => PendingActivityImpact.fromJson(e)).toList();
+    try {
+      final data = await _secureStorage.read(key: _activityKey);
+      if (data == null || data.isEmpty) return [];
+      final List<dynamic> decoded = jsonDecode(data);
+      return decoded
+          .map((e) => PendingActivityImpact.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('LocalStorageService: Error reading pending impacts: $e');
+      return [];
+    }
   }
 
   Future<void> savePendingActivityImpacts(List<PendingActivityImpact> impacts) async {

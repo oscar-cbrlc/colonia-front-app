@@ -17,8 +17,11 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
-
+class _MapScreenState extends State<MapScreen> with RouteAware {
+  @override
+  void didPopNext() {
+    widget.viewModel.checkPendingActivities();
+  }
 
   Widget get _profileGroup => Visibility(
       visible: true,
@@ -246,6 +249,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
+    widget.viewModel.checkPendingActivities();
   }
 
   @override
