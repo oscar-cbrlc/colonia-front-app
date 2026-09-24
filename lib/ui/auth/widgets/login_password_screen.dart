@@ -148,9 +148,10 @@ class _LoginPasswordScreen extends State<LoginPasswordScreen> {
       _passFocusNode.unfocus();
       navigateToMapScreen(context);
     } else if (model.errorMessage != null) {
+      final locale = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(model.errorMessage!),
+          content: Text(locale.errorUnexpected),
           backgroundColor: AppTheme.errorColor,
         ),
       );

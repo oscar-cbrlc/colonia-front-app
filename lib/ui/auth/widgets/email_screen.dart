@@ -22,7 +22,6 @@ class _EmailScreenState extends State<EmailScreen> {
     super.initState();
     _emailController = TextEditingController(text: widget.viewModel.email);
 
-    // auto-focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _emailController.text.isEmpty) {
         _emailFocusNode.requestFocus();
@@ -192,7 +191,7 @@ class _EmailScreenState extends State<EmailScreen> {
       final locale = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${locale.info}: ${viewModel.errorMessage ?? locale.errorUnknown}'),
+          content: Text(locale.errorUnexpected),
           backgroundColor: AppTheme.errorColor,
         ),
       );

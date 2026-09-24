@@ -42,7 +42,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _debounceTimer;
 
   Timer? _drawingThrottle;
-  Set<String> _lastH3Indexes = {};
   bool _hasInitialCenter = false;
   bool _isFollowingUser = true;
 
@@ -162,8 +161,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (style == null) return;
 
     final camera = await _mapboxMap!.getCameraState();
-    final currentUser = AuthRepository.instance.currentUser;
-    final userTeamId = currentUser?.team?.id;
     final userTeamColor = _getUserTeamColor();
     final bool canShowPoints = _showPoints && camera.zoom >= minZoomToShowPoints;
 
@@ -333,7 +330,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
         'session': result.session, 
         'activityResult': result.activityResult,
         'activity': activity, 
-        'trainingName': trainingName
+        'trainingName': trainingName,
+        'isOffline': result.isOffline,
+        'error': result.error,
       };
     } catch (e, stackTrace) {
       debugPrint("Error in onPushStopButton: $e\n$stackTrace");

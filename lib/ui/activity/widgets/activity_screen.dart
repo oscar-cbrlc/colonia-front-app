@@ -154,11 +154,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 alignment: Alignment.topCenter,
                 child: _NextImpactPanel(viewModel: widget.viewModel),
               ),
-              if (widget.viewModel.equippedBoost != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
-                ),
+            if (widget.viewModel.equippedBoost != null && widget.viewModel.playingState != PlayingState.stopped)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
+              ),
             
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
@@ -237,6 +237,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _ActivitySelectorSheet(viewModel: widget.viewModel),
+      useSafeArea: true,
+      showDragHandle: true,
     );
   }
 }
@@ -1000,10 +1002,15 @@ class _ActivityProgressPanel extends StatelessWidget {
                             
                             if (result != null) {
                               if (result['activityResult'] == null) {
+                                final bool isOffline = result['isOffline'] == true;
+                                final String message = isOffline
+                                    ? locale.activitySavedLocally
+                                    : locale.errorSavingActivity;
+
                                 scaf.showSnackBar(
                                   SnackBar(
-                                    content: Text(locale.activitySavedLocally),
-                                    backgroundColor: Colors.orangeAccent,
+                                    content: Text(message),
+                                    backgroundColor: isOffline ? Colors.orangeAccent : Colors.redAccent,
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );

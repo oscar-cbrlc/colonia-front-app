@@ -86,6 +86,15 @@ class BoostRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> updateLocalInventory(List<BoostInventory> inventory) async {
+    try {
+      await _localStorageService.saveInventory(inventory);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('BoostRepository: Error updating local inventory: $e');
+    }
+  }
+
   Future<void> updateBoostInventory(int userId, int boostId, int amount) async {
     try {
       final response = await _boostService.updateBoostInventory(userId, boostId, amount);
@@ -95,6 +104,28 @@ class BoostRepository extends ChangeNotifier {
     } catch (e) {
       debugPrint('BoostRepository: Error updating boost inventory: $e');
     }
+  }
+
+  Future<void> consumeLocalBoost(int boostId) async {
+    try {
+      final index = _inventory.indexWhere((item) => item.id == boostId);
+      if (index != -1) {
+        final current = _inventory[index];
+        if (current.quantity > 1) {
+          _inventory[index] = current.copyWith(quantity: current.quantity - 1);
+        } else {
+          _inventory.removeAt(index);
+        }
+        await _localStorageService.saveInventory(_inventory);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('BoostRepository: Error consuming local boost: $e');
+    }
+  }
+
+  Future<void> removeFromLocalInventory(int boostId) async {
+    await consumeLocalBoost(boostId);
   }
 
   void clearCache() {

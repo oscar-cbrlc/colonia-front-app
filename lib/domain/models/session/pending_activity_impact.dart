@@ -25,7 +25,9 @@ class PendingActivityImpact {
     totalDistance: (json['total_distance'] as num).toDouble(),
     totalTime: (json['total_time'] as num).toInt(),
     timestamp: json['timestamp'] as String,
-    territories: List<Map<String, dynamic>>.from(json['territories'] as List),
+    territories: (json['territories'] as List)
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList(),
     boostId: json['boost_id'] as int?,
   );
 }

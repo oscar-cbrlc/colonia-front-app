@@ -67,7 +67,7 @@ class MapViewModel extends ChangeNotifier {
         notifyListeners();
     };
     
-    _checkPendingActivities();
+    checkPendingActivities();
   }
 
   bool _didSync = false;
@@ -78,11 +78,15 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _checkPendingActivities() async {
-    final pendingCount = (await _sessionRepository.localStorageService.getPendingActivityImpacts()).length;
-    if (pendingCount > 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      await _sessionRepository.syncPendingImpacts();
+  Future<void> checkPendingActivities() async {
+    try {
+      final pendingCount = (await _sessionRepository.localStorageService.getPendingActivityImpacts()).length;
+      debugPrint('MapViewModel: checkPendingActivities found $pendingCount pending impacts');
+      if (pendingCount > 0) {
+        await _sessionRepository.syncPendingImpacts();
+      }
+    } catch (e) {
+      debugPrint('MapViewModel: checkPendingActivities error: $e');
     }
   }
 
@@ -213,12 +217,6 @@ class MapViewModel extends ChangeNotifier {
     return 'rgba($r, $g, $b, $alpha)';
   }
 
-  Color _getUserTeamColor() {
-    final currentUser = AuthRepository.instance.currentUser;
-    if (currentUser != null && currentUser.team != null) return Color(_teamRepository.currentTeam!.color);
-    return AppTheme.primaryColor;
-  }
-
   Future<void> _initializeH3Layer() async {
     final style = _mapboxMap?.style;
     if (style == null) return;
@@ -285,9 +283,6 @@ class MapViewModel extends ChangeNotifier {
     if (_setEquals(_lastH3Indexes, allHexIndexes)) return;
     _lastH3Indexes = allHexIndexes;
 
-    final currentUser = AuthRepository.instance.currentUser;
-    final userTeamId = currentUser?.team?.id;
-    final userTeamColor = _getUserTeamColor();
     final bool canShowPoints = _showPoints && camera.zoom >= minZoomToShowPoints;
 
     final features = allHexIndexes.map((hexId) {
