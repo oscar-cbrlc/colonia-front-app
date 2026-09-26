@@ -1225,6 +1225,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Impacto'**
   String get impact;
+
+  /// No description provided for @ach_dist_1.
+  ///
+  /// In es, this message translates to:
+  /// **'Fuera del nido'**
+  String get ach_dist_1;
+
+  /// No description provided for @ach_dist_2.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursionista'**
+  String get ach_dist_2;
+
+  /// No description provided for @ach_dist_3.
+  ///
+  /// In es, this message translates to:
+  /// **'Nómada'**
+  String get ach_dist_3;
+
+  /// No description provided for @ach_dist_4.
+  ///
+  /// In es, this message translates to:
+  /// **'Exploradora'**
+  String get ach_dist_4;
+
+  /// No description provided for @ach_dist_5.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga plateada del Sahara'**
+  String get ach_dist_5;
+
+  /// No description provided for @ach_time_1.
+  ///
+  /// In es, this message translates to:
+  /// **'Huevo'**
+  String get ach_time_1;
+
+  /// No description provided for @ach_time_2.
+  ///
+  /// In es, this message translates to:
+  /// **'Larva'**
+  String get ach_time_2;
+
+  /// No description provided for @ach_time_3.
+  ///
+  /// In es, this message translates to:
+  /// **'Pupa'**
+  String get ach_time_3;
+
+  /// No description provided for @ach_time_4.
+  ///
+  /// In es, this message translates to:
+  /// **'Adulto'**
+  String get ach_time_4;
+
+  /// No description provided for @ach_time_5.
+  ///
+  /// In es, this message translates to:
+  /// **'Reina'**
+  String get ach_time_5;
+
+  /// No description provided for @ach_terr_1.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga obrera'**
+  String get ach_terr_1;
+
+  /// No description provided for @ach_terr_2.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga cosechadora'**
+  String get ach_terr_2;
+
+  /// No description provided for @ach_terr_3.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga parásito'**
+  String get ach_terr_3;
+
+  /// No description provided for @ach_terr_4.
+  ///
+  /// In es, this message translates to:
+  /// **'Especie invasora'**
+  String get ach_terr_4;
+
+  /// No description provided for @ach_terr_5.
+  ///
+  /// In es, this message translates to:
+  /// **'Megacolonizadora'**
+  String get ach_terr_5;
+
+  /// No description provided for @ach_atk_1.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga cazadora'**
+  String get ach_atk_1;
+
+  /// No description provided for @ach_atk_2.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga de fuego'**
+  String get ach_atk_2;
+
+  /// No description provided for @ach_atk_3.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga argentina'**
+  String get ach_atk_3;
+
+  /// No description provided for @ach_atk_4.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga amarilla'**
+  String get ach_atk_4;
+
+  /// No description provided for @ach_atk_5.
+  ///
+  /// In es, this message translates to:
+  /// **'Hormiga bala'**
+  String get ach_atk_5;
+
+  /// No description provided for @ach_def_1.
+  ///
+  /// In es, this message translates to:
+  /// **'Hojas y ramas'**
+  String get ach_def_1;
+
+  /// No description provided for @ach_def_2.
+  ///
+  /// In es, this message translates to:
+  /// **'Rastro de feromonas'**
+  String get ach_def_2;
+
+  /// No description provided for @ach_def_3.
+  ///
+  /// In es, this message translates to:
+  /// **'Bivuoac hormiguero'**
+  String get ach_def_3;
+
+  /// No description provided for @ach_def_4.
+  ///
+  /// In es, this message translates to:
+  /// **'Eusocial'**
+  String get ach_def_4;
+
+  /// No description provided for @ach_def_5.
+  ///
+  /// In es, this message translates to:
+  /// **'Evolución convergente'**
+  String get ach_def_5;
 }
 
 class _AppLocalizationsDelegate

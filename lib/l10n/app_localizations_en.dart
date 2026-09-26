@@ -603,4 +603,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get impact => 'Impact';
+
+  @override
+  String get ach_dist_1 => 'Out of the nest';
+
+  @override
+  String get ach_dist_2 => 'Excursionist';
+
+  @override
+  String get ach_dist_3 => 'Nomad';
+
+  @override
+  String get ach_dist_4 => 'Explorer';
+
+  @override
+  String get ach_dist_5 => 'Sahara desert ant';
+
+  @override
+  String get ach_time_1 => 'Egg';
+
+  @override
+  String get ach_time_2 => 'Larvae';
+
+  @override
+  String get ach_time_3 => 'Pupe';
+
+  @override
+  String get ach_time_4 => 'Adult';
+
+  @override
+  String get ach_time_5 => 'Queen';
+
+  @override
+  String get ach_terr_1 => 'Worker ant';
+
+  @override
+  String get ach_terr_2 => 'Harvester ant';
+
+  @override
+  String get ach_terr_3 => 'Parasitic ant';
+
+  @override
+  String get ach_terr_4 => 'Invasive species';
+
+  @override
+  String get ach_terr_5 => 'Mega-colonizer';
+
+  @override
+  String get ach_atk_1 => 'Hunter ant';
+
+  @override
+  String get ach_atk_2 => 'Fire ant';
+
+  @override
+  String get ach_atk_3 => 'Argentine ant';
+
+  @override
+  String get ach_atk_4 => 'Yellow ant';
+
+  @override
+  String get ach_atk_5 => 'Bullet ant';
+
+  @override
+  String get ach_def_1 => 'Leaves and sticks';
+
+  @override
+  String get ach_def_2 => 'Pheromone trail';
+
+  @override
+  String get ach_def_3 => 'Ant bivuoac';
+
+  @override
+  String get ach_def_4 => 'Eusocial';
+
+  @override
+  String get ach_def_5 => 'Convergent evolution';
 }

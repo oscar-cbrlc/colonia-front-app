@@ -606,4 +606,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get impact => 'Impacto';
+
+  @override
+  String get ach_dist_1 => 'Fuera del nido';
+
+  @override
+  String get ach_dist_2 => 'Excursionista';
+
+  @override
+  String get ach_dist_3 => 'Nómada';
+
+  @override
+  String get ach_dist_4 => 'Exploradora';
+
+  @override
+  String get ach_dist_5 => 'Hormiga plateada del Sahara';
+
+  @override
+  String get ach_time_1 => 'Huevo';
+
+  @override
+  String get ach_time_2 => 'Larva';
+
+  @override
+  String get ach_time_3 => 'Pupa';
+
+  @override
+  String get ach_time_4 => 'Adulto';
+
+  @override
+  String get ach_time_5 => 'Reina';
+
+  @override
+  String get ach_terr_1 => 'Hormiga obrera';
+
+  @override
+  String get ach_terr_2 => 'Hormiga cosechadora';
+
+  @override
+  String get ach_terr_3 => 'Hormiga parásito';
+
+  @override
+  String get ach_terr_4 => 'Especie invasora';
+
+  @override
+  String get ach_terr_5 => 'Megacolonizadora';
+
+  @override
+  String get ach_atk_1 => 'Hormiga cazadora';
+
+  @override
+  String get ach_atk_2 => 'Hormiga de fuego';
+
+  @override
+  String get ach_atk_3 => 'Hormiga argentina';
+
+  @override
+  String get ach_atk_4 => 'Hormiga amarilla';
+
+  @override
+  String get ach_atk_5 => 'Hormiga bala';
+
+  @override
+  String get ach_def_1 => 'Hojas y ramas';
+
+  @override
+  String get ach_def_2 => 'Rastro de feromonas';
+
+  @override
+  String get ach_def_3 => 'Bivuoac hormiguero';
+
+  @override
+  String get ach_def_4 => 'Eusocial';
+
+  @override
+  String get ach_def_5 => 'Evolución convergente';
 }

@@ -640,5 +640,81 @@
     "@boosts": {},
 
     "impact": "Impacto",
-    "@impact": {}
+    "@impact": {},
+
+    "ach_dist_1": "Fuera del nido",
+    "@ach_dist_1": {},
+
+    "ach_dist_2": "Excursionista",
+    "@ach_dist_2": {},
+
+    "ach_dist_3": "Nómada",
+    "@ach_dist_3": {},
+
+    "ach_dist_4": "Exploradora",
+    "@ach_dist_4": {},
+
+    "ach_dist_5": "Hormiga plateada del Sahara",
+    "@ach_dist_5": {},
+
+
+    "ach_time_1": "Huevo",
+    "@ach_time_1": {},
+
+    "ach_time_2": "Larva",
+    "@ach_time_2": {},
+
+    "ach_time_3": "Pupa",
+    "@ach_time_3": {},
+
+    "ach_time_4": "Adulto",
+    "@ach_time_4": {},
+
+    "ach_time_5": "Reina",
+    "@ach_time_5": {},
+
+    "ach_terr_1": "Hormiga obrera",
+    "@ach_terr_1": {},
+
+    "ach_terr_2": "Hormiga cosechadora",
+    "@ach_terr_2": {},
+
+    "ach_terr_3": "Hormiga parásito",
+    "@ach_terr_3": {},
+
+    "ach_terr_4": "Especie invasora",
+    "@ach_terr_4": {},
+
+    "ach_terr_5": "Megacolonizadora",
+    "@ach_terr_5": {},
+
+    "ach_atk_1": "Hormiga cazadora",
+    "@ach_atk_1": {},
+
+    "ach_atk_2": "Hormiga de fuego",
+    "@ach_atk_2": {},
+
+    "ach_atk_3": "Hormiga argentina",
+    "@ach_atk_3": {},
+
+    "ach_atk_4": "Hormiga amarilla",
+    "@ach_atk_4": {},
+
+    "ach_atk_5": "Hormiga bala",
+    "@ach_atk_5": {},
+
+    "ach_def_1": "Hojas y ramas",
+    "@ach_def_1": {},
+
+    "ach_def_2": "Rastro de feromonas",
+    "@ach_def_2": {},
+
+    "ach_def_3": "Bivuoac hormiguero",
+    "@ach_def_3": {},
+
+    "ach_def_4": "Eusocial",
+    "@ach_def_4": {},
+
+    "ach_def_5": "Evolución convergente",
+    "@ach_def_5": {}
 }
