@@ -264,6 +264,10 @@ class TeamViewModel extends ChangeNotifier {
     }
   }
 
+  Future<User> getUserById(int userId) async {
+    return await _authRepository.getUserById(id: userId);
+  }
+
   Future<bool> kickMember(int userId) async {
     try {
       return await _teamRepository.kickMember(userId);

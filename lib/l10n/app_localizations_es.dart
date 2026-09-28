@@ -83,6 +83,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordLabel => 'Contraseña';
 
   @override
+  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
   String get passwordHint => 'Ingresa tu contraseña';
 
   @override
@@ -96,6 +99,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get usernameLabel => 'Nombre de usuario';
+
+  @override
+  String get usernameCannotBeEmpty =>
+      'El nombre de usuario no puede estar vacío';
 
   @override
   String get usernameHint => 'Cataglyphis-Maximus-99';
@@ -113,6 +120,9 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get createANameToIdentifyYou =>
       'Crea un nombre para que otros te identifiquen';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
 
   @override
   String get map => 'Mapa';
@@ -506,7 +516,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get objectiveNotMet => 'OBJETIVO NO LOGRADO';
 
   @override
-  String get claimedTerritory => 'TERRITORIO RECLAMADO';
+  String get claimedTerritory => 'TERRITORIO CONQUISTADO';
 
   @override
   String get territoryAttacked => 'TERRITORIO ATACADO';
@@ -515,7 +525,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get territoryDefended => 'TERRITORIO DEFENDIDO';
 
   @override
-  String get territoryCaptured => 'TERRITORIO CAPTURADO';
+  String get territoryCaptured => 'TERRITORIO CONQUISTADO';
 
   @override
   String get healthPoints => 'PUNTOS DE SALUD';
@@ -527,7 +537,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get visitColony => 'VISITAR COLONIA';
 
   @override
-  String get claimed => 'RECLAMADOS';
+  String get claimed => 'CONQUISTADOS';
 
   @override
   String get impacted => 'IMPACTADOS';
@@ -575,6 +585,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
 
   @override
+  String get profileUpdatedSuccessfully => 'Perfil actualizado exitosamente';
+
+  @override
+  String get networkErrorUpdateProfile =>
+      'No se puede actualizar el perfil sin conexión a internet.';
+
+  @override
   String get logout => 'Cerrar sesión';
 
   @override
@@ -606,4 +623,140 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get impact => 'Impacto';
+
+  @override
+  String get ach_dist_1 => 'Fuera del nido';
+
+  @override
+  String get ach_dist_2 => 'Excursionista';
+
+  @override
+  String get ach_dist_3 => 'Nómada';
+
+  @override
+  String get ach_dist_4 => 'Exploradora';
+
+  @override
+  String get ach_dist_5 => 'Hormiga plateada del Sahara';
+
+  @override
+  String get ach_time_1 => 'Huevo';
+
+  @override
+  String get ach_time_2 => 'Larva';
+
+  @override
+  String get ach_time_3 => 'Pupa';
+
+  @override
+  String get ach_time_4 => 'Adulto';
+
+  @override
+  String get ach_time_5 => 'Reina';
+
+  @override
+  String get ach_terr_1 => 'Hormiga obrera';
+
+  @override
+  String get ach_terr_2 => 'Hormiga cosechadora';
+
+  @override
+  String get ach_terr_3 => 'Hormiga parásito';
+
+  @override
+  String get ach_terr_4 => 'Especie invasora';
+
+  @override
+  String get ach_terr_5 => 'Megacolonizadora';
+
+  @override
+  String get ach_atk_1 => 'Hormiga cazadora';
+
+  @override
+  String get ach_atk_2 => 'Hormiga de fuego';
+
+  @override
+  String get ach_atk_3 => 'Hormiga argentina';
+
+  @override
+  String get ach_atk_4 => 'Hormiga amarilla';
+
+  @override
+  String get ach_atk_5 => 'Hormiga bala';
+
+  @override
+  String get ach_def_1 => 'Hojas y ramas';
+
+  @override
+  String get ach_def_2 => 'Rastro de feromonas';
+
+  @override
+  String get ach_def_3 => 'Bivuoac hormiguero';
+
+  @override
+  String get ach_def_4 => 'Eusocial';
+
+  @override
+  String get ach_def_5 => 'Evolución convergente';
+
+  @override
+  String achievementTotalDistanceDescription(int distance) {
+    return 'Recorre una distancia total de $distance km';
+  }
+
+  @override
+  String achievementTotalTimeDescription(int time) {
+    return 'Realiza un tiempo total de $time horas en excursiones';
+  }
+
+  @override
+  String achievementTerritoriesCapturedDescription(int territories) {
+    return 'Conquista $territories territorios';
+  }
+
+  @override
+  String achievementTotalAttackDescription(int points) {
+    return 'Produce un total de $points de puntos de ataque';
+  }
+
+  @override
+  String achievementTotalDefenseDescription(int points) {
+    return 'Producr un total de $points de puntos de defensa';
+  }
+
+  @override
+  String get completed => 'Completado';
+
+  @override
+  String get locked => 'Bloqueado';
+
+  @override
+  String get unlocked => 'Desbloqueado';
+
+  @override
+  String get achievements => 'Logros';
+
+  @override
+  String get noAchievementsYet => 'Sin logros aún';
+
+  @override
+  String get noAchievements => 'Sin logros';
+
+  @override
+  String get noUnlockedAchievementsYet => 'Sin logros desbloqueados aún';
+
+  @override
+  String get noUnlockedAchievements => 'Sin logros desbloqueados';
+
+  @override
+  String get allAchievementsCompleted => '¡Todos los logros completados!';
+
+  @override
+  String get editAccountInfo => 'Editar información de cuenta';
+
+  @override
+  String get shop => 'Tienda';
+
+  @override
+  String get customizeAvatar => 'Personalizar Avatar';
 }

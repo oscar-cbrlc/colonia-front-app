@@ -67,8 +67,14 @@
     "oneSpecialCharacter": "One special character",
     "@oneSpecialCharacter": {},
 
+    "loginTitle": "Log In",
+    "@loginTitle": {},
+
     "passwordLabel": "Password",
     "@passwordLabel": {},
+
+    "passwordsDoNotMatch": "Passwords don't match",
+    "@passwordsDontMatch": {},
 
     "passwordHint": "Enter your password",
     "@passwordHint": {},
@@ -85,6 +91,9 @@
     "usernameLabel": "Username",
     "@usernameLabel": {},
 
+    "usernameCannotBeEmpty": "Username cannot be empty",
+    "@usernameCannotBeEmpty": {},
+
     "usernameHint": "Cataglyphis-Maximus-99",
     "@usernameHint": {},
 
@@ -99,6 +108,9 @@
 
     "createANameToIdentifyYou": "Create a name so others identify you",
     "@createANameToIdentifyYou": {},
+
+    "saveChanges": "Save changes",
+    "@saveChanges": {},
 
     "map": "Map",
     "@map": {},
@@ -528,7 +540,7 @@
     "objectiveNotMet": "OBJECTIVE NOT MET",
     "@objectiveNotMet": {},
 
-    "claimedTerritory": "CLAIMED TERRITORY",
+    "claimedTerritory": "CONQUERED TERRITORY",
     "@claimedTerritory": {},
 
     "territoryAttacked": "TERRITORY ATTACKED",
@@ -537,7 +549,7 @@
     "territoryDefended": "TERRITORY DEFENDED",
     "@territoryDefended": {},
 
-    "territoryCaptured": "TERRITORY CAPTURED",
+    "territoryCaptured": "TERRITORY CONQUERED",
     "@territoryCaptured": {},
 
     "healthPoints": "HEALTH POINTS",
@@ -549,7 +561,7 @@
     "visitColony": "VISIT COLONY",
     "@visitColony": {},
 
-    "claimed": "CLAIMED",
+    "claimed": "CONQUERED",
     "@claimed": {},
 
     "impacted": "IMPACTED",
@@ -594,6 +606,12 @@
     "errorUnexpected": "An unexpected error occurred. Please try again.",
     "@errorUnexpected": {},
 
+    "profileUpdatedSuccessfully": "Profile updated successfully",
+    "@profileUpdatedSuccessfully": {},
+
+    "networkErrorUpdateProfile": "Cannot update profile without an internet connection.",
+    "@networkErrorUpdateProfile": {},
+
     "logout": "Log out",
     "@logout": {},
 
@@ -637,5 +655,166 @@
     "@boosts": {},
 
     "impact": "Impact",
-    "@impact": {}
+    "@impact": {},
+
+    "ach_dist_1": "Out of the nest",
+    "@ach_dist_1": {},
+
+    "ach_dist_2": "Excursionist",
+    "@ach_dist_2": {},
+
+    "ach_dist_3": "Nomad",
+    "@ach_dist_3": {},
+
+    "ach_dist_4": "Explorer",
+    "@ach_dist_4": {},
+
+    "ach_dist_5": "Sahara desert ant",
+    "@ach_dist_5": {},
+
+    "ach_time_1": "Egg",
+    "@ach_time_1": {},
+
+    "ach_time_2": "Larvae",
+    "@ach_time_2": {},
+
+    "ach_time_3": "Pupe",
+    "@ach_time_3": {},
+
+    "ach_time_4": "Adult",
+    "@ach_time_4": {},
+
+    "ach_time_5": "Queen",
+    "@ach_time_5": {},
+
+    "ach_terr_1": "Worker ant",
+    "@ach_terr_1": {},
+
+    "ach_terr_2": "Harvester ant",
+    "@ach_terr_2": {},
+
+    "ach_terr_3": "Parasitic ant",
+    "@ach_terr_3": {},
+
+    "ach_terr_4": "Invasive species",
+    "@ach_terr_4": {},
+
+    "ach_terr_5": "Mega-colonizer",
+    "@ach_terr_5": {},
+
+    "ach_atk_1": "Hunter ant",
+    "@ach_atk_1": {},
+
+    "ach_atk_2": "Fire ant",
+    "@ach_atk_2": {},
+
+    "ach_atk_3": "Argentine ant",
+    "@ach_atk_3": {},
+
+    "ach_atk_4": "Yellow ant",
+    "@ach_atk_4": {},
+
+    "ach_atk_5": "Bullet ant",
+    "@ach_atk_5": {},
+
+    "ach_def_1": "Leaves and sticks",
+    "@ach_def_1": {},
+
+    "ach_def_2": "Pheromone trail",
+    "@ach_def_2": {},
+
+    "ach_def_3": "Ant bivuoac",
+    "@ach_def_3": {},
+
+    "ach_def_4": "Eusocial",
+    "@ach_def_4": {},
+
+    "ach_def_5": "Convergent evolution",
+    "@ach_def_5": {},
+
+    "achievementTotalDistanceDescription": "Complete a total of {distance}km covered",
+    "@achievementTotalDistanceDescription": {
+        "placeholders": {
+            "distance": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "achievementTotalTimeDescription": "Complete a total of {time} hours in excursions",
+    "@achievementTotalTimeDescription": {
+        "placeholders": {
+            "time": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "achievementTerritoriesCapturedDescription": "Conquer {territories} territories",
+    "@achievementTerritoriesCapturedDescription": {
+        "placeholders": {
+            "territories": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "achievementTotalAttackDescription": "Produce a total of {points} attack points",
+    "@achievementTotalAttackDescription": {
+        "placeholders": {
+            "points": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "achievementTotalDefenseDescription": "Produce a total of {points} defense points",
+    "@achievementTotalDefenseDescription": {
+        "placeholders": {
+            "points": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "completed": "Completed",
+    "@completed": {},
+
+    "locked": "Locked",
+    "@locked": {},
+
+    "unlocked": "Unlocked",
+    "@unlocked": {},
+
+    "achievements": "Achievements",
+    "@achievements": {},
+
+    "noAchievementsYet": "No achievements yet",
+    "@noAchievementsYet": {},
+
+    "noAchievements": "No achievements",
+    "@noAchievements": {},
+
+    "noUnlockedAchievementsYet": "No unlocked achievements yet",
+    "@noUnlockedAchievementsYet": {},
+
+    "noUnlockedAchievements": "No unlocked achievements",
+    "@noUnlockedAchievements": {},
+
+    "allAchievementsCompleted": "All achievements completed!",
+    "@allAchievementsCompleted": {},
+
+    "editAccountInfo": "Edit account info",
+    "@editAccountInfo": {},
+
+    "shop": "Shop",
+    "@shop": {},
+
+    "customizeAvatar": "Customize Avatar",
+    "@customizeAvatar": {}
 }

@@ -334,6 +334,15 @@ class _TeamDetailsView extends StatelessWidget {
               leading: const Icon(Icons.person, color: Colors.white),
               title: Text(member.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               subtitle: Text(member.role.toUpperCase(), style: const TextStyle(color: Colors.white54)),
+              trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                  context,
+                  AppRouter.profile,
+                  arguments: {'user': viewModel.getUserById(member.userId)},
+                );
+              },
             ),
             const Divider(color: Colors.white12),
 
@@ -1093,7 +1102,6 @@ class _TeamChatSheetState extends State<_TeamChatSheet> {
           ),
           child: Column(
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: ShapeDecoration(
@@ -1136,7 +1144,6 @@ class _TeamChatSheetState extends State<_TeamChatSheet> {
                 ),
               ),
               
-              // Messages List
               Expanded(
                 child: teamVm.isChatLoading && teamVm.chatMessages.isEmpty
                     ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
@@ -1160,7 +1167,6 @@ class _TeamChatSheetState extends State<_TeamChatSheet> {
                               final isSelected = _selectedMessageId == msg.id;
 
                               if (!isUserMessage) {
-                                // System message
                                 final locale = AppLocalizations.of(context)!;
                                 final systemText = _getLocalizedSystemMessage(locale, msg);
 
@@ -1193,7 +1199,6 @@ class _TeamChatSheetState extends State<_TeamChatSheet> {
                                 );
                               }
 
-                              // User message
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -1296,7 +1301,6 @@ class _TeamChatSheetState extends State<_TeamChatSheet> {
                           ),
               ),
 
-              // Input Bar
               Container(
                 padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 16),
                 decoration: BoxDecoration(

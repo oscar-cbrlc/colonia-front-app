@@ -164,9 +164,28 @@ class AuthRepository extends ChangeNotifier {
   bool _isRefreshing = false;
 
   Future<void> updateCurrentUser(User user) async {
-    _currentUser = user;
-    await _localStorageService.saveUser(user);
-    notifyListeners();
+    try {
+      final response = await _authService.updateUser(user.toJson()).timeout(const Duration(seconds: 10));
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        User updatedUser = user;
+        if (response.body.isNotEmpty) {
+          try {
+            final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+            updatedUser = User.fromJson(jsonMap);
+          } catch (_) {
+            //
+          }
+        }
+        _currentUser = updatedUser;
+        await _localStorageService.saveUser(updatedUser);
+        notifyListeners();
+      } else {
+        throw Exception('Server returned status ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('AuthRepository: Failed to update user online: $e');
+      rethrow;
+    }
   }
 
   Future<User> fetchCurrentUser() async {
