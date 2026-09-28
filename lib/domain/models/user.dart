@@ -43,7 +43,7 @@ abstract class User with _$User {
       avatar?.body != null ||
       avatar?.footwear != null;
 
-  List<Achievement> get obtainedAchievements => achievements.where((a) => a.acquisitionDate != null).toList();
+  List<Achievement> get unlockedAchievements => achievements.where((a) => a.acquisitionDate != null).toList();
 }
 
 @freezed
