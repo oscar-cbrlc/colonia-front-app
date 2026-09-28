@@ -1,9 +1,6 @@
 import 'package:colonia_front_app/l10n/app_localizations.dart';
-import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
-import 'package:colonia_front_app/data/repositories/auth_repository.dart';
-import 'package:colonia_front_app/data/repositories/team_repository.dart';
-import 'package:colonia_front_app/data/repositories/territory_repository.dart';
-import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/team/widgets/team_screen.dart';
@@ -61,7 +58,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
             Consumer<MapViewModel>(
               builder: (context, viewModel, _) => MapScreen(viewModel: viewModel),
             ),
-            const _ProfileScreen(),
+            Consumer<UserProfileViewModel>(
+              builder: (context, viewModel, _) => UserProfileScreen(viewModel: viewModel),
+            ),
           ],
         ),
         bottomNavigationBar: Container(
@@ -106,62 +105,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileScreen extends StatelessWidget {
-  const _ProfileScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final authRepo = Provider.of<AuthRepository>(context);
-    final user = authRepo.currentUser;
-
-    return Container(
-      color: AppTheme.darkBackground,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person, size: 80, color: Colors.white),
-            const SizedBox(height: 16),
-            Text(
-              user?.username ?? "User",
-              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            if (user?.email != null)
-              Text(
-                user!.email!,
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              ),
-              onPressed: () async {
-                context.read<TeamRepository>().clear();
-                context.read<TerritoryRepository>().clearCache();
-                //context.read<BoostRepository>().clear();
-                context.read<TrackingRepository>().clear();
-
-                await authRepo.logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    AppRouter.welcome,
-                    (route) => false,
-                  );
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.logout),
-            ),
-          ],
         ),
       ),
     );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 void navigateToEmailScreen(BuildContext context) {
-  Navigator.of(context).pushNamed(AppRouter.email);
+  Navigator.of(context).pushNamed(AppRouter.emailInput);
 }
 
 void handleEmailNavigation({
@@ -12,7 +12,7 @@ void handleEmailNavigation({
 }) {
   if (emailExists) {
     Navigator.of(context).pushNamed(
-      AppRouter.loginPassword,
+      AppRouter.passwordLogin,
       arguments: {'email': email},
     );
   } else {
