@@ -1,4 +1,6 @@
+import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/env/env.dart';
+import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -144,6 +146,22 @@ void main() {
           create: (context) => TeamChatRepository(context.read<TeamChatService>()),
           update: (_, teamChatService, previous) =>
               previous ?? TeamChatRepository(teamChatService),
+        ),
+
+        ChangeNotifierProxyProvider<AuthRepository, UserProfileViewModel>(
+          create: (context) {
+            final authRepo = context.read<AuthRepository>();
+            final fallbackUser = authRepo.currentUser ?? const User(id: 0, username: '', achievements: []);
+            return UserProfileViewModel(fallbackUser);
+          },
+          update: (_, authRepository, previous) {
+            final currentUser = authRepository.currentUser ?? const User(id: 0, username: '', achievements: []);
+            if (previous != null) {
+              previous.updateUser(currentUser);
+              return previous;
+            }
+            return UserProfileViewModel(currentUser);
+          },
         ),
 
         ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
