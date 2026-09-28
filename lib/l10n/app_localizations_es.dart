@@ -83,6 +83,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordLabel => 'Contraseña';
 
   @override
+  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
   String get passwordHint => 'Ingresa tu contraseña';
 
   @override
@@ -96,6 +99,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get usernameLabel => 'Nombre de usuario';
+
+  @override
+  String get usernameCannotBeEmpty =>
+      'El nombre de usuario no puede estar vacío';
 
   @override
   String get usernameHint => 'Cataglyphis-Maximus-99';
@@ -113,6 +120,9 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get createANameToIdentifyYou =>
       'Crea un nombre para que otros te identifiquen';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
 
   @override
   String get map => 'Mapa';
@@ -506,7 +516,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get objectiveNotMet => 'OBJETIVO NO LOGRADO';
 
   @override
-  String get claimedTerritory => 'TERRITORIO RECLAMADO';
+  String get claimedTerritory => 'TERRITORIO CONQUISTADO';
 
   @override
   String get territoryAttacked => 'TERRITORIO ATACADO';
@@ -515,7 +525,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get territoryDefended => 'TERRITORIO DEFENDIDO';
 
   @override
-  String get territoryCaptured => 'TERRITORIO CAPTURADO';
+  String get territoryCaptured => 'TERRITORIO CONQUISTADO';
 
   @override
   String get healthPoints => 'PUNTOS DE SALUD';
@@ -527,7 +537,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get visitColony => 'VISITAR COLONIA';
 
   @override
-  String get claimed => 'RECLAMADOS';
+  String get claimed => 'CONQUISTADOS';
 
   @override
   String get impacted => 'IMPACTADOS';
@@ -573,6 +583,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errorUnexpected =>
       'Ocurrió un error inesperado. Por favor, intenta de nuevo.';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Perfil actualizado exitosamente';
+
+  @override
+  String get networkErrorUpdateProfile =>
+      'No se puede actualizar el perfil sin conexión a internet.';
 
   @override
   String get logout => 'Cerrar sesión';
@@ -681,4 +698,65 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ach_def_5 => 'Evolución convergente';
+
+  @override
+  String achievementTotalDistanceDescription(int distance) {
+    return 'Recorre una distancia total de $distance km';
+  }
+
+  @override
+  String achievementTotalTimeDescription(int time) {
+    return 'Realiza un tiempo total de $time horas en excursiones';
+  }
+
+  @override
+  String achievementTerritoriesCapturedDescription(int territories) {
+    return 'Conquista $territories territorios';
+  }
+
+  @override
+  String achievementTotalAttackDescription(int points) {
+    return 'Produce un total de $points de puntos de ataque';
+  }
+
+  @override
+  String achievementTotalDefenseDescription(int points) {
+    return 'Producr un total de $points de puntos de defensa';
+  }
+
+  @override
+  String get completed => 'Completado';
+
+  @override
+  String get locked => 'Bloqueado';
+
+  @override
+  String get unlocked => 'Desbloqueado';
+
+  @override
+  String get achievements => 'Logros';
+
+  @override
+  String get noAchievementsYet => 'Sin logros aún';
+
+  @override
+  String get noAchievements => 'Sin logros';
+
+  @override
+  String get noUnlockedAchievementsYet => 'Sin logros desbloqueados aún';
+
+  @override
+  String get noUnlockedAchievements => 'Sin logros desbloqueados';
+
+  @override
+  String get allAchievementsCompleted => '¡Todos los logros completados!';
+
+  @override
+  String get editAccountInfo => 'Editar información de cuenta';
+
+  @override
+  String get shop => 'Tienda';
+
+  @override
+  String get customizeAvatar => 'Personalizar Avatar';
 }

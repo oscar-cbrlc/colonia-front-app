@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Contraseña'**
   String get passwordLabel;
 
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Las contraseñas no coinciden'**
+  String get passwordsDoNotMatch;
+
   /// No description provided for @passwordHint.
   ///
   /// In es, this message translates to:
@@ -272,6 +278,12 @@ abstract class AppLocalizations {
   /// **'Nombre de usuario'**
   String get usernameLabel;
 
+  /// No description provided for @usernameCannotBeEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre de usuario no puede estar vacío'**
+  String get usernameCannotBeEmpty;
+
   /// No description provided for @usernameHint.
   ///
   /// In es, this message translates to:
@@ -301,6 +313,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Crea un nombre para que otros te identifiquen'**
   String get createANameToIdentifyYou;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar cambios'**
+  String get saveChanges;
 
   /// No description provided for @map.
   ///
@@ -1043,7 +1061,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimedTerritory.
   ///
   /// In es, this message translates to:
-  /// **'TERRITORIO RECLAMADO'**
+  /// **'TERRITORIO CONQUISTADO'**
   String get claimedTerritory;
 
   /// No description provided for @territoryAttacked.
@@ -1061,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @territoryCaptured.
   ///
   /// In es, this message translates to:
-  /// **'TERRITORIO CAPTURADO'**
+  /// **'TERRITORIO CONQUISTADO'**
   String get territoryCaptured;
 
   /// No description provided for @healthPoints.
@@ -1085,7 +1103,7 @@ abstract class AppLocalizations {
   /// No description provided for @claimed.
   ///
   /// In es, this message translates to:
-  /// **'RECLAMADOS'**
+  /// **'CONQUISTADOS'**
   String get claimed;
 
   /// No description provided for @impacted.
@@ -1171,6 +1189,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ocurrió un error inesperado. Por favor, intenta de nuevo.'**
   String get errorUnexpected;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil actualizado exitosamente'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @networkErrorUpdateProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede actualizar el perfil sin conexión a internet.'**
+  String get networkErrorUpdateProfile;
 
   /// No description provided for @logout.
   ///
@@ -1375,6 +1405,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Evolución convergente'**
   String get ach_def_5;
+
+  /// No description provided for @achievementTotalDistanceDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Recorre una distancia total de {distance} km'**
+  String achievementTotalDistanceDescription(int distance);
+
+  /// No description provided for @achievementTotalTimeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Realiza un tiempo total de {time} horas en excursiones'**
+  String achievementTotalTimeDescription(int time);
+
+  /// No description provided for @achievementTerritoriesCapturedDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Conquista {territories} territorios'**
+  String achievementTerritoriesCapturedDescription(int territories);
+
+  /// No description provided for @achievementTotalAttackDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Produce un total de {points} de puntos de ataque'**
+  String achievementTotalAttackDescription(int points);
+
+  /// No description provided for @achievementTotalDefenseDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Producr un total de {points} de puntos de defensa'**
+  String achievementTotalDefenseDescription(int points);
+
+  /// No description provided for @completed.
+  ///
+  /// In es, this message translates to:
+  /// **'Completado'**
+  String get completed;
+
+  /// No description provided for @locked.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloqueado'**
+  String get locked;
+
+  /// No description provided for @unlocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloqueado'**
+  String get unlocked;
+
+  /// No description provided for @achievements.
+  ///
+  /// In es, this message translates to:
+  /// **'Logros'**
+  String get achievements;
+
+  /// No description provided for @noAchievementsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin logros aún'**
+  String get noAchievementsYet;
+
+  /// No description provided for @noAchievements.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin logros'**
+  String get noAchievements;
+
+  /// No description provided for @noUnlockedAchievementsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin logros desbloqueados aún'**
+  String get noUnlockedAchievementsYet;
+
+  /// No description provided for @noUnlockedAchievements.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin logros desbloqueados'**
+  String get noUnlockedAchievements;
+
+  /// No description provided for @allAchievementsCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Todos los logros completados!'**
+  String get allAchievementsCompleted;
+
+  /// No description provided for @editAccountInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar información de cuenta'**
+  String get editAccountInfo;
+
+  /// No description provided for @shop.
+  ///
+  /// In es, this message translates to:
+  /// **'Tienda'**
+  String get shop;
+
+  /// No description provided for @customizeAvatar.
+  ///
+  /// In es, this message translates to:
+  /// **'Personalizar Avatar'**
+  String get customizeAvatar;
 }
 
 class _AppLocalizationsDelegate
