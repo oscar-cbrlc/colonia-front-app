@@ -16,10 +16,10 @@ class StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: AppTheme.primaryColor.withAlpha(150), size: 20),
+        Icon(icon, color: Colors.white.withAlpha(150), size: 20),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald')),
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
       ],
     );
   }
