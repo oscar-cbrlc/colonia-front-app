@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:colonia_front_app/utils/LoadingState.dart';
+import 'package:colonia_front_app/domain/models/enums/loading_state.dart';
 import 'package:flutter/material.dart';
 import '../../../data/repositories/team_repository.dart';
 import '../../../data/repositories/auth_repository.dart';
