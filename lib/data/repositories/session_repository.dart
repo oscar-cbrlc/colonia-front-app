@@ -4,6 +4,7 @@ import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -26,7 +27,7 @@ class SessionRepository extends ChangeNotifier {
   LocalStorageService get localStorageService => _localStorageService;
 
   PlayingState _playingState = PlayingState.stopped;
-  String _activeActivity = "walk";
+  HarActivity _activeActivity = HarActivity.walk;
   TrainingConfig? _trainingConfig;
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
@@ -34,7 +35,7 @@ class SessionRepository extends ChangeNotifier {
   final Map<String, double> _sessionTerritoryImpacts = {};
 
   PlayingState get playingState => _playingState;
-  String? get sportActivity => _activeActivity;
+  HarActivity? get sportActivity => _activeActivity;
   TrainingConfig? get trainingConfig => _trainingConfig;
   double get targetDistance => _trainingConfig?.distance ?? 0.0;
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
