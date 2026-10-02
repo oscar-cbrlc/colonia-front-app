@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -153,26 +154,32 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
   Widget _buildHeader(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
     final HarActivity activity = widget.viewModel.activity;
-    final String training = widget.viewModel.trainingName;
-    final IconData activityIcon = activity == HarActivity.walk
-        ? Icons.directions_walk
-        : activity == HarActivity.run
-        ? Icons.directions_run
-        : Icons.directions_bike;
-    final Color activityColor = activity == HarActivity.walk
-        ? AppTheme.walkColor
-        : activity == HarActivity.run
-        ? AppTheme.runColor
-        : AppTheme.bikeColor;
-    final IconData trainingIcon = training == "distance"
-        ? Icons.straighten
-        : training == "time"
-        ? Icons.timer
-        : training == "pace"
-        ? Icons.linear_scale
-        : training == "timeTrial"
-        ? Icons.av_timer_sharp
-        : Icons.timer_off;
+    final TrainingType trainingType = widget.viewModel.trainingType;
+
+    final IconData activityIcon = switch (activity) {
+      HarActivity.walk => Icons.directions_walk,
+      HarActivity.run => Icons.directions_run,
+      HarActivity.bike => Icons.directions_bike,
+      HarActivity.vehicle => Icons.directions_car,
+      HarActivity.standing => Icons.emoji_people_sharp,
+      _ => Icons.sensors,
+    };
+
+    final Color activityColor = switch (activity) {
+      HarActivity.walk => AppTheme.walkColor,
+      HarActivity.run => AppTheme.runColor,
+      HarActivity.bike => AppTheme.bikeColor,
+      _ => AppTheme.primaryColor,
+    };
+
+    final IconData trainingIcon = switch (trainingType) {
+      TrainingType.distance => Icons.straighten,
+      TrainingType.time => Icons.timer,
+      TrainingType.pace => Icons.linear_scale,
+      TrainingType.timeTrial => Icons.av_timer_sharp,
+      TrainingType.free => Icons.timer_off,
+    };
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -185,7 +192,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 6),
               Text(
-                widget.viewModel.trainingName.toUpperCase(),
+                trainingType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
                   color: AppTheme.primaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -265,8 +266,8 @@ class _PreActivityOverview extends StatelessWidget {
     return ListenableBuilder(
         listenable: viewModel,
         builder: (context, _) {
-          final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
-          final String training = viewModel.selectedTrainingName ?? "free";
+          final HarActivity activity = viewModel.selectedActivity ?? viewModel.selectedPreActivity ?? HarActivity.walk;
+          final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
           final BoostInventory? boost = viewModel.selectedBoost;
           final Color activityColor =
               activity == HarActivity.walk ? AppTheme.walkColor :
@@ -312,7 +313,7 @@ class _PreActivityOverview extends StatelessWidget {
                         color: AppTheme.primaryColor.withAlpha(40),
                       ),
                       child: Text(
-                        training.toUpperCase(),
+                        training.getLocale(locale).toUpperCase(),
                         style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
                       ),
                     ),
@@ -322,19 +323,19 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    if (training == "distance" || training == "pace" || training == "timeTrial")
+                    if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial)
                       _OverviewStat(
                         label: locale.distance.toUpperCase(),
                         value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
                         unit: "KM",
                       ),
-                    if (training == "time" || training == "timeTrial")
+                    if (training == TrainingType.time || training == TrainingType.timeTrial)
                       _OverviewStat(
                         label: locale.time.toUpperCase(),
                         value: _formatDurationShort(viewModel.selectedTime!),
                         unit: "",
                       ),
-                    if (training == "pace")
+                    if (training == TrainingType.pace)
                       _OverviewStat(
                         label: locale.targetPace.toUpperCase(),
                         value: viewModel.formattedSelectedPace,
@@ -849,8 +850,8 @@ class _ActivityProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
-        final String training = viewModel.selectedTrainingName ?? "free";
+        final HarActivity activity = viewModel.selectedActivity ?? viewModel.selectedPreActivity ?? HarActivity.walk;
+        final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
 
         final IconData activityIcon = activity == HarActivity.walk
             ? Icons.directions_walk
@@ -862,15 +863,13 @@ class _ActivityProgressPanel extends StatelessWidget {
           : activity == HarActivity.run
                 ? AppTheme.runColor
                 : AppTheme.bikeColor;
-        final IconData trainingIcon = training == "distance"
-            ? Icons.straighten
-            : training == "time"
-                ? Icons.timer
-                : training == "pace"
-                    ? Icons.linear_scale
-                    : training == "timeTrial"
-                        ? Icons.av_timer_sharp
-                        : Icons.timer_off;
+        final IconData trainingIcon = switch (training) {
+          TrainingType.distance => Icons.straighten,
+          TrainingType.time => Icons.timer,
+          TrainingType.pace => Icons.linear_scale,
+          TrainingType.timeTrial => Icons.av_timer_sharp,
+          TrainingType.free => Icons.timer_off,
+        };
 
         return Container(
           width: double.infinity,
@@ -919,7 +918,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                             Icon(trainingIcon, color: Colors.white.withAlpha(200), size: 18),
                             const SizedBox(width: 6),
                             Text(
-                              (viewModel.selectedTrainingName ?? locale.free).toUpperCase(),
+                              training.getLocale(locale).toUpperCase(),
                               style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
                             ),
                           ],
@@ -957,15 +956,15 @@ class _ActivityProgressPanel extends StatelessWidget {
                   _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                 ],
               ),
-              if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
+              if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
                 const SizedBox(height: 12),
                 _DistanceProgressPanel(viewModel: viewModel),
               ],
-              if (training == 'time' || training == 'timeTrial') ...[
+              if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
                 const SizedBox(height: 12),
                 _TimeProgressPanel(viewModel: viewModel),
               ],
-              if (training == 'pace') ...[
+              if (training == TrainingType.pace) ...[
                 const SizedBox(height: 12),
                 _PaceEquilibriumPanel(viewModel: viewModel),
               ],
@@ -1146,12 +1145,12 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   }
 
   bool get _isValid {
-    final training = widget.viewModel.selectedPreTrainingName ?? "free";
-    if (training == "free") return true;
-    if (training == "distance") return (_km * 1000 + _m) > 0;
-    if (training == "time") return (_h * 3600 + _min * 60 + _sec) > 0;
-    if (training == "pace") return (_km * 1000 + _m) > 0 && (_paceMin * 60 + _paceSec) > 0;
-    if (training == "timeTrial") return (_km * 1000 + _m) > 0 && (_h * 3600 + _min * 60 + _sec) > 0;
+    final training = widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
+    if (training == TrainingType.free) return true;
+    if (training == TrainingType.distance) return (_km * 1000 + _m) > 0;
+    if (training == TrainingType.time) return (_h * 3600 + _min * 60 + _sec) > 0;
+    if (training == TrainingType.pace) return (_km * 1000 + _m) > 0 && (_paceMin * 60 + _paceSec) > 0;
+    if (training == TrainingType.timeTrial) return (_km * 1000 + _m) > 0 && (_h * 3600 + _min * 60 + _sec) > 0;
     return false;
   }
 
@@ -1161,13 +1160,13 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     double distance = 0.0;
     Duration time = Duration.zero;
 
-    final training = widget.viewModel.selectedPreTrainingName ?? "free";
+    final training = widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
     final activity = widget.viewModel.selectedPreActivity ?? HarActivity.walk;
 
-    if (training == "distance" || training == "pace" || training == "timeTrial") {
+    if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) {
       distance = (_km * 1000.0) + _m;
     }
-    if (training == "time" || training == "timeTrial") {
+    if (training == TrainingType.time || training == TrainingType.timeTrial) {
       time = Duration(hours: _h, minutes: _min, seconds: _sec);
     }
 
@@ -1175,7 +1174,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     
     widget.viewModel.setActivityConfig(
         activity: activity,
-        training: training,
+        trainingType: training,
         distance: distance,
         time: time,
         pace: pace,
@@ -1288,36 +1287,36 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     _ChoiceChip(
                       label: locale.free,
                       icon: Icons.timer_off,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "free",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "free",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.free,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.free,
                       color: AppTheme.primaryColor,
                     ),
                     _ChoiceChip(
                       label: locale.distance,
                       icon: Icons.straighten,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "distance",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "distance",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.distance,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.distance,
                       color: AppTheme.primaryColor,
                     ),
                     _ChoiceChip(
                       label: locale.time,
                       icon: Icons.timer,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "time",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "time",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.time,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.time,
                       color: AppTheme.primaryColor,
                     ),
                     _ChoiceChip(
                       label: locale.pace,
                       icon: Icons.linear_scale,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "pace",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "pace",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.pace,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.pace,
                       color: AppTheme.primaryColor,
                     ),
                     _ChoiceChip(
                       label: locale.timeTrial,
                       icon: Icons.av_timer_sharp,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "timeTrial",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "timeTrial",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.timeTrial,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.timeTrial,
                       color: AppTheme.primaryColor,
                     ),
                   ],
@@ -1459,7 +1458,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                if (widget.viewModel.selectedPreTrainingName != "free" && widget.viewModel.selectedPreTrainingName != null) ...[
+                if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
                   Text(
                     locale.setObjective.toUpperCase(),
                     style: const TextStyle(
@@ -1521,7 +1520,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   }
 
   Widget _buildObjectiveInputs(BuildContext context) {
-    final training = widget.viewModel.selectedPreTrainingName;
+    final training = widget.viewModel.selectedPreTrainingType;
     final locale = AppLocalizations.of(context)!;
     
     Widget subtitle(String text) => Padding(
@@ -1537,7 +1536,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
       ),
     );
 
-    if (training == "distance") {
+    if (training == TrainingType.distance) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1564,7 +1563,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "time") {
+    } else if (training == TrainingType.time) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1596,7 +1595,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "pace") {
+    } else if (training == TrainingType.pace) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1641,7 +1640,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "timeTrial") {
+    } else if (training == TrainingType.timeTrial) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

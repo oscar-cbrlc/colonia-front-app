@@ -5,6 +5,7 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -156,7 +157,7 @@ class SessionRepository extends ChangeNotifier {
     bool isOffline = false;
     String? error;
 
-    if (isValid) {
+    //if (isValid) {
       _affectedTerritories = List.from(session.territories);
 
       try {
@@ -203,7 +204,7 @@ class SessionRepository extends ChangeNotifier {
         isOffline = true;
         error = e.toString();
       }
-    }
+    //}
 
     _resetSessionData();
     notifyListeners();
@@ -259,32 +260,32 @@ class SessionRepository extends ChangeNotifier {
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
-    final trainingName = _trainingConfig?.training.name.toLowerCase();
-    
-    if (trainingName == "free" || trainingName == null) {
+    final trainingType = _trainingConfig?.training.type ?? TrainingType.free;
+
+    if (trainingType == TrainingType.free) {
       return true;
     }
-    
-    if (trainingName == "distance") {
+
+    if (trainingType == TrainingType.distance) {
       return actualDistanceMeters >= targetDistance;
     }
-    
-    if (trainingName == "time" || trainingName == "duration") {
+
+    if (trainingType == TrainingType.time) {
       return actualSeconds >= targetDuration.inSeconds;
     }
-    
-    if (trainingName == "pace") {
+
+    if (trainingType == TrainingType.pace) {
       if (actualDistanceMeters < 50) return false;
       final actualPace = (actualSeconds / 60) / (actualDistanceMeters / 1000);
       return actualPace >= (targetPace * (1.0 - GameConfig.validPaceRange)) &&
              actualPace <= (targetPace * (1.0 + GameConfig.validPaceRange));
     }
-    
-    if (trainingName == "timetrial") {
+
+    if (trainingType == TrainingType.timeTrial) {
       return actualDistanceMeters >= targetDistance &&
              actualSeconds <= targetDuration.inSeconds;
     }
-    
+
     return true;
   }
 

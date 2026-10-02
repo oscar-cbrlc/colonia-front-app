@@ -19,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
@@ -61,12 +62,12 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   HarActivity? _selectedPreActivity = HarActivity.walk;
-  String? _selectedPreTrainingName = "free";
+  TrainingType? _selectedPreTrainingType = TrainingType.free;
   BoostInventory? _selectedBoost;
   HarActivity? get selectedPreActivity => _selectedPreActivity;
   set selectedPreActivity(HarActivity? value) { _selectedPreActivity = value; notifyListeners(); }
-  String? get selectedPreTrainingName => _selectedPreTrainingName;
-  set selectedPreTrainingName(String? value) { _selectedPreTrainingName = value; notifyListeners(); }
+  TrainingType? get selectedPreTrainingType => _selectedPreTrainingType;
+  set selectedPreTrainingType(TrainingType? value) { _selectedPreTrainingType = value; notifyListeners(); }
   BoostInventory? get selectedBoost => _selectedBoost;
   set selectedBoost(BoostInventory? value) { _selectedBoost = value; notifyListeners(); }
 
@@ -97,6 +98,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   TrainingConfig? get trainingConfig => _sessionRepository.trainingConfig;
   HarActivity? get selectedActivity => trainingConfig?.activity;
+  TrainingType? get selectedTrainingType => trainingConfig?.training.type;
   String? get selectedTrainingName => trainingConfig?.training.name;
   double? get selectedDistance => trainingConfig?.distance;
   Duration? get selectedTime => trainingConfig?.time;
@@ -108,14 +110,12 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   List<Training> get trainings => _trainingRepository.trainings;
   List<BoostInventory> get availableBoosts => _boostRepository.availableBoostsInventory;
-  //int getBoostCount(int boostId) => _boostRepository.getBoostCount(boostId);
   bool get readyToStart => trainingConfig != null;
 
   double get currentMultiplier {
-    final tName = (playingState == PlayingState.stopped) ? _selectedPreTrainingName : selectedTrainingName;
-    final tObj = trainings.firstWhere((t) => t.name == (tName ?? "free"), orElse: () => trainings.first);
-    double m = tObj.impactPoints;
-    return m;
+    final tType = (playingState == PlayingState.stopped) ? (_selectedPreTrainingType ?? TrainingType.free) : (selectedTrainingType ?? TrainingType.free);
+    final tObj = _trainingRepository.getTrainingByType(tType);
+    return tObj.impactPoints;
   }
 
   HarActivity get currentHarActivity => _sensorRepository?.currentActivity ?? HarActivity.unknown;
@@ -312,9 +312,28 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void setActivityConfig({required HarActivity activity, required String training, required double distance, required Duration time, required double pace, BoostInventory? boost}) {
-    _selectedPreActivity = activity; _selectedPreTrainingName = training; _selectedBoost = boost;
-    final config = TrainingConfig(activity: activity, training: trainings.firstWhere((tr) => tr.name == training, orElse: () => trainings.first), distance: distance, time: time, pace: pace, boost: boost);
+  void setActivityConfig({
+    required HarActivity activity,
+    required TrainingType trainingType,
+    required double distance,
+    required Duration time,
+    required double pace,
+    BoostInventory? boost,
+  }) {
+    _selectedPreActivity = activity;
+    _selectedPreTrainingType = trainingType;
+    _selectedBoost = boost;
+
+    final trainingObj = _trainingRepository.getTrainingByType(trainingType);
+
+    final config = TrainingConfig(
+      activity: activity,
+      training: trainingObj,
+      distance: distance,
+      time: time,
+      pace: pace,
+      boost: boost,
+    );
     _sessionRepository.setupSession(config: config);
     notifyListeners();
   }
@@ -339,21 +358,22 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _sensorRepository?.stopReading();
     notifyListeners();
     try {
-      final activity = selectedActivity ?? _selectedPreActivity ?? "walk";
-      final trainingName = selectedTrainingName ?? _selectedPreTrainingName ?? "free";
-      
+      final activity = selectedActivity ?? _selectedPreActivity ?? HarActivity.walk;
+      final trainingType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
+
       final result = await _sessionRepository.stopAndSaveSession();
       if (result == null) {
         debugPrint("ActivityViewModel.onPushStopButton: stopAndSaveSession returned null");
         return null;
       }
-      
-      debugPrint("ActivityViewModel.onPushStopButton: Session saved successfully! Activity: $activity, Training: $trainingName");
+
+      debugPrint("ActivityViewModel.onPushStopButton: Session saved successfully! Activity: $activity, Training: $trainingType");
       return {
         'session': result.session, 
         'activityResult': result.activityResult,
         'activity': activity, 
-        'trainingName': trainingName,
+        'trainingType': trainingType,
+        'trainingName': trainingType.name,
         'isOffline': result.isOffline,
         'error': result.error,
       };

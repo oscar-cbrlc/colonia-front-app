@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -13,7 +14,7 @@ class ActivitySummaryViewModel extends ChangeNotifier {
   final TrackingSession session;
   final ActivityResult? activityResult;
   final HarActivity activity;
-  final String trainingName;
+  final TrainingType trainingType;
   MapboxMap? _mapboxMap;
   bool _isMapReady = true;
   ViewportState? _viewport;
@@ -22,10 +23,19 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     required this.session,
     this.activityResult,
     required this.activity,
-    required this.trainingName,
-  }) {
-    debugPrint("ActivitySummaryViewModel: Created with activity=$activity, trainingName=$trainingName, distance=${session.totalDistance}");
+    TrainingType? trainingType,
+    String? trainingName,
+  }) : trainingType = trainingType ??
+            (trainingName != null
+                ? TrainingType.values.firstWhere(
+                    (t) => t.name == trainingName,
+                    orElse: () => TrainingType.free,
+                  )
+                : TrainingType.free) {
+    debugPrint("ActivitySummaryViewModel: Created with activity=$activity, trainingType=${this.trainingType}, distance=${session.totalDistance}");
   }
+
+  String get trainingName => trainingType.name;
 
   bool _showStats = true;
 
@@ -41,7 +51,6 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     final b = (c.b * 255).round();
     return 'rgba($r, $g, $b, $alpha)';
   }
-
 
   void toggleShowStats() {
     _showStats = !_showStats;

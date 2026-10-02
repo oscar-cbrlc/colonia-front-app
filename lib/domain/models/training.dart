@@ -1,13 +1,13 @@
-
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'training.freezed.dart';
 part 'training.g.dart';
 
-
 @freezed
 abstract class Training with _$Training {
   const Training._();
+
   const factory Training({
     @JsonKey(name: 'training_id') required int id,
     @JsonKey(name: 'training_name') required String name,
@@ -15,4 +15,23 @@ abstract class Training with _$Training {
   }) = _Training;
 
   factory Training.fromJson(Map<String, dynamic> json) => _$TrainingFromJson(json);
+
+  TrainingType get type {
+    switch (name.toLowerCase()) {
+      case 'distance':
+        return TrainingType.distance;
+      case 'free':
+        return TrainingType.free;
+      case 'pace':
+        return TrainingType.pace;
+      case 'time':
+      case 'duration':
+        return TrainingType.time;
+      case 'timetrial':
+      case 'time_trial':
+        return TrainingType.timeTrial;
+      default:
+        return TrainingType.free;
+    }
+  }
 }
