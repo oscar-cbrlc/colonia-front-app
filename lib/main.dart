@@ -1,3 +1,6 @@
+import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
+import 'package:colonia_front_app/data/services/har_model_service.dart';
+import 'package:colonia_front_app/data/services/sensor_service.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/env/env.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
@@ -48,6 +51,18 @@ void main() {
 
         Provider<LocalStorageService>(
           create: (_) => LocalStorageService(),
+        ),
+
+        Provider<SensorService>(
+          create: (_) => SensorService(),
+        ),
+
+        Provider<ModelService>(
+          create: (_) {
+            final modelService = ModelService();
+            modelService.load();
+            return modelService;
+          },
         ),
 
         ProxyProvider<ApiClient, AuthService>(
@@ -184,6 +199,16 @@ void main() {
           ),
           update: (_, locationService, territoryRepository, previous) =>
               previous ?? TrackingRepository(locationService, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider3<SensorService, ModelService, TrackingRepository, SensorRepository>(
+          create: (context) => SensorRepository(
+            context.read<SensorService>(),
+            context.read<ModelService>(),
+            context.read<TrackingRepository>(),
+          ),
+          update: (_, sensorService, modelService, trackingRepository, previous) =>
+              previous ?? SensorRepository(sensorService, modelService, trackingRepository),
         ),
 
         ChangeNotifierProxyProvider4<TrackingRepository, TerritoryRepository, LocalStorageService, BoostRepository, SessionRepository>(
