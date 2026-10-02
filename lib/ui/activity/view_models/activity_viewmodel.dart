@@ -17,6 +17,8 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
@@ -29,6 +31,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final BoostRepository _boostRepository;
   final TerritoryRepository _territoryRepository;
   final TeamRepository _teamRepository;
+  final SensorRepository? _sensorRepository;
 
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 14.0;
@@ -57,11 +60,11 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  String? _selectedPreActivity = "walk";
+  HarActivity? _selectedPreActivity = HarActivity.walk;
   String? _selectedPreTrainingName = "free";
   BoostInventory? _selectedBoost;
-  String? get selectedPreActivity => _selectedPreActivity;
-  set selectedPreActivity(String? value) { _selectedPreActivity = value; notifyListeners(); }
+  HarActivity? get selectedPreActivity => _selectedPreActivity;
+  set selectedPreActivity(HarActivity? value) { _selectedPreActivity = value; notifyListeners(); }
   String? get selectedPreTrainingName => _selectedPreTrainingName;
   set selectedPreTrainingName(String? value) { _selectedPreTrainingName = value; notifyListeners(); }
   BoostInventory? get selectedBoost => _selectedBoost;
@@ -93,7 +96,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   String get formattedSelectedPace => selectedPace != null ? formatPace(selectedPace!) : "--";
 
   TrainingConfig? get trainingConfig => _sessionRepository.trainingConfig;
-  String? get selectedActivity => trainingConfig?.activity;
+  HarActivity? get selectedActivity => trainingConfig?.activity;
   String? get selectedTrainingName => trainingConfig?.training.name;
   double? get selectedDistance => trainingConfig?.distance;
   Duration? get selectedTime => trainingConfig?.time;
@@ -115,12 +118,23 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     return m;
   }
 
-  ActivityViewModel(this._sessionRepository, this._trackingRepository, this._trainingRepository, this._boostRepository, this._territoryRepository, this._teamRepository) {
+  HarActivity get currentHarActivity => _sensorRepository?.currentActivity ?? HarActivity.unknown;
+
+  ActivityViewModel(
+    this._sessionRepository,
+    this._trackingRepository,
+    this._trainingRepository,
+    this._boostRepository,
+    this._territoryRepository,
+    this._teamRepository, [
+    this._sensorRepository,
+  ]) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _sessionRepository.addListener(notifyListeners);
     _trainingRepository.addListener(notifyListeners);
     _boostRepository.addListener(notifyListeners);
     _territoryRepository.addListener(_onTerritoriesChanged);
+    _sensorRepository?.addListener(notifyListeners);
     _territoryRepository.fetchAllTerritories();
     _boostRepository.getAvailableBoosts();
     _boostRepository.fetchMyInventory();
@@ -255,7 +269,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       _trackingRepository.updateCurrentPosition();
       _trackingRepository.updateCurrentPosition();
       final currentUser = AuthRepository.instance.currentUser;
-      if (currentUser != null && currentUser.team != null) _teamRepository.fetchTeamDetails(currentUser.team!.id);
+      if (currentUser != null && currentUser.team != null) {
+        _teamRepository.fetchTeamDetails(currentUser.team!.id);
+      }
     }
 
   }
@@ -296,7 +312,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void setActivityConfig({required String activity, required String training, required double distance, required Duration time, required double pace, BoostInventory? boost}) {
+  void setActivityConfig({required HarActivity activity, required String training, required double distance, required Duration time, required double pace, BoostInventory? boost}) {
     _selectedPreActivity = activity; _selectedPreTrainingName = training; _selectedBoost = boost;
     final config = TrainingConfig(activity: activity, training: trainings.firstWhere((tr) => tr.name == training, orElse: () => trainings.first), distance: distance, time: time, pace: pace, boost: boost);
     _sessionRepository.setupSession(config: config);
@@ -304,9 +320,15 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void onPushPlayButton() {
-    if (playingState == PlayingState.stopped) _sessionRepository.startGame();
-    else if (playingState == PlayingState.playing) _sessionRepository.pauseGame();
-    else if (playingState == PlayingState.paused) _sessionRepository.resumeGame();
+    if (playingState == PlayingState.stopped) {
+      _sessionRepository.startGame();
+      _sensorRepository?.startReading();
+    } else if (playingState == PlayingState.playing) {
+      _sessionRepository.pauseGame();
+    } else if (playingState == PlayingState.paused) {
+      _sessionRepository.resumeGame();
+      _sensorRepository?.startReading();
+    }
   }
 
   bool _isSaving = false;
@@ -314,6 +336,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<Map<String, dynamic>?> onPushStopButton() async {
     _isSaving = true;
+    _sensorRepository?.stopReading();
     notifyListeners();
     try {
       final activity = selectedActivity ?? _selectedPreActivity ?? "walk";
@@ -476,6 +499,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _sensorRepository?.removeListener(notifyListeners);
+    _sensorRepository?.stopReading();
     _trackingRepository.removeListener(_onTrackingDataChanged);
     _sessionRepository.removeListener(notifyListeners);
     _territoryRepository.removeListener(_onTerritoriesChanged);

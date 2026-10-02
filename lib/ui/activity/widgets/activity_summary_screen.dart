@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -151,7 +152,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
 
   Widget _buildHeader(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    final String activity = widget.viewModel.activity;
+    final HarActivity activity = widget.viewModel.activity;
     final String training = widget.viewModel.trainingName;
     final IconData activityIcon = activity == "walk"
         ? Icons.directions_walk
@@ -198,7 +199,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 6),
               Text(
-                widget.viewModel.activity.toUpperCase(),
+                activity.getLocale(locale).toUpperCase(),
                 style: TextStyle(
                   color: activityColor.withAlpha(200),
                   fontWeight: FontWeight.bold,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -11,7 +12,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 class ActivitySummaryViewModel extends ChangeNotifier {
   final TrackingSession session;
   final ActivityResult? activityResult;
-  final String activity;
+  final HarActivity activity;
   final String trainingName;
   MapboxMap? _mapboxMap;
   bool _isMapReady = true;

@@ -1,8 +1,9 @@
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
 
 class TrainingConfig {
-  final String activity;
+  final HarActivity activity;
   final Training training;
   final double distance;
   final Duration time;

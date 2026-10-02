@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -152,7 +153,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.topCenter,
-                child: _NextImpactPanel(viewModel: widget.viewModel),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _NextImpactPanel(viewModel: widget.viewModel),
+                    const SizedBox(height: 8),
+                    _HarActivityVisualizerWidget(
+                      sensorActivity: widget.viewModel.currentHarActivity,
+                      selectedActivity: widget.viewModel.selectedActivity!,
+                    ),
+                  ],
+                ),
               ),
             if (widget.viewModel.equippedBoost != null && widget.viewModel.playingState != PlayingState.stopped)
               Align(
@@ -254,17 +265,17 @@ class _PreActivityOverview extends StatelessWidget {
     return ListenableBuilder(
         listenable: viewModel,
         builder: (context, _) {
-          final String activity = viewModel.selectedActivity ?? "walk";
+          final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
           final String training = viewModel.selectedTrainingName ?? "free";
           final BoostInventory? boost = viewModel.selectedBoost;
           final Color activityColor =
-              activity == "walk" ? AppTheme.walkColor :
-              activity == "run" ? AppTheme.runColor :
+              activity == HarActivity.walk ? AppTheme.walkColor :
+              activity == HarActivity.run ? AppTheme.runColor :
                   AppTheme.bikeColor;
 
-          final IconData activityIcon = activity == "walk"
+          final IconData activityIcon = activity == HarActivity.walk
               ? Icons.directions_walk
-              : activity == "run"
+              : activity == HarActivity.run
                   ? Icons.directions_run
                   : Icons.directions_bike;
 
@@ -289,7 +300,7 @@ class _PreActivityOverview extends StatelessWidget {
                         Icon(activityIcon, color: activityColor, size: 28),
                         const SizedBox(width: 12),
                         Text(
-                          activity.toUpperCase(),
+                          activity.getLocale(locale).toUpperCase(),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, decoration: TextDecoration.none),
                         ),
                       ],
@@ -674,10 +685,10 @@ class _PaceEquilibriumPanel extends StatelessWidget {
       builder: (context, _) {
         final double targetPace = viewModel.selectedPace?.toDouble() ?? 0.0;
         final double currentPace = viewModel.currentPace;
-        final String activity = viewModel.selectedActivity ?? "walk";
-        final Color activityColor = activity == "walk"
+        final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
+        final Color activityColor = activity == HarActivity.walk
             ? AppTheme.walkColor
-            : activity == "run"
+            : activity == HarActivity.run
                 ? AppTheme.runColor
                 : AppTheme.bikeColor;
 
@@ -838,7 +849,7 @@ class _ActivityProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final String activity = viewModel.selectedActivity ?? "walk";
+        final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
         final String training = viewModel.selectedTrainingName ?? "free";
 
         final IconData activityIcon = activity == "walk"
@@ -885,7 +896,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                       Icon(activityIcon, color: activityColor, size: 32),
                       const SizedBox(width: 8),
                       Text(
-                        (viewModel.selectedActivity ?? "").toUpperCase(),
+                        (viewModel.selectedActivity?.getLocale(locale) ?? "").toUpperCase(),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
                       ),
                     ],
@@ -1151,7 +1162,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     Duration time = Duration.zero;
 
     final training = widget.viewModel.selectedPreTrainingName ?? "free";
-    final activity = widget.viewModel.selectedPreActivity ?? "walk";
+    final activity = widget.viewModel.selectedPreActivity ?? HarActivity.walk;
 
     if (training == "distance" || training == "pace" || training == "timeTrial") {
       distance = (_km * 1000.0) + _m;
@@ -1234,22 +1245,22 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     _ChoiceChip(
                       label: locale.walk,
                       icon: Icons.directions_walk,
-                      isSelected: widget.viewModel.selectedPreActivity == "walk",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "walk",
+                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.walk,
+                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.walk,
                       color: AppTheme.walkColor,
                     ),
                     _ChoiceChip(
                       label: locale.run,
                       icon: Icons.directions_run,
-                      isSelected: widget.viewModel.selectedPreActivity == "run",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "run",
+                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.run,
+                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.run,
                       color: AppTheme.runColor,
                     ),
                     _ChoiceChip(
                       label: locale.bike,
                       icon: Icons.directions_bike,
-                      isSelected: widget.viewModel.selectedPreActivity == "bike",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "bike",
+                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.bike,
+                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.bike,
                       color: AppTheme.bikeColor,
                     ),
                   ]
@@ -1921,6 +1932,109 @@ class _MapActionButton extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HarActivityVisualizerWidget extends StatelessWidget {
+  final HarActivity sensorActivity;
+  final HarActivity selectedActivity;
+
+  const _HarActivityVisualizerWidget({required this.sensorActivity, required this.selectedActivity});
+
+  IconData _getIcon() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return Icons.directions_walk;
+      case HarActivity.run:
+        return Icons.directions_run;
+      case HarActivity.bike:
+        return Icons.directions_bike;
+      case HarActivity.vehicle:
+        return Icons.directions_car;
+      case HarActivity.standing:
+        return Icons.emoji_people_sharp;
+      case HarActivity.unknown:
+        return Icons.sensors;
+    }
+  }
+
+  String _getLabel() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return 'WALKING';
+      case HarActivity.run:
+        return 'RUNNING';
+      case HarActivity.bike:
+        return 'CYCLING';
+      case HarActivity.vehicle:
+        return 'IN VEHICLE';
+      case HarActivity.standing:
+        return 'STANDING';
+      case HarActivity.unknown:
+        return 'ANALYZING...';
+    }
+  }
+
+  Color _getColor() {
+    return sensorActivity == selectedActivity ?
+        AppTheme.successColor : AppTheme.errorColor;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _getColor();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: ShapeDecoration(
+        color: AppTheme.darkBackground.withValues(alpha: 0.85),
+        shape: BeveledRectangleBorder(
+          side: BorderSide(color: color.withValues(alpha: 0.8), width: 1.5),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_getIcon(), color: color, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'DETECTED MOTION',
+                style: TextStyle(
+                  color: Colors.white38,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              Text(
+                _getLabel(),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: sensorActivity == HarActivity.unknown ? Colors.amber : Colors.greenAccent,
+            ),
+          ),
+        ],
       ),
     );
   }
