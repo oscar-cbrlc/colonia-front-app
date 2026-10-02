@@ -51,6 +51,7 @@ class TrackingRepository extends ChangeNotifier {
   List<GeoCoord> get perimeter => _perimeter;
   Set<String> get visitedCells => _visitedCells;
   double get totalMetersTracked => _totalMetersTracked;
+  double get currentSpeed => _currentSpeed;
   double get currentPace => _currentSpeed > 0.1 ? (16.6667 / _currentSpeed) : 0.0;
   double get averagePace => _averagePace;
   int get totalSecondsElapsed => _totalSecondsElapsed;
