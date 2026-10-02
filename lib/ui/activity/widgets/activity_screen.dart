@@ -852,14 +852,14 @@ class _ActivityProgressPanel extends StatelessWidget {
         final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
         final String training = viewModel.selectedTrainingName ?? "free";
 
-        final IconData activityIcon = activity == "walk"
+        final IconData activityIcon = activity == HarActivity.walk
             ? Icons.directions_walk
-            : activity == "run"
+            : activity == HarActivity.run
                 ? Icons.directions_run
                 : Icons.directions_bike;
-        final Color activityColor = activity == "walk"
+        final Color activityColor = activity == HarActivity.walk
           ? AppTheme.walkColor
-          : activity == "run"
+          : activity == HarActivity.run
                 ? AppTheme.runColor
                 : AppTheme.bikeColor;
         final IconData trainingIcon = training == "distance"
