@@ -15,6 +15,13 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
+subprojects {
+    pluginManager.withPlugin("com.android.library") {
+        pluginManager.apply("org.jetbrains.kotlin.android")
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
