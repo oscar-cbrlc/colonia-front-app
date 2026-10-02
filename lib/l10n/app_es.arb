@@ -133,6 +133,18 @@
     "bike": "Bicicleta",
     "@bike":  {},
 
+    "vehicle": "Vehículo",
+    "@vehicle":  {},
+
+    "standing": "Inmóvil",
+    "@standing":  {},
+
+    "unknown": "Descnonocido",
+    "@unknown":  {},
+
+    "analyzing": "Analizando",
+    "@analizing":  {},
+
     "activity": "Actividad",
     "@activity": {},
 

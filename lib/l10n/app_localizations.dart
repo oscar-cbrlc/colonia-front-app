@@ -362,6 +362,30 @@ abstract class AppLocalizations {
   /// **'Bicicleta'**
   String get bike;
 
+  /// No description provided for @vehicle.
+  ///
+  /// In es, this message translates to:
+  /// **'Vehículo'**
+  String get vehicle;
+
+  /// No description provided for @standing.
+  ///
+  /// In es, this message translates to:
+  /// **'Inmóvil'**
+  String get standing;
+
+  /// No description provided for @unknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Descnonocido'**
+  String get unknown;
+
+  /// No description provided for @analyzing.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando'**
+  String get analyzing;
+
   /// No description provided for @activity.
   ///
   /// In es, this message translates to:

@@ -142,6 +142,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bike => 'Bike';
 
   @override
+  String get vehicle => 'Vehicle';
+
+  @override
+  String get standing => 'Standing';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get analyzing => 'Analyzing';
+
+  @override
   String get activity => 'Excursion';
 
   @override
