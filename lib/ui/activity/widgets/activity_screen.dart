@@ -161,7 +161,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     const SizedBox(height: 8),
                     _HarActivityVisualizerWidget(
                       sensorActivity: widget.viewModel.currentHarActivity,
-                      selectedActivity: widget.viewModel.selectedActivity!,
                     ),
                   ],
                 ),
@@ -266,19 +265,8 @@ class _PreActivityOverview extends StatelessWidget {
     return ListenableBuilder(
         listenable: viewModel,
         builder: (context, _) {
-          final HarActivity activity = viewModel.selectedActivity ?? viewModel.selectedPreActivity ?? HarActivity.walk;
           final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
           final BoostInventory? boost = viewModel.selectedBoost;
-          final Color activityColor =
-              activity == HarActivity.walk ? AppTheme.walkColor :
-              activity == HarActivity.run ? AppTheme.runColor :
-                  AppTheme.bikeColor;
-
-          final IconData activityIcon = activity == HarActivity.walk
-              ? Icons.directions_walk
-              : activity == HarActivity.run
-                  ? Icons.directions_run
-                  : Icons.directions_bike;
 
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -286,7 +274,7 @@ class _PreActivityOverview extends StatelessWidget {
             decoration: ShapeDecoration(
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: activityColor, width: 1),
+                side: const BorderSide(color: AppTheme.primaryColor, width: 1),
               ),
               color: AppTheme.darkBackground.withAlpha(240),
             ),
@@ -298,11 +286,15 @@ class _PreActivityOverview extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(activityIcon, color: activityColor, size: 28),
-                        const SizedBox(width: 12),
+                        Icon(Icons.directions_walk, color: AppTheme.walkColor, size: 20),
+                        SizedBox(width: 2),
+                        Icon(Icons.directions_bike, color: AppTheme.bikeColor, size: 20),
+                        SizedBox(width: 2),
+                        Icon(Icons.directions_run, color: AppTheme.runColor, size: 20),
+                        SizedBox(width: 8),
                         Text(
-                          activity.getLocale(locale).toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, decoration: TextDecoration.none),
+                          locale.realTimeHar,
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, decoration: TextDecoration.none),
                         ),
                       ],
                     ),
@@ -686,12 +678,14 @@ class _PaceEquilibriumPanel extends StatelessWidget {
       builder: (context, _) {
         final double targetPace = viewModel.selectedPace?.toDouble() ?? 0.0;
         final double currentPace = viewModel.currentPace;
-        final HarActivity activity = viewModel.selectedActivity ?? HarActivity.walk;
+        final HarActivity activity = viewModel.currentHarActivity;
         final Color activityColor = activity == HarActivity.walk
             ? AppTheme.walkColor
             : activity == HarActivity.run
                 ? AppTheme.runColor
-                : AppTheme.bikeColor;
+                : activity == HarActivity.bike
+                    ? AppTheme.bikeColor
+                    : AppTheme.primaryColor;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -850,19 +844,25 @@ class _ActivityProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final HarActivity activity = viewModel.selectedActivity ?? viewModel.selectedPreActivity ?? HarActivity.walk;
+        final HarActivity activity = viewModel.currentHarActivity;
         final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
 
-        final IconData activityIcon = activity == HarActivity.walk
-            ? Icons.directions_walk
-            : activity == HarActivity.run
-                ? Icons.directions_run
-                : Icons.directions_bike;
-        final Color activityColor = activity == HarActivity.walk
-          ? AppTheme.walkColor
-          : activity == HarActivity.run
-                ? AppTheme.runColor
-                : AppTheme.bikeColor;
+        final IconData activityIcon = switch (activity) {
+          HarActivity.walk => Icons.directions_walk,
+          HarActivity.run => Icons.directions_run,
+          HarActivity.bike => Icons.directions_bike,
+          HarActivity.vehicle => Icons.directions_car,
+          HarActivity.standing => Icons.emoji_people_sharp,
+          HarActivity.unknown => Icons.sensors,
+        };
+        final Color activityColor = switch (activity) {
+          HarActivity.walk => AppTheme.walkColor,
+          HarActivity.run => AppTheme.runColor,
+          HarActivity.bike => AppTheme.bikeColor,
+          HarActivity.standing => Colors.orangeAccent,
+          HarActivity.vehicle => Colors.orangeAccent,
+          HarActivity.unknown => AppTheme.primaryColor,
+        };
         final IconData trainingIcon = switch (training) {
           TrainingType.distance => Icons.straighten,
           TrainingType.time => Icons.timer,
@@ -895,7 +895,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                       Icon(activityIcon, color: activityColor, size: 32),
                       const SizedBox(width: 8),
                       Text(
-                        (viewModel.selectedActivity?.getLocale(locale) ?? "").toUpperCase(),
+                        activity.getLocale(locale).toUpperCase(),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
                       ),
                     ],
@@ -1223,49 +1223,6 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ),
                 ),
                 Text(
-                  locale.activity.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
-                ),
-                const SizedBox(height: 8),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1,
-                  children: [
-                    _ChoiceChip(
-                      label: locale.walk,
-                      icon: Icons.directions_walk,
-                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.walk,
-                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.walk,
-                      color: AppTheme.walkColor,
-                    ),
-                    _ChoiceChip(
-                      label: locale.run,
-                      icon: Icons.directions_run,
-                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.run,
-                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.run,
-                      color: AppTheme.runColor,
-                    ),
-                    _ChoiceChip(
-                      label: locale.bike,
-                      icon: Icons.directions_bike,
-                      isSelected: widget.viewModel.selectedPreActivity == HarActivity.bike,
-                      onSelected: () => widget.viewModel.selectedPreActivity = HarActivity.bike,
-                      color: AppTheme.bikeColor,
-                    ),
-                  ]
-                ),
-                const SizedBox(height: 24),
-                Text(
                   locale.training.toUpperCase(),
                   style: const TextStyle(
                     color: AppTheme.primaryColor,
@@ -1322,6 +1279,23 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ],
                 ),
                 const SizedBox(height: 24),
+
+                if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
+                  Text(
+                    locale.setObjective.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 12,
+                      decoration: TextDecoration.none
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildObjectiveInputs(context),
+                  const SizedBox(height: 24),
+                ],
+
                 if (widget.viewModel.availableBoosts.isNotEmpty) ...[
                   Text(
                     locale.boosts.toUpperCase(),
@@ -1429,7 +1403,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
                 if (widget.viewModel.selectedBoost != null) ...[
                   Container(
@@ -1458,22 +1432,18 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
-                  Text(
-                    locale.setObjective.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontSize: 12,
-                      decoration: TextDecoration.none
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildObjectiveInputs(context),
-                  const SizedBox(height: 32),
-                ],
 
+                Text(
+                  locale.impact.toUpperCase(),
+                  style: const TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    fontSize: 12,
+                    decoration: TextDecoration.none
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   decoration: BoxDecoration(
@@ -1491,7 +1461,41 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
+
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showPointsCalculationDialog(context);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.help_outline_sharp,
+                            color: AppTheme.primaryColor,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            locale.howArePointsCalculated,
+                            style: const TextStyle(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -1938,9 +1942,8 @@ class _MapActionButton extends StatelessWidget {
 
 class _HarActivityVisualizerWidget extends StatelessWidget {
   final HarActivity sensorActivity;
-  final HarActivity selectedActivity;
 
-  const _HarActivityVisualizerWidget({required this.sensorActivity, required this.selectedActivity});
+  const _HarActivityVisualizerWidget({required this.sensorActivity});
 
   IconData _getIcon() {
     switch (sensorActivity) {
@@ -1977,13 +1980,38 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
   }
 
   Color _getColor() {
-    return sensorActivity == selectedActivity ?
-        AppTheme.successColor : AppTheme.errorColor;
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return AppTheme.walkColor;
+      case HarActivity.run:
+        return AppTheme.runColor;
+      case HarActivity.bike:
+        return AppTheme.bikeColor;
+      case HarActivity.standing:
+      case HarActivity.vehicle:
+        return Colors.orangeAccent;
+      case HarActivity.unknown:
+        return Colors.white38;
+    }
+  }
+
+  int _getUnitPoints() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return GameConfig.walkUnitPoints;
+      case HarActivity.run:
+        return GameConfig.runUnitPoints;
+      case HarActivity.bike:
+        return GameConfig.bikeUnitPoints;
+      default:
+        return 0;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final color = _getColor();
+    final points = _getUnitPoints();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1994,43 +2022,286 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(_getIcon(), color: color, size: 20),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+
+    );
+  }
+}
+
+void _showPointsCalculationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => const _PointsCalculationDialog(),
+  );
+}
+
+class _PointsCalculationDialog extends StatelessWidget {
+  const _PointsCalculationDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: AppTheme.primaryColor.withAlpha(100),
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'DETECTED MOTION',
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                  decoration: TextDecoration.none,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.graphic_eq,
+                    color: AppTheme.primaryColor,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      locale.pointsCalculationTitle.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                        decoration: TextDecoration.none,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
-              Text(
-                _getLabel(),
-                style: TextStyle(
-                  color: color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.harUnits.toUpperCase(),
+                        style: TextStyle(
+                          color: AppTheme.secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          letterSpacing: 1.0,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: ShapeDecoration(
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          color: AppTheme.secondaryColor.withAlpha(180),
+                        ),
+                        child: Text(
+                          locale.unitEquals(GameConfig.unitSeconds),
+                          style: TextStyle(
+                            color: AppTheme.darkBackground,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.pointsCalculationDescription,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.walk.toUpperCase(),
+                          points: GameConfig.walkUnitPoints,
+                          icon: Icons.directions_walk,
+                          color: AppTheme.walkColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.bike.toUpperCase(),
+                          points: GameConfig.bikeUnitPoints,
+                          icon: Icons.directions_bike,
+                          color: AppTheme.bikeColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.run.toUpperCase(),
+                          points: GameConfig.runUnitPoints,
+                          icon: Icons.directions_run,
+                          color: AppTheme.runColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white12, height: 1),
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.flash_on_sharp, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          locale.whatAreImpactsTitle.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            letterSpacing: 1.0,
+                            decoration: TextDecoration.none,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.whatAreImpactsDescription(GameConfig.unitSeconds, GameConfig.baseMetersBetweenNodes),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: AppTheme.primaryColor,
+                  ),
+                  child: Text(
+                    locale.ok.toUpperCase(),
+                    style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 8),
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: sensorActivity == HarActivity.unknown ? Colors.amber : Colors.greenAccent,
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityPointCard extends StatelessWidget {
+  final String label;
+  final int points;
+  final IconData icon;
+  final Color color;
+
+  const _ActivityPointCard({
+    required this.label,
+    required this.points,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      decoration: ShapeDecoration(
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color.withAlpha(120), width: 1),
+        ),
+        color: color.withAlpha(20),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "+$points PTS",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: const Text(
+              "/ 5s unit",
+              style: TextStyle(
+                color: Colors.white38,
+                fontSize: 9,
+                decoration: TextDecoration.none,
+              ),
             ),
           ),
         ],
