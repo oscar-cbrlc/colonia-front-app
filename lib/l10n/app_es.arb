@@ -829,5 +829,36 @@
     "@shop": {},
 
     "customizeAvatar": "Personalizar Avatar",
-    "@customizeAvatar": {}
+    "@customizeAvatar": {},
+
+    "howArePointsCalculated": "¿Cómo se calculan los puntos?",
+    "@howArePointsCalculated": {},
+
+    "pointsCalculationTitle": "Cálculo de Puntos e Impactos",
+    "@pointsCalculationTitle": {},
+
+    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad.",
+    "@pointsCalculationDescription": {},
+
+    "whatAreImpactsTitle": "¿Qué son los Impactos?",
+    "@whatAreImpactsTitle": {},
+
+    "whatAreImpactsDescription": "Al recorrer de un nodo de territorio a otro, los puntos se acumulan cada unidad de 5s. Al llegar a un nodo de territorio, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o curación de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!",
+    "@whatAreImpactsDescription": {},
+
+    "harUnits": "Unidades HAR",
+    "@harUnits": {},
+
+    "unitEquals": "1 UNIDAD = {seconds}s",
+    "@unitEquals": {
+        "placeholders": {
+            "seconds": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "realTimeHar": "HAR EN TIEMPO REAL",
+    "@realTimeHar": {}
 }

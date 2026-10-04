@@ -767,4 +767,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customizeAvatar => 'Customize Avatar';
+
+  @override
+  String get howArePointsCalculated => 'How are points calculated?';
+
+  @override
+  String get pointsCalculationTitle => 'Point Calculation & Impacts';
+
+  @override
+  String get pointsCalculationDescription =>
+      'Every 5 seconds of motion is called 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity.';
+
+  @override
+  String get whatAreImpactsTitle => 'What are Impacts?';
+
+  @override
+  String get whatAreImpactsDescription =>
+      'When you traverse from one territory node to another, points accumulate every 5s unit. Upon reaching a territory node, an Impact occurs, dealing your total accumulated points as attack damage or defense healing to the territory. Equipped Boosts and territory multipliers boost your final impact!';
+
+  @override
+  String get harUnits => 'HAR Units';
+
+  @override
+  String unitEquals(int seconds) {
+    return '1 UNIT = ${seconds}s';
+  }
+
+  @override
+  String get realTimeHar => 'REAL-TIME HAR';
 }

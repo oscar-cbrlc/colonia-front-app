@@ -1531,6 +1531,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Personalizar Avatar'**
   String get customizeAvatar;
+
+  /// No description provided for @howArePointsCalculated.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo se calculan los puntos?'**
+  String get howArePointsCalculated;
+
+  /// No description provided for @pointsCalculationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cálculo de Puntos e Impactos'**
+  String get pointsCalculationTitle;
+
+  /// No description provided for @pointsCalculationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad.'**
+  String get pointsCalculationDescription;
+
+  /// No description provided for @whatAreImpactsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué son los Impactos?'**
+  String get whatAreImpactsTitle;
+
+  /// No description provided for @whatAreImpactsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Al recorrer de un nodo de territorio a otro, los puntos se acumulan cada unidad de 5s. Al llegar a un nodo de territorio, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o curación de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!'**
+  String get whatAreImpactsDescription;
+
+  /// No description provided for @harUnits.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidades HAR'**
+  String get harUnits;
+
+  /// No description provided for @unitEquals.
+  ///
+  /// In es, this message translates to:
+  /// **'1 UNIDAD = {seconds}s'**
+  String unitEquals(int seconds);
+
+  /// No description provided for @realTimeHar.
+  ///
+  /// In es, this message translates to:
+  /// **'HAR EN TIEMPO REAL'**
+  String get realTimeHar;
 }
 
 class _AppLocalizationsDelegate
