@@ -13,4 +13,10 @@ abstract class GameConfig {
   static const double maxTerritoryHealth = 5000;
 
   static const int impactHexagonAreaLevel = 1;
+
+  static const int walkUnitPoints = 10;
+  static const int bikeUnitPoints = 40;
+  static const int runUnitPoints = 50;
+
+  static const int unitSeconds = 5;
 }
