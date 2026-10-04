@@ -786,8 +786,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get whatAreImpactsTitle => '¿Qué son los Impactos?';
 
   @override
-  String get whatAreImpactsDescription =>
-      'Al recorrer de un nodo de territorio a otro, los puntos se acumulan cada unidad de 5s. Al llegar a un nodo de territorio, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o curación de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!';
+  String whatAreImpactsDescription(int seconds, num meters) {
+    return 'Mientras te desplazas, los puntos se acumulan cada unidad de ${seconds}s. Al completar ${meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!';
+  }
 
   @override
   String get harUnits => 'Unidades HAR';
