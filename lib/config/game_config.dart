@@ -9,7 +9,6 @@ abstract class GameConfig {
   static const double validPaceRange = 0.20;
 
   static const double baseTerritoryHealth = 1000;
-  static const double basePointsEffect = 500;
   static const double maxTerritoryHealth = 5000;
 
   static const int impactHexagonAreaLevel = 1;

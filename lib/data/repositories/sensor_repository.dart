@@ -95,5 +95,7 @@ class SensorRepository extends ChangeNotifier {
       speedMs: speedMs,
       paceMinKm: paceMinKm,
     );
+
+    _trackingRepository?.onHarActivityPredicted(_currentActivity);
   }
 }

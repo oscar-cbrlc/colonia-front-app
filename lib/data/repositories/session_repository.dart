@@ -33,6 +33,13 @@ class SessionRepository extends ChangeNotifier {
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
 
+  int _secondsWalked = 0;
+  int _secondsRun = 0;
+  int _secondsBike = 0;
+  double _distanceWalked = 0.0;
+  double _distanceRun = 0.0;
+  double _distanceBike = 0.0;
+
   final Map<String, double> _sessionTerritoryImpacts = {};
 
   PlayingState get playingState => _playingState;
@@ -43,6 +50,13 @@ class SessionRepository extends ChangeNotifier {
   double get targetPace => _trainingConfig?.pace ?? 0.0;
   BoostInventory? get boost => _trainingConfig?.boost;
   double get accumulatedImpactPoints => _accumulatedImpactPoints;
+
+  int get secondsWalked => _secondsWalked;
+  int get secondsRun => _secondsRun;
+  int get secondsBike => _secondsBike;
+  double get distanceWalked => _distanceWalked;
+  double get distanceRun => _distanceRun;
+  double get distanceBike => _distanceBike;
 
   List<Territory> get affectedTerritories => _affectedTerritories;
 
@@ -64,8 +78,9 @@ class SessionRepository extends ChangeNotifier {
 
     if (centerCell == null) return;
 
-    final double trainingImpact = _trainingConfig?.training.impactPoints ?? 1.0;
-    final double primaryImpact = _sessionConfig.baseImpactPoints * trainingImpact;
+    final double scoreMultiplier = _sessionConfig.scoreMultiplier;
+    
+    final double primaryImpact = node.points * scoreMultiplier;
     double nodeTotalImpact = 0;
 
     _applyImpactToCell(centerCell, primaryImpact);
@@ -88,6 +103,12 @@ class SessionRepository extends ChangeNotifier {
           pace: node.pace,
           points: secondaryImpact,
           timestamp: node.timestamp,
+          secondsWalk: node.secondsWalk,
+          secondsRun: node.secondsRun,
+          secondsBike: node.secondsBike,
+          distanceWalk: node.distanceWalk,
+          distanceRun: node.distanceRun,
+          distanceBike: node.distanceBike,
           type: OnTrackNodeType.area,
         ));
       }
@@ -123,6 +144,12 @@ class SessionRepository extends ChangeNotifier {
     if (_playingState == PlayingState.playing) return;
     _playingState = PlayingState.playing;
     _accumulatedImpactPoints = 0.0;
+    _secondsWalked = 0;
+    _secondsRun = 0;
+    _secondsBike = 0;
+    _distanceWalked = 0.0;
+    _distanceRun = 0.0;
+    _distanceBike = 0.0;
     _sessionTerritoryImpacts.clear();
     _trackingRepository.startActivity();
     notifyListeners();
@@ -146,10 +173,19 @@ class SessionRepository extends ChangeNotifier {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
 
+    final double trainingImpact = _trainingConfig?.training.impactPoints ?? 1.0;
+
     final double finalDistance = _trackingRepository.totalMetersTracked;
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
 
     final session = _trackingRepository.stopActivity();
+    _secondsWalked = session.secondsWalk;
+    _secondsRun = session.secondsRun;
+    _secondsBike = session.secondsBike;
+    _distanceWalked = session.distanceWalk;
+    _distanceRun = session.distanceRun;
+    _distanceBike = session.distanceBike;
+
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
     session.isSuccess = isValid;
 
@@ -157,54 +193,52 @@ class SessionRepository extends ChangeNotifier {
     bool isOffline = false;
     String? error;
 
-    //if (isValid) {
-      _affectedTerritories = List.from(session.territories);
+    _affectedTerritories = List.from(session.territories);
 
-      try {
-        final territoriesJson = _sessionTerritoryImpacts.entries.map((entry) => {
-          'territory_id': entry.key,
-          'points': entry.value,
-        }).toList();
+    try {
+      final territoriesJson = _sessionTerritoryImpacts.entries.map((entry) => {
+        'territory_id': entry.key,
+        'points': isValid? entry.value * trainingImpact : entry.value,
+      }).toList();
 
-        final impact = PendingActivityImpact(
-          totalDistance: finalDistance,
-          totalTime: finalSeconds,
-          timestamp: DateTime.now().toIso8601String(),
-          territories: territoriesJson,
-          boostId: _trainingConfig?.boost?.id,
-        );
+      final impact = PendingActivityImpact(
+        totalDistance: finalDistance,
+        totalTime: finalSeconds,
+        timestamp: DateTime.now().toIso8601String(),
+        territories: territoriesJson,
+        boostId: _trainingConfig?.boost?.id,
+      );
 
-        final impactResult = await _territoryRepository.applyTerritoryImpact(
-          totalDistance: impact.totalDistance,
-          totalTime: impact.totalTime,
-          timestamp: impact.timestamp,
-          territories: impact.territories,
-          boostId: impact.boostId,
-        );
+      final impactResult = await _territoryRepository.applyTerritoryImpact(
+        totalDistance: impact.totalDistance,
+        totalTime: impact.totalTime,
+        timestamp: impact.timestamp,
+        territories: impact.territories,
+        boostId: impact.boostId,
+      );
 
-        activityResult = impactResult.result;
-        isOffline = impactResult.isOffline;
-        error = impactResult.error;
+      activityResult = impactResult.result;
+      isOffline = impactResult.isOffline;
+      error = impactResult.error;
 
-        if (activityResult != null) {
-          if (impact.boostId != null) {
-            _boostRepository.fetchMyInventory();
-          }
-        } else {
-          if (impact.boostId != null) {
-            _boostRepository.consumeLocalBoost(impact.boostId!);
-          }
-          final pending = await _localStorageService.getPendingActivityImpacts();
-          pending.add(impact);
-          await _localStorageService.savePendingActivityImpacts(pending);
-          debugPrint('SessionRepository: Saved impact locally for later sync (isOffline: $isOffline, error: $error)');
+      if (activityResult != null) {
+        if (impact.boostId != null) {
+          _boostRepository.fetchMyInventory();
         }
-      } catch (e) {
-        debugPrint('SessionRepository: Error applying territory impact: $e');
-        isOffline = true;
-        error = e.toString();
+      } else {
+        if (impact.boostId != null) {
+          _boostRepository.consumeLocalBoost(impact.boostId!);
+        }
+        final pending = await _localStorageService.getPendingActivityImpacts();
+        pending.add(impact);
+        await _localStorageService.savePendingActivityImpacts(pending);
+        debugPrint('SessionRepository: Saved impact locally for later sync (isOffline: $isOffline, error: $error)');
       }
-    //}
+    } catch (e) {
+      debugPrint('SessionRepository: Error applying territory impact: $e');
+      isOffline = true;
+      error = e.toString();
+    }
 
     _resetSessionData();
     notifyListeners();
