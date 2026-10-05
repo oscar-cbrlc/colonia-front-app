@@ -796,4 +796,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get realTimeHar => 'REAL-TIME HAR';
+
+  @override
+  String get trainingMultiplierTitle => 'Training Objective Multipliers';
+
+  @override
+  String get trainingMultiplierDescription =>
+      'Completing your selected Training objective (Distance, Time, Pace, or Time Trial) applies a bonus multiplier to all impact points generated during your excursion. If the objective is not met, no training multiplier is applied.';
 }

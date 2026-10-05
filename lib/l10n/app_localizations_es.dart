@@ -800,4 +800,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get realTimeHar => 'HAR EN TIEMPO REAL';
+
+  @override
+  String get trainingMultiplierTitle =>
+      'Multiplicadores de Objetivo de Entrenamiento';
+
+  @override
+  String get trainingMultiplierDescription =>
+      'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.';
 }

@@ -1579,6 +1579,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'HAR EN TIEMPO REAL'**
   String get realTimeHar;
+
+  /// No description provided for @trainingMultiplierTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Multiplicadores de Objetivo de Entrenamiento'**
+  String get trainingMultiplierTitle;
+
+  /// No description provided for @trainingMultiplierDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.'**
+  String get trainingMultiplierDescription;
 }
 
 class _AppLocalizationsDelegate

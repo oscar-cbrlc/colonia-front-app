@@ -870,5 +870,11 @@
     },
 
     "realTimeHar": "REAL-TIME HAR",
-    "@realTimeHar": {}
+    "@realTimeHar": {},
+
+    "trainingMultiplierTitle": "Training Objective Multipliers",
+    "@trainingMultiplierTitle": {},
+
+    "trainingMultiplierDescription": "Completing your selected Training objective (Distance, Time, Pace, or Time Trial) applies a bonus multiplier to all impact points generated during your excursion. If the objective is not met, no training multiplier is applied.",
+    "@trainingMultiplierDescription": {}
 }

@@ -871,5 +871,11 @@
     },
 
     "realTimeHar": "HAR EN TIEMPO REAL",
-    "@realTimeHar": {}
+    "@realTimeHar": {},
+
+    "trainingMultiplierTitle": "Multiplicadores de Objetivo de Entrenamiento",
+    "@trainingMultiplierTitle": {},
+
+    "trainingMultiplierDescription": "Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.",
+    "@trainingMultiplierDescription": {}
 }
