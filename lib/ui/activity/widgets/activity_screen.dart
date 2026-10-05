@@ -2028,9 +2028,37 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
 }
 
 void _showPointsCalculationDialog(BuildContext context) {
-  showDialog(
+  showGeneralDialog(
     context: context,
-    builder: (context) => const _PointsCalculationDialog(),
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _PointsCalculationDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
   );
 }
 
@@ -2052,7 +2080,7 @@ class _PointsCalculationDialog extends StatelessWidget {
           shape: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(
-              color: AppTheme.primaryColor.withAlpha(100),
+              color: AppTheme.tertiaryColor,
               width: 1.5,
             ),
           ),
@@ -2067,7 +2095,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.graphic_eq,
-                    color: AppTheme.primaryColor,
+                    color: AppTheme.tertiaryColor,
                     size: 22,
                   ),
                   const SizedBox(width: 8),
@@ -2075,7 +2103,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                     child: Text(
                       locale.pointsCalculationTitle.toUpperCase(),
                       style: const TextStyle(
-                        color: AppTheme.primaryColor,
+                        color: AppTheme.tertiaryColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                         letterSpacing: 1.0,
@@ -2102,10 +2130,12 @@ class _PointsCalculationDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      const Icon(Icons.directions_walk_sharp, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
                       Text(
                         locale.harUnits.toUpperCase(),
                         style: TextStyle(
-                          color: AppTheme.secondaryColor,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                           letterSpacing: 1.0,
@@ -2216,6 +2246,46 @@ class _PointsCalculationDialog extends StatelessWidget {
                 ],
               ),
 
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white12, height: 1),
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.linear_scale, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          locale.trainingMultiplierTitle.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            letterSpacing: 1.0,
+                            decoration: TextDecoration.none,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.trainingMultiplierDescription,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -2223,11 +2293,11 @@ class _PointsCalculationDialog extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppTheme.tertiaryColor,
                   ),
                   child: Text(
                     locale.ok.toUpperCase(),
-                    style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
