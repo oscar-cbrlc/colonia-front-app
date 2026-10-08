@@ -188,6 +188,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get speedAbr => 'vel';
 
   @override
+  String get speedModifier => 'Modificador de Velocidad';
+
+  @override
   String get km => 'km';
 
   @override
@@ -643,6 +646,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get impact => 'Impacto';
 
   @override
+  String get finalImpactMod => 'Modificador Final de Impacto';
+
+  @override
   String get ach_dist_1 => 'Fuera del nido';
 
   @override
@@ -814,4 +820,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get trainingMultiplierDescription =>
       'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.';
+
+  @override
+  String get unit => 'Unidad';
 }

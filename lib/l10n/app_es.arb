@@ -175,6 +175,9 @@
     "speedAbr": "vel",
     "@speedAbr": {},
 
+    "speedModifier": "Modificador de Velocidad",
+    "@speedModifier": {},
+
     "km": "km",
     "@km": {},
 
@@ -675,6 +678,9 @@
     "impact": "Impacto",
     "@impact": {},
 
+    "finalImpactMod": "Modificador Final de Impacto",
+    "@finalImpactMod": {},
+
     "ach_dist_1": "Fuera del nido",
     "@ach_dist_1": {},
 
@@ -883,5 +889,8 @@
     "@trainingMultiplierTitle": {},
 
     "trainingMultiplierDescription": "Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.",
-    "@trainingMultiplierDescription": {}
+    "@trainingMultiplierDescription": {},
+
+    "unit": "Unidad",
+    "@unit": {}
 }

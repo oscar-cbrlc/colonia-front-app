@@ -446,6 +446,12 @@ abstract class AppLocalizations {
   /// **'vel'**
   String get speedAbr;
 
+  /// No description provided for @speedModifier.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador de Velocidad'**
+  String get speedModifier;
+
   /// No description provided for @km.
   ///
   /// In es, this message translates to:
@@ -1292,6 +1298,12 @@ abstract class AppLocalizations {
   /// **'Impacto'**
   String get impact;
 
+  /// No description provided for @finalImpactMod.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador Final de Impacto'**
+  String get finalImpactMod;
+
   /// No description provided for @ach_dist_1.
   ///
   /// In es, this message translates to:
@@ -1603,6 +1615,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.'**
   String get trainingMultiplierDescription;
+
+  /// No description provided for @unit.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad'**
+  String get unit;
 }
 
 class _AppLocalizationsDelegate

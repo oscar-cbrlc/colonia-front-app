@@ -73,7 +73,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   PlayingState get playingState => _sessionRepository.playingState;
   Point? get userPosition => _trackingRepository.userPosition;
-  double get currentBearing => _trackingRepository.currentBearing;
+  double _mapBearing = 0.0;
+  double get currentBearing => _mapBearing;
   String? get currentCell => _trackingRepository.currentCell;
   double get totalMetersTracked => _trackingRepository.totalMetersTracked;
   int get totalSecondsElapsed => _trackingRepository.totalSecondsElapsed;
@@ -388,8 +389,25 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void onCameraChanged(CameraChangedEventData data) {
+    _mapBearing = data.cameraState.bearing;
+    notifyListeners();
+
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 100), () => _updateMapLayers());
+  }
+
+  Future<void> resetNorth() async {
+    final map = _mapboxMap;
+    if (map == null) return;
+    final camera = await map.getCameraState();
+    await map.setCamera(CameraOptions(
+      center: camera.center,
+      zoom: camera.zoom,
+      pitch: camera.pitch,
+      bearing: 0.0,
+    ));
+    _mapBearing = 0.0;
+    notifyListeners();
   }
 
   Future<void> _initializeH3Layer() async {
@@ -485,8 +503,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _configureOrnaments() {
-    _mapboxMap?.compass.updateSettings(CompassSettings(position: OrnamentPosition.TOP_RIGHT, marginTop: 115, marginRight: 20));
-    _mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10));
+    _mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
+    _mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
   }
 
   void _setMapDaylight() {

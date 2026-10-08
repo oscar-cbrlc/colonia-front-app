@@ -175,6 +175,9 @@
     "speedAbr": "spd",
     "@speedAbr": {},
 
+    "speedModifier": "Speed Modifier",
+    "@speedModifier": {},
+
     "km": "km",
     "@km": {},
 
@@ -675,6 +678,9 @@
     "impact": "Impact",
     "@impact": {},
 
+    "finalImpactMod": "Final Impact Modifier",
+    "@finalImpactMod": {},
+
     "ach_dist_1": "Out of the nest",
     "@ach_dist_1": {},
 
@@ -882,5 +888,8 @@
     "@trainingMultiplierTitle": {},
 
     "trainingMultiplierDescription": "Completing your selected Training objective (Distance, Time, Pace, or Time Trial) applies a bonus multiplier to all impact points generated during your excursion. If the objective is not met, no training multiplier is applied.",
-    "@trainingMultiplierDescription": {}
+    "@trainingMultiplierDescription": {},
+
+    "unit": "Unit",
+    "@unit": {}
 }

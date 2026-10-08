@@ -184,6 +184,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get speedAbr => 'spd';
 
   @override
+  String get speedModifier => 'Speed Modifier';
+
+  @override
   String get km => 'km';
 
   @override
@@ -639,6 +642,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get impact => 'Impact';
 
   @override
+  String get finalImpactMod => 'Final Impact Modifier';
+
+  @override
   String get ach_dist_1 => 'Out of the nest';
 
   @override
@@ -809,4 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get trainingMultiplierDescription =>
       'Completing your selected Training objective (Distance, Time, Pace, or Time Trial) applies a bonus multiplier to all impact points generated during your excursion. If the objective is not met, no training multiplier is applied.';
+
+  @override
+  String get unit => 'Unit';
 }

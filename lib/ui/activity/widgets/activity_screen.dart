@@ -8,6 +8,7 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -86,7 +87,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       SizedBox(height: 16),
                       Text(
                         locale.savingActivity,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decorationStyle: null),
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
                       ),
                     ],
                   ),
@@ -113,39 +114,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
 
             Align(
-              alignment: Alignment.topRight,
+              alignment: Alignment.centerRight,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 124, right: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          widget.viewModel.centerOnUser();
-                        },
-                        icon: const Icon(Icons.location_searching),
-                        color: Colors.redAccent,
-                        iconSize: 32,
-                      ),
-                      const SizedBox(height: 8),
-                      IconButton(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          widget.viewModel.toggleShowPoints();
-                        },
-                        icon: Icon(
-                          widget.viewModel.showPoints
-                              ? Icons.shield_sharp
-                              : Icons.shield_outlined,
-                        ),
-                        color: widget.viewModel.showPoints
-                            ? AppTheme.primaryColor
-                            : Colors.white38,
-                        iconSize: 30,
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(bottom: 120, right: 16),
+                  child: MapControlGroup(
+                    listenable: widget.viewModel,
+                    currentBearing: widget.viewModel.currentBearing,
+                    showPoints: widget.viewModel.showPoints,
+                    onCenterOnUser: widget.viewModel.centerOnUser,
+                    onToggleShowPoints: widget.viewModel.toggleShowPoints,
+                    onResetNorth: widget.viewModel.resetNorth,
                   ),
                 ),
               ),
@@ -159,9 +138,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   children: [
                     _NextImpactPanel(viewModel: widget.viewModel),
                     const SizedBox(height: 8),
-                    _HarActivityVisualizerWidget(
-                      sensorActivity: widget.viewModel.currentHarActivity,
-                    ),
+                    _TrainingObjectiveWidget(viewModel: widget.viewModel),
                   ],
                 ),
               ),
@@ -183,7 +160,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.viewModel.readyToStart) ...[
+                    if (widget.viewModel.readyToStart && !widget.viewModel.isSaving) ...[
                       _PreActivityOverview(viewModel: widget.viewModel),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -316,22 +293,28 @@ class _PreActivityOverview extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial)
-                      _OverviewStat(
-                        label: locale.distance.toUpperCase(),
-                        value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
-                        unit: "KM",
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.distance.toUpperCase(),
+                          value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
+                          unit: "KM",
+                        ),
                       ),
                     if (training == TrainingType.time || training == TrainingType.timeTrial)
-                      _OverviewStat(
-                        label: locale.time.toUpperCase(),
-                        value: _formatDurationShort(viewModel.selectedTime!),
-                        unit: "",
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.time.toUpperCase(),
+                          value: _formatDurationShort(viewModel.selectedTime!),
+                          unit: "",
+                        ),
                       ),
                     if (training == TrainingType.pace)
-                      _OverviewStat(
-                        label: locale.targetPace.toUpperCase(),
-                        value: viewModel.formattedSelectedPace,
-                        unit: "MIN/KM",
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.targetPace.toUpperCase(),
+                          value: viewModel.formattedSelectedPace,
+                          unit: "MIN/KM",
+                        ),
                       ),
                   ],
                 ),
@@ -366,7 +349,7 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                    _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                   ],
                 )
               ],
@@ -391,20 +374,38 @@ class _OverviewStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label, 
+            style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+          ),
+        ),
         const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
-            if (unit.isNotEmpty) ...[
-              const SizedBox(width: 2),
-              Text(unit, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
-            ]
-          ],
-        )
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value, 
+                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
+              ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 2),
+                Text(
+                  unit, 
+                  style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -476,16 +477,17 @@ class _DistanceProgressPanel extends StatelessWidget {
                 ),
                 if (targetDistanceMeters > 0)
                   Text(
-                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM ${locale.remaining.toUpperCase()}",
+                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM",
                     style: const TextStyle(
                       color: Colors.white54,
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 16,
                       decoration: TextDecoration.none
                     ),
                   ),
               ],
-            )
+            ),
+            const SizedBox(height: 8),
           ],
         );
       },
@@ -591,12 +593,13 @@ class _TimeProgressPanel extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 16,
                         decoration: TextDecoration.none
                     ),
                   ),
               ],
-            )
+            ),
+            const SizedBox(height: 8),
           ],
         );
       },
@@ -610,9 +613,9 @@ class _TimeProgressPanel extends StatelessWidget {
     String minutes = twoDigits(d.inMinutes.remainder(60));
     String secs = twoDigits(d.inSeconds.remainder(60));
     if (d.inHours > 0) {
-      return "${twoDigits(d.inHours)}:$minutes:$secs ${locale.remaining.toUpperCase()} ";
+      return "${twoDigits(d.inHours)}:$minutes:$secs";
     }
-    return "$minutes:$secs ${locale.remaining.toUpperCase()}";
+    return "$minutes:$secs";
   }
 }
 
@@ -797,6 +800,58 @@ class _NextImpactPanel extends StatelessWidget {
   }
 }
 
+class _TrainingObjectiveWidget extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _TrainingObjectiveWidget({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        final training = viewModel.selectedTrainingType;
+        if (training == null || training == TrainingType.free) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: ShapeDecoration(
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: AppTheme.secondaryColor.withAlpha(150),
+                width: 1,
+              ),
+            ),
+            color: AppTheme.darkBackground.withAlpha(220),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
+                const SizedBox(height: 8),
+                _DistanceProgressPanel(viewModel: viewModel),
+              ],
+              if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
+                if (training != TrainingType.timeTrial) const SizedBox(height: 8),
+                _TimeProgressPanel(viewModel: viewModel),
+              ],
+              if (training == TrainingType.pace) ...[
+                const SizedBox(height: 8),
+                _PaceEquilibriumPanel(viewModel: viewModel),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _EquippedBoostBadge extends StatelessWidget {
   final BoostInventory boost;
   const _EquippedBoostBadge({required this.boost});
@@ -932,20 +987,26 @@ class _ActivityProgressPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _StatDisplay(
-                    label: locale.distance.toUpperCase(),
-                    value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
-                    unit: "KM",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.distance.toUpperCase(),
+                      value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
+                      unit: "KM",
+                    ),
                   ),
-                  _StatDisplay(
-                    label: locale.time.toUpperCase(),
-                    value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
-                    unit: "",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.time.toUpperCase(),
+                      value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
+                      unit: "",
+                    ),
                   ),
-                  _StatDisplay(
-                    label: locale.pace.toUpperCase(),
-                    value: viewModel.formattedCurrentPace,
-                    unit: "MIN/KM",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.pace.toUpperCase(),
+                      value: viewModel.formattedCurrentPace,
+                      unit: "MIN/KM",
+                    ),
                   ),
                 ],
               ),
@@ -953,21 +1014,10 @@ class _ActivityProgressPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                  _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                 ],
               ),
-              if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
-                const SizedBox(height: 12),
-                _DistanceProgressPanel(viewModel: viewModel),
-              ],
-              if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
-                const SizedBox(height: 12),
-                _TimeProgressPanel(viewModel: viewModel),
-              ],
-              if (training == TrainingType.pace) ...[
-                const SizedBox(height: 12),
-                _PaceEquilibriumPanel(viewModel: viewModel),
-              ],
+
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -1071,6 +1121,8 @@ class _ActivityProgressPanel extends StatelessWidget {
   }
 }
 
+
+
 class _StatDisplay extends StatelessWidget {
   final String? label;
   final String value;
@@ -1081,29 +1133,38 @@ class _StatDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (label != null && label!.isNotEmpty)
-          Text(
-            label!,
-            style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label!,
+              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+            ),
           ),
         const SizedBox(height: 6),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
-            ),
-            if (unit.isNotEmpty) ...[
-              const SizedBox(width: 4),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
               Text(
-                unit,
-                style: const TextStyle(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                value,
+                style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
               ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 4),
+                Text(
+                  unit,
+                  style: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ],
     );
@@ -1278,8 +1339,25 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(10),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _MultiplierItem(
+                        label: locale.finalImpactMod.toUpperCase(),
+                        multiplier: widget.viewModel.currentMultiplier,
+                        color: Colors.redAccent,
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
-
                 if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
                   Text(
                     locale.setObjective.toUpperCase(),
@@ -1432,33 +1510,23 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ),
                   const SizedBox(height: 24),
                 ],
-
-                Text(
-                  locale.impact.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(10),
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _MultiplierItem(
-                        label: locale.impact.toUpperCase(),
-                        multiplier: widget.viewModel.currentMultiplier,
-                        color: Colors.redAccent,
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isValid ? _onConfirm : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppTheme.primaryColor,
+                      disabledBackgroundColor: Colors.white10,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        locale.confirm.toUpperCase(), 
+                        style: TextStyle(color: _isValid ? Colors.black87 : Colors.white24) 
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1491,25 +1559,6 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isValid ? _onConfirm : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppTheme.primaryColor,
-                      disabledBackgroundColor: Colors.white10,
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        locale.confirm.toUpperCase(), 
-                        style: TextStyle(color: _isValid ? Colors.black87 : Colors.white24) 
                       ),
                     ),
                   ),
@@ -1962,23 +2011,6 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
     }
   }
 
-  String _getLabel() {
-    switch (sensorActivity) {
-      case HarActivity.walk:
-        return 'WALKING';
-      case HarActivity.run:
-        return 'RUNNING';
-      case HarActivity.bike:
-        return 'CYCLING';
-      case HarActivity.vehicle:
-        return 'IN VEHICLE';
-      case HarActivity.standing:
-        return 'STANDING';
-      case HarActivity.unknown:
-        return 'ANALYZING...';
-    }
-  }
-
   Color _getColor() {
     switch (sensorActivity) {
       case HarActivity.walk:
@@ -2091,7 +2123,6 @@ class _PointsCalculationDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Icon(
                     Icons.graphic_eq,
@@ -2130,17 +2161,21 @@ class _PointsCalculationDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.directions_walk_sharp, color: Colors.white, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        locale.harUnits.toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          letterSpacing: 1.0,
-                          decoration: TextDecoration.none,
-                        ),
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_walk_sharp, color: Colors.white, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            locale.harUnits.toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -2204,6 +2239,32 @@ class _PointsCalculationDialog extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+
+              const SizedBox(height: 16),
+
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    'x ${locale.speedModifier.toUpperCase()}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+
+                  Text(
+                    "/ 5s ${locale.unit.toLowerCase()}",
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ]
               ),
 
               const SizedBox(height: 16),
@@ -2355,22 +2416,11 @@ class _ActivityPointCard extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              "+$points PTS x ${locale.speedAbr.toUpperCase()}mod",
+              "+$points PTS",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: const Text(
-              "/ 5s unit",
-              style: TextStyle(
-                color: Colors.white38,
-                fontSize: 9,
                 decoration: TextDecoration.none,
               ),
             ),
