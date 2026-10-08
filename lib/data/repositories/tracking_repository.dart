@@ -122,7 +122,7 @@ class TrackingRepository extends ChangeNotifier {
           unitPts = 0;
           break;
       }
-      _pendingNodeImpactPoints += unitPts;
+      _pendingNodeImpactPoints += unitPts * pow(_currentSpeed, 2) * GameConfig.pointSpeedMod;
       _unitDistanceTracked = 0.0;
       notifyListeners();
     }

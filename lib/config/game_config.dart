@@ -13,9 +13,11 @@ abstract class GameConfig {
 
   static const int impactHexagonAreaLevel = 1;
 
-  static const int walkUnitPoints = 10;
-  static const int bikeUnitPoints = 40;
-  static const int runUnitPoints = 50;
+  static const int walkUnitPoints = 5;
+  static const int bikeUnitPoints = 20;
+  static const int runUnitPoints = 25;
 
   static const int unitSeconds = 5;
+
+  static const pointSpeedMod = 0.5;
 }
