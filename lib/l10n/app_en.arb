@@ -169,6 +169,12 @@
     "setObjective": "Objective",
     "@setObjective": {},
 
+    "speed": "Speed",
+    "@speed": {},
+
+    "speedAbr": "spd",
+    "@speedAbr": {},
+
     "km": "km",
     "@km": {},
 
@@ -836,7 +842,7 @@
     "pointsCalculationTitle": "Point Calculation & Impacts",
     "@pointsCalculationTitle": {},
 
-    "pointsCalculationDescription": "Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity.",
+    "pointsCalculationDescription": "Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity and current speed.",
     "@pointsCalculationDescription": {},
 
     "whatAreImpactsTitle": "What are Impacts?",

@@ -2324,6 +2324,7 @@ class _ActivityPointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       decoration: ShapeDecoration(
@@ -2354,7 +2355,7 @@ class _ActivityPointCard extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              "+$points PTS",
+              "+$points PTS x ${locale.speedAbr.toUpperCase()}mod",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,

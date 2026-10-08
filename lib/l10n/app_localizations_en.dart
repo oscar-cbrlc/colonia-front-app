@@ -178,6 +178,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setObjective => 'Objective';
 
   @override
+  String get speed => 'Speed';
+
+  @override
+  String get speedAbr => 'spd';
+
+  @override
   String get km => 'km';
 
   @override
@@ -776,7 +782,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pointsCalculationDescription =>
-      'Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity.';
+      'Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity and current speed.';
 
   @override
   String get whatAreImpactsTitle => 'What are Impacts?';

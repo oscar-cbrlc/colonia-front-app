@@ -169,6 +169,12 @@
     "setObjective": "Objetivo",
     "@setObjective": {},
 
+    "speed": "Velocidad",
+    "@speed": {},
+
+    "speedAbr": "vel",
+    "@speedAbr": {},
+
     "km": "km",
     "@km": {},
 
@@ -837,7 +843,7 @@
     "pointsCalculationTitle": "Cálculo de Puntos e Impactos",
     "@pointsCalculationTitle": {},
 
-    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad.",
+    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad y velocidad actual.",
     "@pointsCalculationDescription": {},
 
     "whatAreImpactsTitle": "¿Qué son los Impactos?",

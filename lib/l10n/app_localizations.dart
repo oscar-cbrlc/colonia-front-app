@@ -434,6 +434,18 @@ abstract class AppLocalizations {
   /// **'Objetivo'**
   String get setObjective;
 
+  /// No description provided for @speed.
+  ///
+  /// In es, this message translates to:
+  /// **'Velocidad'**
+  String get speed;
+
+  /// No description provided for @speedAbr.
+  ///
+  /// In es, this message translates to:
+  /// **'vel'**
+  String get speedAbr;
+
   /// No description provided for @km.
   ///
   /// In es, this message translates to:
@@ -1547,7 +1559,7 @@ abstract class AppLocalizations {
   /// No description provided for @pointsCalculationDescription.
   ///
   /// In es, this message translates to:
-  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad.'**
+  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad y velocidad actual.'**
   String get pointsCalculationDescription;
 
   /// No description provided for @whatAreImpactsTitle.
