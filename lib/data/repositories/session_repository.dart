@@ -39,6 +39,7 @@ class SessionRepository extends ChangeNotifier {
   double _distanceWalked = 0.0;
   double _distanceRun = 0.0;
   double _distanceBike = 0.0;
+  bool _pausedByVehicle = false;
 
   final Map<String, double> _sessionTerritoryImpacts = {};
 
@@ -324,6 +325,17 @@ class SessionRepository extends ChangeNotifier {
   }
 
   void _onMetricsUpdated() {
+    if (_playingState == PlayingState.playing &&
+        _trackingRepository.currentHarActivity == HarActivity.vehicle) {
+      pauseGame();
+      _pausedByVehicle = true;
+      return;
+    }
+    if (_pausedByVehicle && _trackingRepository.currentHarActivity != HarActivity.vehicle) {
+      resumeGame();
+      _pausedByVehicle = false;
+      return;
+    }
     notifyListeners();
   }
 
