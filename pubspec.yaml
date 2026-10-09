@@ -54,6 +54,7 @@ dependencies:
   sensors_plus: ^7.1.0
   mapbox_maps_flutter: ^2.26.0
   flutter_litert: ^3.9.3
+  flutter_local_notifications: ^18.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

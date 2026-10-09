@@ -32,6 +32,7 @@ import 'package:colonia_front_app/data/repositories/team_request_repository.dart
 import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
 import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/data/services/api/boost_service.dart';
+import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
@@ -39,9 +40,10 @@ import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MapboxOptions.setAccessToken(Env.mapboxAccessToken);
+  await NotificationService().init();
   runApp(
     MultiProvider(
       providers: [
