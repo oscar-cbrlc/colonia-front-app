@@ -9,6 +9,9 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get coloniaTitle => 'Colonia';
+
+  @override
   String get loginOrSignUp => 'Iniciar sesión o registrarse';
 
   @override
@@ -829,4 +832,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get unit => 'Unidad';
+
+  @override
+  String get activityStarted => 'Excursión iniciada';
+
+  @override
+  String get vehicleDetectedPaused =>
+      'Movimiento en vehículo detectado. Actividad pausada.';
 }

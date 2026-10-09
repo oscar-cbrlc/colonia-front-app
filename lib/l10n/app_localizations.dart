@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('es'),
   ];
 
+  /// No description provided for @coloniaTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia'**
+  String get coloniaTitle;
+
   /// No description provided for @loginOrSignUp.
   ///
   /// In es, this message translates to:
@@ -1633,6 +1639,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Unidad'**
   String get unit;
+
+  /// No description provided for @activityStarted.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión iniciada'**
+  String get activityStarted;
+
+  /// No description provided for @vehicleDetectedPaused.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento en vehículo detectado. Actividad pausada.'**
+  String get vehicleDetectedPaused;
 }
 
 class _AppLocalizationsDelegate

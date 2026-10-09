@@ -1,6 +1,9 @@
 {
     "@@locale": "es",
-  
+
+    "coloniaTitle": "Colonia",
+    "@coloniaTitle": {},
+
     "loginOrSignUp": "Iniciar sesión o registrarse",
     "@loginOrSignUp": {},
 
@@ -898,5 +901,11 @@
     "@trainingMultiplierDescription": {},
 
     "unit": "Unidad",
-    "@unit": {}
+    "@unit": {},
+
+    "activityStarted": "Excursión iniciada",
+    "@activityStarted": {},
+
+    "vehicleDetectedPaused": "Movimiento en vehículo detectado. Actividad pausada.",
+    "@vehicleDetectedPaused": {}
 }
