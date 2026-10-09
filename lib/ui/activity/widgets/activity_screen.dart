@@ -13,6 +13,7 @@ import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/env/env.dart';
 
 class ActivityScreen extends StatefulWidget {
@@ -30,6 +31,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
+
+    widget.viewModel.sessionRepository.onStartNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 101,
+          title: 'Colonia',
+          body: locale.activityStarted,
+        );
+      }
+    };
+
+    widget.viewModel.sessionRepository.onVehicleNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 102,
+          title: 'Colonia - Tracking',
+          body: locale.vehicleDetectedPaused,
+        );
+      }
+    };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showActivitySelector();

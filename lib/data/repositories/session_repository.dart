@@ -67,6 +67,8 @@ class SessionRepository extends ChangeNotifier {
   }
 
   void Function()? onSyncNotification;
+  void Function()? onStartNotification;
+  void Function()? onVehicleNotification;
 
   void _handleNodeCompleted(OnTrackNode node) {
     if (_playingState != PlayingState.playing) return;
@@ -153,6 +155,7 @@ class SessionRepository extends ChangeNotifier {
     _distanceBike = 0.0;
     _sessionTerritoryImpacts.clear();
     _trackingRepository.startActivity();
+    onStartNotification?.call();
     notifyListeners();
   }
 
@@ -329,6 +332,7 @@ class SessionRepository extends ChangeNotifier {
         _trackingRepository.currentHarActivity == HarActivity.vehicle) {
       pauseGame();
       _pausedByVehicle = true;
+      onVehicleNotification?.call();
       return;
     }
     if (_pausedByVehicle && _trackingRepository.currentHarActivity != HarActivity.vehicle) {
