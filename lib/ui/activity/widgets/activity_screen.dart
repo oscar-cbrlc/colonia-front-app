@@ -52,6 +52,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 widget.viewModel.onStyleLoaded();
 
                 final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                  if (widget.viewModel.playingState != PlayingState.stopped) return;
+
                   final lat = gestureContext.point.coordinates.lat.toDouble();
                   final lon = gestureContext.point.coordinates.lng.toDouble();
 
@@ -349,7 +351,7 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                    _MultiplierMini(label: locale.trainingImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                   ],
                 )
               ],
@@ -1191,16 +1193,16 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   @override
   void initState() {
     super.initState();
-    final d = widget.viewModel.selectedDistance ?? 0.0;
+    final d = widget.viewModel.selectedDistance ?? GameConfig.defaultObjectiveDistance;
     _km = (d / 1000).floor();
     _m = (d % 1000).toInt();
 
-    final t = widget.viewModel.selectedTime ?? Duration.zero;
+    final t = widget.viewModel.selectedTime ?? GameConfig.defaultObjectiveTime;
     _h = t.inHours;
     _min = t.inMinutes.remainder(60);
     _sec = t.inSeconds.remainder(60);
 
-    final p = widget.viewModel.selectedPace ?? 5.5;
+    final p = widget.viewModel.selectedPace ?? GameConfig.defaultObjectivePace;
     _paceMin = p.toInt();
     _paceSec = ((p - _paceMin) * 60).round();
   }
@@ -1283,15 +1285,40 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     ),
                   ),
                 ),
-                Text(
-                  locale.training.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
+                Row (
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      locale.training.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        decoration: TextDecoration.none
+                      ),
+                    ),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _showPointsCalculationDialog(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.help_center_outlined,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                  ]
                 ),
                 const SizedBox(height: 8),
                 GridView.count(
@@ -1308,6 +1335,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.free,
                       onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.free,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.0",
                     ),
                     _ChoiceChip(
                       label: locale.distance,
@@ -1315,6 +1343,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.distance,
                       onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.distance,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.5",
                     ),
                     _ChoiceChip(
                       label: locale.time,
@@ -1322,6 +1351,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.time,
                       onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.time,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.25",
                     ),
                     _ChoiceChip(
                       label: locale.pace,
@@ -1329,6 +1359,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.pace,
                       onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.pace,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.75",
                     ),
                     _ChoiceChip(
                       label: locale.timeTrial,
@@ -1336,27 +1367,11 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.timeTrial,
                       onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.timeTrial,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.75",
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(10),
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _MultiplierItem(
-                        label: locale.finalImpactMod.toUpperCase(),
-                        multiplier: widget.viewModel.currentMultiplier,
-                        color: Colors.redAccent,
-                      ),
-                    ],
-                  ),
-                ),
+
                 const SizedBox(height: 24),
                 if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
                   Text(
@@ -1376,7 +1391,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
 
                 if (widget.viewModel.availableBoosts.isNotEmpty) ...[
                   Text(
-                    locale.boosts.toUpperCase(),
+                    locale.boostsInInventory.toUpperCase(),
                     style: const TextStyle(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -1525,40 +1540,6 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       child: Text(
                         locale.confirm.toUpperCase(), 
                         style: TextStyle(color: _isValid ? Colors.black87 : Colors.white24) 
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _showPointsCalculationDialog(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.help_outline_sharp,
-                            color: AppTheme.primaryColor,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            locale.howArePointsCalculated,
-                            style: const TextStyle(
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppTheme.primaryColor,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -1856,6 +1837,7 @@ class _ChoiceChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onSelected;
   final Color color;
+  final String multiplier;
 
   const _ChoiceChip({
     required this.label,
@@ -1863,6 +1845,7 @@ class _ChoiceChip extends StatelessWidget {
     required this.isSelected,
     required this.onSelected,
     required this.color,
+    this.multiplier = '1.0',
   });
 
   @override
@@ -1873,44 +1856,84 @@ class _ChoiceChip extends StatelessWidget {
         onSelected();
       },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        alignment: Alignment.center,
-        decoration: ShapeDecoration(
-          color: isSelected ? color : color.withAlpha(20),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected ? Colors.white : color.withAlpha(100),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppTheme.darkBackground : Colors.white,
-              size: 20,
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isSelected ? AppTheme.darkBackground : Colors.white,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            alignment: Alignment.center,
+            decoration: ShapeDecoration(
+              color: isSelected ? color : color.withAlpha(20),
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: isSelected ? Colors.white : color.withAlpha(100),
+                  width: 1,
                 ),
               ),
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppTheme.darkBackground : Colors.white,
+                  size: 22,
+                ),
+                const SizedBox(height: 6),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected ? AppTheme.darkBackground : Colors.white,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (multiplier.isNotEmpty)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShapeDecoration(
+                  color: isSelected
+                      ? AppTheme.secondaryColor
+                      : AppTheme.darkBackground.withAlpha(230),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: const BorderRadius.only(
+                      bottomRight: Radius.circular(11),
+                    ),
+                    side: BorderSide(
+                      color: isSelected
+                          ? Colors.white
+                          : AppTheme.primaryColor.withAlpha(120),
+                      width: 0.8,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  "x$multiplier",
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppTheme.primaryColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
