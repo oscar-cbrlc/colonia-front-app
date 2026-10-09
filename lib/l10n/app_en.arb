@@ -675,11 +675,17 @@
     "boosts": "Boosts",
     "@boosts": {},
 
+    "boostsInInventory": "Boosts in Inventory",
+    "@boostsInInventory": {},
+
     "impact": "Impact",
     "@impact": {},
 
     "finalImpactMod": "Final Impact Modifier",
     "@finalImpactMod": {},
+
+    "trainingImpactMod": "Training Impact Modifier",
+    "@trainingImpactMod": {},
 
     "ach_dist_1": "Out of the nest",
     "@ach_dist_1": {},
@@ -848,13 +854,13 @@
     "pointsCalculationTitle": "Point Calculation & Impacts",
     "@pointsCalculationTitle": {},
 
-    "pointsCalculationDescription": "Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity and current speed.",
+    "pointsCalculationDescription": "Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) detects your motion and accumulates points based on your activity and current speed.",
     "@pointsCalculationDescription": {},
 
     "whatAreImpactsTitle": "What are Impacts?",
     "@whatAreImpactsTitle": {},
 
-    "whatAreImpactsDescription": "While you move, points accumulate every {seconds}s unit. Upon reaching {meters}m, an Impact occurs, dealing your total accumulated points as attack damage or defense reinforcement to the territory. Equipped Boosts and territory multipliers boost your final impact!",
+    "whatAreImpactsDescription": "While you move, points accumulate every {seconds}s unit. Upon reaching {meters}m, an Impact occurs, dealing your total accumulated points as attack damage or defense reinforcement to the territory. Equipped Boosts and territory multipliers boost your impacts.",
     "@whatAreImpactsDescription": {
         "placeholders": {
             "seconds": {

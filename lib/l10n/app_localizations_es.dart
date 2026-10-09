@@ -643,10 +643,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get boosts => 'Potenciadores';
 
   @override
+  String get boostsInInventory => 'Potenciadores en Inventario';
+
+  @override
   String get impact => 'Impacto';
 
   @override
   String get finalImpactMod => 'Modificador Final de Impacto';
+
+  @override
+  String get trainingImpactMod => 'Modificador de Impacto por Entrenamiento';
 
   @override
   String get ach_dist_1 => 'Fuera del nido';
@@ -792,14 +798,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pointsCalculationDescription =>
-      'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad y velocidad actual.';
+      'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.';
 
   @override
   String get whatAreImpactsTitle => '¿Qué son los Impactos?';
 
   @override
   String whatAreImpactsDescription(int seconds, num meters) {
-    return 'Mientras te desplazas, los puntos se acumulan cada unidad de ${seconds}s. Al completar ${meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!';
+    return 'Mientras te desplazas, los puntos se acumulan cada unidad de ${seconds}s. Al completar ${meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.';
   }
 
   @override

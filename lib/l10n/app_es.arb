@@ -675,11 +675,17 @@
     "boosts": "Potenciadores",
     "@boosts": {},
 
+    "boostsInInventory": "Potenciadores en Inventario",
+    "@boostsInInventory": {},
+
     "impact": "Impacto",
     "@impact": {},
 
     "finalImpactMod": "Modificador Final de Impacto",
     "@finalImpactMod": {},
+
+    "trainingImpactMod": "Modificador de Impacto por Entrenamiento",
+    "@trainingImpactMod": {},
 
     "ach_dist_1": "Fuera del nido",
     "@ach_dist_1": {},
@@ -849,13 +855,13 @@
     "pointsCalculationTitle": "Cálculo de Puntos e Impactos",
     "@pointsCalculationTitle": {},
 
-    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad y velocidad actual.",
+    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.",
     "@pointsCalculationDescription": {},
 
     "whatAreImpactsTitle": "¿Qué son los Impactos?",
     "@whatAreImpactsTitle": {},
 
-    "whatAreImpactsDescription": "Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!",
+    "whatAreImpactsDescription": "Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.",
     "@whatAreImpactsDescription": {
         "placeholders": {
             "seconds": {

@@ -1292,6 +1292,12 @@ abstract class AppLocalizations {
   /// **'Potenciadores'**
   String get boosts;
 
+  /// No description provided for @boostsInInventory.
+  ///
+  /// In es, this message translates to:
+  /// **'Potenciadores en Inventario'**
+  String get boostsInInventory;
+
   /// No description provided for @impact.
   ///
   /// In es, this message translates to:
@@ -1303,6 +1309,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Modificador Final de Impacto'**
   String get finalImpactMod;
+
+  /// No description provided for @trainingImpactMod.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador de Impacto por Entrenamiento'**
+  String get trainingImpactMod;
 
   /// No description provided for @ach_dist_1.
   ///
@@ -1571,7 +1583,7 @@ abstract class AppLocalizations {
   /// No description provided for @pointsCalculationDescription.
   ///
   /// In es, this message translates to:
-  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) predice tu movimiento y acumula puntos según tu actividad y velocidad actual.'**
+  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.'**
   String get pointsCalculationDescription;
 
   /// No description provided for @whatAreImpactsTitle.
@@ -1583,7 +1595,7 @@ abstract class AppLocalizations {
   /// No description provided for @whatAreImpactsDescription.
   ///
   /// In es, this message translates to:
-  /// **'Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. ¡Los Potenciadores equipados y los multiplicadores de territorio aumentan tu impacto final!'**
+  /// **'Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.'**
   String whatAreImpactsDescription(int seconds, num meters);
 
   /// No description provided for @harUnits.

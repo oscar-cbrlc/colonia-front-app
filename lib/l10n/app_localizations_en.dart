@@ -639,10 +639,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get boosts => 'Boosts';
 
   @override
+  String get boostsInInventory => 'Boosts in Inventory';
+
+  @override
   String get impact => 'Impact';
 
   @override
   String get finalImpactMod => 'Final Impact Modifier';
+
+  @override
+  String get trainingImpactMod => 'Training Impact Modifier';
 
   @override
   String get ach_dist_1 => 'Out of the nest';
@@ -788,14 +794,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pointsCalculationDescription =>
-      'Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) predicts your motion and accumulates points based on your activity and current speed.';
+      'Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) detects your motion and accumulates points based on your activity and current speed.';
 
   @override
   String get whatAreImpactsTitle => 'What are Impacts?';
 
   @override
   String whatAreImpactsDescription(int seconds, num meters) {
-    return 'While you move, points accumulate every ${seconds}s unit. Upon reaching ${meters}m, an Impact occurs, dealing your total accumulated points as attack damage or defense reinforcement to the territory. Equipped Boosts and territory multipliers boost your final impact!';
+    return 'While you move, points accumulate every ${seconds}s unit. Upon reaching ${meters}m, an Impact occurs, dealing your total accumulated points as attack damage or defense reinforcement to the territory. Equipped Boosts and territory multipliers boost your impacts.';
   }
 
   @override
