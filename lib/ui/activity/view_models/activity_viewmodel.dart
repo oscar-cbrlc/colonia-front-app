@@ -87,6 +87,8 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   double get averagePace => _trackingRepository.averagePace;
   int get distanceTilNextNode => max(0, (_trackingRepository.metersBetweenNodes - _trackingRepository.metersSinceLastNode).toInt());
   double get pendingNodeImpactPoints => _trackingRepository.pendingNodeImpactPoints;
+  bool get pausedBySuspectedInvalid => _trackingRepository.pausedBySuspectedInvalid;
+  TrackingRepository get trackingRepository => _trackingRepository;
 
   static String formatPace(double pace) {
     if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
@@ -375,6 +377,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       return {
         'session': result.session, 
         'activityResult': result.activityResult,
+        'activityType': _selectedActivityType,
         'trainingType': trainingType,
         'trainingName': trainingType.name,
         'isOffline': result.isOffline,
