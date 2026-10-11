@@ -127,6 +127,12 @@
     "startActivity": "Empezar excursión",
     "@startActivity": {},
 
+    "onFoot": "A pie",
+    "@onFoot": {},
+
+    "onBike": "En Bicicleta",
+    "@onBike": {},
+
     "walk": "Caminar",
     "@walk": {},
 
@@ -141,6 +147,9 @@
 
     "standing": "Inmóvil",
     "@standing":  {},
+
+    "suspicious": "Sospechosa",
+    "@suspicious":  {},
 
     "unknown": "Descnonocido",
     "@unknown":  {},

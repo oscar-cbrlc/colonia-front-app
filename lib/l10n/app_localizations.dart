@@ -350,6 +350,18 @@ abstract class AppLocalizations {
   /// **'Empezar excursión'**
   String get startActivity;
 
+  /// No description provided for @onFoot.
+  ///
+  /// In es, this message translates to:
+  /// **'A pie'**
+  String get onFoot;
+
+  /// No description provided for @onBike.
+  ///
+  /// In es, this message translates to:
+  /// **'En Bicicleta'**
+  String get onBike;
+
   /// No description provided for @walk.
   ///
   /// In es, this message translates to:
@@ -379,6 +391,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Inmóvil'**
   String get standing;
+
+  /// No description provided for @suspicious.
+  ///
+  /// In es, this message translates to:
+  /// **'Sospechosa'**
+  String get suspicious;
 
   /// No description provided for @unknown.
   ///

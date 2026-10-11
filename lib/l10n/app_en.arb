@@ -127,6 +127,12 @@
     "startActivity": "Start excursion",
     "@startActivity": {},
 
+    "onFoot": "On Foot",
+    "@onFoot": {},
+
+    "onBike": "On Bike",
+    "@onBike": {},
+
     "walk": "Walk",
     "@walk": {},
 
@@ -141,6 +147,9 @@
 
     "standing": "Standing",
     "@standing":  {},
+
+    "suspicious": "Suspicious",
+    "@suspicious":  {},
 
     "unknown": "Unknown",
     "@unknown":  {},

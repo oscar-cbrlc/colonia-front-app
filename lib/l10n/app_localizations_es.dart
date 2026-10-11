@@ -140,6 +140,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get startActivity => 'Empezar excursión';
 
   @override
+  String get onFoot => 'A pie';
+
+  @override
+  String get onBike => 'En Bicicleta';
+
+  @override
   String get walk => 'Caminar';
 
   @override
@@ -153,6 +159,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get standing => 'Inmóvil';
+
+  @override
+  String get suspicious => 'Sospechosa';
 
   @override
   String get unknown => 'Descnonocido';

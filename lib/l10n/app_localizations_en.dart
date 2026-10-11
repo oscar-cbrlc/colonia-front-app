@@ -136,6 +136,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startActivity => 'Start excursion';
 
   @override
+  String get onFoot => 'On Foot';
+
+  @override
+  String get onBike => 'On Bike';
+
+  @override
   String get walk => 'Walk';
 
   @override
@@ -149,6 +155,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get standing => 'Standing';
+
+  @override
+  String get suspicious => 'Suspicious';
 
   @override
   String get unknown => 'Unknown';
