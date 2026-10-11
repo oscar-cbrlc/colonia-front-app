@@ -63,7 +63,15 @@ class TrackingRepository extends ChangeNotifier {
 
   double _unitDistanceTracked = 0.0;
 
+  int _consecutiveInvalidUnits = 0;
+  int _warmupUnits = 3;
+  bool _pausedBySuspectedInvalid = false;
+  bool get pausedBySuspectedInvalid => _pausedBySuspectedInvalid;
+
   void Function(OnTrackNode node)? onNodeCompleted;
+  void Function()? onSuspectedInvalidNotification;
+  void Function()? onAutoResumedNotification;
+
   geo.Position? _lastRecordedPosition;
   int _pingsToSkip = 0;
 
@@ -96,9 +104,55 @@ class TrackingRepository extends ChangeNotifier {
     _initPassiveTracking();
   }
 
+  bool isValidActivity(HarActivity activity) {
+    if (_activityType == ActivityType.onFoot) {
+      return activity == HarActivity.walk ||
+             activity == HarActivity.run ||
+             activity == HarActivity.standing;
+    } else if (_activityType == ActivityType.onBike) {
+      return activity == HarActivity.bike ||
+             activity == HarActivity.standing;
+    }
+    return activity != HarActivity.vehicle && activity != HarActivity.unknown;
+  }
+
   void onHarActivityPredicted(HarActivity activity) {
     _currentHarActivity = activity;
-    if (_isActivityActive && !_isPaused) {
+
+    if (!_isActivityActive) return;
+
+    bool valid = isValidActivity(activity);
+    if (!valid && activity == HarActivity.unknown && _warmupUnits > 0) {
+      _warmupUnits--;
+      valid = true;
+    }
+
+    if (!valid) {
+      _consecutiveInvalidUnits++;
+      if (_consecutiveInvalidUnits > 1 && !_isPaused) {
+        _isPaused = true;
+        _pausedBySuspectedInvalid = true;
+        _gameTimer?.cancel();
+        _routineTimer?.cancel();
+        onSuspectedInvalidNotification?.call();
+        notifyListeners();
+        return;
+      }
+    } else {
+      _consecutiveInvalidUnits = 0;
+      if (_isPaused && _pausedBySuspectedInvalid) {
+        _isPaused = false;
+        _pausedBySuspectedInvalid = false;
+        _pingsToSkip = 2;
+        _lastTrackTime = DateTime.now();
+        _startTimer();
+        _startRoutinePolling();
+        onAutoResumedNotification?.call();
+        notifyListeners();
+      }
+    }
+
+    if (!_isPaused) {
       int unitPts = 0;
       switch (activity) {
         case HarActivity.walk:
@@ -173,6 +227,9 @@ class TrackingRepository extends ChangeNotifier {
     _nodeDistanceBike = 0.0;
     _unitDistanceTracked = 0.0;
     _pendingNodeImpactPoints = 0.0;
+    _consecutiveInvalidUnits = 0;
+    _warmupUnits = 3;
+    _pausedBySuspectedInvalid = false;
     _currentHarActivity = HarActivity.unknown;
     _perimeter.clear();
     _onTrackNodes.clear();
@@ -450,6 +507,8 @@ class TrackingRepository extends ChangeNotifier {
 
   void resumeActivity() {
     _isPaused = false;
+    _pausedBySuspectedInvalid = false;
+    _consecutiveInvalidUnits = 0;
     _pingsToSkip = 2;
     _lastTrackTime = DateTime.now();
     _startTimer();
@@ -483,6 +542,9 @@ class TrackingRepository extends ChangeNotifier {
     _nodeDistanceBike = 0.0;
     _unitDistanceTracked = 0.0;
     _pendingNodeImpactPoints = 0.0;
+    _consecutiveInvalidUnits = 0;
+    _warmupUnits = 3;
+    _pausedBySuspectedInvalid = false;
     _currentHarActivity = HarActivity.unknown;
     _gameTimer?.cancel();
     _routineTimer?.cancel();
