@@ -1,4 +1,4 @@
-import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -153,23 +153,12 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
 
   Widget _buildHeader(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    final HarActivity activity = widget.viewModel.activity;
+    final ActivityType activityType = widget.viewModel.activityType;
     final TrainingType trainingType = widget.viewModel.trainingType;
 
-    final IconData activityIcon = switch (activity) {
-      HarActivity.walk => Icons.directions_walk,
-      HarActivity.run => Icons.directions_run,
-      HarActivity.bike => Icons.directions_bike,
-      HarActivity.vehicle => Icons.directions_car,
-      HarActivity.standing => Icons.emoji_people_sharp,
-      _ => Icons.sensors,
-    };
-
-    final Color activityColor = switch (activity) {
-      HarActivity.walk => AppTheme.walkColor,
-      HarActivity.run => AppTheme.runColor,
-      HarActivity.bike => AppTheme.bikeColor,
-      _ => AppTheme.primaryColor,
+    final IconData activityIcon = switch (activityType) {
+      ActivityType.onFoot => Icons.hiking_sharp,
+      ActivityType.onBike => Icons.pedal_bike_sharp,
     };
 
     final IconData trainingIcon = switch (trainingType) {
@@ -202,13 +191,13 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 12),
               Icon(
-                activityIcon, color: activityColor.withAlpha(200), size: 14,
+                activityIcon, color: AppTheme.primaryColor.withAlpha(200), size: 14,
               ),
               const SizedBox(width: 6),
               Text(
-                activity.getLocale(locale).toUpperCase(),
+                activityType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
-                  color: activityColor.withAlpha(200),
+                  color: AppTheme.primaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                   fontSize: 14,

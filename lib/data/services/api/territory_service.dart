@@ -20,6 +20,12 @@ class TerritoryService {
     required double totalDistance,
     required int totalTime,
     required String timestamp,
+    required int secondsWalk,
+    required int secondsRun,
+    required int secondsBike,
+    required double distanceWalk,
+    required double distanceRun,
+    required double distanceBike,
     required List<Map<String, dynamic>> territories,
     int? boostId,
   }) async {
@@ -28,7 +34,13 @@ class TerritoryService {
       'total_time': totalTime,
       'timestamp': timestamp,
       'territories': territories,
-      if (boostId != null) 'boost_id': boostId,
+      'boost_id': ?boostId,
+      'seconds_walk': secondsWalk,
+      'seconds_run': secondsRun,
+      'seconds_bike': secondsBike,
+      'distance_walk': distanceWalk,
+      'distance_run': distanceRun,
+      'distance_bike': distanceBike,
     });
   }
 }

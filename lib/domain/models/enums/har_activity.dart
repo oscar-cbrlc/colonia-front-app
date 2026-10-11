@@ -8,7 +8,6 @@ enum HarActivity {
   standing,
   unknown;
 
-  String get name => toString().split('.').last;
   String getLocale(AppLocalizations locale) {
     switch (this) {
       case HarActivity.walk:

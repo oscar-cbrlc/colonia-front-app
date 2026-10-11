@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
-import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -13,7 +13,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 class ActivitySummaryViewModel extends ChangeNotifier {
   final TrackingSession session;
   final ActivityResult? activityResult;
-  final HarActivity activity;
+  final ActivityType activityType;
   final TrainingType trainingType;
   MapboxMap? _mapboxMap;
   bool _isMapReady = true;
@@ -22,7 +22,7 @@ class ActivitySummaryViewModel extends ChangeNotifier {
   ActivitySummaryViewModel({
     required this.session,
     this.activityResult,
-    required this.activity,
+    required this.activityType,
     TrainingType? trainingType,
     String? trainingName,
   }) : trainingType = trainingType ??
@@ -32,7 +32,7 @@ class ActivitySummaryViewModel extends ChangeNotifier {
                     orElse: () => TrainingType.free,
                   )
                 : TrainingType.free) {
-    debugPrint("ActivitySummaryViewModel: Created with activity=$activity, trainingType=${this.trainingType}, distance=${session.totalDistance}");
+    debugPrint("ActivitySummaryViewModel: Created with activityType=$activityType, trainingType=${this.trainingType}, distance=${session.totalDistance}");
   }
 
   String get trainingName => trainingType.name;

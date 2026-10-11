@@ -5,8 +5,6 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
-import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
-import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -34,13 +32,12 @@ class SessionRepository extends ChangeNotifier {
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
 
-  int _secondsWalked = 0;
+  int _secondsWalk = 0;
   int _secondsRun = 0;
   int _secondsBike = 0;
   double _distanceWalked = 0.0;
   double _distanceRun = 0.0;
   double _distanceBike = 0.0;
-  bool _pausedByVehicle = false;
 
   final Map<String, double> _sessionTerritoryImpacts = {};
 
@@ -54,10 +51,10 @@ class SessionRepository extends ChangeNotifier {
   BoostInventory? get boost => _trainingConfig?.boost;
   double get accumulatedImpactPoints => _accumulatedImpactPoints;
 
-  int get secondsWalked => _secondsWalked;
+  int get secondsWalk => _secondsWalk;
   int get secondsRun => _secondsRun;
   int get secondsBike => _secondsBike;
-  double get distanceWalked => _distanceWalked;
+  double get distanceWalk => _distanceWalked;
   double get distanceRun => _distanceRun;
   double get distanceBike => _distanceBike;
 
@@ -146,16 +143,9 @@ class SessionRepository extends ChangeNotifier {
 
   void startGame() {
     if (_playingState == PlayingState.playing) return;
+    _resetSessionData();
     _playingState = PlayingState.playing;
-    _accumulatedImpactPoints = 0.0;
-    _secondsWalked = 0;
-    _secondsRun = 0;
-    _secondsBike = 0;
-    _distanceWalked = 0.0;
-    _distanceRun = 0.0;
-    _distanceBike = 0.0;
-    _sessionTerritoryImpacts.clear();
-    _trackingRepository.startActivity(_activityType!);
+    _trackingRepository.startActivity(_activityType ?? ActivityType.onFoot);
     onStartNotification?.call();
     notifyListeners();
   }
@@ -184,7 +174,7 @@ class SessionRepository extends ChangeNotifier {
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
 
     final session = _trackingRepository.stopActivity();
-    _secondsWalked = session.secondsWalk;
+    _secondsWalk = session.secondsWalk;
     _secondsRun = session.secondsRun;
     _secondsBike = session.secondsBike;
     _distanceWalked = session.distanceWalk;
@@ -212,12 +202,24 @@ class SessionRepository extends ChangeNotifier {
         timestamp: DateTime.now().toIso8601String(),
         territories: territoriesJson,
         boostId: _trainingConfig?.boost?.id,
+        secondsWalk: _secondsWalk,
+        secondsRun: _secondsRun,
+        secondsBike: _secondsBike,
+        distanceWalk: _distanceWalked,
+        distanceRun: _distanceRun,
+        distanceBike: _distanceBike,
       );
 
       final impactResult = await _territoryRepository.applyTerritoryImpact(
         totalDistance: impact.totalDistance,
         totalTime: impact.totalTime,
         timestamp: impact.timestamp,
+        secondsWalk: impact.secondsWalk,
+        secondsRun: impact.secondsRun,
+        secondsBike: impact.secondsBike,
+        distanceWalk: impact.distanceWalk,
+        distanceRun: impact.distanceRun,
+        distanceBike: impact.distanceBike,
         territories: impact.territories,
         boostId: impact.boostId,
       );
@@ -266,6 +268,12 @@ class SessionRepository extends ChangeNotifier {
             totalTime: impact.totalTime,
             timestamp: impact.timestamp,
             territories: impact.territories,
+            secondsWalk: impact.secondsWalk,
+            secondsRun: impact.secondsRun,
+            secondsBike: impact.secondsBike,
+            distanceWalk: impact.distanceWalk,
+            distanceRun: impact.distanceRun,
+            distanceBike: impact.distanceBike,
             boostId: impact.boostId,
           );
           if (impactResult.result == null) {
@@ -329,16 +337,14 @@ class SessionRepository extends ChangeNotifier {
   }
 
   void _onMetricsUpdated() {
-    if (_playingState == PlayingState.playing &&
-        _trackingRepository.currentHarActivity == HarActivity.vehicle) {
-      pauseGame();
-      _pausedByVehicle = true;
-      onVehicleNotification?.call();
+    if (_playingState == PlayingState.playing && _trackingRepository.isPaused) {
+      _playingState = PlayingState.paused;
+      notifyListeners();
       return;
     }
-    if (_pausedByVehicle && _trackingRepository.currentHarActivity != HarActivity.vehicle) {
-      resumeGame();
-      _pausedByVehicle = false;
+    if (_playingState == PlayingState.paused && !_trackingRepository.isPaused && _trackingRepository.isActivityActive) {
+      _playingState = PlayingState.playing;
+      notifyListeners();
       return;
     }
     notifyListeners();
@@ -346,6 +352,15 @@ class SessionRepository extends ChangeNotifier {
 
   void _resetSessionData() {
     _trainingConfig = null;
+    _accumulatedImpactPoints = 0.0;
+    _secondsWalk = 0;
+    _secondsRun = 0;
+    _secondsBike = 0;
+    _distanceWalked = 0.0;
+    _distanceRun = 0.0;
+    _distanceBike = 0.0;
+    _sessionTerritoryImpacts.clear();
+    _trackingRepository.clear();
   }
 
   @override
