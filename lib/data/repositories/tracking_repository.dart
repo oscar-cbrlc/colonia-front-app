@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/services/location_service.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,9 @@ class TrackingRepository extends ChangeNotifier {
   double _averagePace = 0.0; 
   Timer? _gameTimer;
   Timer? _routineTimer;
+
+  ActivityType? _activityType;
+  ActivityType? get activityType => _activityType;
 
   HarActivity _currentHarActivity = HarActivity.unknown;
   int _secondsWalk = 0;
@@ -147,7 +151,8 @@ class TrackingRepository extends ChangeNotifier {
     } catch (_) {}
   }
 
-  void startActivity() {
+  void startActivity(ActivityType activityType) {
+    _activityType = activityType;
     _isActivityActive = true;
     _isPaused = false;
     _totalMetersTracked = 0;
