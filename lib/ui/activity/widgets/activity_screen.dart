@@ -45,14 +45,26 @@ class _ActivityScreenState extends State<ActivityScreen> {
       }
     };
 
-    widget.viewModel.sessionRepository.onVehicleNotification = () {
+    widget.viewModel.trackingRepository.onSuspectedInvalidNotification = () {
       if (!mounted) return;
       final locale = AppLocalizations.of(context);
       if (locale != null) {
         NotificationService().showNotification(
           id: 102,
           title: 'Colonia - Tracking',
-          body: locale.vehicleDetectedPaused,
+          body: widget.viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription : locale.suspectedOnBikeDescription,
+        );
+      }
+    };
+
+    widget.viewModel.trackingRepository.onAutoResumedNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 103,
+          title: 'Colonia - Tracking',
+          body: locale.autoResumed,
         );
       }
     };
@@ -995,6 +1007,10 @@ class _ActivityProgressPanel extends StatelessWidget {
                   _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                 ],
               ),
+              if (viewModel.pausedBySuspectedInvalid) ...[
+                const SizedBox(height: 12),
+                _SuspectedInvalidActivityBanner(viewModel: viewModel),
+              ],
               const SizedBox(height: 12),
 
               if (training != TrainingType.free) ...[
@@ -1101,6 +1117,93 @@ class _ActivityProgressPanel extends StatelessWidget {
     } else {
       return "$twoDigitMinutes:$twoDigitSeconds";
     }
+  }
+}
+
+class _SuspectedInvalidActivityBanner extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _SuspectedInvalidActivityBanner({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: ShapeDecoration(
+        color: AppTheme.darkBackground.withAlpha(240),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: const BorderSide(
+            color: Colors.orangeAccent,
+            width: 1.5,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.warning_amber_sharp,
+                color: Colors.orangeAccent,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  locale.suspectedInvalidTitle.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.orangeAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1.0,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription : locale.suspectedOnBikeDescription,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              height: 1.3,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                viewModel.onPushPlayButton();
+              },
+              icon: const Icon(Icons.play_arrow, color: Colors.black87, size: 16),
+              label: Text(
+                locale.resume.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
