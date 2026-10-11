@@ -1,11 +1,20 @@
 import 'dart:math';
 import 'package:colonia_front_app/data/models/sensor_reading.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:flutter/foundation.dart';
+
+final harActivityKmHRange = <HarActivity, ({double min, double max})>{
+  HarActivity.walk: (min: 0.0, max: 6.4),
+  HarActivity.run: (min: 6.4, max: 13.0),
+  HarActivity.bike: (min: 13.0, max: 30.0),
+  HarActivity.vehicle: (min: 30.0, max: double.infinity),
+};
 
 class HarActivityResolver {
   HarActivity resolve({
     required HarActivity? modelPrediction,
+    required ActivityType? activityType,
     required List<SensorReading> readings,
     required double speedMs,
     required double paceMinKm,
@@ -18,44 +27,32 @@ class HarActivityResolver {
       'HarActivityResolver: model=$model, heuristic=$heuristic, speed=${speedKmH.toStringAsFixed(1)}km/h, pace=${paceMinKm.toStringAsFixed(1)}min/km',
     );
 
-    if (speedKmH < 1.5) {
-      if (heuristic == HarActivity.standing) {
-        return HarActivity.standing;
-      }
-      if (model == HarActivity.vehicle || model == HarActivity.bike) {
-        return HarActivity.standing;
-      }
+    if (speedKmH <= 0.5 || heuristic == HarActivity.standing) {
+      return HarActivity.standing;
     }
 
-    if (speedKmH > 30.0) {
+    if (inSpeedRange(HarActivity.vehicle, speedKmH) ||
+        (model == HarActivity.vehicle && heuristic == HarActivity.vehicle)) {
       return HarActivity.vehicle;
     }
 
-    if (speedKmH >= 10.0 && speedKmH <= 25.0) {
-      if (model == HarActivity.vehicle || heuristic == HarActivity.vehicle) {
-        return HarActivity.vehicle;
+    if (activityType == ActivityType.onFoot) {
+      if (model == HarActivity.walk ||
+          model == HarActivity.run ||
+          heuristic == HarActivity.walk ||
+          heuristic == HarActivity.run) {
+        if (inSpeedRange(HarActivity.walk, speedKmH)) return HarActivity.walk;
+        if (inSpeedRange(HarActivity.run, speedKmH)) return HarActivity.run;
       }
-      return HarActivity.bike;
+    } else {
+      if (model == HarActivity.bike ||
+          heuristic == HarActivity.bike ||
+          model == HarActivity.vehicle ||
+          heuristic == HarActivity.vehicle) {
+        if (inSpeedRange(HarActivity.bike, speedKmH)) return HarActivity.bike;
+        if (inSpeedRange(HarActivity.vehicle, speedKmH)) return HarActivity.vehicle;
+      }
     }
-
-    if (speedKmH >= 7.0) {
-      if (model == HarActivity.run || heuristic == HarActivity.run) {
-        return HarActivity.run;
-      }
-    }
-
-    if (speedKmH >= 1.5 && speedKmH < 7.0) {
-      if (heuristic == HarActivity.walk || model == HarActivity.walk) {
-        return HarActivity.walk;
-      }
-      if (model == HarActivity.bike && speedKmH > 5.0) {
-        return HarActivity.bike;
-      }
-      return HarActivity.walk;
-    }
-
-    if (heuristic != HarActivity.unknown) return heuristic;
-    if (model != HarActivity.unknown) return model;
 
     return HarActivity.unknown;
   }
@@ -79,7 +76,9 @@ class HarActivityResolver {
       return sqrt(r.pitch * r.pitch + r.roll * r.roll + r.yaw * r.yaw);
     }).reduce((a, b) => a + b) / readings.length;
 
-    debugPrint('HarActivityResolver: Heuristics - deltaG=${deltaG.toStringAsFixed(2)}, stdDev=${stdDev.toStringAsFixed(2)}, avgGyro=${avgGyro.toStringAsFixed(2)}');
+    debugPrint(
+      'HarActivityResolver: Heuristics - deltaG=${deltaG.toStringAsFixed(2)}, stdDev=${stdDev.toStringAsFixed(2)}, avgGyro=${avgGyro.toStringAsFixed(2)}',
+    );
 
     if (deltaG < 0.35 && stdDev < 0.10) {
       return HarActivity.standing;
@@ -102,5 +101,11 @@ class HarActivityResolver {
     }
 
     return HarActivity.unknown;
+  }
+
+  bool inSpeedRange(HarActivity activity, double speedKmH) {
+    final range = harActivityKmHRange[activity];
+    if (range == null) return false;
+    return speedKmH >= range.min && speedKmH <= range.max;
   }
 }

@@ -4,6 +4,7 @@ import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
@@ -28,7 +29,7 @@ class SessionRepository extends ChangeNotifier {
   LocalStorageService get localStorageService => _localStorageService;
 
   PlayingState _playingState = PlayingState.stopped;
-  HarActivity _activeActivity = HarActivity.walk;
+  ActivityType? _activityType;
   TrainingConfig? _trainingConfig;
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
@@ -44,7 +45,8 @@ class SessionRepository extends ChangeNotifier {
   final Map<String, double> _sessionTerritoryImpacts = {};
 
   PlayingState get playingState => _playingState;
-  HarActivity? get sportActivity => _activeActivity;
+  ActivityType? get activityType =>_activityType;
+
   TrainingConfig? get trainingConfig => _trainingConfig;
   double get targetDistance => _trainingConfig?.distance ?? 0.0;
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
@@ -133,7 +135,6 @@ class SessionRepository extends ChangeNotifier {
   void setupSession({
     required TrainingConfig config,
   }) {
-    _activeActivity = config.activity;
     _trainingConfig = config;
     
     _sessionConfig = SessionConfig.fromTrainingConfig(config);
@@ -154,7 +155,7 @@ class SessionRepository extends ChangeNotifier {
     _distanceRun = 0.0;
     _distanceBike = 0.0;
     _sessionTerritoryImpacts.clear();
-    _trackingRepository.startActivity();
+    _trackingRepository.startActivity(_activityType!);
     onStartNotification?.call();
     notifyListeners();
   }

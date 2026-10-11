@@ -91,6 +91,7 @@ class SensorRepository extends ChangeNotifier {
 
     _currentActivity = _activityResolver.resolve(
       modelPrediction: modelPrediction,
+      activityType: _trackingRepository?.activityType,
       readings: _readingBatch,
       speedMs: speedMs,
       paceMinKm: paceMinKm,
