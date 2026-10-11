@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
@@ -144,7 +145,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               alignment: Alignment.centerRight,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 120, right: 16),
+                  padding: const EdgeInsets.only(bottom: 320, right: 16),
                   child: MapControlGroup(
                     listenable: widget.viewModel,
                     currentBearing: widget.viewModel.currentBearing,
@@ -165,7 +166,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   children: [
                     _NextImpactPanel(viewModel: widget.viewModel),
                     const SizedBox(height: 8),
-                    _TrainingObjectiveWidget(viewModel: widget.viewModel),
+                    _HarActivityVisualizerWidget(
+                      sensorActivity: widget.viewModel.currentHarActivity,
+                    ),
                   ],
                 ),
               ),
@@ -174,7 +177,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 alignment: Alignment.centerLeft,
                 child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
               ),
-            
+
+
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.bottomCenter,
@@ -474,20 +478,10 @@ class _DistanceProgressPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: AppTheme.primaryColor.withAlpha(30),
-              ),
-              child: _SegmentedProgressBar(
-                progress: progress,
-                color: AppTheme.primaryColor,
-                isReversed: false,
-              ),
+            _SegmentedProgressBar(
+              progress: progress,
+              color: AppTheme.primaryColor,
+              isReversed: false,
             ),
             const SizedBox(height: 8),
             Row(
@@ -586,20 +580,10 @@ class _TimeProgressPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: AppTheme.secondaryColor.withAlpha(30),
-              ),
-              child: _SegmentedProgressBar(
-                progress: progress,
-                color: AppTheme.secondaryColor,
-                isReversed: true,
-              ),
+            _SegmentedProgressBar(
+              progress: progress,
+              color: AppTheme.secondaryColor,
+              isReversed: true,
             ),
             const SizedBox(height: 8),
             Row(
@@ -721,21 +705,11 @@ class _PaceEquilibriumPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: activityColor.withAlpha(30),
-              ),
-              child: _PaceBarEquilibrium(
-                pace: currentPace,
-                targetPace: targetPace,
-                inPaceColor: AppTheme.successColor,
-                outPaceColor: AppTheme.errorColor,
-              ),
+            _PaceBarEquilibrium(
+              pace: currentPace,
+              targetPace: targetPace,
+              inPaceColor: AppTheme.successColor,
+              outPaceColor: AppTheme.errorColor,
             ),
             const SizedBox(height: 8),
             Row(
@@ -842,37 +816,22 @@ class _TrainingObjectiveWidget extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: ShapeDecoration(
-            shape: BeveledRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: AppTheme.secondaryColor.withAlpha(150),
-                width: 1,
-              ),
-            ),
-            color: AppTheme.darkBackground.withAlpha(220),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
-                const SizedBox(height: 8),
-                _DistanceProgressPanel(viewModel: viewModel),
-              ],
-              if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
-                if (training != TrainingType.timeTrial) const SizedBox(height: 8),
-                _TimeProgressPanel(viewModel: viewModel),
-              ],
-              if (training == TrainingType.pace) ...[
-                const SizedBox(height: 8),
-                _PaceEquilibriumPanel(viewModel: viewModel),
-              ],
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
+              const SizedBox(height: 8),
+              _DistanceProgressPanel(viewModel: viewModel),
             ],
-          ),
+            if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
+              if (training != TrainingType.timeTrial) const SizedBox(height: 8),
+              _TimeProgressPanel(viewModel: viewModel),
+            ],
+            if (training == TrainingType.pace) ...[
+              const SizedBox(height: 8),
+              _PaceEquilibriumPanel(viewModel: viewModel),
+            ],
+          ],
         );
       },
     );
@@ -926,24 +885,16 @@ class _ActivityProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final HarActivity activity = viewModel.currentHarActivity;
+        final ActivityType activityType = viewModel.selectedActivityType!;
         final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
 
-        final IconData activityIcon = switch (activity) {
-          HarActivity.walk => Icons.directions_walk,
-          HarActivity.run => Icons.directions_run,
-          HarActivity.bike => Icons.directions_bike,
-          HarActivity.vehicle => Icons.directions_car,
-          HarActivity.standing => Icons.emoji_people_sharp,
-          HarActivity.unknown => Icons.sensors,
+        final IconData activityIcon = switch (activityType) {
+          ActivityType.onFoot => Icons.hiking_sharp,
+          ActivityType.onBike => Icons.pedal_bike_sharp,
         };
-        final Color activityColor = switch (activity) {
-          HarActivity.walk => AppTheme.walkColor,
-          HarActivity.run => AppTheme.runColor,
-          HarActivity.bike => AppTheme.bikeColor,
-          HarActivity.standing => Colors.orangeAccent,
-          HarActivity.vehicle => Colors.orangeAccent,
-          HarActivity.unknown => AppTheme.primaryColor,
+        final Color activityTypeColor = switch (activityType) {
+          ActivityType.onFoot => AppTheme.walkColor,
+          ActivityType.onBike => AppTheme.bikeColor,
         };
         final IconData trainingIcon = switch (training) {
           TrainingType.distance => Icons.straighten,
@@ -960,7 +911,7 @@ class _ActivityProgressPanel extends StatelessWidget {
             shape: BeveledRectangleBorder(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
               side: BorderSide(
-                color: activityColor,
+                color: activityTypeColor,
                 width: 1.5,
               )
             ),
@@ -974,10 +925,10 @@ class _ActivityProgressPanel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(activityIcon, color: activityColor, size: 32),
+                      Icon(activityIcon, color: activityTypeColor, size: 32),
                       const SizedBox(width: 8),
                       Text(
-                        activity.getLocale(locale).toUpperCase(),
+                        activityType.getLocale(locale).toUpperCase(),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
                       ),
                     ],
@@ -1044,7 +995,12 @@ class _ActivityProgressPanel extends StatelessWidget {
                   _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                 ],
               ),
+              const SizedBox(height: 12),
 
+              if (training != TrainingType.free) ...[
+                const SizedBox(height: 12),
+                _TrainingObjectiveWidget(viewModel: viewModel),
+              ],
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -1248,8 +1204,8 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     double distance = 0.0;
     Duration time = Duration.zero;
 
+    final activityType = widget.viewModel.selectedActivityType ?? ActivityType.onFoot;
     final training = widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
-    final activity = widget.viewModel.selectedPreActivity ?? HarActivity.walk;
 
     if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) {
       distance = (_km * 1000.0) + _m;
@@ -1261,7 +1217,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     final double pace = _paceMin + (_paceSec / 60.0);
     
     widget.viewModel.setActivityConfig(
-        activity: activity,
+        activityType: activityType,
         trainingType: training,
         distance: distance,
         time: time,
@@ -1310,6 +1266,69 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     ),
                   ),
                 ),
+
+                Row (
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.activity.toUpperCase(),
+                        style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            fontSize: 12,
+                            decoration: TextDecoration.none
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _showPointsCalculationDialog(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.help_center_outlined,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ]
+                ),
+                const SizedBox(height: 8),
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1,
+                  children: [
+                    _ChoiceChip(
+                      label: locale.onFoot,
+                      icon: Icons.hiking_sharp,
+                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onFoot,
+                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onFoot,
+                      color: AppTheme.runColor,
+                    ),
+                    _ChoiceChip(
+                      label: locale.onBike,
+                      icon: Icons.pedal_bike_sharp,
+                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onBike,
+                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onBike,
+                      color: AppTheme.bikeColor,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
                 Row (
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -2090,6 +2109,7 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     final color = _getColor();
     final points = _getUnitPoints();
 
@@ -2102,7 +2122,66 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
       ),
-
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_getIcon(), color: color, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                locale.realTimeHar.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              Text(
+                sensorActivity.getLocale(locale).toUpperCase(),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: ShapeDecoration(
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              color: points > 0 ? color.withValues(alpha: 0.2) : Colors.white10,
+            ),
+            child: Text(
+              points > 0 ? '+$points PTS/5s' : '0 PTS',
+              style: TextStyle(
+                color: points > 0 ? color : Colors.white38,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: sensorActivity == HarActivity.unknown ? Colors.amber : Colors.greenAccent,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

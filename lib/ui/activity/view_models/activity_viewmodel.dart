@@ -7,6 +7,7 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
@@ -71,6 +72,10 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   BoostInventory? get selectedBoost => _selectedBoost;
   set selectedBoost(BoostInventory? value) { _selectedBoost = value; notifyListeners(); }
 
+  ActivityType? _selectedActivityType = ActivityType.onFoot;
+  ActivityType? get selectedActivityType => _selectedActivityType;
+  set selectedActivityType(ActivityType? value) { _selectedActivityType = value; notifyListeners(); }
+
   PlayingState get playingState => _sessionRepository.playingState;
   Point? get userPosition => _trackingRepository.userPosition;
   double _mapBearing = 0.0;
@@ -99,7 +104,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   String get formattedSelectedPace => selectedPace != null ? formatPace(selectedPace!) : "--";
 
   TrainingConfig? get trainingConfig => _sessionRepository.trainingConfig;
-  HarActivity? get selectedActivity => trainingConfig?.activity;
   TrainingType? get selectedTrainingType => trainingConfig?.training.type;
   String? get selectedTrainingName => trainingConfig?.training.name;
   double? get selectedDistance => trainingConfig?.distance;
@@ -315,21 +319,21 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void setActivityConfig({
-    required HarActivity activity,
+    required ActivityType activityType,
     required TrainingType trainingType,
     required double distance,
     required Duration time,
     required double pace,
     BoostInventory? boost,
   }) {
-    _selectedPreActivity = activity;
+    _selectedActivityType = activityType;
     _selectedPreTrainingType = trainingType;
     _selectedBoost = boost;
 
     final trainingObj = _trainingRepository.getTrainingByType(trainingType);
 
     final config = TrainingConfig(
-      activity: activity,
+      activityType: activityType,
       training: trainingObj,
       distance: distance,
       time: time,
@@ -360,7 +364,6 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _sensorRepository?.stopReading();
     notifyListeners();
     try {
-      final activity = selectedActivity ?? _selectedPreActivity ?? HarActivity.walk;
       final trainingType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
 
       final result = await _sessionRepository.stopAndSaveSession();
@@ -369,11 +372,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
         return null;
       }
 
-      debugPrint("ActivityViewModel.onPushStopButton: Session saved successfully! Activity: $activity, Training: $trainingType");
       return {
         'session': result.session, 
         'activityResult': result.activityResult,
-        'activity': activity, 
         'trainingType': trainingType,
         'trainingName': trainingType.name,
         'isOffline': result.isOffline,
