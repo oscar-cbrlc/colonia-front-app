@@ -848,4 +848,18 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get vehicleDetectedPaused =>
       'Movimiento en vehículo detectado. Actividad pausada.';
+
+  @override
+  String get suspectedInvalidTitle => 'Movimiento sospechoso detectado';
+
+  @override
+  String get suspectedOnFootDescription =>
+      'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pie para reanudar, o toca Reanudar.';
+
+  @override
+  String get suspectedOnBikeDescription =>
+      'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pedalear para reanudar, o toca Reanudar.';
+
+  @override
+  String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
 }

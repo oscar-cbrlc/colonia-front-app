@@ -1669,6 +1669,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Movimiento en vehículo detectado. Actividad pausada.'**
   String get vehicleDetectedPaused;
+
+  /// No description provided for @suspectedInvalidTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento sospechoso detectado'**
+  String get suspectedInvalidTitle;
+
+  /// No description provided for @suspectedOnFootDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pie para reanudar, o toca Reanudar.'**
+  String get suspectedOnFootDescription;
+
+  /// No description provided for @suspectedOnBikeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pedalear para reanudar, o toca Reanudar.'**
+  String get suspectedOnBikeDescription;
+
+  /// No description provided for @autoResumed.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento válido detectado. Excursión reanudada.'**
+  String get autoResumed;
 }
 
 class _AppLocalizationsDelegate

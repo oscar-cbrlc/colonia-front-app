@@ -915,5 +915,17 @@
     "@activityStarted": {},
 
     "vehicleDetectedPaused": "Vehicle motion detected. Activity paused.",
-    "@vehicleDetectedPaused": {}
+    "@vehicleDetectedPaused": {},
+
+    "suspectedInvalidTitle": "Suspected Invalid Motion",
+    "@suspectedInvalidTitle": {},
+
+    "suspectedOnFootDescription": "Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.",
+    "@suspectedOnFootDescription": {},
+
+    "suspectedOnBikeDescription": "Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.",
+    "@suspectedOnBikeDescription": {},
+
+    "autoResumed": "Valid motion detected. Excursion resumed.",
+    "@autoResumed": {}
 }

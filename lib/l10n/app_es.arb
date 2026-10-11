@@ -916,5 +916,18 @@
     "@activityStarted": {},
 
     "vehicleDetectedPaused": "Movimiento en vehículo detectado. Actividad pausada.",
-    "@vehicleDetectedPaused": {}
+    "@vehicleDetectedPaused": {},
+
+    "suspectedInvalidTitle": "Movimiento sospechoso detectado",
+    "@suspectedInvalidTitle": {},
+
+
+    "suspectedOnFootDescription": "Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pie para reanudar, o toca Reanudar.",
+    "@suspectedOnFootDescription": {},
+
+    "suspectedOnBikeDescription": "Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pedalear para reanudar, o toca Reanudar.",
+    "@suspectedOnBikeDescription": {},
+
+    "autoResumed": "Movimiento válido detectado. Excursión reanudada.",
+    "@autoResumed": {}
 }
