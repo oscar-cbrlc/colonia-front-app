@@ -52,7 +52,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         NotificationService().showNotification(
           id: 102,
           title: 'Colonia - Tracking',
-          body: widget.viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription : locale.suspectedOnBikeDescription,
+          body: widget.viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription((GameConfig.limitConsecutiveInvalidUnits)),
         );
       }
     };
@@ -1170,7 +1170,7 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription : locale.suspectedOnBikeDescription,
+            viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription(GameConfig.limitConsecutiveInvalidUnits),
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 11,
