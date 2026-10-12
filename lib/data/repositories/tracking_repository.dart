@@ -100,6 +100,23 @@ class TrackingRepository extends ChangeNotifier {
   double get distanceBike => _distanceBike;
   double get pendingNodeImpactPoints => _pendingNodeImpactPoints;
 
+  int get currentActivityUnitPoints {
+    switch (_currentHarActivity) {
+      case HarActivity.walk:
+        return GameConfig.walkUnitPoints;
+      case HarActivity.run:
+        return GameConfig.runUnitPoints;
+      case HarActivity.bike:
+        return GameConfig.bikeUnitPoints;
+      default:
+        return 0;
+    }
+  }
+
+  List<GeoCoord> _perimeteredCoords = [];
+  List<GeoCoord> get perimeteredCoords => _perimeteredCoords;
+  set perimeteredCoords (List<GeoCoord> value) => _perimeteredCoords = value;
+
   TrackingRepository(this._locationService, this._territoryRepository) {
     _initPassiveTracking();
   }
@@ -129,7 +146,7 @@ class TrackingRepository extends ChangeNotifier {
 
     if (!valid) {
       _consecutiveInvalidUnits++;
-      if (_consecutiveInvalidUnits > 1 && !_isPaused) {
+      if (_consecutiveInvalidUnits >= GameConfig.limitConsecutiveInvalidUnits && !_isPaused) {
         _isPaused = true;
         _pausedBySuspectedInvalid = true;
         _gameTimer?.cancel();
@@ -153,34 +170,30 @@ class TrackingRepository extends ChangeNotifier {
     }
 
     if (!_isPaused) {
-      int unitPts = 0;
+      final unitPoints = currentActivityUnitPoints;
       switch (activity) {
         case HarActivity.walk:
-          unitPts = GameConfig.walkUnitPoints;
           _secondsWalk += GameConfig.unitSeconds;
           _nodeSecondsWalk += GameConfig.unitSeconds;
           _distanceWalk += _unitDistanceTracked;
           _nodeDistanceWalk += _unitDistanceTracked;
           break;
         case HarActivity.bike:
-          unitPts = GameConfig.bikeUnitPoints;
           _secondsBike += GameConfig.unitSeconds;
           _nodeSecondsBike += GameConfig.unitSeconds;
           _distanceBike += _unitDistanceTracked;
           _nodeDistanceBike += _unitDistanceTracked;
           break;
         case HarActivity.run:
-          unitPts = GameConfig.runUnitPoints;
           _secondsRun += GameConfig.unitSeconds;
           _nodeSecondsRun += GameConfig.unitSeconds;
           _distanceRun += _unitDistanceTracked;
           _nodeDistanceRun += _unitDistanceTracked;
           break;
         default:
-          unitPts = 0;
           break;
       }
-      _pendingNodeImpactPoints += unitPts * pow(_currentSpeed, 2) * GameConfig.pointSpeedMod;
+      _pendingNodeImpactPoints += unitPoints * pow(_currentSpeed, 2) * GameConfig.pointSpeedMod;
       _unitDistanceTracked = 0.0;
       notifyListeners();
     }
@@ -435,6 +448,7 @@ class TrackingRepository extends ChangeNotifier {
 
         if (_metersSinceLastPerimeterPoint >= GameConfig.minMetersBetweenTracking) {
           _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
+          _perimeteredCoords.add(GeoCoord(lat: position.latitude, lon: position.longitude));
           _metersSinceLastPerimeterPoint = 0;
         }
 
@@ -454,7 +468,9 @@ class TrackingRepository extends ChangeNotifier {
             distanceRun: _nodeDistanceRun,
             distanceBike: _nodeDistanceBike,
           );
-          if (_currentCell != null) _visitedCells.add(_currentCell!);
+          if (_currentCell != null) {
+            _visitedCells.add(_currentCell!);
+          }
           _onTrackNodes.add(node);
           
           _metersSinceLastNode -= _metersBetweenNodes;
@@ -477,6 +493,7 @@ class TrackingRepository extends ChangeNotifier {
       _lastRecordedPosition = position;
       _lastTrackTime = now;
       _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
+      _perimeteredCoords.add(GeoCoord(lat: position.latitude, lon: position.longitude));
     }
 
     notifyListeners();
@@ -545,6 +562,7 @@ class TrackingRepository extends ChangeNotifier {
     _consecutiveInvalidUnits = 0;
     _warmupUnits = 3;
     _pausedBySuspectedInvalid = false;
+    _perimeteredCoords = [];
     _currentHarActivity = HarActivity.unknown;
     _gameTimer?.cancel();
     _routineTimer?.cancel();

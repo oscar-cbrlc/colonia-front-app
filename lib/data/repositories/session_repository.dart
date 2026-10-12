@@ -116,6 +116,16 @@ class SessionRepository extends ChangeNotifier {
       }
     }
 
+    final insidePerimeterCells = H3Helper.getHexagonsInsidePolygon(_trackingRepository.perimeteredCoords, GameConfig.h3Resolution, GameConfig.baseMetersBetweenNodes);
+    if (insidePerimeterCells.isNotEmpty) {
+      final double perimeterImpact = GameConfig.baseInsidePerimeterMod * _trackingRepository.currentActivityUnitPoints;
+      for (final cellId in insidePerimeterCells) {
+        _applyImpactToCell(cellId, perimeterImpact);
+        nodeTotalImpact += perimeterImpact;
+      }
+      _trackingRepository.perimeteredCoords = [];
+    }
+
     _accumulatedImpactPoints += nodeTotalImpact;
     _trackingRepository.updateLastNodePoints(primaryImpact);
     if (secondaryNodes.isNotEmpty) {

@@ -101,4 +101,38 @@ class H3Helper {
     final BigInt index = BigInt.parse(h3Index, radix: 16);
     return h3.cellToGeo(index);
   }
+
+  static double _distanceMeters(GeoCoord a, GeoCoord b) {
+    const earthRadiusMeters = 6371008.8;
+
+    final lat1 = a.lat * pi / 180;
+    final lat2 = b.lat * pi / 180;
+    final dLat = lat2 - lat1;
+    final dLon = (b.lon - a.lon) * pi / 180;
+
+    final h = pow(sin(dLat / 2), 2) +
+        cos(lat1) * cos(lat2) * pow(sin(dLon / 2), 2);
+
+    return 2 * earthRadiusMeters * asin(sqrt(h));
+  }
+
+  static List<String> getHexagonsInsidePolygon(
+      List<GeoCoord> perimeter,
+      int resolution,
+      double distanceToValidate, {
+        bool includePerimeter = false,
+      }) {
+    if (perimeter.length < 3) return [];
+
+    if (_distanceMeters(perimeter.last, perimeter.first) > distanceToValidate) {
+      return [];
+    }
+
+    final cells = h3.polygonToCells(
+      perimeter: perimeter,
+      resolution: resolution,
+    );
+
+    return cells.map((cell) => cell.toRadixString(16)).toList();
+  }
 }
