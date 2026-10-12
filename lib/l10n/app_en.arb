@@ -920,11 +920,25 @@
     "suspectedInvalidTitle": "Suspected Invalid Motion",
     "@suspectedInvalidTitle": {},
 
-    "suspectedOnFootDescription": "Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.",
-    "@suspectedOnFootDescription": {},
+    "suspectedOnFootDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.",
+    "@suspectedOnFootDescription": {
+        "placeholders" :{
+            "limit": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
 
-    "suspectedOnBikeDescription": "Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.",
-    "@suspectedOnBikeDescription": {},
+    "suspectedOnBikeDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.",
+    "@suspectedOnBikeDescription": {
+        "placeholders" :{
+            "limit": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
 
     "autoResumed": "Valid motion detected. Excursion resumed.",
     "@autoResumed": {}

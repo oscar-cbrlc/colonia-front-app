@@ -853,12 +853,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get suspectedInvalidTitle => 'Movimiento sospechoso detectado';
 
   @override
-  String get suspectedOnFootDescription =>
-      'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pie para reanudar, o toca Reanudar.';
+  String suspectedOnFootDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+  }
 
   @override
-  String get suspectedOnBikeDescription =>
-      'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pedalear para reanudar, o toca Reanudar.';
+  String suspectedOnBikeDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+  }
 
   @override
   String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';

@@ -848,12 +848,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get suspectedInvalidTitle => 'Suspected Invalid Motion';
 
   @override
-  String get suspectedOnFootDescription =>
-      'Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+  String suspectedOnFootDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+  }
 
   @override
-  String get suspectedOnBikeDescription =>
-      'Motion detected as vehicle or unknown for 2 consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+  String suspectedOnBikeDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+  }
 
   @override
   String get autoResumed => 'Valid motion detected. Excursion resumed.';

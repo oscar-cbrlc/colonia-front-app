@@ -1679,14 +1679,14 @@ abstract class AppLocalizations {
   /// No description provided for @suspectedOnFootDescription.
   ///
   /// In es, this message translates to:
-  /// **'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pie para reanudar, o toca Reanudar.'**
-  String get suspectedOnFootDescription;
+  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.'**
+  String suspectedOnFootDescription(int limit);
 
   /// No description provided for @suspectedOnBikeDescription.
   ///
   /// In es, this message translates to:
-  /// **'Movimiento detectado como vehículo o desconocido durante 2 unidades consecutivas. Excursión pausada automáticamente. Vuelve a pedalear para reanudar, o toca Reanudar.'**
-  String get suspectedOnBikeDescription;
+  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.'**
+  String suspectedOnBikeDescription(int limit);
 
   /// No description provided for @autoResumed.
   ///

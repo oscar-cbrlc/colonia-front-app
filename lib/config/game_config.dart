@@ -13,6 +13,8 @@ abstract class GameConfig {
 
   static const int impactHexagonAreaLevel = 1;
 
+  static const double baseInsidePerimeterMod = 10.0;
+
   static const int walkUnitPoints = 5;
   static const int bikeUnitPoints = 15;
   static const int runUnitPoints = 25;
@@ -25,4 +27,7 @@ abstract class GameConfig {
   static const defaultObjectiveDistance = 1000;
   static const defaultObjectiveTime = Duration(hours: 1);
   static const defaultObjectivePace = 8.0;
+
+  static int limitConsecutiveInvalidUnits = 4;
+
 }
