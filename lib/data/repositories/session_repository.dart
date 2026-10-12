@@ -4,6 +4,7 @@ import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/session/on_track_node.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -26,21 +27,36 @@ class SessionRepository extends ChangeNotifier {
   LocalStorageService get localStorageService => _localStorageService;
 
   PlayingState _playingState = PlayingState.stopped;
-  String _activeActivity = "walk";
+  ActivityType? _activityType;
   TrainingConfig? _trainingConfig;
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
 
+  int _secondsWalk = 0;
+  int _secondsRun = 0;
+  int _secondsBike = 0;
+  double _distanceWalked = 0.0;
+  double _distanceRun = 0.0;
+  double _distanceBike = 0.0;
+
   final Map<String, double> _sessionTerritoryImpacts = {};
 
   PlayingState get playingState => _playingState;
-  String? get sportActivity => _activeActivity;
+  ActivityType? get activityType =>_activityType;
+
   TrainingConfig? get trainingConfig => _trainingConfig;
   double get targetDistance => _trainingConfig?.distance ?? 0.0;
   Duration get targetDuration => _trainingConfig?.time ?? Duration.zero;
   double get targetPace => _trainingConfig?.pace ?? 0.0;
   BoostInventory? get boost => _trainingConfig?.boost;
   double get accumulatedImpactPoints => _accumulatedImpactPoints;
+
+  int get secondsWalk => _secondsWalk;
+  int get secondsRun => _secondsRun;
+  int get secondsBike => _secondsBike;
+  double get distanceWalk => _distanceWalked;
+  double get distanceRun => _distanceRun;
+  double get distanceBike => _distanceBike;
 
   List<Territory> get affectedTerritories => _affectedTerritories;
 
@@ -50,6 +66,8 @@ class SessionRepository extends ChangeNotifier {
   }
 
   void Function()? onSyncNotification;
+  void Function()? onStartNotification;
+  void Function()? onVehicleNotification;
 
   void _handleNodeCompleted(OnTrackNode node) {
     if (_playingState != PlayingState.playing) return;
@@ -62,8 +80,9 @@ class SessionRepository extends ChangeNotifier {
 
     if (centerCell == null) return;
 
-    final double trainingImpact = _trainingConfig?.training.impactPoints ?? 1.0;
-    final double primaryImpact = _sessionConfig.baseImpactPoints * trainingImpact;
+    final double scoreMultiplier = _sessionConfig.scoreMultiplier;
+    
+    final double primaryImpact = node.points * scoreMultiplier;
     double nodeTotalImpact = 0;
 
     _applyImpactToCell(centerCell, primaryImpact);
@@ -86,9 +105,25 @@ class SessionRepository extends ChangeNotifier {
           pace: node.pace,
           points: secondaryImpact,
           timestamp: node.timestamp,
+          secondsWalk: node.secondsWalk,
+          secondsRun: node.secondsRun,
+          secondsBike: node.secondsBike,
+          distanceWalk: node.distanceWalk,
+          distanceRun: node.distanceRun,
+          distanceBike: node.distanceBike,
           type: OnTrackNodeType.area,
         ));
       }
+    }
+
+    final insidePerimeterCells = H3Helper.getHexagonsInsidePolygon(_trackingRepository.perimeteredCoords, GameConfig.h3Resolution, GameConfig.baseMetersBetweenNodes);
+    if (insidePerimeterCells.isNotEmpty) {
+      final double perimeterImpact = GameConfig.baseInsidePerimeterMod * _trackingRepository.currentActivityUnitPoints;
+      for (final cellId in insidePerimeterCells) {
+        _applyImpactToCell(cellId, perimeterImpact);
+        nodeTotalImpact += perimeterImpact;
+      }
+      _trackingRepository.perimeteredCoords = [];
     }
 
     _accumulatedImpactPoints += nodeTotalImpact;
@@ -107,7 +142,6 @@ class SessionRepository extends ChangeNotifier {
   void setupSession({
     required TrainingConfig config,
   }) {
-    _activeActivity = config.activity;
     _trainingConfig = config;
     
     _sessionConfig = SessionConfig.fromTrainingConfig(config);
@@ -119,10 +153,10 @@ class SessionRepository extends ChangeNotifier {
 
   void startGame() {
     if (_playingState == PlayingState.playing) return;
+    _resetSessionData();
     _playingState = PlayingState.playing;
-    _accumulatedImpactPoints = 0.0;
-    _sessionTerritoryImpacts.clear();
-    _trackingRepository.startActivity();
+    _trackingRepository.startActivity(_activityType ?? ActivityType.onFoot);
+    onStartNotification?.call();
     notifyListeners();
   }
 
@@ -144,10 +178,19 @@ class SessionRepository extends ChangeNotifier {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
 
+    final double trainingImpact = _trainingConfig?.training.impactPoints ?? 1.0;
+
     final double finalDistance = _trackingRepository.totalMetersTracked;
     final int finalSeconds = _trackingRepository.totalSecondsElapsed;
 
     final session = _trackingRepository.stopActivity();
+    _secondsWalk = session.secondsWalk;
+    _secondsRun = session.secondsRun;
+    _secondsBike = session.secondsBike;
+    _distanceWalked = session.distanceWalk;
+    _distanceRun = session.distanceRun;
+    _distanceBike = session.distanceBike;
+
     final isValid = _verifyWorkoutCompletion(finalDistance, finalSeconds);
     session.isSuccess = isValid;
 
@@ -155,53 +198,63 @@ class SessionRepository extends ChangeNotifier {
     bool isOffline = false;
     String? error;
 
-    if (isValid) {
-      _affectedTerritories = List.from(session.territories);
+    _affectedTerritories = List.from(session.territories);
 
-      try {
-        final territoriesJson = _sessionTerritoryImpacts.entries.map((entry) => {
-          'territory_id': entry.key,
-          'points': entry.value,
-        }).toList();
+    try {
+      final territoriesJson = _sessionTerritoryImpacts.entries.map((entry) => {
+        'territory_id': entry.key,
+        'points': isValid? entry.value * trainingImpact : entry.value,
+      }).toList();
 
-        final impact = PendingActivityImpact(
-          totalDistance: finalDistance,
-          totalTime: finalSeconds,
-          timestamp: DateTime.now().toIso8601String(),
-          territories: territoriesJson,
-          boostId: _trainingConfig?.boost?.id,
-        );
+      final impact = PendingActivityImpact(
+        totalDistance: finalDistance,
+        totalTime: finalSeconds,
+        timestamp: DateTime.now().toIso8601String(),
+        territories: territoriesJson,
+        boostId: _trainingConfig?.boost?.id,
+        secondsWalk: _secondsWalk,
+        secondsRun: _secondsRun,
+        secondsBike: _secondsBike,
+        distanceWalk: _distanceWalked,
+        distanceRun: _distanceRun,
+        distanceBike: _distanceBike,
+      );
 
-        final impactResult = await _territoryRepository.applyTerritoryImpact(
-          totalDistance: impact.totalDistance,
-          totalTime: impact.totalTime,
-          timestamp: impact.timestamp,
-          territories: impact.territories,
-          boostId: impact.boostId,
-        );
+      final impactResult = await _territoryRepository.applyTerritoryImpact(
+        totalDistance: impact.totalDistance,
+        totalTime: impact.totalTime,
+        timestamp: impact.timestamp,
+        secondsWalk: impact.secondsWalk,
+        secondsRun: impact.secondsRun,
+        secondsBike: impact.secondsBike,
+        distanceWalk: impact.distanceWalk,
+        distanceRun: impact.distanceRun,
+        distanceBike: impact.distanceBike,
+        territories: impact.territories,
+        boostId: impact.boostId,
+      );
 
-        activityResult = impactResult.result;
-        isOffline = impactResult.isOffline;
-        error = impactResult.error;
+      activityResult = impactResult.result;
+      isOffline = impactResult.isOffline;
+      error = impactResult.error;
 
-        if (activityResult != null) {
-          if (impact.boostId != null) {
-            _boostRepository.fetchMyInventory();
-          }
-        } else {
-          if (impact.boostId != null) {
-            _boostRepository.consumeLocalBoost(impact.boostId!);
-          }
-          final pending = await _localStorageService.getPendingActivityImpacts();
-          pending.add(impact);
-          await _localStorageService.savePendingActivityImpacts(pending);
-          debugPrint('SessionRepository: Saved impact locally for later sync (isOffline: $isOffline, error: $error)');
+      if (activityResult != null) {
+        if (impact.boostId != null) {
+          _boostRepository.fetchMyInventory();
         }
-      } catch (e) {
-        debugPrint('SessionRepository: Error applying territory impact: $e');
-        isOffline = true;
-        error = e.toString();
+      } else {
+        if (impact.boostId != null) {
+          _boostRepository.consumeLocalBoost(impact.boostId!);
+        }
+        final pending = await _localStorageService.getPendingActivityImpacts();
+        pending.add(impact);
+        await _localStorageService.savePendingActivityImpacts(pending);
+        debugPrint('SessionRepository: Saved impact locally for later sync (isOffline: $isOffline, error: $error)');
       }
+    } catch (e) {
+      debugPrint('SessionRepository: Error applying territory impact: $e');
+      isOffline = true;
+      error = e.toString();
     }
 
     _resetSessionData();
@@ -225,6 +278,12 @@ class SessionRepository extends ChangeNotifier {
             totalTime: impact.totalTime,
             timestamp: impact.timestamp,
             territories: impact.territories,
+            secondsWalk: impact.secondsWalk,
+            secondsRun: impact.secondsRun,
+            secondsBike: impact.secondsBike,
+            distanceWalk: impact.distanceWalk,
+            distanceRun: impact.distanceRun,
+            distanceBike: impact.distanceBike,
             boostId: impact.boostId,
           );
           if (impactResult.result == null) {
@@ -258,41 +317,60 @@ class SessionRepository extends ChangeNotifier {
   }
 
   bool _verifyWorkoutCompletion(double actualDistanceMeters, int actualSeconds) {
-    final trainingName = _trainingConfig?.training.name.toLowerCase();
-    
-    if (trainingName == "free" || trainingName == null) {
+    final trainingType = _trainingConfig?.training.type ?? TrainingType.free;
+
+    if (trainingType == TrainingType.free) {
       return true;
     }
-    
-    if (trainingName == "distance") {
+
+    if (trainingType == TrainingType.distance) {
       return actualDistanceMeters >= targetDistance;
     }
-    
-    if (trainingName == "time" || trainingName == "duration") {
+
+    if (trainingType == TrainingType.time) {
       return actualSeconds >= targetDuration.inSeconds;
     }
-    
-    if (trainingName == "pace") {
+
+    if (trainingType == TrainingType.pace) {
       if (actualDistanceMeters < 50) return false;
       final actualPace = (actualSeconds / 60) / (actualDistanceMeters / 1000);
       return actualPace >= (targetPace * (1.0 - GameConfig.validPaceRange)) &&
              actualPace <= (targetPace * (1.0 + GameConfig.validPaceRange));
     }
-    
-    if (trainingName == "timetrial") {
+
+    if (trainingType == TrainingType.timeTrial) {
       return actualDistanceMeters >= targetDistance &&
              actualSeconds <= targetDuration.inSeconds;
     }
-    
+
     return true;
   }
 
   void _onMetricsUpdated() {
+    if (_playingState == PlayingState.playing && _trackingRepository.isPaused) {
+      _playingState = PlayingState.paused;
+      notifyListeners();
+      return;
+    }
+    if (_playingState == PlayingState.paused && !_trackingRepository.isPaused && _trackingRepository.isActivityActive) {
+      _playingState = PlayingState.playing;
+      notifyListeners();
+      return;
+    }
     notifyListeners();
   }
 
   void _resetSessionData() {
     _trainingConfig = null;
+    _accumulatedImpactPoints = 0.0;
+    _secondsWalk = 0;
+    _secondsRun = 0;
+    _secondsBike = 0;
+    _distanceWalked = 0.0;
+    _distanceRun = 0.0;
+    _distanceBike = 0.0;
+    _sessionTerritoryImpacts.clear();
+    _trackingRepository.clear();
   }
 
   @override

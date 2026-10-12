@@ -4,13 +4,13 @@ import 'package:colonia_front_app/domain/models/session/training_config.dart';
 
 class SessionConfig {
   final double metersBetweenNodes;
-  final double baseImpactPoints;
+  final double scoreMultiplier;
   final int impactAreaLevel;
   final double areaImpactMultiplier;
 
   const SessionConfig({
     required this.metersBetweenNodes,
-    required this.baseImpactPoints,
+    required this.scoreMultiplier,
     required this.impactAreaLevel,
     required this.areaImpactMultiplier,
   });
@@ -18,7 +18,7 @@ class SessionConfig {
   factory SessionConfig.fromBase() {
     return const SessionConfig(
       metersBetweenNodes: GameConfig.baseMetersBetweenNodes,
-      baseImpactPoints: GameConfig.basePointsEffect,
+      scoreMultiplier: 1.0,
       impactAreaLevel: 0,
       areaImpactMultiplier: 0.0,
     );
@@ -26,14 +26,14 @@ class SessionConfig {
 
   factory SessionConfig.fromTrainingConfig(TrainingConfig trainingConfig) {
     double meters = GameConfig.baseMetersBetweenNodes;
-    double points = GameConfig.basePointsEffect;
+    double mult = 1.0;
     int areaLevel = 0;
     double areaMult = 0.0;
 
     final boost = trainingConfig.boost;
     if (boost != null) {
       if (boost.type == BoostType.score.name) {
-        points *= boost.effect;
+        mult *= boost.effect;
       } else if (boost.type == BoostType.impact_distance.name) {
         meters *= boost.effect;
       } else if (boost.type == BoostType.impact_area.name) {
@@ -44,7 +44,7 @@ class SessionConfig {
 
     return SessionConfig(
       metersBetweenNodes: meters,
-      baseImpactPoints: points,
+      scoreMultiplier: mult,
       impactAreaLevel: areaLevel,
       areaImpactMultiplier: areaMult,
     );

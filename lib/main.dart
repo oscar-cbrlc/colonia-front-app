@@ -1,3 +1,6 @@
+import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
+import 'package:colonia_front_app/data/services/har_model_service.dart';
+import 'package:colonia_front_app/data/services/sensor_service.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/env/env.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
@@ -29,6 +32,7 @@ import 'package:colonia_front_app/data/repositories/team_request_repository.dart
 import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
 import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/data/services/api/boost_service.dart';
+import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
@@ -36,9 +40,10 @@ import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MapboxOptions.setAccessToken(Env.mapboxAccessToken);
+  await NotificationService().init();
   runApp(
     MultiProvider(
       providers: [
@@ -48,6 +53,18 @@ void main() {
 
         Provider<LocalStorageService>(
           create: (_) => LocalStorageService(),
+        ),
+
+        Provider<SensorService>(
+          create: (_) => SensorService(),
+        ),
+
+        Provider<ModelService>(
+          create: (_) {
+            final modelService = ModelService();
+            modelService.load();
+            return modelService;
+          },
         ),
 
         ProxyProvider<ApiClient, AuthService>(
@@ -184,6 +201,16 @@ void main() {
           ),
           update: (_, locationService, territoryRepository, previous) =>
               previous ?? TrackingRepository(locationService, territoryRepository),
+        ),
+
+        ChangeNotifierProxyProvider3<SensorService, ModelService, TrackingRepository, SensorRepository>(
+          create: (context) => SensorRepository(
+            context.read<SensorService>(),
+            context.read<ModelService>(),
+            context.read<TrackingRepository>(),
+          ),
+          update: (_, sensorService, modelService, trackingRepository, previous) =>
+              previous ?? SensorRepository(sensorService, modelService, trackingRepository),
         ),
 
         ChangeNotifierProxyProvider4<TrackingRepository, TerritoryRepository, LocalStorageService, BoostRepository, SessionRepository>(

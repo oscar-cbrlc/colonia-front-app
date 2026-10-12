@@ -4,6 +4,12 @@ class PendingActivityImpact {
   final String timestamp;
   final List<Map<String, dynamic>> territories;
   final int? boostId;
+  final int secondsWalk;
+  final int secondsRun;
+  final int secondsBike;
+  final double distanceWalk;
+  final double distanceRun;
+  final double distanceBike;
 
   PendingActivityImpact({
     required this.totalDistance,
@@ -11,6 +17,12 @@ class PendingActivityImpact {
     required this.timestamp,
     required this.territories,
     this.boostId,
+    this.secondsWalk = 0,
+    this.secondsRun = 0,
+    this.secondsBike = 0,
+    this.distanceWalk = 0.0,
+    this.distanceRun = 0.0,
+    this.distanceBike = 0.0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +31,12 @@ class PendingActivityImpact {
     'timestamp': timestamp,
     'territories': territories,
     'boost_id': boostId,
+    'seconds_walk': secondsWalk,
+    'seconds_run': secondsRun,
+    'seconds_bike': secondsBike,
+    'distance_walk': distanceWalk,
+    'distance_run': distanceRun,
+    'distance_bike': distanceBike,
   };
 
   factory PendingActivityImpact.fromJson(Map<String, dynamic> json) => PendingActivityImpact(
@@ -29,5 +47,11 @@ class PendingActivityImpact {
         .map((e) => Map<String, dynamic>.from(e as Map))
         .toList(),
     boostId: json['boost_id'] as int?,
+    secondsWalk: (json['seconds_walk'] as num?)?.toInt() ?? 0,
+    secondsRun: (json['seconds_run'] as num?)?.toInt() ?? 0,
+    secondsBike: (json['seconds_bike'] as num?)?.toInt() ?? 0,
+    distanceWalk: (json['distance_walk'] as num?)?.toDouble() ?? 0.0,
+    distanceRun: (json['distance_run'] as num?)?.toDouble() ?? 0.0,
+    distanceBike: (json['distance_bike'] as num?)?.toDouble() ?? 0.0,
   );
 }

@@ -9,6 +9,9 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get coloniaTitle => 'Colonia';
+
+  @override
   String get loginOrSignUp => 'Login or sign up';
 
   @override
@@ -133,6 +136,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startActivity => 'Start excursion';
 
   @override
+  String get onFoot => 'On Foot';
+
+  @override
+  String get onBike => 'On Bike';
+
+  @override
   String get walk => 'Walk';
 
   @override
@@ -140,6 +149,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bike => 'Bike';
+
+  @override
+  String get vehicle => 'Vehicle';
+
+  @override
+  String get standing => 'Standing';
+
+  @override
+  String get suspicious => 'Suspicious';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get analyzing => 'Analyzing';
 
   @override
   String get activity => 'Excursion';
@@ -164,6 +188,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setObjective => 'Objective';
+
+  @override
+  String get speed => 'Speed';
+
+  @override
+  String get speedAbr => 'spd';
+
+  @override
+  String get speedModifier => 'Speed Modifier';
 
   @override
   String get km => 'km';
@@ -618,7 +651,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get boosts => 'Boosts';
 
   @override
+  String get boostsInInventory => 'Boosts in Inventory';
+
+  @override
   String get impact => 'Impact';
+
+  @override
+  String get finalImpactMod => 'Final Impact Modifier';
+
+  @override
+  String get trainingImpactMod => 'Training Impact Modifier';
 
   @override
   String get ach_dist_1 => 'Out of the nest';
@@ -755,4 +797,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customizeAvatar => 'Customize Avatar';
+
+  @override
+  String get howArePointsCalculated => 'How are points calculated?';
+
+  @override
+  String get pointsCalculationTitle => 'Point Calculation & Impacts';
+
+  @override
+  String get pointsCalculationDescription =>
+      'Every 5 seconds of motion is considered 1 Unit. During your excursion, real-time Human Activity Recognition (HAR) detects your motion and accumulates points based on your activity and current speed.';
+
+  @override
+  String get whatAreImpactsTitle => 'What are Impacts?';
+
+  @override
+  String whatAreImpactsDescription(int seconds, num meters) {
+    return 'While you move, points accumulate every ${seconds}s unit. Upon reaching ${meters}m, an Impact occurs, dealing your total accumulated points as attack damage or defense reinforcement to the territory. Equipped Boosts and territory multipliers boost your impacts.';
+  }
+
+  @override
+  String get harUnits => 'HAR Units';
+
+  @override
+  String unitEquals(int seconds) {
+    return '1 UNIT = ${seconds}s';
+  }
+
+  @override
+  String get realTimeHar => 'REAL-TIME HAR';
+
+  @override
+  String get trainingMultiplierTitle => 'Training Objective Multipliers';
+
+  @override
+  String get trainingMultiplierDescription =>
+      'Completing your selected Training objective (Distance, Time, Pace, or Time Trial) applies a bonus multiplier to all impact points generated during your excursion. If the objective is not met, no training multiplier is applied.';
+
+  @override
+  String get unit => 'Unit';
+
+  @override
+  String get activityStarted => 'Excursion started';
+
+  @override
+  String get vehicleDetectedPaused =>
+      'Vehicle motion detected. Activity paused.';
+
+  @override
+  String get suspectedInvalidTitle => 'Suspected Invalid Motion';
+
+  @override
+  String suspectedOnFootDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+  }
+
+  @override
+  String suspectedOnBikeDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+  }
+
+  @override
+  String get autoResumed => 'Valid motion detected. Excursion resumed.';
 }

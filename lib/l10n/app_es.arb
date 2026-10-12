@@ -1,6 +1,9 @@
 {
     "@@locale": "es",
-  
+
+    "coloniaTitle": "Colonia",
+    "@coloniaTitle": {},
+
     "loginOrSignUp": "Iniciar sesión o registrarse",
     "@loginOrSignUp": {},
 
@@ -124,6 +127,12 @@
     "startActivity": "Empezar excursión",
     "@startActivity": {},
 
+    "onFoot": "A pie",
+    "@onFoot": {},
+
+    "onBike": "En Bicicleta",
+    "@onBike": {},
+
     "walk": "Caminar",
     "@walk": {},
 
@@ -132,6 +141,21 @@
 
     "bike": "Bicicleta",
     "@bike":  {},
+
+    "vehicle": "Vehículo",
+    "@vehicle":  {},
+
+    "standing": "Inmóvil",
+    "@standing":  {},
+
+    "suspicious": "Sospechosa",
+    "@suspicious":  {},
+
+    "unknown": "Descnonocido",
+    "@unknown":  {},
+
+    "analyzing": "Analizando",
+    "@analizing":  {},
 
     "activity": "Actividad",
     "@activity": {},
@@ -156,6 +180,15 @@
 
     "setObjective": "Objetivo",
     "@setObjective": {},
+
+    "speed": "Velocidad",
+    "@speed": {},
+
+    "speedAbr": "vel",
+    "@speedAbr": {},
+
+    "speedModifier": "Modificador de Velocidad",
+    "@speedModifier": {},
 
     "km": "km",
     "@km": {},
@@ -654,8 +687,17 @@
     "boosts": "Potenciadores",
     "@boosts": {},
 
+    "boostsInInventory": "Potenciadores en Inventario",
+    "@boostsInInventory": {},
+
     "impact": "Impacto",
     "@impact": {},
+
+    "finalImpactMod": "Modificador Final de Impacto",
+    "@finalImpactMod": {},
+
+    "trainingImpactMod": "Modificador de Impacto por Entrenamiento",
+    "@trainingImpactMod": {},
 
     "ach_dist_1": "Fuera del nido",
     "@ach_dist_1": {},
@@ -817,5 +859,88 @@
     "@shop": {},
 
     "customizeAvatar": "Personalizar Avatar",
-    "@customizeAvatar": {}
+    "@customizeAvatar": {},
+
+    "howArePointsCalculated": "¿Cómo se calculan los puntos?",
+    "@howArePointsCalculated": {},
+
+    "pointsCalculationTitle": "Cálculo de Puntos e Impactos",
+    "@pointsCalculationTitle": {},
+
+    "pointsCalculationDescription": "Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.",
+    "@pointsCalculationDescription": {},
+
+    "whatAreImpactsTitle": "¿Qué son los Impactos?",
+    "@whatAreImpactsTitle": {},
+
+    "whatAreImpactsDescription": "Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.",
+    "@whatAreImpactsDescription": {
+        "placeholders": {
+            "seconds": {
+                "type": "int",
+                "example": "5"
+            },
+            "meters": {
+                "type": "num",
+                "example": "100"
+            }
+        }
+    },
+
+    "harUnits": "Unidades HAR",
+    "@harUnits": {},
+
+    "unitEquals": "1 UNIDAD = {seconds}s",
+    "@unitEquals": {
+        "placeholders": {
+            "seconds": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "realTimeHar": "HAR EN TIEMPO REAL",
+    "@realTimeHar": {},
+
+    "trainingMultiplierTitle": "Multiplicadores de Objetivo de Entrenamiento",
+    "@trainingMultiplierTitle": {},
+
+    "trainingMultiplierDescription": "Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.",
+    "@trainingMultiplierDescription": {},
+
+    "unit": "Unidad",
+    "@unit": {},
+
+    "activityStarted": "Excursión iniciada",
+    "@activityStarted": {},
+
+    "vehicleDetectedPaused": "Movimiento en vehículo detectado. Actividad pausada.",
+    "@vehicleDetectedPaused": {},
+
+    "suspectedInvalidTitle": "Movimiento sospechoso detectado",
+    "@suspectedInvalidTitle": {},
+
+    "suspectedOnFootDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.",
+    "@suspectedOnFootDescription": {
+        "placeholders" :{
+            "limit": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "suspectedOnBikeDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.",
+    "@suspectedOnBikeDescription": {
+        "placeholders" :{
+            "limit": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "autoResumed": "Movimiento válido detectado. Excursión reanudada.",
+    "@autoResumed": {}
 }

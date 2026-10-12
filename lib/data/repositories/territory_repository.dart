@@ -35,6 +35,12 @@ class TerritoryRepository extends ChangeNotifier {
   Future<({ActivityResult? result, bool isOffline, String? error})> applyTerritoryImpact({
     required double totalDistance,
     required int totalTime,
+    required int secondsWalk,
+    required int secondsRun,
+    required int secondsBike,
+    required double distanceWalk,
+    required double distanceRun,
+    required double distanceBike,
     required String timestamp,
     required List<Map<String, dynamic>> territories,
     int? boostId,
@@ -46,6 +52,12 @@ class TerritoryRepository extends ChangeNotifier {
         timestamp: timestamp,
         territories: territories,
         boostId: boostId,
+        secondsWalk: secondsWalk,
+        secondsRun: secondsRun,
+        secondsBike: secondsBike,
+        distanceWalk: distanceWalk,
+        distanceRun: distanceRun,
+        distanceBike: distanceBike,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final dynamic decoded = jsonDecode(response.body);

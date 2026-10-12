@@ -1,15 +1,20 @@
 import 'dart:ui';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/env/env.dart';
 
 class ActivityScreen extends StatefulWidget {
@@ -27,6 +32,42 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
+
+    widget.viewModel.sessionRepository.onStartNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 101,
+          title: 'Colonia',
+          body: locale.activityStarted,
+        );
+      }
+    };
+
+    widget.viewModel.trackingRepository.onSuspectedInvalidNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 102,
+          title: 'Colonia - Tracking',
+          body: widget.viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription((GameConfig.limitConsecutiveInvalidUnits)),
+        );
+      }
+    };
+
+    widget.viewModel.trackingRepository.onAutoResumedNotification = () {
+      if (!mounted) return;
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 103,
+          title: 'Colonia - Tracking',
+          body: locale.autoResumed,
+        );
+      }
+    };
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showActivitySelector();
@@ -49,6 +90,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 widget.viewModel.onStyleLoaded();
 
                 final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                  if (widget.viewModel.playingState != PlayingState.stopped) return;
+
                   final lat = gestureContext.point.coordinates.lat.toDouble();
                   final lon = gestureContext.point.coordinates.lng.toDouble();
 
@@ -84,7 +127,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       SizedBox(height: 16),
                       Text(
                         locale.savingActivity,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decorationStyle: null),
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
                       ),
                     ],
                   ),
@@ -111,39 +154,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
 
             Align(
-              alignment: Alignment.topRight,
+              alignment: Alignment.centerRight,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 124, right: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          widget.viewModel.centerOnUser();
-                        },
-                        icon: const Icon(Icons.location_searching),
-                        color: Colors.redAccent,
-                        iconSize: 32,
-                      ),
-                      const SizedBox(height: 8),
-                      IconButton(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          widget.viewModel.toggleShowPoints();
-                        },
-                        icon: Icon(
-                          widget.viewModel.showPoints
-                              ? Icons.shield_sharp
-                              : Icons.shield_outlined,
-                        ),
-                        color: widget.viewModel.showPoints
-                            ? AppTheme.primaryColor
-                            : Colors.white38,
-                        iconSize: 30,
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(bottom: 320, right: 16),
+                  child: MapControlGroup(
+                    listenable: widget.viewModel,
+                    currentBearing: widget.viewModel.currentBearing,
+                    showPoints: widget.viewModel.showPoints,
+                    onCenterOnUser: widget.viewModel.centerOnUser,
+                    onToggleShowPoints: widget.viewModel.toggleShowPoints,
+                    onResetNorth: widget.viewModel.resetNorth,
                   ),
                 ),
               ),
@@ -152,14 +173,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.topCenter,
-                child: _NextImpactPanel(viewModel: widget.viewModel),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _NextImpactPanel(viewModel: widget.viewModel),
+                    const SizedBox(height: 8),
+                    _HarActivityVisualizerWidget(
+                      sensorActivity: widget.viewModel.currentHarActivity,
+                    ),
+                  ],
+                ),
               ),
             if (widget.viewModel.equippedBoost != null && widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.centerLeft,
                 child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
               ),
-            
+
+
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.bottomCenter,
@@ -172,7 +203,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.viewModel.readyToStart) ...[
+                    if (widget.viewModel.readyToStart && !widget.viewModel.isSaving) ...[
                       _PreActivityOverview(viewModel: widget.viewModel),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -254,19 +285,8 @@ class _PreActivityOverview extends StatelessWidget {
     return ListenableBuilder(
         listenable: viewModel,
         builder: (context, _) {
-          final String activity = viewModel.selectedActivity ?? "walk";
-          final String training = viewModel.selectedTrainingName ?? "free";
+          final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
           final BoostInventory? boost = viewModel.selectedBoost;
-          final Color activityColor =
-              activity == "walk" ? AppTheme.walkColor :
-              activity == "run" ? AppTheme.runColor :
-                  AppTheme.bikeColor;
-
-          final IconData activityIcon = activity == "walk"
-              ? Icons.directions_walk
-              : activity == "run"
-                  ? Icons.directions_run
-                  : Icons.directions_bike;
 
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -274,7 +294,7 @@ class _PreActivityOverview extends StatelessWidget {
             decoration: ShapeDecoration(
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: activityColor, width: 1),
+                side: const BorderSide(color: AppTheme.primaryColor, width: 1),
               ),
               color: AppTheme.darkBackground.withAlpha(240),
             ),
@@ -286,11 +306,15 @@ class _PreActivityOverview extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(activityIcon, color: activityColor, size: 28),
-                        const SizedBox(width: 12),
+                        Icon(Icons.directions_walk, color: AppTheme.walkColor, size: 20),
+                        SizedBox(width: 2),
+                        Icon(Icons.directions_bike, color: AppTheme.bikeColor, size: 20),
+                        SizedBox(width: 2),
+                        Icon(Icons.directions_run, color: AppTheme.runColor, size: 20),
+                        SizedBox(width: 8),
                         Text(
-                          activity.toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, decoration: TextDecoration.none),
+                          locale.realTimeHar,
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, decoration: TextDecoration.none),
                         ),
                       ],
                     ),
@@ -301,7 +325,7 @@ class _PreActivityOverview extends StatelessWidget {
                         color: AppTheme.primaryColor.withAlpha(40),
                       ),
                       child: Text(
-                        training.toUpperCase(),
+                        training.getLocale(locale).toUpperCase(),
                         style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
                       ),
                     ),
@@ -311,23 +335,29 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    if (training == "distance" || training == "pace" || training == "timeTrial")
-                      _OverviewStat(
-                        label: locale.distance.toUpperCase(),
-                        value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
-                        unit: "KM",
+                    if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial)
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.distance.toUpperCase(),
+                          value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
+                          unit: "KM",
+                        ),
                       ),
-                    if (training == "time" || training == "timeTrial")
-                      _OverviewStat(
-                        label: locale.time.toUpperCase(),
-                        value: _formatDurationShort(viewModel.selectedTime!),
-                        unit: "",
+                    if (training == TrainingType.time || training == TrainingType.timeTrial)
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.time.toUpperCase(),
+                          value: _formatDurationShort(viewModel.selectedTime!),
+                          unit: "",
+                        ),
                       ),
-                    if (training == "pace")
-                      _OverviewStat(
-                        label: locale.targetPace.toUpperCase(),
-                        value: viewModel.formattedSelectedPace,
-                        unit: "MIN/KM",
+                    if (training == TrainingType.pace)
+                      Expanded(
+                        child: _OverviewStat(
+                          label: locale.targetPace.toUpperCase(),
+                          value: viewModel.formattedSelectedPace,
+                          unit: "MIN/KM",
+                        ),
                       ),
                   ],
                 ),
@@ -362,7 +392,7 @@ class _PreActivityOverview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                    _MultiplierMini(label: locale.trainingImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                   ],
                 )
               ],
@@ -387,20 +417,38 @@ class _OverviewStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label, 
+            style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+          ),
+        ),
         const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
-            if (unit.isNotEmpty) ...[
-              const SizedBox(width: 2),
-              Text(unit, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
-            ]
-          ],
-        )
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value, 
+                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
+              ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 2),
+                Text(
+                  unit, 
+                  style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -442,20 +490,10 @@ class _DistanceProgressPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: AppTheme.primaryColor.withAlpha(30),
-              ),
-              child: _SegmentedProgressBar(
-                progress: progress,
-                color: AppTheme.primaryColor,
-                isReversed: false,
-              ),
+            _SegmentedProgressBar(
+              progress: progress,
+              color: AppTheme.primaryColor,
+              isReversed: false,
             ),
             const SizedBox(height: 8),
             Row(
@@ -472,16 +510,17 @@ class _DistanceProgressPanel extends StatelessWidget {
                 ),
                 if (targetDistanceMeters > 0)
                   Text(
-                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM ${locale.remaining.toUpperCase()}",
+                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM",
                     style: const TextStyle(
                       color: Colors.white54,
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 16,
                       decoration: TextDecoration.none
                     ),
                   ),
               ],
-            )
+            ),
+            const SizedBox(height: 8),
           ],
         );
       },
@@ -553,20 +592,10 @@ class _TimeProgressPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: AppTheme.secondaryColor.withAlpha(30),
-              ),
-              child: _SegmentedProgressBar(
-                progress: progress,
-                color: AppTheme.secondaryColor,
-                isReversed: true,
-              ),
+            _SegmentedProgressBar(
+              progress: progress,
+              color: AppTheme.secondaryColor,
+              isReversed: true,
             ),
             const SizedBox(height: 8),
             Row(
@@ -587,12 +616,13 @@ class _TimeProgressPanel extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 16,
                         decoration: TextDecoration.none
                     ),
                   ),
               ],
-            )
+            ),
+            const SizedBox(height: 8),
           ],
         );
       },
@@ -606,9 +636,9 @@ class _TimeProgressPanel extends StatelessWidget {
     String minutes = twoDigits(d.inMinutes.remainder(60));
     String secs = twoDigits(d.inSeconds.remainder(60));
     if (d.inHours > 0) {
-      return "${twoDigits(d.inHours)}:$minutes:$secs ${locale.remaining.toUpperCase()} ";
+      return "${twoDigits(d.inHours)}:$minutes:$secs";
     }
-    return "$minutes:$secs ${locale.remaining.toUpperCase()}";
+    return "$minutes:$secs";
   }
 }
 
@@ -674,32 +704,24 @@ class _PaceEquilibriumPanel extends StatelessWidget {
       builder: (context, _) {
         final double targetPace = viewModel.selectedPace?.toDouble() ?? 0.0;
         final double currentPace = viewModel.currentPace;
-        final String activity = viewModel.selectedActivity ?? "walk";
-        final Color activityColor = activity == "walk"
+        final HarActivity activity = viewModel.currentHarActivity;
+        final Color activityColor = activity == HarActivity.walk
             ? AppTheme.walkColor
-            : activity == "run"
+            : activity == HarActivity.run
                 ? AppTheme.runColor
-                : AppTheme.bikeColor;
+                : activity == HarActivity.bike
+                    ? AppTheme.bikeColor
+                    : AppTheme.primaryColor;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: ShapeDecoration(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                color: activityColor.withAlpha(30),
-              ),
-              child: _PaceBarEquilibrium(
-                pace: currentPace,
-                targetPace: targetPace,
-                inPaceColor: AppTheme.successColor,
-                outPaceColor: AppTheme.errorColor,
-              ),
+            _PaceBarEquilibrium(
+              pace: currentPace,
+              targetPace: targetPace,
+              inPaceColor: AppTheme.successColor,
+              outPaceColor: AppTheme.errorColor,
             ),
             const SizedBox(height: 8),
             Row(
@@ -791,6 +813,43 @@ class _NextImpactPanel extends StatelessWidget {
   }
 }
 
+class _TrainingObjectiveWidget extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _TrainingObjectiveWidget({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        final training = viewModel.selectedTrainingType;
+        if (training == null || training == TrainingType.free) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
+              const SizedBox(height: 8),
+              _DistanceProgressPanel(viewModel: viewModel),
+            ],
+            if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
+              if (training != TrainingType.timeTrial) const SizedBox(height: 8),
+              _TimeProgressPanel(viewModel: viewModel),
+            ],
+            if (training == TrainingType.pace) ...[
+              const SizedBox(height: 8),
+              _PaceEquilibriumPanel(viewModel: viewModel),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _EquippedBoostBadge extends StatelessWidget {
   final BoostInventory boost;
   const _EquippedBoostBadge({required this.boost});
@@ -838,28 +897,24 @@ class _ActivityProgressPanel extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final String activity = viewModel.selectedActivity ?? "walk";
-        final String training = viewModel.selectedTrainingName ?? "free";
+        final ActivityType activityType = viewModel.selectedActivityType!;
+        final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
 
-        final IconData activityIcon = activity == "walk"
-            ? Icons.directions_walk
-            : activity == "run"
-                ? Icons.directions_run
-                : Icons.directions_bike;
-        final Color activityColor = activity == "walk"
-          ? AppTheme.walkColor
-          : activity == "run"
-                ? AppTheme.runColor
-                : AppTheme.bikeColor;
-        final IconData trainingIcon = training == "distance"
-            ? Icons.straighten
-            : training == "time"
-                ? Icons.timer
-                : training == "pace"
-                    ? Icons.linear_scale
-                    : training == "timeTrial"
-                        ? Icons.av_timer_sharp
-                        : Icons.timer_off;
+        final IconData activityIcon = switch (activityType) {
+          ActivityType.onFoot => Icons.hiking_sharp,
+          ActivityType.onBike => Icons.pedal_bike_sharp,
+        };
+        final Color activityTypeColor = switch (activityType) {
+          ActivityType.onFoot => AppTheme.walkColor,
+          ActivityType.onBike => AppTheme.bikeColor,
+        };
+        final IconData trainingIcon = switch (training) {
+          TrainingType.distance => Icons.straighten,
+          TrainingType.time => Icons.timer,
+          TrainingType.pace => Icons.linear_scale,
+          TrainingType.timeTrial => Icons.av_timer_sharp,
+          TrainingType.free => Icons.timer_off,
+        };
 
         return Container(
           width: double.infinity,
@@ -868,7 +923,7 @@ class _ActivityProgressPanel extends StatelessWidget {
             shape: BeveledRectangleBorder(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
               side: BorderSide(
-                color: activityColor,
+                color: activityTypeColor,
                 width: 1.5,
               )
             ),
@@ -882,10 +937,10 @@ class _ActivityProgressPanel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(activityIcon, color: activityColor, size: 32),
+                      Icon(activityIcon, color: activityTypeColor, size: 32),
                       const SizedBox(width: 8),
                       Text(
-                        (viewModel.selectedActivity ?? "").toUpperCase(),
+                        activityType.getLocale(locale).toUpperCase(),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
                       ),
                     ],
@@ -908,7 +963,7 @@ class _ActivityProgressPanel extends StatelessWidget {
                             Icon(trainingIcon, color: Colors.white.withAlpha(200), size: 18),
                             const SizedBox(width: 6),
                             Text(
-                              (viewModel.selectedTrainingName ?? locale.free).toUpperCase(),
+                              training.getLocale(locale).toUpperCase(),
                               style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
                             ),
                           ],
@@ -922,20 +977,26 @@ class _ActivityProgressPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _StatDisplay(
-                    label: locale.distance.toUpperCase(),
-                    value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
-                    unit: "KM",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.distance.toUpperCase(),
+                      value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
+                      unit: "KM",
+                    ),
                   ),
-                  _StatDisplay(
-                    label: locale.time.toUpperCase(),
-                    value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
-                    unit: "",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.time.toUpperCase(),
+                      value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
+                      unit: "",
+                    ),
                   ),
-                  _StatDisplay(
-                    label: locale.pace.toUpperCase(),
-                    value: viewModel.formattedCurrentPace,
-                    unit: "MIN/KM",
+                  Expanded(
+                    child: _StatDisplay(
+                      label: locale.pace.toUpperCase(),
+                      value: viewModel.formattedCurrentPace,
+                      unit: "MIN/KM",
+                    ),
                   ),
                 ],
               ),
@@ -943,20 +1004,18 @@ class _ActivityProgressPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _MultiplierMini(label: locale.impact.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
+                  _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
                 ],
               ),
-              if (training == 'distance' || training == 'pace' || training == 'timeTrial') ...[
+              if (viewModel.pausedBySuspectedInvalid) ...[
                 const SizedBox(height: 12),
-                _DistanceProgressPanel(viewModel: viewModel),
+                _SuspectedInvalidActivityBanner(viewModel: viewModel),
               ],
-              if (training == 'time' || training == 'timeTrial') ...[
+              const SizedBox(height: 12),
+
+              if (training != TrainingType.free) ...[
                 const SizedBox(height: 12),
-                _TimeProgressPanel(viewModel: viewModel),
-              ],
-              if (training == 'pace') ...[
-                const SizedBox(height: 12),
-                _PaceEquilibriumPanel(viewModel: viewModel),
+                _TrainingObjectiveWidget(viewModel: viewModel),
               ],
               const SizedBox(height: 12),
               Align(
@@ -1061,6 +1120,95 @@ class _ActivityProgressPanel extends StatelessWidget {
   }
 }
 
+class _SuspectedInvalidActivityBanner extends StatelessWidget {
+  final ActivityViewModel viewModel;
+  const _SuspectedInvalidActivityBanner({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: ShapeDecoration(
+        color: AppTheme.darkBackground.withAlpha(240),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: const BorderSide(
+            color: Colors.orangeAccent,
+            width: 1.5,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.warning_amber_sharp,
+                color: Colors.orangeAccent,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  locale.suspectedInvalidTitle.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.orangeAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1.0,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription(GameConfig.limitConsecutiveInvalidUnits),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              height: 1.3,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                viewModel.onPushPlayButton();
+              },
+              icon: const Icon(Icons.play_arrow, color: Colors.black87, size: 16),
+              label: Text(
+                locale.resume.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
 class _StatDisplay extends StatelessWidget {
   final String? label;
   final String value;
@@ -1071,29 +1219,38 @@ class _StatDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (label != null && label!.isNotEmpty)
-          Text(
-            label!,
-            style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label!,
+              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1, decoration: TextDecoration.none),
+            ),
           ),
         const SizedBox(height: 6),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
-            ),
-            if (unit.isNotEmpty) ...[
-              const SizedBox(width: 4),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
               Text(
-                unit,
-                style: const TextStyle(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                value,
+                style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
               ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 4),
+                Text(
+                  unit,
+                  style: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ],
     );
@@ -1120,27 +1277,27 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   @override
   void initState() {
     super.initState();
-    final d = widget.viewModel.selectedDistance ?? 0.0;
+    final d = widget.viewModel.selectedDistance ?? GameConfig.defaultObjectiveDistance;
     _km = (d / 1000).floor();
     _m = (d % 1000).toInt();
 
-    final t = widget.viewModel.selectedTime ?? Duration.zero;
+    final t = widget.viewModel.selectedTime ?? GameConfig.defaultObjectiveTime;
     _h = t.inHours;
     _min = t.inMinutes.remainder(60);
     _sec = t.inSeconds.remainder(60);
 
-    final p = widget.viewModel.selectedPace ?? 5.5;
+    final p = widget.viewModel.selectedPace ?? GameConfig.defaultObjectivePace;
     _paceMin = p.toInt();
     _paceSec = ((p - _paceMin) * 60).round();
   }
 
   bool get _isValid {
-    final training = widget.viewModel.selectedPreTrainingName ?? "free";
-    if (training == "free") return true;
-    if (training == "distance") return (_km * 1000 + _m) > 0;
-    if (training == "time") return (_h * 3600 + _min * 60 + _sec) > 0;
-    if (training == "pace") return (_km * 1000 + _m) > 0 && (_paceMin * 60 + _paceSec) > 0;
-    if (training == "timeTrial") return (_km * 1000 + _m) > 0 && (_h * 3600 + _min * 60 + _sec) > 0;
+    final training = widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
+    if (training == TrainingType.free) return true;
+    if (training == TrainingType.distance) return (_km * 1000 + _m) > 0;
+    if (training == TrainingType.time) return (_h * 3600 + _min * 60 + _sec) > 0;
+    if (training == TrainingType.pace) return (_km * 1000 + _m) > 0 && (_paceMin * 60 + _paceSec) > 0;
+    if (training == TrainingType.timeTrial) return (_km * 1000 + _m) > 0 && (_h * 3600 + _min * 60 + _sec) > 0;
     return false;
   }
 
@@ -1150,21 +1307,21 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     double distance = 0.0;
     Duration time = Duration.zero;
 
-    final training = widget.viewModel.selectedPreTrainingName ?? "free";
-    final activity = widget.viewModel.selectedPreActivity ?? "walk";
+    final activityType = widget.viewModel.selectedActivityType ?? ActivityType.onFoot;
+    final training = widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
 
-    if (training == "distance" || training == "pace" || training == "timeTrial") {
+    if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) {
       distance = (_km * 1000.0) + _m;
     }
-    if (training == "time" || training == "timeTrial") {
+    if (training == TrainingType.time || training == TrainingType.timeTrial) {
       time = Duration(hours: _h, minutes: _min, seconds: _sec);
     }
 
     final double pace = _paceMin + (_paceSec / 60.0);
     
     widget.viewModel.setActivityConfig(
-        activity: activity,
-        training: training,
+        activityType: activityType,
+        trainingType: training,
         distance: distance,
         time: time,
         pace: pace,
@@ -1212,15 +1369,40 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     ),
                   ),
                 ),
-                Text(
-                  locale.activity.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
+
+                Row (
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.activity.toUpperCase(),
+                        style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            fontSize: 12,
+                            decoration: TextDecoration.none
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _showPointsCalculationDialog(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.help_center_outlined,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ]
                 ),
                 const SizedBox(height: 8),
                 GridView.count(
@@ -1232,38 +1414,58 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   childAspectRatio: 1,
                   children: [
                     _ChoiceChip(
-                      label: locale.walk,
-                      icon: Icons.directions_walk,
-                      isSelected: widget.viewModel.selectedPreActivity == "walk",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "walk",
-                      color: AppTheme.walkColor,
-                    ),
-                    _ChoiceChip(
-                      label: locale.run,
-                      icon: Icons.directions_run,
-                      isSelected: widget.viewModel.selectedPreActivity == "run",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "run",
+                      label: locale.onFoot,
+                      icon: Icons.hiking_sharp,
+                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onFoot,
+                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onFoot,
                       color: AppTheme.runColor,
                     ),
                     _ChoiceChip(
-                      label: locale.bike,
-                      icon: Icons.directions_bike,
-                      isSelected: widget.viewModel.selectedPreActivity == "bike",
-                      onSelected: () => widget.viewModel.selectedPreActivity = "bike",
+                      label: locale.onBike,
+                      icon: Icons.pedal_bike_sharp,
+                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onBike,
+                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onBike,
                       color: AppTheme.bikeColor,
                     ),
-                  ]
+                  ],
                 ),
+
                 const SizedBox(height: 24),
-                Text(
-                  locale.training.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
+
+                Row (
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      locale.training.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        decoration: TextDecoration.none
+                      ),
+                    ),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _showPointsCalculationDialog(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.help_center_outlined,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                  ]
                 ),
                 const SizedBox(height: 8),
                 GridView.count(
@@ -1277,44 +1479,66 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                     _ChoiceChip(
                       label: locale.free,
                       icon: Icons.timer_off,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "free",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "free",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.free,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.free,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.0",
                     ),
                     _ChoiceChip(
                       label: locale.distance,
                       icon: Icons.straighten,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "distance",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "distance",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.distance,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.distance,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.5",
                     ),
                     _ChoiceChip(
                       label: locale.time,
                       icon: Icons.timer,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "time",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "time",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.time,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.time,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.25",
                     ),
                     _ChoiceChip(
                       label: locale.pace,
                       icon: Icons.linear_scale,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "pace",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "pace",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.pace,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.pace,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.75",
                     ),
                     _ChoiceChip(
                       label: locale.timeTrial,
                       icon: Icons.av_timer_sharp,
-                      isSelected: widget.viewModel.selectedPreTrainingName == "timeTrial",
-                      onSelected: () => widget.viewModel.selectedPreTrainingName = "timeTrial",
+                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.timeTrial,
+                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.timeTrial,
                       color: AppTheme.primaryColor,
+                      multiplier: "1.75",
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 24),
+                if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
+                  Text(
+                    locale.setObjective.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 12,
+                      decoration: TextDecoration.none
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildObjectiveInputs(context),
+                  const SizedBox(height: 24),
+                ],
+
                 if (widget.viewModel.availableBoosts.isNotEmpty) ...[
                   Text(
-                    locale.boosts.toUpperCase(),
+                    locale.boostsInInventory.toUpperCase(),
                     style: const TextStyle(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -1419,7 +1643,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
                 if (widget.viewModel.selectedBoost != null) ...[
                   Container(
@@ -1448,40 +1672,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                if (widget.viewModel.selectedPreTrainingName != "free" && widget.viewModel.selectedPreTrainingName != null) ...[
-                  Text(
-                    locale.setObjective.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontSize: 12,
-                      decoration: TextDecoration.none
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildObjectiveInputs(context),
-                  const SizedBox(height: 32),
-                ],
-
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(10),
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _MultiplierItem(
-                        label: locale.impact.toUpperCase(),
-                        multiplier: widget.viewModel.currentMultiplier,
-                        color: Colors.redAccent,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -1510,7 +1701,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   }
 
   Widget _buildObjectiveInputs(BuildContext context) {
-    final training = widget.viewModel.selectedPreTrainingName;
+    final training = widget.viewModel.selectedPreTrainingType;
     final locale = AppLocalizations.of(context)!;
     
     Widget subtitle(String text) => Padding(
@@ -1526,7 +1717,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
       ),
     );
 
-    if (training == "distance") {
+    if (training == TrainingType.distance) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1553,7 +1744,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "time") {
+    } else if (training == TrainingType.time) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1585,7 +1776,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "pace") {
+    } else if (training == TrainingType.pace) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1630,7 +1821,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
           ),
         ],
       );
-    } else if (training == "timeTrial") {
+    } else if (training == TrainingType.timeTrial) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1793,6 +1984,7 @@ class _ChoiceChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onSelected;
   final Color color;
+  final String multiplier;
 
   const _ChoiceChip({
     required this.label,
@@ -1800,6 +1992,7 @@ class _ChoiceChip extends StatelessWidget {
     required this.isSelected,
     required this.onSelected,
     required this.color,
+    this.multiplier = '1.0',
   });
 
   @override
@@ -1810,44 +2003,84 @@ class _ChoiceChip extends StatelessWidget {
         onSelected();
       },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        alignment: Alignment.center,
-        decoration: ShapeDecoration(
-          color: isSelected ? color : color.withAlpha(20),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected ? Colors.white : color.withAlpha(100),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppTheme.darkBackground : Colors.white,
-              size: 20,
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isSelected ? AppTheme.darkBackground : Colors.white,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            alignment: Alignment.center,
+            decoration: ShapeDecoration(
+              color: isSelected ? color : color.withAlpha(20),
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: isSelected ? Colors.white : color.withAlpha(100),
+                  width: 1,
                 ),
               ),
             ),
-          ],
-        ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppTheme.darkBackground : Colors.white,
+                  size: 22,
+                ),
+                const SizedBox(height: 6),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected ? AppTheme.darkBackground : Colors.white,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (multiplier.isNotEmpty)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShapeDecoration(
+                  color: isSelected
+                      ? AppTheme.secondaryColor
+                      : AppTheme.darkBackground.withAlpha(230),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: const BorderRadius.only(
+                      bottomRight: Radius.circular(11),
+                    ),
+                    side: BorderSide(
+                      color: isSelected
+                          ? Colors.white
+                          : AppTheme.primaryColor.withAlpha(120),
+                      width: 0.8,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  "x$multiplier",
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppTheme.primaryColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -1921,6 +2154,508 @@ class _MapActionButton extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HarActivityVisualizerWidget extends StatelessWidget {
+  final HarActivity sensorActivity;
+
+  const _HarActivityVisualizerWidget({required this.sensorActivity});
+
+  IconData _getIcon() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return Icons.directions_walk;
+      case HarActivity.run:
+        return Icons.directions_run;
+      case HarActivity.bike:
+        return Icons.directions_bike;
+      case HarActivity.vehicle:
+        return Icons.directions_car;
+      case HarActivity.standing:
+        return Icons.emoji_people_sharp;
+      case HarActivity.unknown:
+        return Icons.sensors;
+    }
+  }
+
+  Color _getColor() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return AppTheme.walkColor;
+      case HarActivity.run:
+        return AppTheme.runColor;
+      case HarActivity.bike:
+        return AppTheme.bikeColor;
+      case HarActivity.standing:
+      case HarActivity.vehicle:
+        return Colors.orangeAccent;
+      case HarActivity.unknown:
+        return Colors.white38;
+    }
+  }
+
+  int _getUnitPoints() {
+    switch (sensorActivity) {
+      case HarActivity.walk:
+        return GameConfig.walkUnitPoints;
+      case HarActivity.run:
+        return GameConfig.runUnitPoints;
+      case HarActivity.bike:
+        return GameConfig.bikeUnitPoints;
+      default:
+        return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final color = _getColor();
+    final points = _getUnitPoints();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: ShapeDecoration(
+        color: AppTheme.darkBackground.withValues(alpha: 0.85),
+        shape: BeveledRectangleBorder(
+          side: BorderSide(color: color.withValues(alpha: 0.8), width: 1.5),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_getIcon(), color: color, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                locale.realTimeHar.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              Text(
+                sensorActivity.getLocale(locale).toUpperCase(),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: ShapeDecoration(
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              color: points > 0 ? color.withValues(alpha: 0.2) : Colors.white10,
+            ),
+            child: Text(
+              points > 0 ? '+$points PTS/5s' : '0 PTS',
+              style: TextStyle(
+                color: points > 0 ? color : Colors.white38,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: sensorActivity == HarActivity.unknown ? Colors.amber : Colors.greenAccent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void _showPointsCalculationDialog(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _PointsCalculationDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+}
+
+class _PointsCalculationDialog extends StatelessWidget {
+  const _PointsCalculationDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: AppTheme.tertiaryColor,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.graphic_eq,
+                    color: AppTheme.tertiaryColor,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      locale.pointsCalculationTitle.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.tertiaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                        decoration: TextDecoration.none,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_walk_sharp, color: Colors.white, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            locale.harUnits.toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: ShapeDecoration(
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          color: AppTheme.secondaryColor.withAlpha(180),
+                        ),
+                        child: Text(
+                          locale.unitEquals(GameConfig.unitSeconds),
+                          style: TextStyle(
+                            color: AppTheme.darkBackground,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.pointsCalculationDescription,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.walk.toUpperCase(),
+                          points: GameConfig.walkUnitPoints,
+                          icon: Icons.directions_walk,
+                          color: AppTheme.walkColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.bike.toUpperCase(),
+                          points: GameConfig.bikeUnitPoints,
+                          icon: Icons.directions_bike,
+                          color: AppTheme.bikeColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActivityPointCard(
+                          label: locale.run.toUpperCase(),
+                          points: GameConfig.runUnitPoints,
+                          icon: Icons.directions_run,
+                          color: AppTheme.runColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    'x ${locale.speedModifier.toUpperCase()}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+
+                  Text(
+                    "/ 5s ${locale.unit.toLowerCase()}",
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ]
+              ),
+
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white12, height: 1),
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.flash_on_sharp, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          locale.whatAreImpactsTitle.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            letterSpacing: 1.0,
+                            decoration: TextDecoration.none,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.whatAreImpactsDescription(GameConfig.unitSeconds, GameConfig.baseMetersBetweenNodes),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white12, height: 1),
+              const SizedBox(height: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.linear_scale, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          locale.trainingMultiplierTitle.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            letterSpacing: 1.0,
+                            decoration: TextDecoration.none,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    locale.trainingMultiplierDescription,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      height: 1.3,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: AppTheme.tertiaryColor,
+                  ),
+                  child: Text(
+                    locale.ok.toUpperCase(),
+                    style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityPointCard extends StatelessWidget {
+  final String label;
+  final int points;
+  final IconData icon;
+  final Color color;
+
+  const _ActivityPointCard({
+    required this.label,
+    required this.points,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      decoration: ShapeDecoration(
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: color.withAlpha(120), width: 1),
+        ),
+        color: color.withAlpha(20),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "+$points PTS",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

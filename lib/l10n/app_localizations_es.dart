@@ -9,6 +9,9 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get coloniaTitle => 'Colonia';
+
+  @override
   String get loginOrSignUp => 'Iniciar sesión o registrarse';
 
   @override
@@ -137,6 +140,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get startActivity => 'Empezar excursión';
 
   @override
+  String get onFoot => 'A pie';
+
+  @override
+  String get onBike => 'En Bicicleta';
+
+  @override
   String get walk => 'Caminar';
 
   @override
@@ -144,6 +153,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bike => 'Bicicleta';
+
+  @override
+  String get vehicle => 'Vehículo';
+
+  @override
+  String get standing => 'Inmóvil';
+
+  @override
+  String get suspicious => 'Sospechosa';
+
+  @override
+  String get unknown => 'Descnonocido';
+
+  @override
+  String get analyzing => 'Analizando';
 
   @override
   String get activity => 'Actividad';
@@ -168,6 +192,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get setObjective => 'Objetivo';
+
+  @override
+  String get speed => 'Velocidad';
+
+  @override
+  String get speedAbr => 'vel';
+
+  @override
+  String get speedModifier => 'Modificador de Velocidad';
 
   @override
   String get km => 'km';
@@ -622,7 +655,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get boosts => 'Potenciadores';
 
   @override
+  String get boostsInInventory => 'Potenciadores en Inventario';
+
+  @override
   String get impact => 'Impacto';
+
+  @override
+  String get finalImpactMod => 'Modificador Final de Impacto';
+
+  @override
+  String get trainingImpactMod => 'Modificador de Impacto por Entrenamiento';
 
   @override
   String get ach_dist_1 => 'Fuera del nido';
@@ -759,4 +801,67 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get customizeAvatar => 'Personalizar Avatar';
+
+  @override
+  String get howArePointsCalculated => '¿Cómo se calculan los puntos?';
+
+  @override
+  String get pointsCalculationTitle => 'Cálculo de Puntos e Impactos';
+
+  @override
+  String get pointsCalculationDescription =>
+      'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.';
+
+  @override
+  String get whatAreImpactsTitle => '¿Qué son los Impactos?';
+
+  @override
+  String whatAreImpactsDescription(int seconds, num meters) {
+    return 'Mientras te desplazas, los puntos se acumulan cada unidad de ${seconds}s. Al completar ${meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.';
+  }
+
+  @override
+  String get harUnits => 'Unidades HAR';
+
+  @override
+  String unitEquals(int seconds) {
+    return '1 UNIDAD = ${seconds}s';
+  }
+
+  @override
+  String get realTimeHar => 'HAR EN TIEMPO REAL';
+
+  @override
+  String get trainingMultiplierTitle =>
+      'Multiplicadores de Objetivo de Entrenamiento';
+
+  @override
+  String get trainingMultiplierDescription =>
+      'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.';
+
+  @override
+  String get unit => 'Unidad';
+
+  @override
+  String get activityStarted => 'Excursión iniciada';
+
+  @override
+  String get vehicleDetectedPaused =>
+      'Movimiento en vehículo detectado. Actividad pausada.';
+
+  @override
+  String get suspectedInvalidTitle => 'Movimiento sospechoso detectado';
+
+  @override
+  String suspectedOnFootDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+  }
+
+  @override
+  String suspectedOnBikeDescription(int limit) {
+    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+  }
+
+  @override
+  String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
 }

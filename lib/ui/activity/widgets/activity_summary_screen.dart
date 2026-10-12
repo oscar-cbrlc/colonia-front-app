@@ -1,3 +1,5 @@
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -151,27 +153,22 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
 
   Widget _buildHeader(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    final String activity = widget.viewModel.activity;
-    final String training = widget.viewModel.trainingName;
-    final IconData activityIcon = activity == "walk"
-        ? Icons.directions_walk
-        : activity == "run"
-        ? Icons.directions_run
-        : Icons.directions_bike;
-    final Color activityColor = activity == "walk"
-        ? AppTheme.walkColor
-        : activity == "run"
-        ? AppTheme.runColor
-        : AppTheme.bikeColor;
-    final IconData trainingIcon = training == "distance"
-        ? Icons.straighten
-        : training == "time"
-        ? Icons.timer
-        : training == "pace"
-        ? Icons.linear_scale
-        : training == "timeTrial"
-        ? Icons.av_timer_sharp
-        : Icons.timer_off;
+    final ActivityType activityType = widget.viewModel.activityType;
+    final TrainingType trainingType = widget.viewModel.trainingType;
+
+    final IconData activityIcon = switch (activityType) {
+      ActivityType.onFoot => Icons.hiking_sharp,
+      ActivityType.onBike => Icons.pedal_bike_sharp,
+    };
+
+    final IconData trainingIcon = switch (trainingType) {
+      TrainingType.distance => Icons.straighten,
+      TrainingType.time => Icons.timer,
+      TrainingType.pace => Icons.linear_scale,
+      TrainingType.timeTrial => Icons.av_timer_sharp,
+      TrainingType.free => Icons.timer_off,
+    };
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -184,7 +181,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 6),
               Text(
-                widget.viewModel.trainingName.toUpperCase(),
+                trainingType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
                   color: AppTheme.primaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,
@@ -194,13 +191,13 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 12),
               Icon(
-                activityIcon, color: activityColor.withAlpha(200), size: 14,
+                activityIcon, color: AppTheme.primaryColor.withAlpha(200), size: 14,
               ),
               const SizedBox(width: 6),
               Text(
-                widget.viewModel.activity.toUpperCase(),
+                activityType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
-                  color: activityColor.withAlpha(200),
+                  color: AppTheme.primaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                   fontSize: 14,

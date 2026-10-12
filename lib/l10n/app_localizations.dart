@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('es'),
   ];
 
+  /// No description provided for @coloniaTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia'**
+  String get coloniaTitle;
+
   /// No description provided for @loginOrSignUp.
   ///
   /// In es, this message translates to:
@@ -344,6 +350,18 @@ abstract class AppLocalizations {
   /// **'Empezar excursión'**
   String get startActivity;
 
+  /// No description provided for @onFoot.
+  ///
+  /// In es, this message translates to:
+  /// **'A pie'**
+  String get onFoot;
+
+  /// No description provided for @onBike.
+  ///
+  /// In es, this message translates to:
+  /// **'En Bicicleta'**
+  String get onBike;
+
   /// No description provided for @walk.
   ///
   /// In es, this message translates to:
@@ -361,6 +379,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Bicicleta'**
   String get bike;
+
+  /// No description provided for @vehicle.
+  ///
+  /// In es, this message translates to:
+  /// **'Vehículo'**
+  String get vehicle;
+
+  /// No description provided for @standing.
+  ///
+  /// In es, this message translates to:
+  /// **'Inmóvil'**
+  String get standing;
+
+  /// No description provided for @suspicious.
+  ///
+  /// In es, this message translates to:
+  /// **'Sospechosa'**
+  String get suspicious;
+
+  /// No description provided for @unknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Descnonocido'**
+  String get unknown;
+
+  /// No description provided for @analyzing.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando'**
+  String get analyzing;
 
   /// No description provided for @activity.
   ///
@@ -409,6 +457,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Objetivo'**
   String get setObjective;
+
+  /// No description provided for @speed.
+  ///
+  /// In es, this message translates to:
+  /// **'Velocidad'**
+  String get speed;
+
+  /// No description provided for @speedAbr.
+  ///
+  /// In es, this message translates to:
+  /// **'vel'**
+  String get speedAbr;
+
+  /// No description provided for @speedModifier.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador de Velocidad'**
+  String get speedModifier;
 
   /// No description provided for @km.
   ///
@@ -1250,11 +1316,29 @@ abstract class AppLocalizations {
   /// **'Potenciadores'**
   String get boosts;
 
+  /// No description provided for @boostsInInventory.
+  ///
+  /// In es, this message translates to:
+  /// **'Potenciadores en Inventario'**
+  String get boostsInInventory;
+
   /// No description provided for @impact.
   ///
   /// In es, this message translates to:
   /// **'Impacto'**
   String get impact;
+
+  /// No description provided for @finalImpactMod.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador Final de Impacto'**
+  String get finalImpactMod;
+
+  /// No description provided for @trainingImpactMod.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificador de Impacto por Entrenamiento'**
+  String get trainingImpactMod;
 
   /// No description provided for @ach_dist_1.
   ///
@@ -1507,6 +1591,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Personalizar Avatar'**
   String get customizeAvatar;
+
+  /// No description provided for @howArePointsCalculated.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo se calculan los puntos?'**
+  String get howArePointsCalculated;
+
+  /// No description provided for @pointsCalculationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cálculo de Puntos e Impactos'**
+  String get pointsCalculationTitle;
+
+  /// No description provided for @pointsCalculationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada 5 segundos de movimiento se considera 1 Unidad. Durante tu excursión, el reconocimiento de actividad en tiempo real (HAR) reconoce tu movimiento y acumula puntos según tu actividad y velocidad actual.'**
+  String get pointsCalculationDescription;
+
+  /// No description provided for @whatAreImpactsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué son los Impactos?'**
+  String get whatAreImpactsTitle;
+
+  /// No description provided for @whatAreImpactsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Mientras te desplazas, los puntos se acumulan cada unidad de {seconds}s. Al completar {meters}m, ocurre un Impacto, aplicando el total de puntos acumulados como daño de ataque o refuerzo de defensa al territorio. Los Potenciadores equipados aumentan tus impactos.'**
+  String whatAreImpactsDescription(int seconds, num meters);
+
+  /// No description provided for @harUnits.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidades HAR'**
+  String get harUnits;
+
+  /// No description provided for @unitEquals.
+  ///
+  /// In es, this message translates to:
+  /// **'1 UNIDAD = {seconds}s'**
+  String unitEquals(int seconds);
+
+  /// No description provided for @realTimeHar.
+  ///
+  /// In es, this message translates to:
+  /// **'HAR EN TIEMPO REAL'**
+  String get realTimeHar;
+
+  /// No description provided for @trainingMultiplierTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Multiplicadores de Objetivo de Entrenamiento'**
+  String get trainingMultiplierTitle;
+
+  /// No description provided for @trainingMultiplierDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar el objetivo de entrenamiento seleccionado (Distancia, Tiempo, Ritmo o Contrarreloj) aplica un multiplicador de bonificación a todos los puntos de impacto generados durante tu excursión. Si no logras el objetivo, no se aplicará el multiplicador.'**
+  String get trainingMultiplierDescription;
+
+  /// No description provided for @unit.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad'**
+  String get unit;
+
+  /// No description provided for @activityStarted.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión iniciada'**
+  String get activityStarted;
+
+  /// No description provided for @vehicleDetectedPaused.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento en vehículo detectado. Actividad pausada.'**
+  String get vehicleDetectedPaused;
+
+  /// No description provided for @suspectedInvalidTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento sospechoso detectado'**
+  String get suspectedInvalidTitle;
+
+  /// No description provided for @suspectedOnFootDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.'**
+  String suspectedOnFootDescription(int limit);
+
+  /// No description provided for @suspectedOnBikeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.'**
+  String suspectedOnBikeDescription(int limit);
+
+  /// No description provided for @autoResumed.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento válido detectado. Excursión reanudada.'**
+  String get autoResumed;
 }
 
 class _AppLocalizationsDelegate

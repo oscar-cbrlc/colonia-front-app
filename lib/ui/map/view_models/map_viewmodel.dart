@@ -51,7 +51,8 @@ class MapViewModel extends ChangeNotifier {
 
   bool get inActivity => _trackingRepository.isActivityActive;
   Point? get userPosition => _trackingRepository.userPosition;
-  double get currentBearing => _trackingRepository.currentBearing;
+  double _mapBearing = 0.0;
+  double get currentBearing => _mapBearing;
   String? get currentCell => _trackingRepository.currentCell;
 
   MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository, this._sessionRepository, this._boostRepository) {
@@ -193,8 +194,25 @@ class MapViewModel extends ChangeNotifier {
   }
 
   void onCameraChanged(CameraChangedEventData data) {
+    _mapBearing = data.cameraState.bearing;
+    notifyListeners();
+
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 100), () => _updateH3Grid());
+  }
+
+  Future<void> resetNorth() async {
+    final map = _mapboxMap;
+    if (map == null) return;
+    final camera = await map.getCameraState();
+    await map.setCamera(CameraOptions(
+      center: camera.center,
+      zoom: camera.zoom,
+      pitch: camera.pitch,
+      bearing: 0.0,
+    ));
+    _mapBearing = 0.0;
+    notifyListeners();
   }
 
   Territory? getClaimedTerritoryAt(double lat, double lon) {
@@ -324,7 +342,7 @@ class MapViewModel extends ChangeNotifier {
   void _configureOrnaments() {
     final map = _mapboxMap;
     if (map == null) return;
-    map.compass.updateSettings(CompassSettings(position: OrnamentPosition.TOP_RIGHT, marginTop: 105, marginRight: 20));
+    map.compass.updateSettings(CompassSettings(enabled: false));
     map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10));
   }
 

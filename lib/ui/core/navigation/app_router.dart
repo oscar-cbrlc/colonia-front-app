@@ -1,12 +1,14 @@
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
+import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -132,17 +134,17 @@ class AppRouter {
 
         final session = args?['session'] as TrackingSession?;
         final activityResult = args?['activityResult'] as ActivityResult?;
-        final activity = args?['activity'] as String?;
+        final activityType = args?['activityType'] as ActivityType?;
         final trainingName = args?['trainingName'] as String?;
 
-        if (session != null && activity != null && trainingName != null) {
+        if (session != null && activityType != null && trainingName != null) {
           return MaterialPageRoute(
             settings: settings,
             builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
               create: (context) => ActivitySummaryViewModel(
                 session: session,
                 activityResult: activityResult,
-                activity: activity,
+                activityType: activityType,
                 trainingName: trainingName,
               ),
               child: Consumer<ActivitySummaryViewModel>(
@@ -192,6 +194,7 @@ class AppRouter {
               context.read<BoostRepository>(),
               context.read<TerritoryRepository>(),
               context.read<TeamRepository>(),
+              context.read<SensorRepository>(),
             ),
             child: Consumer<ActivityViewModel>(
               builder: (context, viewModel, _) => ActivityScreen(viewModel: viewModel),
