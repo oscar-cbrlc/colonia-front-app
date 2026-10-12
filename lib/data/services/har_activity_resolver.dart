@@ -5,10 +5,10 @@ import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:flutter/foundation.dart';
 
 final harActivityKmHRange = <HarActivity, ({double min, double max})>{
-  HarActivity.walk: (min: 0.0, max: 6.4),
-  HarActivity.run: (min: 6.4, max: 13.0),
-  HarActivity.bike: (min: 13.0, max: 30.0),
-  HarActivity.vehicle: (min: 30.0, max: double.infinity),
+  HarActivity.walk: (min: 0.0, max: 6.0),
+  HarActivity.run: (min: 6.0, max: 20.0),
+  HarActivity.bike: (min: 13.0, max: 35.0),
+  HarActivity.vehicle: (min: 35.0, max: double.infinity),
 };
 
 class HarActivityResolver {
