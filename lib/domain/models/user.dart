@@ -74,6 +74,9 @@ abstract class UserStats with _$UserStats {
   const factory UserStats({
     @JsonKey(name: 'total_time', readValue: _parseNumOrString) @Default(0.0) double totalTime,
     @JsonKey(name: 'total_distance', readValue: _parseNumOrString) @Default(0.0) double totalDistance,
+    @JsonKey(name: 'total_attack', readValue: _parseNumOrString) @Default(0.0) double totalAttack,
+    @JsonKey(name: 'total_defence', readValue: _parseNumOrString) @Default(0.0) double totalDefense,
+    @JsonKey(name: 'territories_captured') @Default(0) int territoriesCaptured,
   }) = _UserStats;
 
   factory UserStats.fromJson(Map<String, dynamic> json) => _$UserStatsFromJson(json);

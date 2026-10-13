@@ -505,6 +505,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get territories => 'TERRITORIES';
 
   @override
+  String get attack => 'ATTACK';
+
+  @override
   String get defense => 'DEFENSE';
 
   @override

@@ -1046,6 +1046,12 @@ abstract class AppLocalizations {
   /// **'TERRITORIOS'**
   String get territories;
 
+  /// No description provided for @attack.
+  ///
+  /// In es, this message translates to:
+  /// **'ATAQUE'**
+  String get attack;
+
   /// No description provided for @defense.
   ///
   /// In es, this message translates to:

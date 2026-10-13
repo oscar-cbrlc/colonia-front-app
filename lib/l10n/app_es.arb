@@ -534,6 +534,9 @@
     "territories": "TERRITORIOS",
     "@territories": {},
 
+    "attack": "ATAQUE",
+    "@attack": {},
+
     "defense": "DEFENSA",
     "@defense": {},
 

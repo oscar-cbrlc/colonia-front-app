@@ -31,6 +31,21 @@ class UserProfileViewModel extends ChangeNotifier {
     return hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
   }
 
+  String get formattedAttack {
+    final attack = _user.stats?.totalAttack ?? 0.0;
+    return attack.toInt().toString();
+  }
+
+  String get formattedDefense {
+    final defense = _user.stats?.totalDefense ?? 0.0;
+    return defense.toInt().toString();
+  }
+
+  String get formattedTerritoriesCaptured {
+    final count = _user.stats?.territoriesCaptured ?? 0;
+    return count.toString();
+  }
+
   Future<bool> updateAccountInfo({required String newUsername, String? newPassword}) async {
     _isLoading = true;
     _errorMessage = null;
