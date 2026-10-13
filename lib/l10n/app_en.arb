@@ -944,5 +944,8 @@
     },
 
     "autoResumed": "Valid motion detected. Excursion resumed.",
-    "@autoResumed": {}
+    "@autoResumed": {},
+
+    "byLabel": "by:",
+    "@byLabel": {}
 }

@@ -862,4 +862,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoResumed => 'Valid motion detected. Excursion resumed.';
+
+  @override
+  String get byLabel => 'by:';
 }

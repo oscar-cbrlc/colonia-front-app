@@ -945,5 +945,8 @@
     },
 
     "autoResumed": "Movimiento válido detectado. Excursión reanudada.",
-    "@autoResumed": {}
+    "@autoResumed": {},
+
+    "byLabel": "por:",
+    "@byLabel": {}
 }

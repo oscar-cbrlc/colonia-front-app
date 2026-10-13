@@ -1699,6 +1699,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Movimiento válido detectado. Excursión reanudada.'**
   String get autoResumed;
+
+  /// No description provided for @byLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'por:'**
+  String get byLabel;
 }
 
 class _AppLocalizationsDelegate

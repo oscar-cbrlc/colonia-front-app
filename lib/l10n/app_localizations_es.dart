@@ -867,4 +867,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
+
+  @override
+  String get byLabel => 'por:';
 }
