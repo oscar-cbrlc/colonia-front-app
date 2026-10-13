@@ -1,5 +1,7 @@
 import 'package:colonia_front_app/domain/models/team_chat_message.dart';
+import 'package:custom_floating_action_button_location/custom_floating_action_button_location.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
@@ -173,9 +175,22 @@ class _TeamDetailsView extends StatelessWidget {
     final pendingRequestsCount = viewModel.teamReceivedRequests.length;
     final locale = AppLocalizations.of(context)!;
 
-    return Container(
-      color: AppTheme.darkBackground,
-      child: SafeArea(
+    return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
+      floatingActionButtonLocation: CustomFloatingActionButtonLocation(xOffset: 310, yOffset: 120),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          TeamScreen.showExploreTeamsSheet(context, viewModel);
+        },
+        backgroundColor: AppTheme.tertiaryColor.withAlpha(180),
+        shape: const BeveledRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          side: BorderSide(color: Colors.white24, width: 1),
+        ),
+        child: const Icon(Icons.travel_explore_sharp, color: Colors.white70),
+      ),
+      body: SafeArea(
         child: TeamDetailsBody(
           team: team,
           members: viewModel.teamMembers,
@@ -810,7 +825,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
             children: [
               Text(
                 locale.exploreColonies,
-                style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontFamily: 'Oswald', fontSize: 24),
+                style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontFamily: 'Oswald', fontSize: 18),
               ),
 
             ],
