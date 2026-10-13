@@ -1177,29 +1177,6 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
               decoration: TextDecoration.none,
             ),
           ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                viewModel.onPushPlayButton();
-              },
-              icon: const Icon(Icons.play_arrow, color: Colors.black87, size: 16),
-              label: Text(
-                locale.resume.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-              ),
-            ),
-          ),
         ],
       ),
     );
