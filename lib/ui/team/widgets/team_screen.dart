@@ -764,6 +764,8 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
   }
 }
 
+enum TeamSortOption { members, territories, defense }
+
 class _ExploreTeamsSheet extends StatefulWidget {
   final TeamViewModel viewModel;
   const _ExploreTeamsSheet({required this.viewModel});
@@ -775,6 +777,8 @@ class _ExploreTeamsSheet extends StatefulWidget {
 class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
   List<Team> _teams = [];
   bool _isLoading = true;
+  TeamSortOption _selectedSort = TeamSortOption.territories;
+  bool _isAscending = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -805,9 +809,50 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
     });
   }
 
+  String _getSortLabel(AppLocalizations locale, TeamSortOption option) {
+    switch (option) {
+      case TeamSortOption.members:
+        return locale.members;
+      case TeamSortOption.territories:
+        return locale.territories;
+      case TeamSortOption.defense:
+        return locale.defense;
+    }
+  }
+
+  List<Team> get _sortedAndFilteredTeams {
+    final List<Team> list = List.from(_teams);
+
+    list.sort((a, b) {
+      int comparison = 0;
+      switch (_selectedSort) {
+        case TeamSortOption.members:
+          final countA = a.stats?.memberCount ?? 0;
+          final countB = b.stats?.memberCount ?? 0;
+          comparison = countA.compareTo(countB);
+          break;
+        case TeamSortOption.territories:
+          final terrA = a.stats?.territoriesControlled ?? 0;
+          final terrB = b.stats?.territoriesControlled ?? 0;
+          comparison = terrA.compareTo(terrB);
+          break;
+        case TeamSortOption.defense:
+          final defA = a.stats?.totalDefensePoints ?? 0.0;
+          final defB = b.stats?.totalDefensePoints ?? 0.0;
+          comparison = defA.compareTo(defB);
+          break;
+      }
+      return _isAscending ? comparison : -comparison;
+    });
+
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
+    final displayTeams = _sortedAndFilteredTeams;
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       padding: const EdgeInsets.all(24),
@@ -825,36 +870,130 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
             children: [
               Text(
                 locale.exploreColonies,
-                style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontFamily: 'Oswald', fontSize: 18),
+                style: const TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Oswald',
+                  fontSize: 18,
+                ),
               ),
-
             ],
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _searchController,
-            onChanged: _searchTeams,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: locale.searchByName,
-              hintStyle: const TextStyle(color: Colors.white24),
-              prefixIcon: const Icon(Icons.search, color: Colors.white54),
-              filled: true,
-              fillColor: Colors.white.withAlpha(10),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _searchTeams,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: locale.name.toUpperCase(),
+                    hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.white54),
+                      onPressed: () => _searchController.clear(),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withAlpha(10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Text(
+                "${locale.byLabel.toUpperCase()} ",
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  _getSortLabel(locale, _selectedSort).toUpperCase(),
+                  key: ValueKey(_selectedSort),
+                  style: const TextStyle(
+                    color: AppTheme.tertiaryColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              _FilterIconButton(
+                icon: Icons.person,
+                isSelected: _selectedSort == TeamSortOption.members,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _selectedSort = TeamSortOption.members;
+                  });
+                },
+              ),
+              const SizedBox(width: 6),
+
+              _FilterIconButton(
+                icon: Icons.hexagon_outlined,
+                isSelected: _selectedSort == TeamSortOption.territories,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _selectedSort = TeamSortOption.territories;
+                  });
+                },
+              ),
+              const SizedBox(width: 6),
+
+              _FilterIconButton(
+                icon: Icons.shield,
+                isSelected: _selectedSort == TeamSortOption.defense,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _selectedSort = TeamSortOption.defense;
+                  });
+                },
+              ),
+              const SizedBox(width: 6),
+
+              _FilterIconButton(
+                icon: _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                isSelected: true,
+                activeColor: AppTheme.secondaryColor,
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    _isAscending = !_isAscending;
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
-                : _teams.isEmpty
+                : displayTeams.isEmpty
                     ? Center(child: Text(locale.noColoniesFound, style: const TextStyle(color: Colors.white54)))
                     : ListView.builder(
-                        itemCount: _teams.length,
+                        itemCount: displayTeams.length,
                         itemBuilder: (context, index) {
-                          final team = _teams[index];
+                          final team = displayTeams[index];
                           return _TeamListItem(
+                            index: _isAscending? displayTeams.length-index : index+1,
                             team: team,
                             onTap: () {
                               Navigator.pushNamed(
@@ -873,29 +1012,89 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
   }
 }
 
-class _TeamListItem extends StatelessWidget {
-  final Team team;
+class _FilterIconButton extends StatelessWidget {
+  final IconData icon;
+  final bool isSelected;
   final VoidCallback onTap;
+  final Color? activeColor;
 
-  const _TeamListItem({required this.team, required this.onTap});
+  const _FilterIconButton({
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+    this.activeColor,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final Color color = activeColor ?? AppTheme.tertiaryColor;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 42,
+        height: 42,
+        alignment: Alignment.center,
+        decoration: ShapeDecoration(
+          color: isSelected ? color.withAlpha(35) : Colors.white.withAlpha(10),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: isSelected ? color : Colors.white24,
+              width: isSelected ? 1.0 : 0.5,
+            ),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: isSelected ? Colors.white70 : Colors.white54,
+        ),
+      ),
+    );
+  }
+}
+
+class _TeamListItem extends StatelessWidget {
+  final Team team;
+  final VoidCallback onTap;
+  final int index;
+
+  const _TeamListItem({required this.team, required this.onTap, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    final teamColor = Color(team.color);
     final locale = AppLocalizations.of(context)!;
+    final posColor = index == 1 ? Colors.amber : index == 2 ? Colors.white54 : index == 3 ? Colors.brown : Colors.transparent;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: ShapeDecoration(
         color: Colors.white.withAlpha(10),
-        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.white12, width: 0.5),
+        ),
       ),
       child: ListTile(
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
+          alignment: Alignment.center,
           width: 50,
           height: 50,
-          decoration: BoxDecoration(color: Color(team.color).withAlpha(40), shape: BoxShape.circle, border: Border.all(color: Color(team.color), width: 2)),
-          child: Icon(Icons.group, color: Color(team.color), size: 24),
+          decoration: ShapeDecoration(
+            color: posColor != Colors.transparent? posColor.withAlpha(120) : posColor,
+            shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: posColor != Colors.transparent? posColor : Colors.white70, width: 1)),
+          ),
+          child: Text(
+            index.toString(),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
         title: Row(
           children: [
@@ -909,36 +1108,53 @@ class _TeamListItem extends StatelessWidget {
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: team.isPublic ? Colors.green.withAlpha(40) : Colors.orange.withAlpha(40),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: team.isPublic ? Colors.green : Colors.orange, width: 0.5),
+              decoration: ShapeDecoration(
+                color: Colors.white.withAlpha(10),
+                shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(3)),
+
               ),
               child: Text(
                 (team.isPublic ? locale.public.toUpperCase() : locale.private.toUpperCase()),
                 style: TextStyle(
-                  color: team.isPublic ? Colors.green : Colors.orange,
-                  fontSize: 8,
+                  color: team.isPublic ? Colors.green : Colors.blue,
+                  fontSize: 9,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
         ),
-        subtitle: Row(
+        subtitle: Column(
           children: [
-            const Icon(Icons.person, color: Colors.white54, size: 14),
-            const SizedBox(width: 4),
-            Text("${team.stats?.memberCount ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
-            const SizedBox(width: 12),
-            const Icon(Icons.map, color: Colors.white54, size: 14),
-            const SizedBox(width: 4),
-            Text("${team.stats?.territoriesControlled ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
-            const SizedBox(width: 12),
-            const Icon(Icons.shield, color: AppTheme.primaryColor, size: 14),
-            const SizedBox(width: 4),
-            Text("${team.stats?.totalDefensePoints.toStringAsFixed(0) ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
-          ],
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: teamColor,
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Colors.transparent, width: 1),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Icon(Icons.person, color: AppTheme.primaryColor.withAlpha(120), size: 14),
+                const SizedBox(width: 4),
+                Text("${team.stats?.memberCount ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                const SizedBox(width: 12),
+                Icon(Icons.hexagon_outlined, color: AppTheme.primaryColor.withAlpha(120), size: 14),
+                const SizedBox(width: 4),
+                Text("${team.stats?.territoriesControlled ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                const SizedBox(width: 12),
+                Icon(Icons.shield, color: AppTheme.primaryColor.withAlpha(120), size: 14),
+                const SizedBox(width: 4),
+                Text("${team.stats?.totalDefensePoints.toStringAsFixed(0) ?? 0}", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              ],
+            ),
+            const SizedBox(height: 4),
+
+
+          ]
         ),
         trailing: const Icon(Icons.chevron_right, color: Colors.white24),
       ),
