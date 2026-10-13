@@ -136,41 +136,42 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                   child: Text(locale.declineRequest.toUpperCase()),
                 ),
               ),
-            ] else 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: viewModel.isLoading ? null : () async {
-                    if (team.isPublic) {
-                      final success = await viewModel.joinTeam(team.id);
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale.successfullyJoinedColony),
-                        ));
-                        Navigator.of(context).pop();
-                        if (Navigator.of(context).canPop()) {
+            ] else
+              if (viewModel.currentTeam == null)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: viewModel.isLoading ? null : () async {
+                      if (team.isPublic) {
+                        final success = await viewModel.joinTeam(team.id);
+                        if (success && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale.successfullyJoinedColony),
+                          ));
                           Navigator.of(context).pop();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      } else {
+                        final success = await viewModel.requestJoin(team.id);
+                        if (success && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale.requestSentSuccessfully),
+                          ));
                         }
                       }
-                    } else {
-                      final success = await viewModel.requestJoin(team.id);
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale.requestSentSuccessfully),
-                        ));
-                      }
-                    }
-                  },
-                  child: viewModel.isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                    : Text((team.isPublic ? locale.joinTeam : locale.requestToJoin).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    },
+                    child: viewModel.isLoading
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      : Text((team.isPublic ? locale.joinTeam : locale.requestToJoin).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
           ],
         ) : null,
       ),
