@@ -112,7 +112,7 @@ class UserProfileScreen extends StatelessWidget {
                               child: StatItem(
                                 label: locale.captured.toUpperCase(),
                                 value: vm.formattedTerritoriesCaptured,
-                                icon: Icons.grid_view_sharp,
+                                icon: Icons.hexagon_outlined,
                               ),
                             ),
                           ],
