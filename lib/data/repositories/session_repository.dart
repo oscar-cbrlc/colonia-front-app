@@ -153,7 +153,9 @@ class SessionRepository extends ChangeNotifier {
 
   void startGame() {
     if (_playingState == PlayingState.playing) return;
+    final currentConfig = _trainingConfig;
     _resetSessionData();
+    _trainingConfig = currentConfig;
     _playingState = PlayingState.playing;
     _trackingRepository.startActivity(_activityType ?? ActivityType.onFoot);
     onStartNotification?.call();

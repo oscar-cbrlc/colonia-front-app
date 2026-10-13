@@ -819,12 +819,11 @@ class _TrainingObjectiveWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final training = viewModel.selectedTrainingType;
-        if (training == null || training == TrainingType.free) {
+        final training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
+        if (training == TrainingType.free) {
           return const SizedBox.shrink();
         }
 
@@ -1992,7 +1991,7 @@ class _ChoiceChip extends StatelessWidget {
     required this.isSelected,
     required this.onSelected,
     required this.color,
-    this.multiplier = '1.0',
+    this.multiplier = '',
   });
 
   @override
@@ -2046,7 +2045,7 @@ class _ChoiceChip extends StatelessWidget {
               ],
             ),
           ),
-          if (multiplier.isNotEmpty)
+          if (multiplier != '')
             Positioned(
               right: 0,
               bottom: 0,
