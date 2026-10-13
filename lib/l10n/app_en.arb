@@ -118,7 +118,7 @@
     "map": "Map",
     "@map": {},
 
-    "team": "Team",
+    "team": "Colony",
     "@team": {},
 
     "profile": "Profile",

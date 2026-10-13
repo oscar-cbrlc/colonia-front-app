@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @team.
   ///
   /// In es, this message translates to:
-  /// **'Equipo'**
+  /// **'Colonia'**
   String get team;
 
   /// No description provided for @profile.

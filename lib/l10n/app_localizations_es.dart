@@ -131,7 +131,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get map => 'Mapa';
 
   @override
-  String get team => 'Equipo';
+  String get team => 'Colonia';
 
   @override
   String get profile => 'Perfil';
