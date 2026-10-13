@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/team_viewmodel.dart';
@@ -93,6 +94,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
       backgroundColor: AppTheme.darkBackground,
       body: SafeArea(
         child: TeamDetailsBody(
+          onMemberTap: (member) => _showMemberActions(context, viewModel, member),
           team: team,
           members: team.members ?? [],
           showBackButton: true,
@@ -173,5 +175,40 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
         ) : null,
       ),
     ));
+  }
+
+  void _showMemberActions(BuildContext context, TeamViewModel viewModel, TeamMemberSummary member) {
+    final currentUser = viewModel.currentUser;
+    if (currentUser == null || currentUser.id == member.userId) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.darkBackground,
+      shape: const BeveledRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person, color: Colors.white),
+              title: Text(member.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: Text(member.role.toUpperCase(), style: const TextStyle(color: Colors.white54)),
+              trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                  context,
+                  AppRouter.profile,
+                  arguments: {'user': viewModel.getUserById(member.userId)},
+                );
+              },
+            ),
+            const Divider(color: Colors.white12),
+          ],
+        ),
+      ),
+    );
   }
 }
