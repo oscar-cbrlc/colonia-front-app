@@ -51,18 +51,34 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
     final locale = AppLocalizations.of(context)!;
     
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppTheme.darkBackground,
-        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
-        body: const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
       );
     }
 
     if (_team == null) {
       return Scaffold(
         backgroundColor: AppTheme.darkBackground,
-        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
-        body: Center(child: Text(locale.colonyNotFound, style: const TextStyle(color: Colors.white))),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(locale.colonyNotFound, style: const TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -75,10 +91,12 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: TeamDetailsBody(
-        team: team,
-        members: team.members ?? [],
-        bottomAction: !isMyTeam ? Column(
+      body: SafeArea(
+        child: TeamDetailsBody(
+          team: team,
+          members: team.members ?? [],
+          showBackButton: true,
+          bottomAction: !isMyTeam ? Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (hasPendingRequest) ...[
@@ -154,6 +172,6 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
           ],
         ) : null,
       ),
-    );
+    ));
   }
 }

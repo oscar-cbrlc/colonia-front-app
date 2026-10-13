@@ -132,7 +132,7 @@ class _NoTeamView extends StatelessWidget {
                   onPressed: () => TeamScreen.showSentRequestsSheet(context, viewModel),
                   icon: Badge(
                     label: Text("$sentRequestsCount"),
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppTheme.secondaryColor,
                     textColor: Colors.black,
                     child: const Icon(Icons.send_outlined),
                   ),
@@ -175,16 +175,18 @@ class _TeamDetailsView extends StatelessWidget {
 
     return Container(
       color: AppTheme.darkBackground,
-      child: TeamDetailsBody(
-        team: team,
-        members: viewModel.teamMembers,
-        appBarActions: [
-          if (isLeader)
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.white),
-              onPressed: () => _showEditTeamSheet(context, viewModel),
-            ),
-        ],
+      child: SafeArea(
+        child: TeamDetailsBody(
+          team: team,
+          members: viewModel.teamMembers,
+          showBackButton: false,
+          appBarActions: [
+            if (isLeader)
+              IconButton(
+                icon: const Icon(Icons.edit, color: AppTheme.primaryColor),
+                onPressed: () => _showEditTeamSheet(context, viewModel),
+              ),
+          ],
         headerActions: [
           Row(
             children: [
@@ -254,8 +256,9 @@ class _TeamDetailsView extends StatelessWidget {
           child: Text(locale.leaveColony, style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showTeamChatSheet(BuildContext context, TeamViewModel viewModel) {
     showModalBottomSheet(
