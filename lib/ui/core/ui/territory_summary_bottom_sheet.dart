@@ -70,7 +70,7 @@ void showTerritorySummaryBottomSheet(BuildContext context, Territory territory) 
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          team.name.toUpperCase(),
+                          team.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,

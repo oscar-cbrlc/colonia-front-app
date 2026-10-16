@@ -16,7 +16,7 @@ class StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white.withAlpha(150), size: 20),
+        Icon(icon, color: AppTheme.primaryColor.withAlpha(150), size: 20),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald')),
         Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -93,6 +93,8 @@ class TeamDetailsBody extends StatelessWidget {
   final List<Widget>? headerActions;
   final Widget? bottomAction;
   final Function(TeamMemberSummary)? onMemberTap;
+  final bool showBackButton;
+  final VoidCallback? onBackPressed;
 
   const TeamDetailsBody({
     super.key, 
@@ -102,6 +104,8 @@ class TeamDetailsBody extends StatelessWidget {
     this.headerActions,
     this.bottomAction,
     this.onMemberTap,
+    this.showBackButton = false,
+    this.onBackPressed,
   });
 
   @override
@@ -112,58 +116,161 @@ class TeamDetailsBody extends StatelessWidget {
     final moderators = members.where((m) => m.role == TeamRole.moderator.name).toList();
     final regularMembers = members.where((m) => m.role == TeamRole.member.name).toList();
 
+    final teamColor = Color(team.color);
+
     return CustomScrollView(
       slivers: [
-        SliverAppBar(
-          expandedHeight: 200.0,
-          floating: false,
-          pinned: true,
-          backgroundColor: Color(team.color),
-          actions: appBarActions,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(
-              team.name.toUpperCase(),
-              style: const TextStyle(
-                fontFamily: 'Oswald',
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontStyle: FontStyle.normal,
-              ),
-            ),
-            centerTitle: true,
-            background: Container(
-              decoration: BoxDecoration(
-                color: Color(team.color),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(team.color).withAlpha(150),
-                    Color(team.color),
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.group,
-                  size: 80,
-                  color: Colors.white.withAlpha(100),
-                ),
-              ),
-            ),
-          ),
-        ),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                if (showBackButton || (appBarActions != null && appBarActions!.isNotEmpty)) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (showBackButton)
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          behavior: HitTestBehavior.opaque,
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: AppTheme.primaryColor,
+                            size: 32.0,
+                          ),
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      if (appBarActions != null && appBarActions!.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: appBarActions!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                Container(
+                    padding: const EdgeInsets.only(top: 6, bottom: 6, left: 24, right: 24),
+                    decoration: ShapeDecoration(
+                      color: AppTheme.primaryColor.withAlpha(0),
+                      shape: BeveledRectangleBorder(
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                        side: BorderSide(color: AppTheme.primaryColor.withAlpha(100), width: 1.5),
+                      ),
+                    ),
+                    child: Text(
+                      locale.team.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                        fontFamily: 'Oswald',
+                      ),
+                    )
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: ShapeDecoration(
+                    color: teamColor.withAlpha(25),
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: teamColor.withAlpha(150), width: 1.5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                       Text(
+                        team.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 6, bottom: 6, left: 24, right: 24),
+                  decoration: ShapeDecoration(
+                    color: AppTheme.primaryColor.withAlpha(0),
+                    shape: BeveledRectangleBorder(
+                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                      side: BorderSide(
+                        color: team.isPublic? Colors.green.withAlpha(120) : Colors.blue.withAlpha(120),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    team.isPublic ? locale.public.toUpperCase() : locale.private.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                      fontFamily: 'Oswald',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: ShapeDecoration(
+                    color: Colors.white.withAlpha(8),
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: teamColor.withAlpha(60),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Expanded(
+                            child: StatItem(
+                              label: locale.members,
+                              value: team.stats?.memberCount.toString() ?? "0",
+                              icon: Icons.person,
+                            ),
+                          ),
+                          Expanded(
+                            child: StatItem(
+                              label: locale.territories,
+                              value: team.stats?.territoriesControlled.toString() ?? "0",
+                              icon: Icons.hexagon_outlined,
+                            ),
+                          ),
+                          Expanded(
+                            child: StatItem(
+                              label: locale.defense,
+                              value: team.stats?.totalDefensePoints.toStringAsFixed(0) ?? "0",
+                              icon: Icons.shield,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]
+                  ),
+                ),
+
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      locale.description.toUpperCase(),
+                      locale.info.toUpperCase(),
                       style: const TextStyle(
                         color: AppTheme.primaryColor,
                         fontSize: 14,
@@ -171,60 +278,41 @@ class TeamDetailsBody extends StatelessWidget {
                         letterSpacing: 1.2,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: team.isPublic ? Colors.green.withAlpha(50) : Colors.blue.withAlpha(50),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: team.isPublic ? Colors.green : Colors.blue, width: 1),
-                      ),
-                      child: Text(
-                        (team.isPublic ? locale.public : locale.private).toUpperCase(),
-                        style: TextStyle(
-                          color: team.isPublic ? Colors.green : Colors.blue,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+
                   ],
                 ),
+
                 const SizedBox(height: 8),
-                if (team.description != null && team.description!.isNotEmpty)
-                  Text(
-                    team.description!,
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
-                  )
-                else
-                  Text(locale.noDescription, style: const TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: ShapeDecoration(
+                    color: Colors.white.withAlpha(8),
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: teamColor.withAlpha(60),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      if (team.description != null && team.description!.isNotEmpty)
+                        Text(
+                          team.description!,
+                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                        )
+                      else
+                        Text(locale.noDescription, style: const TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic)),
+                    ]
+                  ),
+                ),
                 const SizedBox(height: 24),
                 
                 if (headerActions != null && headerActions!.isNotEmpty) ...[
                   ...headerActions!,
                   const SizedBox(height: 24),
                 ],
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    StatItem(
-                      label: locale.members,
-                      value: team.stats?.memberCount.toString() ?? "0",
-                      icon: Icons.person,
-                    ),
-                    StatItem(
-                      label: locale.territories,
-                      value: team.stats?.territoriesControlled.toString() ?? "0",
-                      icon: Icons.map,
-                    ),
-                    StatItem(
-                      label: locale.defense,
-                      value: team.stats?.totalDefensePoints.toStringAsFixed(0) ?? "0",
-                      icon: Icons.shield,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
               ],
             ),
           ),

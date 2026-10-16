@@ -77,20 +77,70 @@ class UserProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      StatItem(
-                        label: locale!.distance.toUpperCase(),
-                        value: vm.formattedDistance,
-                        icon: Icons.directions_run,
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    decoration: ShapeDecoration(
+                      color: Colors.white.withAlpha(8),
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: AppTheme.primaryColor.withAlpha(60),
+                          width: 1,
+                        ),
                       ),
-                      StatItem(
-                        label: locale.time.toUpperCase(),
-                        value: vm.formattedTime,
-                        icon: Icons.timer,
-                      ),
-                    ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                              child: StatItem(
+                                label: locale!.distance.toUpperCase(),
+                                value: vm.formattedDistance,
+                                icon: Icons.straighten,
+                              ),
+                            ),
+                            Expanded(
+                              child: StatItem(
+                                label: locale.time.toUpperCase(),
+                                value: vm.formattedTime,
+                                icon: Icons.timer,
+                              ),
+                            ),
+                            Expanded(
+                              child: StatItem(
+                                label: locale.captured.toUpperCase(),
+                                value: vm.formattedTerritoriesCaptured,
+                                icon: Icons.hexagon_outlined,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(color: Colors.white12, height: 1),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                              child: StatItem(
+                                label: locale.attack.toUpperCase(),
+                                value: vm.formattedAttack,
+                                icon: Icons.flash_on_sharp,
+                              ),
+                            ),
+                            Expanded(
+                              child: StatItem(
+                                label: locale.defense.toUpperCase(),
+                                value: vm.formattedDefense,
+                                icon: Icons.shield_sharp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 28),
 

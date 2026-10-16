@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/team_viewmodel.dart';
@@ -51,18 +52,34 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
     final locale = AppLocalizations.of(context)!;
     
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppTheme.darkBackground,
-        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
-        body: const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
       );
     }
 
     if (_team == null) {
       return Scaffold(
         backgroundColor: AppTheme.darkBackground,
-        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
-        body: Center(child: Text(locale.colonyNotFound, style: const TextStyle(color: Colors.white))),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(locale.colonyNotFound, style: const TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -75,10 +92,13 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: TeamDetailsBody(
-        team: team,
-        members: team.members ?? [],
-        bottomAction: !isMyTeam ? Column(
+      body: SafeArea(
+        child: TeamDetailsBody(
+          onMemberTap: (member) => _showMemberActions(context, viewModel, member),
+          team: team,
+          members: team.members ?? [],
+          showBackButton: true,
+          bottomAction: !isMyTeam ? Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (hasPendingRequest) ...[
@@ -116,43 +136,79 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
                   child: Text(locale.declineRequest.toUpperCase()),
                 ),
               ),
-            ] else 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: viewModel.isLoading ? null : () async {
-                    if (team.isPublic) {
-                      final success = await viewModel.joinTeam(team.id);
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale.successfullyJoinedColony),
-                        ));
-                        Navigator.of(context).pop();
-                        if (Navigator.of(context).canPop()) {
+            ] else
+              if (viewModel.currentTeam == null)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: viewModel.isLoading ? null : () async {
+                      if (team.isPublic) {
+                        final success = await viewModel.joinTeam(team.id);
+                        if (success && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale.successfullyJoinedColony),
+                          ));
                           Navigator.of(context).pop();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      } else {
+                        final success = await viewModel.requestJoin(team.id);
+                        if (success && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale.requestSentSuccessfully),
+                          ));
                         }
                       }
-                    } else {
-                      final success = await viewModel.requestJoin(team.id);
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale.requestSentSuccessfully),
-                        ));
-                      }
-                    }
-                  },
-                  child: viewModel.isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                    : Text((team.isPublic ? locale.joinTeam : locale.requestToJoin).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    },
+                    child: viewModel.isLoading
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      : Text((team.isPublic ? locale.joinTeam : locale.requestToJoin).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
           ],
         ) : null,
+      ),
+    ));
+  }
+
+  void _showMemberActions(BuildContext context, TeamViewModel viewModel, TeamMemberSummary member) {
+    final currentUser = viewModel.currentUser;
+    if (currentUser == null || currentUser.id == member.userId) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.darkBackground,
+      shape: const BeveledRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person, color: Colors.white),
+              title: Text(member.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              subtitle: Text(member.role.toUpperCase(), style: const TextStyle(color: Colors.white54)),
+              trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                  context,
+                  AppRouter.profile,
+                  arguments: {'user': viewModel.getUserById(member.userId)},
+                );
+              },
+            ),
+            const Divider(color: Colors.white12),
+          ],
+        ),
       ),
     );
   }

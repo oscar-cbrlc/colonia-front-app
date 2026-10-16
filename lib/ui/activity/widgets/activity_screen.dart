@@ -819,12 +819,11 @@ class _TrainingObjectiveWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
-        final training = viewModel.selectedTrainingType;
-        if (training == null || training == TrainingType.free) {
+        final training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
+        if (training == TrainingType.free) {
           return const SizedBox.shrink();
         }
 
@@ -1176,29 +1175,6 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
               fontSize: 11,
               height: 1.3,
               decoration: TextDecoration.none,
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                viewModel.onPushPlayButton();
-              },
-              icon: const Icon(Icons.play_arrow, color: Colors.black87, size: 16),
-              label: Text(
-                locale.resume.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-              ),
             ),
           ),
         ],
@@ -1992,7 +1968,7 @@ class _ChoiceChip extends StatelessWidget {
     required this.isSelected,
     required this.onSelected,
     required this.color,
-    this.multiplier = '1.0',
+    this.multiplier = '',
   });
 
   @override
@@ -2046,7 +2022,7 @@ class _ChoiceChip extends StatelessWidget {
               ],
             ),
           ),
-          if (multiplier.isNotEmpty)
+          if (multiplier != '')
             Positioned(
               right: 0,
               bottom: 0,

@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.9"
+  custom_floating_action_button_location:
+    dependency: "direct main"
+    description:
+      name: custom_floating_action_button_location
+      sha256: "37f2d91f6bffb2b027eb0368c601100936f5815c0e2f45d0492516dcf04b848d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   dart_sort_queue:
     dependency: transitive
     description:
@@ -374,6 +382,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "18.0.1"
+  flutter_local_notifications_linux:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_linux
+      sha256: "8f685642876742c941b29c32030f6f4f6dacd0e4eaecb3efbb187d6a3812ca01"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:

@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @team.
   ///
   /// In es, this message translates to:
-  /// **'Equipo'**
+  /// **'Colonia'**
   String get team;
 
   /// No description provided for @profile.
@@ -1046,6 +1046,12 @@ abstract class AppLocalizations {
   /// **'TERRITORIOS'**
   String get territories;
 
+  /// No description provided for @attack.
+  ///
+  /// In es, this message translates to:
+  /// **'ATAQUE'**
+  String get attack;
+
   /// No description provided for @defense.
   ///
   /// In es, this message translates to:
@@ -1693,6 +1699,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Movimiento válido detectado. Excursión reanudada.'**
   String get autoResumed;
+
+  /// No description provided for @byLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'por:'**
+  String get byLabel;
 }
 
 class _AppLocalizationsDelegate

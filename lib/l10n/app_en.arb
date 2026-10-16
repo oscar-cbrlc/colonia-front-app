@@ -118,7 +118,7 @@
     "map": "Map",
     "@map": {},
 
-    "team": "Team",
+    "team": "Colony",
     "@team": {},
 
     "profile": "Profile",
@@ -534,6 +534,9 @@
     "territories": "TERRITORIES",
     "@territories": {},
 
+    "attack": "ATTACK",
+    "@attack": {},
+
     "defense": "DEFENSE",
     "@defense": {},
 
@@ -941,5 +944,8 @@
     },
 
     "autoResumed": "Valid motion detected. Excursion resumed.",
-    "@autoResumed": {}
+    "@autoResumed": {},
+
+    "byLabel": "by:",
+    "@byLabel": {}
 }

@@ -131,7 +131,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get map => 'Mapa';
 
   @override
-  String get team => 'Equipo';
+  String get team => 'Colonia';
 
   @override
   String get profile => 'Perfil';
@@ -510,6 +510,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get territories => 'TERRITORIOS';
 
   @override
+  String get attack => 'ATAQUE';
+
+  @override
   String get defense => 'DEFENSA';
 
   @override
@@ -864,4 +867,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
+
+  @override
+  String get byLabel => 'por:';
 }

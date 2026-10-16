@@ -118,7 +118,7 @@
     "map": "Mapa",
     "@map": {},
 
-    "team": "Equipo",
+    "team": "Colonia",
     "@team": {},
 
     "profile": "Perfil",
@@ -534,6 +534,9 @@
     "territories": "TERRITORIOS",
     "@territories": {},
 
+    "attack": "ATAQUE",
+    "@attack": {},
+
     "defense": "DEFENSA",
     "@defense": {},
 
@@ -942,5 +945,8 @@
     },
 
     "autoResumed": "Movimiento válido detectado. Excursión reanudada.",
-    "@autoResumed": {}
+    "@autoResumed": {},
+
+    "byLabel": "por:",
+    "@byLabel": {}
 }
