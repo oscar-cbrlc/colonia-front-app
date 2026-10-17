@@ -907,4 +907,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get route => 'Route';
+
+  @override
+  String totalDistanceChallengeDescription(int km) {
+    return 'Complete ${distance}km of total activity';
+  }
+
+  @override
+  String activityDistanceChallengeDescription(int km, String activity) {
+    return 'Complete ${km}km of $activity activity';
+  }
+
+  @override
+  String totalTimeChallengeDescription(int hours) {
+    return 'Complete $hours hours of total activity';
+  }
+
+  @override
+  String activityTimeChallengeDescription(int hours, String activity) {
+    return 'Complete $hours of $activity activity';
+  }
+
+  @override
+  String territoriesCapturedChallengeDescription(int territories) {
+    return 'Capture $territories territories';
+  }
+
+  @override
+  String get routeChallengeDescription => 'Complete the territory route';
 }

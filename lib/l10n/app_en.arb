@@ -989,5 +989,66 @@
     "@territories_captured": {},
 
     "route": "Route",
-    "@route": {}
+    "@route": {},
+
+    "totalDistanceChallengeDescription": "Complete {distance}km of total activity",
+    "@totalDistanceChallengeDescription": {
+        "placeholders": {
+            "distance": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "activityDistanceChallengeDescription": "Complete {km}km of {activity} activity",
+    "@activityDistanceChallengeDescription": {
+        "placeholders": {
+            "km": {
+                "type": "int",
+                "example": "100"
+            },
+            "activity": {
+                "type": "String",
+                "example": "walk"
+            }
+        }
+    },
+
+    "totalTimeChallengeDescription": "Complete {hours} hours of total activity",
+    "@totalTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+
+    "activityTimeChallengeDescription": "Complete {hours} of {activity} activity",
+    "@activityTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "10"
+            },
+            "activity": {
+                "type": "String",
+                "example": "walk"
+            }
+        }
+    },
+
+    "territoriesCapturedChallengeDescription": "Capture {territories} territories",
+    "@territoriesCapturedChallengeDescription": {
+        "placeholders": {
+            "territories": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+
+    "routeChallengeDescription": "Complete the territory route",
+    "@routeChallengeDescription": {}
 }

@@ -912,4 +912,32 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get route => 'Ruta';
+
+  @override
+  String totalDistanceChallengeDescription(int km) {
+    return 'Completa ${km}km de actividad total';
+  }
+
+  @override
+  String activityDistanceChallengeDescription(int km, String activity) {
+    return 'Completa ${km}km de $activity';
+  }
+
+  @override
+  String totalTimeChallengeDescription(int hours) {
+    return 'Completa $hours horas de actividad total';
+  }
+
+  @override
+  String activityTimeChallengeDescription(int hours, String activity) {
+    return 'Completa $hours horas de $activity';
+  }
+
+  @override
+  String territoriesCapturedChallengeDescription(int territories) {
+    return 'Captura $territories territorios';
+  }
+
+  @override
+  String get routeChallengeDescription => 'Completa la ruta de territorios';
 }

@@ -1789,6 +1789,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ruta'**
   String get route;
+
+  /// No description provided for @totalDistanceChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {km}km de actividad total'**
+  String totalDistanceChallengeDescription(int km);
+
+  /// No description provided for @activityDistanceChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {km}km de {activity}'**
+  String activityDistanceChallengeDescription(int km, String activity);
+
+  /// No description provided for @totalTimeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {hours} horas de actividad total'**
+  String totalTimeChallengeDescription(int hours);
+
+  /// No description provided for @activityTimeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {hours} horas de {activity}'**
+  String activityTimeChallengeDescription(int hours, String activity);
+
+  /// No description provided for @territoriesCapturedChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Captura {territories} territorios'**
+  String territoriesCapturedChallengeDescription(int territories);
+
+  /// No description provided for @routeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa la ruta de territorios'**
+  String get routeChallengeDescription;
 }
 
 class _AppLocalizationsDelegate
