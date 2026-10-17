@@ -947,5 +947,47 @@
     "@autoResumed": {},
 
     "byLabel": "by:",
-    "@byLabel": {}
+    "@byLabel": {},
+
+    "difficulty": "Difficulty",
+    "@difficulty": {},
+
+    "easy": "Easy",
+    "@easy": {},
+
+    "medium": "Medium",
+    "@medium": {},
+
+    "hard": "Hard",
+    "@hard": {},
+
+    "total_time": "Total Time",
+    "@total_time": {},
+
+    "walk_time": "Walk Time",
+    "@walk_time": {},
+
+    "run_time": "Run Time",
+    "@run_time": {},
+
+    "bike_time": "Bike Time",
+    "@bike_time": {},
+
+    "total_distance": "Total Distance",
+    "@total_distance": {},
+
+    "walk_distance": "Walk Distance",
+    "@walk_distance": {},
+
+    "run_distance": "Run Distance",
+    "@run_distance": {},
+
+    "bike_distance": "Bike Distance",
+    "@bike_distance": {},
+
+    "territories_captured": "Territories Captured",
+    "@territories_captured": {},
+
+    "route": "Route",
+    "@route": {}
 }

@@ -1705,6 +1705,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'por:'**
   String get byLabel;
+
+  /// No description provided for @difficulty.
+  ///
+  /// In es, this message translates to:
+  /// **'Dificultad'**
+  String get difficulty;
+
+  /// No description provided for @easy.
+  ///
+  /// In es, this message translates to:
+  /// **'Fácil'**
+  String get easy;
+
+  /// No description provided for @medium.
+  ///
+  /// In es, this message translates to:
+  /// **'Media'**
+  String get medium;
+
+  /// No description provided for @hard.
+  ///
+  /// In es, this message translates to:
+  /// **'Difícil'**
+  String get hard;
+
+  /// No description provided for @total_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Total'**
+  String get total_time;
+
+  /// No description provided for @walk_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Caminando'**
+  String get walk_time;
+
+  /// No description provided for @run_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Corriendo'**
+  String get run_time;
+
+  /// No description provided for @bike_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo en Bicicleta'**
+  String get bike_time;
+
+  /// No description provided for @total_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Total'**
+  String get total_distance;
+
+  /// No description provided for @walk_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Caminando'**
+  String get walk_distance;
+
+  /// No description provided for @run_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Corriendo'**
+  String get run_distance;
+
+  /// No description provided for @bike_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia en Bicicleta'**
+  String get bike_distance;
+
+  /// No description provided for @territories_captured.
+  ///
+  /// In es, this message translates to:
+  /// **'Territorios Capturados'**
+  String get territories_captured;
+
+  /// No description provided for @route.
+  ///
+  /// In es, this message translates to:
+  /// **'Ruta'**
+  String get route;
 }
 
 class _AppLocalizationsDelegate

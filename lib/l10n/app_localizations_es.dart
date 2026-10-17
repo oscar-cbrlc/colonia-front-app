@@ -870,4 +870,46 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get byLabel => 'por:';
+
+  @override
+  String get difficulty => 'Dificultad';
+
+  @override
+  String get easy => 'Fácil';
+
+  @override
+  String get medium => 'Media';
+
+  @override
+  String get hard => 'Difícil';
+
+  @override
+  String get total_time => 'Tiempo Total';
+
+  @override
+  String get walk_time => 'Tiempo Caminando';
+
+  @override
+  String get run_time => 'Tiempo Corriendo';
+
+  @override
+  String get bike_time => 'Tiempo en Bicicleta';
+
+  @override
+  String get total_distance => 'Distancia Total';
+
+  @override
+  String get walk_distance => 'Distancia Caminando';
+
+  @override
+  String get run_distance => 'Distancia Corriendo';
+
+  @override
+  String get bike_distance => 'Distancia en Bicicleta';
+
+  @override
+  String get territories_captured => 'Territorios Capturados';
+
+  @override
+  String get route => 'Ruta';
 }
