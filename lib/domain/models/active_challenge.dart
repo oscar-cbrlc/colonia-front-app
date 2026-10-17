@@ -166,6 +166,31 @@ abstract class Challenge with _$Challenge {
     return condition;
   }
 
+  String getDescription(AppLocalizations locale) {
+    switch(objective) {
+      case ChallengeObjectiveType.total_time:
+        return locale.totalTimeChallengeDescription(conditionMap[ChallengeObjectiveType.total_time]!);
+      case ChallengeObjectiveType.walk_time:
+        return locale.activityTimeChallengeDescription(conditionMap[ChallengeObjectiveType.walk_time]!, locale.walk);
+      case ChallengeObjectiveType.run_time:
+        return locale.activityTimeChallengeDescription(conditionMap[ChallengeObjectiveType.run_time]!, locale.run);
+      case ChallengeObjectiveType.bike_time:
+        return locale.activityTimeChallengeDescription(conditionMap[ChallengeObjectiveType.bike_time]!, locale.bike);
+      case ChallengeObjectiveType.total_distance:
+        return locale.totalDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.total_distance]!);
+      case ChallengeObjectiveType.walk_distance:
+        return locale.activityDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.walk_distance]!, locale.walk);
+      case ChallengeObjectiveType.run_distance:
+        return locale.activityDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.run_distance]!, locale.run);
+      case ChallengeObjectiveType.bike_distance:
+        return locale.activityDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.bike_distance]!, locale.bike);
+      case ChallengeObjectiveType.territories_captured:
+        return locale.territoriesCapturedChallengeDescription(conditionMap[ChallengeObjectiveType.territories_captured]!);
+      case ChallengeObjectiveType.route:
+        return locale.routeChallengeDescription;
+    }
+  }
+
   factory Challenge.fromJson(Map<String, dynamic> json) => _$ChallengeFromJson(json);
 }
 
