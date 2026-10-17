@@ -59,9 +59,11 @@ class AuthRepository extends ChangeNotifier {
     try {
       final response = await _authService.getUserById(id);
       if (response.statusCode == 200) {
-        final List<dynamic> jsonList = jsonDecode(response.body);
-        if (jsonList.isNotEmpty) {
-          return User.fromJson(jsonList.first as Map<String, dynamic>);
+        final dynamic data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          return User.fromJson(data);
+        } else if (data is List && data.isNotEmpty) {
+          return User.fromJson(data.first as Map<String, dynamic>);
         } else {
           throw UserNotFoundException('User not found');
         }
