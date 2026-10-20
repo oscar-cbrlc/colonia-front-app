@@ -1825,6 +1825,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Completa la ruta de territorios'**
   String get routeChallengeDescription;
+
+  /// No description provided for @weekChallenges.
+  ///
+  /// In es, this message translates to:
+  /// **'Retos semanales'**
+  String get weekChallenges;
+
+  /// No description provided for @complete.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa'**
+  String get complete;
+
+  /// No description provided for @hoursOfTotalActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas en total de actividades'**
+  String get hoursOfTotalActivity;
+
+  /// No description provided for @hoursOfWalkActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas caminando'**
+  String get hoursOfWalkActivity;
+
+  /// No description provided for @hoursOfRunActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas trotando'**
+  String get hoursOfRunActivity;
+
+  /// No description provided for @hoursOfBikeActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas en bicicleta'**
+  String get hoursOfBikeActivity;
+
+  /// No description provided for @kmOfTotalActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km en total de actividades'**
+  String get kmOfTotalActivity;
+
+  /// No description provided for @kmOfWalkActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km caminando'**
+  String get kmOfWalkActivity;
+
+  /// No description provided for @kmOfRunActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km trotando'**
+  String get kmOfRunActivity;
+
+  /// No description provided for @kmOfBikeActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km en bicicleta'**
+  String get kmOfBikeActivity;
+
+  /// No description provided for @capture.
+  ///
+  /// In es, this message translates to:
+  /// **'Captura'**
+  String get capture;
+
+  /// No description provided for @rewards.
+  ///
+  /// In es, this message translates to:
+  /// **'Recompensas'**
+  String get rewards;
+
+  /// No description provided for @validSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión Válida'**
+  String get validSummary;
+
+  /// No description provided for @standingTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Inmóvil'**
+  String get standingTime;
+
+  /// No description provided for @vehicleTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Vehículo'**
+  String get vehicleTime;
+
+  /// No description provided for @unknownTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo/Otro'**
+  String get unknownTime;
+
+  /// No description provided for @totalDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Total Transcurrido'**
+  String get totalDuration;
 }
 
 class _AppLocalizationsDelegate

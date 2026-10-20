@@ -935,4 +935,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeChallengeDescription => 'Complete the territory route';
+
+  @override
+  String get weekChallenges => 'Week Challenges';
+
+  @override
+  String get complete => 'Complete';
+
+  @override
+  String get hoursOfTotalActivity => 'hours of total activity';
+
+  @override
+  String get hoursOfWalkActivity => 'hours of walking';
+
+  @override
+  String get hoursOfRunActivity => 'hours of running';
+
+  @override
+  String get hoursOfBikeActivity => 'hours of cycling';
+
+  @override
+  String get kmOfTotalActivity => 'km of total activity';
+
+  @override
+  String get kmOfWalkActivity => 'km of walking';
+
+  @override
+  String get kmOfRunActivity => 'km of running';
+
+  @override
+  String get kmOfBikeActivity => 'km of cycling';
+
+  @override
+  String get capture => 'Capture';
+
+  @override
+  String get rewards => 'Rewards';
+
+  @override
+  String get validSummary => 'Valid Excursion';
+
+  @override
+  String get standingTime => 'Standing';
+
+  @override
+  String get vehicleTime => 'Vehicle';
+
+  @override
+  String get unknownTime => 'Inactive/Other';
+
+  @override
+  String get totalDuration => 'Total Elapsed';
 }

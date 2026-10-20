@@ -1052,5 +1052,56 @@
     },
 
     "routeChallengeDescription": "Completa la ruta de territorios",
-    "@routeChallengeDescription": {}
+    "@routeChallengeDescription": {},
+
+    "weekChallenges": "Retos semanales",
+    "@weekChallenges": {},
+
+    "complete": "Completa",
+    "@complete": {},
+
+    "hoursOfTotalActivity": "horas en total de actividades",
+    "@hoursOfTotalActivity": {},
+
+    "hoursOfWalkActivity": "horas caminando",
+    "@hoursOfWalkActivity": {},
+
+    "hoursOfRunActivity": "horas trotando",
+    "@hoursOfRunActivity": {},
+
+    "hoursOfBikeActivity": "horas en bicicleta",
+    "@hoursOfBikeActivity": {},
+
+    "kmOfTotalActivity": "km en total de actividades",
+    "@kmOfTotalActivity": {},
+
+    "kmOfWalkActivity": "km caminando",
+    "@kmOfWalkActivity": {},
+
+    "kmOfRunActivity": "km trotando",
+    "@kmOfRunActivity": {},
+
+    "kmOfBikeActivity": "km en bicicleta",
+    "@kmOfBikeActivity": {},
+
+    "capture": "Captura",
+    "@capture": {},
+
+    "rewards": "Recompensas",
+    "@rewards": {},
+
+    "validSummary": "Excursión Válida",
+    "@validSummary": {},
+
+    "standingTime": "Inmóvil",
+    "@standingTime": {},
+
+    "vehicleTime": "Vehículo",
+    "@vehicleTime": {},
+
+    "unknownTime": "Inactivo/Otro",
+    "@unknownTime": {},
+
+    "totalDuration": "Tiempo Total Transcurrido",
+    "@totalDuration": {}
 }

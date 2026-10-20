@@ -1050,5 +1050,56 @@
     },
 
     "routeChallengeDescription": "Complete the territory route",
-    "@routeChallengeDescription": {}
+    "@routeChallengeDescription": {},
+
+    "weekChallenges": "Week Challenges",
+    "@weekChallenges": {},
+
+    "complete": "Complete",
+    "@complete": {},
+
+    "hoursOfTotalActivity": "hours of total activity",
+    "@hoursOfTotalActivity": {},
+
+    "hoursOfWalkActivity": "hours of walking",
+    "@hoursOfWalkActivity": {},
+
+    "hoursOfRunActivity": "hours of running",
+    "@hoursOfRunActivity": {},
+
+    "hoursOfBikeActivity": "hours of cycling",
+    "@hoursOfBikeActivity": {},
+
+    "kmOfTotalActivity": "km of total activity",
+    "@kmOfTotalActivity": {},
+
+    "kmOfWalkActivity": "km of walking",
+    "@kmOfWalkActivity": {},
+
+    "kmOfRunActivity": "km of running",
+    "@kmOfRunActivity": {},
+
+    "kmOfBikeActivity": "km of cycling",
+    "@kmOfBikeActivity": {},
+
+    "capture": "Capture",
+    "@capture": {},
+
+    "rewards": "Rewards",
+    "@rewards": {},
+
+    "validSummary": "Valid Excursion",
+    "@validSummary": {},
+
+    "standingTime": "Standing",
+    "@standingTime": {},
+
+    "vehicleTime": "Vehicle",
+    "@vehicleTime": {},
+
+    "unknownTime": "Inactive/Other",
+    "@unknownTime": {},
+
+    "totalDuration": "Total Elapsed",
+    "@totalDuration": {}
 }
