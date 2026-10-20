@@ -236,16 +236,17 @@ void main() async {
               previous ?? SessionRepository(trackingRepository, territoryRepository, localStorageService, boostRepository),
         ),
 
-        ChangeNotifierProxyProvider5<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, BoostRepository, MapViewModel>(
+        ChangeNotifierProxyProvider6<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, BoostRepository, ChallengeRepository, MapViewModel>(
           create: (context) => MapViewModel(
             context.read<TrackingRepository>(),
             context.read<TerritoryRepository>(),
             context.read<TeamRepository>(),
             context.read<SessionRepository>(),
             context.read<BoostRepository>(),
+            context.read<ChallengeRepository>(),
           ),
-          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, previous) =>
-              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository),
+          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, challengeRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, challengeRepository),
         ),
 
         ChangeNotifierProxyProvider4<TeamRepository, AuthRepository, TeamRequestRepository, TeamChatRepository, TeamViewModel>(
