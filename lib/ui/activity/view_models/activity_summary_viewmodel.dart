@@ -95,8 +95,8 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     return null;
   }
 
-  String get formattedTime {
-    final d = Duration(seconds: session.durationSeconds);
+  String formatSeconds(int seconds) {
+    final d = Duration(seconds: seconds);
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(d.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(d.inSeconds.remainder(60));
@@ -105,6 +105,30 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     }
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
+
+  String formatDistanceMeters(double meters) {
+    return (meters / 1000.0).toStringAsFixed(2);
+  }
+
+  String get formattedValidDistance => formatDistanceMeters(session.validDistance);
+  String get formattedValidTime => formatSeconds(session.validSeconds);
+
+  String get formattedWalkDistance => formatDistanceMeters(session.distanceWalk);
+  String get formattedWalkTime => formatSeconds(session.secondsWalk);
+
+  String get formattedRunDistance => formatDistanceMeters(session.distanceRun);
+  String get formattedRunTime => formatSeconds(session.secondsRun);
+
+  String get formattedBikeDistance => formatDistanceMeters(session.distanceBike);
+  String get formattedBikeTime => formatSeconds(session.secondsBike);
+
+  String get formattedInactiveTime => formatSeconds(session.secondsInactive);
+  String get formattedInactiveDistance => formatDistanceMeters(session.distanceInactive);
+
+  String get formattedTotalSessionTime => formatSeconds(session.durationSeconds);
+  String get formattedTotalSessionDistance => formatDistanceMeters(session.totalDistance);
+
+  String get formattedTime => formatSeconds(session.durationSeconds);
 
   String get formattedPace {
     final pace = session.averagePace;
