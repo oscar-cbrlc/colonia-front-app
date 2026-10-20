@@ -991,4 +991,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get totalDuration => 'Tiempo Total Transcurrido';
+
+  @override
+  String get levelLabel => 'Nivel';
+
+  @override
+  String get xpLabel => 'XP';
+
+  @override
+  String get xpForNextLevelLabel => 'XP para siguiente nivel';
 }

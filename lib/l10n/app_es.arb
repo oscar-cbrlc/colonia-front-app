@@ -1103,5 +1103,14 @@
     "@unknownTime": {},
 
     "totalDuration": "Tiempo Total Transcurrido",
-    "@totalDuration": {}
+    "@totalDuration": {},
+
+    "levelLabel": "Nivel",
+    "@levelLabel": {},
+
+    "xpLabel": "XP",
+    "@xpLabel": {},
+
+    "xpForNextLevelLabel": "XP para siguiente nivel",
+    "@xpForNextLevelLabel": {}
 }

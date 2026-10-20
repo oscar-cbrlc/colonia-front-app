@@ -1927,6 +1927,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tiempo Total Transcurrido'**
   String get totalDuration;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel'**
+  String get levelLabel;
+
+  /// No description provided for @xpLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'XP'**
+  String get xpLabel;
+
+  /// No description provided for @xpForNextLevelLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'XP para siguiente nivel'**
+  String get xpForNextLevelLabel;
 }
 
 class _AppLocalizationsDelegate
