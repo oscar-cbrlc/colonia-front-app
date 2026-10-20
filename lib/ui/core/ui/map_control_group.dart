@@ -78,6 +78,8 @@ class IndividualMapButton extends StatelessWidget {
   final Color? iconColor;
   final Color? borderColor;
   final VoidCallback onPressed;
+  final double width;
+  final double height;
 
   const IndividualMapButton({
     super.key,
@@ -86,6 +88,8 @@ class IndividualMapButton extends StatelessWidget {
     this.iconColor,
     this.borderColor,
     required this.onPressed,
+    this.width = 44,
+    this.height = 44,
   });
 
   @override
@@ -93,8 +97,8 @@ class IndividualMapButton extends StatelessWidget {
     final effectiveBorderColor = borderColor ?? AppTheme.primaryColor.withAlpha(120);
 
     return Container(
-      width: 44,
-      height: 44,
+      width: width,
+      height: height,
       decoration: ShapeDecoration(
         color: AppTheme.darkBackground.withAlpha(220),
         shape: BeveledRectangleBorder(

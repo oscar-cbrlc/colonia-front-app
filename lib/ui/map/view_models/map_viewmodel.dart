@@ -13,8 +13,11 @@ import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/domain/models/active_challenge.dart';
+import 'package:colonia_front_app/domain/models/started_challenge.dart';
 
 class MapViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
@@ -22,6 +25,7 @@ class MapViewModel extends ChangeNotifier {
   final TeamRepository _teamRepository;
   final SessionRepository _sessionRepository;
   final BoostRepository _boostRepository;
+  final ChallengeRepository _challengeRepository;
 
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 14.0;
@@ -55,13 +59,32 @@ class MapViewModel extends ChangeNotifier {
   double get currentBearing => _mapBearing;
   String? get currentCell => _trackingRepository.currentCell;
 
-  MapViewModel(this._trackingRepository, this._territoryRepository, this._teamRepository, this._sessionRepository, this._boostRepository) {
+  List<ActiveChallenge> get activeChallenges => _challengeRepository.activeChallenges;
+  List<StartedChallenge> get myStartedChallenges => _challengeRepository.myStartedChallenges;
+  bool get isChallengesLoading => _challengeRepository.isLoading;
+  int get completedChallengesCount => myStartedChallenges.where((c) => c.isComplete).length;
+
+  Future<void> fetchActiveChallenges() async {
+    await _challengeRepository.fetchActiveChallenges();
+    await _challengeRepository.fetchMyChallengeProgress();
+  }
+
+  MapViewModel(
+    this._trackingRepository,
+    this._territoryRepository,
+    this._teamRepository,
+    this._sessionRepository,
+    this._boostRepository,
+    this._challengeRepository,
+  ) {
     _trackingRepository.addListener(_onTrackingDataChanged);
     _territoryRepository.addListener(_onTerritoriesChanged);
+    _challengeRepository.addListener(notifyListeners);
     _lastActivityState = _trackingRepository.isActivityActive;
     _territoryRepository.fetchAllTerritories();
     _boostRepository.getAvailableBoosts();
     _boostRepository.fetchMyInventory();
+    fetchActiveChallenges();
     
     _sessionRepository.onSyncNotification = () {
         _didSync = true;
@@ -361,6 +384,7 @@ class MapViewModel extends ChangeNotifier {
     _debounceTimer?.cancel();
     _trackingRepository.removeListener(_onTrackingDataChanged);
     _territoryRepository.removeListener(_onTerritoriesChanged);
+    _challengeRepository.removeListener(notifyListeners);
     super.dispose();
   }
 }

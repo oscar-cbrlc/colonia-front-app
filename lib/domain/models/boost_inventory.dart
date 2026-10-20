@@ -54,6 +54,17 @@ abstract class BoostInventory with _$BoostInventory {
     }
     return '${(effect*100).round()}%';
   }
+
+  static IconData getBoostIcon(String type) {
+    return _boostTypeIcons[type] ?? Icons.bolt;
+  }
+
+  static String getNameType(AppLocalizations locale, String type) {
+    if (type == BoostType.score.name) return locale.boostMultiplierName;
+    if (type == BoostType.impact_area.name) return locale.boostRadioName;
+    if (type == BoostType.impact_distance.name) return locale.boostDistanceName;
+    return locale.errorUnknown;
+  }
 }
 
 final Map<String, IconData> _boostTypeIcons = {
