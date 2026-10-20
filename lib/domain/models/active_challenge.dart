@@ -1,6 +1,9 @@
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/utils/time_converter.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'active_challenge.freezed.dart';
@@ -8,14 +11,14 @@ part 'active_challenge.g.dart';
 
 enum ChallengeDifficulty {
   easy,
-  medium,
+  normal,
   hard;
 
   String getLocale(AppLocalizations locale) {
     switch (this) {
       case ChallengeDifficulty.easy:
         return locale.easy;
-      case ChallengeDifficulty.medium:
+      case ChallengeDifficulty.normal:
         return locale.medium;
       case ChallengeDifficulty.hard:
         return locale.hard;
@@ -32,7 +35,7 @@ enum ChallengeObjectiveType {
   walk_distance,
   run_distance,
   bike_distance,
-  territories_captured,
+  captured_territories,
   route;
 
   String get name => toString().split('.').last;
@@ -55,7 +58,7 @@ enum ChallengeObjectiveType {
         return locale.run_distance;
       case ChallengeObjectiveType.bike_distance:
         return locale.bike_distance;
-      case ChallengeObjectiveType.territories_captured:
+      case ChallengeObjectiveType.captured_territories:
         return locale.territories_captured;
       case ChallengeObjectiveType.route:
         return locale.route;
@@ -76,13 +79,17 @@ abstract class ActiveChallenge with _$ActiveChallenge {
   factory ActiveChallenge.fromJson(Map<String, dynamic> json) => _$ActiveChallengeFromJson(json);
 }
 
+Object? _parseChallengeReward(Map json, String key) {
+  return json['challenge_reward'] ?? json['challege_reward'];
+}
+
 @freezed
 abstract class Challenge with _$Challenge {
   const Challenge._();
   const factory Challenge({
       @JsonKey(name: 'challenge_id') required int id,
-      @JsonKey(name: 'challenge_name') required String name,
-      @JsonKey(name: 'challenge_reward') required ChallengeReward reward,
+      @JsonKey(name: 'challenge_name') String? name,
+      @JsonKey(name: 'challenge_reward', readValue: _parseChallengeReward) required ChallengeReward reward,
       @JsonKey(name: 'objective_type') required String objectiveType,
       @JsonKey(name: 'objective_condition') required Map<String, dynamic> objectiveCondition,
       @JsonKey(name: 'challenge_difficulty') required String challengeDifficulty,
@@ -93,8 +100,8 @@ abstract class Challenge with _$Challenge {
     switch (challengeDifficulty) {
       case 'easy':
         return ChallengeDifficulty.easy;
-      case 'medium':
-        return ChallengeDifficulty.medium;
+      case 'normal':
+        return ChallengeDifficulty.normal;
       case 'hard':
         return ChallengeDifficulty.hard;
       default:
@@ -120,14 +127,16 @@ abstract class Challenge with _$Challenge {
         return ChallengeObjectiveType.run_distance;
       case 'bike_distance':
         return ChallengeObjectiveType.bike_distance;
-      case 'territories_captured':
-        return ChallengeObjectiveType.territories_captured;
+      case 'captured_territories':
+        return ChallengeObjectiveType.captured_territories;
       case 'route':
         return ChallengeObjectiveType.route;
       default:
         throw Exception('Invalid challenge objective type: $objectiveType');
     }
   }
+
+  Object get objectiveValue => objectiveCondition[objective.name]!;
 
   Map<ChallengeObjectiveType, int> get conditionMap {
     final condition = <ChallengeObjectiveType, int>{};
@@ -158,7 +167,7 @@ abstract class Challenge with _$Challenge {
       condition[ChallengeObjectiveType.bike_distance] = objectiveCondition['bike_distance'] as int;
     }
     if (objectiveCondition.containsKey('territories_captured')) {
-      condition[ChallengeObjectiveType.territories_captured] = objectiveCondition['territories_captured'] as int;
+      condition[ChallengeObjectiveType.captured_territories] = objectiveCondition['territories_captured'] as int;
     }
     if (objectiveCondition.containsKey('route')) {
       condition[ChallengeObjectiveType.route] = objectiveCondition['route'] as int;
@@ -184,10 +193,62 @@ abstract class Challenge with _$Challenge {
         return locale.activityDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.run_distance]!, locale.run);
       case ChallengeObjectiveType.bike_distance:
         return locale.activityDistanceChallengeDescription(conditionMap[ChallengeObjectiveType.bike_distance]!, locale.bike);
-      case ChallengeObjectiveType.territories_captured:
-        return locale.territoriesCapturedChallengeDescription(conditionMap[ChallengeObjectiveType.territories_captured]!);
+      case ChallengeObjectiveType.captured_territories:
+        return locale.territoriesCapturedChallengeDescription(conditionMap[ChallengeObjectiveType.captured_territories]!);
       case ChallengeObjectiveType.route:
         return locale.routeChallengeDescription;
+    }
+  }
+
+  Map<String, String> getDescriptionParts(AppLocalizations locale) {
+    return {
+      'action': objective == ChallengeObjectiveType.captured_territories ? locale.capture : locale.complete,
+      'value': objective == ChallengeObjectiveType.total_time
+                || objective == ChallengeObjectiveType.walk_time
+                || objective == ChallengeObjectiveType.run_time
+                || objective == ChallengeObjectiveType.bike_time?
+                  TimeConverter.secondsToHours(int.parse(objectiveValue.toString())).round().toString() :
+                objective == ChallengeObjectiveType.total_distance
+                || objective == ChallengeObjectiveType.walk_distance
+                || objective == ChallengeObjectiveType.run_distance
+                || objective == ChallengeObjectiveType.bike_distance?
+                  TimeConverter.metersToKilometers(int.parse(objectiveValue.toString())).round().toString() :
+                objectiveValue.toString(),
+      'unit': objective == ChallengeObjectiveType.total_time? locale.hoursOfTotalActivity :
+              objective == ChallengeObjectiveType.total_distance? locale.kmOfTotalActivity :
+              objective == ChallengeObjectiveType.captured_territories? locale.territories.toLowerCase() :
+              objective == ChallengeObjectiveType.walk_time? locale.hoursOfWalkActivity :
+              objective == ChallengeObjectiveType.run_time? locale.hoursOfRunActivity :
+              objective == ChallengeObjectiveType.bike_time? locale.hoursOfBikeActivity :
+              objective == ChallengeObjectiveType.walk_distance? locale.kmOfWalkActivity :
+              objective == ChallengeObjectiveType.run_distance? locale.kmOfRunActivity :
+              objective == ChallengeObjectiveType.bike_distance? locale.kmOfBikeActivity :
+              '?'
+    };
+  }
+
+  IconData get objectiveIcon {
+    switch(objective) {
+      case ChallengeObjectiveType.total_time:
+        return Icons.timer_sharp;
+      case ChallengeObjectiveType.walk_time:
+        return Icons.directions_walk_sharp;
+      case ChallengeObjectiveType.run_time:
+        return Icons.directions_run_sharp;
+      case ChallengeObjectiveType.bike_time:
+        return Icons.directions_bike_sharp;
+      case ChallengeObjectiveType.total_distance:
+        return Icons.linear_scale;
+      case ChallengeObjectiveType.walk_distance:
+        return Icons.directions_walk_sharp;
+      case ChallengeObjectiveType.run_distance:
+        return Icons.directions_run_sharp;
+      case ChallengeObjectiveType.bike_distance:
+        return Icons.directions_bike_sharp;
+      case ChallengeObjectiveType.captured_territories:
+        return Icons.hexagon_outlined;
+      case ChallengeObjectiveType.route:
+        return Icons.route;
     }
   }
 

@@ -24,12 +24,15 @@ class ChallengeRepository extends ChangeNotifier {
       final response = await _challengeService.listActiveChallenges();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        _activeChallenges = data.map((json) => ActiveChallenge.fromJson(json as Map<String, dynamic>)).toList();
+        _activeChallenges = data
+            .where((json) => json != null && json is Map<String, dynamic>)
+            .map((json) => ActiveChallenge.fromJson(json as Map<String, dynamic>))
+            .toList();
         notifyListeners();
         return _activeChallenges;
       }
-    } catch (e) {
-      debugPrint('ChallengeRepository: Error fetching active challenges: $e');
+    } catch (e, stack) {
+      debugPrint('ChallengeRepository: Error fetching active challenges: $e\n$stack');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -44,12 +47,16 @@ class ChallengeRepository extends ChangeNotifier {
       final response = await _challengeService.getMyChallengeProgress();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        _myStartedChallenges = data.map((json) => StartedChallenge.fromJson(json as Map<String, dynamic>)).toList();
+        _myStartedChallenges = data
+            .where((json) => json != null && json is Map<String, dynamic>)
+            .map((json) => StartedChallenge.fromJson(json as Map<String, dynamic>))
+            .toList();
         notifyListeners();
         return _myStartedChallenges;
       }
-    } catch (e) {
-      debugPrint('ChallengeRepository: Error fetching challenge progress: $e');
+    } catch (e, stack) {
+      debugPrint('ChallengeRepository: Error fetching challenge progress: $e\n$stack');
+      return [];
     } finally {
       _isLoading = false;
       notifyListeners();
