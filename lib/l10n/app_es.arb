@@ -1112,5 +1112,185 @@
     "@xpLabel": {},
 
     "xpForNextLevelLabel": "XP para siguiente nivel",
-    "@xpForNextLevelLabel": {}
+    "@xpForNextLevelLabel": {},
+
+    "events": "Eventos",
+    "@events": {},
+
+    "eventsSubtitle": "Demuestra tu lealtad a la colonia, participando en eventos y compitiendo por recomensas.",
+    "@eventsSubtitle": {},
+
+    "noActiveEvents": "No hay eventos activos",
+    "@noActiveEvents": {},
+
+    "noActiveEventsDescription": "Como administrador, puedes crear uno nuevo.",
+    "@noActiveEventsDescription": {},
+
+    "createNewEvent": "CREAR NUEVO EVENTO",
+    "@createNewEvent": {},
+
+    "createEventTitle": "CREAR EVENTO",
+    "@createEventTitle": {},
+
+    "hexagonsSelected": "{count} hex",
+    "@hexagonsSelected": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "hexagonsInRoute": "{count} hexágono(s) en la ruta",
+    "@hexagonsInRoute": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "tapMapToSelectHexagons": "Toca el mapa para seleccionar hexágonos",
+    "@tapMapToSelectHexagons": {},
+
+    "clearSelection": "Limpiar",
+    "@clearSelection": {},
+
+    "eventNameLabel": "Nombre del Evento",
+    "@eventNameLabel": {},
+
+    "dateAndTimeLabel": "Fecha y Hora",
+    "@dateAndTimeLabel": {},
+
+    "rewardLabel": "Recompensa",
+    "@rewardLabel": {},
+
+    "details": "DETALLES",
+    "@details": {},
+
+    "save": "GUARDAR",
+    "@save": {},
+
+    "eventDetailsTitle": "DETALLES DEL EVENTO",
+    "@eventDetailsTitle": {},
+
+    "eventNameHint": "Ej. Ruta Desafío Urbano",
+    "@eventNameHint": {},
+
+    "selectRewardTitle": "Seleccionar Recompensa (Boost)",
+    "@selectRewardTitle": {},
+
+    "confirmDetails": "CONFIRMAR DETALLES",
+    "@confirmDetails": {},
+
+    "eventSavedSuccess": "Evento \"{name}\" guardado con éxito",
+    "@eventSavedSuccess": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+
+    "startTimestamp": "Fecha y Hora Inicio",
+    "@startTimestamp": {},
+
+    "endTimestamp": "Fecha y Hora Fin",
+    "@endTimestamp": {},
+
+    "selectStartTimestamp": "Seleccionar fecha de inicio",
+    "@selectStartTimestamp": {},
+
+    "selectEndTimestamp": "Seleccionar fecha de fin",
+    "@selectEndTimestamp": {},
+
+    "boostRewards": "RECOMPENSAS DE BOOST",
+    "@boostRewards": {},
+
+    "avatarItemRewards": "RECOMPENSAS DE ITEMS DE AVATAR",
+    "@avatarItemRewards": {},
+
+    "noAvatarItems": "No hay items de avatar disponibles por ahora.",
+    "@noAvatarItems": {},
+
+    "invalidDatesError": "La fecha de fin debe ser posterior a la de inicio.",
+    "@invalidDatesError": {},
+
+    "modeLabel": "Modo",
+    "@modeLabel": {},
+
+    "freePainting": "Pintura libre",
+    "@painting": {},
+
+    "singlePainting": "Pintura individual",
+    "@singlePainting": {},
+
+    "eventMustEndBySunday": "El evento debe terminar como máximo el domingo de esa misma semana.",
+    "@eventMustEndBySunday": {},
+
+    "eventScheduleLabel": "HORARIO DEL EVENTO",
+    "@eventScheduleLabel": {},
+
+    "startTimeLabel": "HORA INICIO",
+    "@startTimeLabel": {},
+
+    "endTimeLabel": "HORA FIN",
+    "@endTimeLabel": {},
+
+    "mondayShort": "LU",
+    "@mondayShort": {},
+
+    "tuesdayShort": "MA",
+    "@tuesdayShort": {},
+
+    "wednesdayShort": "MI",
+    "@wednesdayShort": {},
+
+    "thursdayShort": "JU",
+    "@thursdayShort": {},
+
+    "fridayShort": "VI",
+    "@fridayShort": {},
+
+    "saturdayShort": "SÁ",
+    "@saturdayShort": {},
+
+    "sundayShort": "DO",
+    "@sundayShort": {},
+
+    "januaryLabel": "Enero",
+    "@januaryLabel": {},
+
+    "februaryLabel": "Febrero",
+    "@februaryLabel": {},
+
+    "marchLabel": "Marzo",
+    "@marchLabel": {},
+
+    "aprilLabel": "Abril",
+    "@aprilLabel": {},
+
+    "mayLabel": "Mayo",
+    "@mayLabel": {},
+
+    "juneLabel": "Junio",
+    "@juneLabel": {},
+
+    "julyLabel": "Julio",
+    "@julyLabel": {},
+
+    "augustLabel": "Agosto",
+    "@augustLabel": {},
+
+    "septemberLabel": "Septiembre",
+    "@septemberLabel": {},
+
+    "octoberLabel": "Octubre",
+    "@octoberLabel": {},
+
+    "novemberLabel": "Noviembre",
+    "@novemberLabel": {},
+
+    "decemberLabel": "Diciembre",
+    "@decemberLabel": {}
 }

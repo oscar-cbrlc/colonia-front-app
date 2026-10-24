@@ -1110,5 +1110,185 @@
     "@xpLabel": {},
 
     "xpForNextLevelLabel": "XP for Next Level",
-    "@xpForNextLevelLabel": {}
+    "@xpForNextLevelLabel": {},
+
+    "events": "Events",
+    "@events": {},
+
+    "eventsSubtitle": "Demonstrate your loyalty to the colony, by participating in events and competing for rewards.",
+    "@eventsSubtitle": {},
+
+    "noActiveEvents": "No active events",
+    "@noActiveEvents": {},
+
+    "noActiveEventsDescription": "As an Admin you can create a new one.",
+    "@noActiveEventsDescription": {},
+
+    "createNewEvent": "CREATE NEW EVENT",
+    "@createNewEvent": {},
+
+    "createEventTitle": "Creating Event",
+    "@createEventTitle": {},
+
+    "hexagonsSelected": "{count} hex",
+    "@hexagonsSelected": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "hexagonsInRoute": "{count} hexagon(s) in route",
+    "@hexagonsInRoute": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "tapMapToSelectHexagons": "Tap the map to select hexagons",
+    "@tapMapToSelectHexagons": {},
+
+    "clearSelection": "Clear",
+    "@clearSelection": {},
+
+    "eventNameLabel": "Event Name",
+    "@eventNameLabel": {},
+
+    "dateAndTimeLabel": "Date and Time",
+    "@dateAndTimeLabel": {},
+
+    "rewardLabel": "Reward",
+    "@rewardLabel": {},
+
+    "details": "DETAILS",
+    "@details": {},
+
+    "save": "SAVE",
+    "@save": {},
+
+    "eventDetailsTitle": "EVENT DETAILS",
+    "@eventDetailsTitle": {},
+
+    "eventNameHint": "e.g. Urban Challenge Route",
+    "@eventNameHint": {},
+
+    "selectRewardTitle": "Select Reward (Boost)",
+    "@selectRewardTitle": {},
+
+    "confirmDetails": "CONFIRM DETAILS",
+    "@confirmDetails": {},
+
+    "eventSavedSuccess": "Event \"{name}\" saved successfully",
+    "@eventSavedSuccess": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+
+    "startTimestamp": "Start Datetime",
+    "@startTimestamp": {},
+
+    "endTimestamp": "End Datetime",
+    "@endTimestamp": {},
+
+    "selectStartTimestamp": "Select start time",
+    "@selectStartTimestamp": {},
+
+    "selectEndTimestamp": "Select end time",
+    "@selectEndTimestamp": {},
+
+    "boostRewards": "BOOST REWARDS",
+    "@boostRewards": {},
+
+    "avatarItemRewards": "AVATAR ITEM REWARDS",
+    "@avatarItemRewards": {},
+
+    "noAvatarItems": "No avatar items available at the moment.",
+    "@noAvatarItems": {},
+
+    "invalidDatesError": "End time must be after start time.",
+    "@invalidDatesError": {},
+
+    "modeLabel": "Mode",
+    "@modeLabel": {},
+
+    "freePainting": "Free Painting",
+    "@painting": {},
+
+    "singlePainting": "Single Painting",
+    "@singlePainting": {},
+
+    "eventMustEndBySunday": "Event must end by Sunday of the same week.",
+    "@eventMustEndBySunday": {},
+
+    "eventScheduleLabel": "EVENT SCHEDULE",
+    "@eventScheduleLabel": {},
+
+    "startTimeLabel": "START TIME",
+    "@startTimeLabel": {},
+
+    "endTimeLabel": "END TIME",
+    "@endTimeLabel": {},
+
+    "mondayShort": "MO",
+    "@mondayShort": {},
+
+    "tuesdayShort": "TU",
+    "@tuesdayShort": {},
+
+    "wednesdayShort": "WE",
+    "@wednesdayShort": {},
+
+    "thursdayShort": "TH",
+    "@thursdayShort": {},
+
+    "fridayShort": "FR",
+    "@fridayShort": {},
+
+    "saturdayShort": "SA",
+    "@saturdayShort": {},
+
+    "sundayShort": "SU",
+    "@sundayShort": {},
+
+    "januaryLabel": "January",
+    "@januaryLabel": {},
+
+    "februaryLabel": "February",
+    "@februaryLabel": {},
+
+    "marchLabel": "March",
+    "@marchLabel": {},
+
+    "aprilLabel": "April",
+    "@aprilLabel": {},
+
+    "mayLabel": "May",
+    "@mayLabel": {},
+
+    "juneLabel": "June",
+    "@juneLabel": {},
+
+    "julyLabel": "July",
+    "@julyLabel": {},
+
+    "augustLabel": "August",
+    "@augustLabel": {},
+
+    "septemberLabel": "September",
+    "@septemberLabel": {},
+
+    "octoberLabel": "October",
+    "@octoberLabel": {},
+
+    "novemberLabel": "November",
+    "@novemberLabel": {},
+
+    "decemberLabel": "December",
+    "@decemberLabel": {}
 }
