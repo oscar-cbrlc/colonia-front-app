@@ -2045,7 +2045,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventNameHint.
   ///
   /// In es, this message translates to:
-  /// **'Ej. Ruta Desafío Urbano'**
+  /// **'Medio maratón de la ciudad'**
   String get eventNameHint;
 
   /// No description provided for @selectRewardTitle.

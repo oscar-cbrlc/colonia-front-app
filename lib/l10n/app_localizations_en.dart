@@ -1051,7 +1051,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventDetailsTitle => 'EVENT DETAILS';
 
   @override
-  String get eventNameHint => 'e.g. Urban Challenge Route';
+  String get eventNameHint => 'City\'s half marathon';
 
   @override
   String get selectRewardTitle => 'Select Reward (Boost)';
