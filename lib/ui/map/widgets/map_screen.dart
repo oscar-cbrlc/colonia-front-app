@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:colonia_front_app/env/env.dart';
+import 'package:colonia_front_app/ui/events/widgets/events_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 
 class MapScreen extends StatefulWidget {
@@ -341,7 +342,19 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 12),
+                  IndividualMapButton(
+                    icon: Icons.event_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.tertiaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showEventsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  ),
                 ]
               )
             ),
@@ -755,7 +768,6 @@ class _ChallengeListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
     final challenge = activeChallenge.challenge;
-    final reward = challenge.reward;
     final isCompleted = startedChallenge?.isComplete ?? false;
     final progress = startedChallenge?.progress ?? 0;
     final num targetVal = (challenge.objectiveValue as num?) ?? 1;
@@ -769,7 +781,8 @@ class _ChallengeListItem extends StatelessWidget {
       isCompleted: isCompleted,
     );
 
-    final boostReward = reward.boost;
+    final boostRewards = activeChallenge.challenge.boostRewards;
+    final avatarItemReward = activeChallenge.challenge.avatarItemReward;
 
     final descriptionParts = challenge.getDescriptionParts(locale);
 
@@ -863,16 +876,14 @@ class _ChallengeListItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (reward.amount > 0) ...[
-                      const SizedBox(width: 8),
-                      _ExpandableRewardCard(
-                        boostReward: boostReward,
-                        avatarItemReward: reward.avatarItem,
-                        amount: reward.amount,
-                        locale: locale,
-                      ),
+                    if (boostRewards.isNotEmpty) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: boostRewards.map((boostReward) =>
+                            _ExpandableRewardCard(boostReward: boostReward.boost, avatarItemReward: null, amount: boostReward.amount, locale: locale)
+                          ).toList()
+                        )
                     ],
-                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: ShapeDecoration(
