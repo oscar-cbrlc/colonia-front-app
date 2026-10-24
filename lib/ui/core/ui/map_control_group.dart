@@ -5,19 +5,21 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 class MapControlGroup extends StatelessWidget {
   final Listenable listenable;
   final double currentBearing;
-  final bool showPoints;
+  final bool? showPoints;
   final VoidCallback onCenterOnUser;
-  final VoidCallback onToggleShowPoints;
+  final VoidCallback? onToggleShowPoints;
   final VoidCallback onResetNorth;
+  final bool showPointsButton;
 
   const MapControlGroup({
     super.key,
     required this.listenable,
     required this.currentBearing,
-    required this.showPoints,
+    this.showPoints,
     required this.onCenterOnUser,
-    required this.onToggleShowPoints,
+    this.onToggleShowPoints,
     required this.onResetNorth,
+    this.showPointsButton = true,
   });
 
   @override
@@ -39,16 +41,18 @@ class MapControlGroup extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            IndividualMapButton(
-              icon: showPoints ? Icons.shield_sharp : Icons.shield_outlined,
-              iconColor: showPoints ? AppTheme.primaryColor : Colors.white38,
-              borderColor: showPoints ? AppTheme.primaryColor.withAlpha(180) : null,
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                onToggleShowPoints();
-              },
-            ),
-            const SizedBox(height: 8),
+            if (showPointsButton)...[
+              IndividualMapButton(
+                icon: showPoints! ? Icons.shield_sharp : Icons.shield_outlined,
+                iconColor: showPoints! ? AppTheme.primaryColor : Colors.white38,
+                borderColor: showPoints! ? AppTheme.primaryColor.withAlpha(180) : null,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  onToggleShowPoints!();
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
 
             IndividualMapButton(
               iconWidget: Transform.rotate(
