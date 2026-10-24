@@ -1,3 +1,7 @@
+import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/enums/boost_type.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'boost.freezed.dart';
@@ -21,4 +25,13 @@ abstract class Boost with _$Boost {
   }) = _Boost;
 
   factory Boost.fromJson(Map<String, dynamic> json) => _$BoostFromJson(json);
+
+  IconData get icon => BoostInventory.getBoostIcon(type);
+
+  String getName(AppLocalizations locale) {
+    if (type == BoostType.score.name) return '${locale.boostMultiplierName} x${effect.toStringAsFixed(1)}';
+    if (type == BoostType.impact_area.name) return '${locale.boostRadioName} ${(effect * 100).round()}%';
+    if (type == BoostType.impact_distance.name) return '${locale.boostDistanceName} ${(effect * 100).round()}%';
+    return locale.errorUnknown;
+  }
 }

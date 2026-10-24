@@ -79,21 +79,18 @@ abstract class ActiveChallenge with _$ActiveChallenge {
   factory ActiveChallenge.fromJson(Map<String, dynamic> json) => _$ActiveChallengeFromJson(json);
 }
 
-Object? _parseChallengeReward(Map json, String key) {
-  return json['challenge_reward'] ?? json['challege_reward'];
-}
-
 @freezed
 abstract class Challenge with _$Challenge {
   const Challenge._();
   const factory Challenge({
       @JsonKey(name: 'challenge_id') required int id,
       @JsonKey(name: 'challenge_name') String? name,
-      @JsonKey(name: 'challenge_reward', readValue: _parseChallengeReward) required ChallengeReward reward,
       @JsonKey(name: 'objective_type') required String objectiveType,
       @JsonKey(name: 'objective_condition') required Map<String, dynamic> objectiveCondition,
       @JsonKey(name: 'challenge_difficulty') required String challengeDifficulty,
       @JsonKey(name: 'challenge_xp_reward') required int xpReward,
+      @JsonKey(name: 'boost_reward') required List<BoostReward> boostRewards,
+      @JsonKey(name: 'item_reward') AvatarItem? avatarItemReward,
     }) = _Challenge;
 
   ChallengeDifficulty get difficulty {
@@ -256,15 +253,12 @@ abstract class Challenge with _$Challenge {
 }
 
 @freezed
-abstract class ChallengeReward with _$ChallengeReward {
-  const ChallengeReward._();
-  const factory ChallengeReward({
-    @JsonKey(name: 'reward_id') required int id,
-    @JsonKey(name: 'reward_type') required String type,
-    @JsonKey(name: 'reward_amount') required int amount,
-    @JsonKey(name: 'reward_item') required AvatarItem? avatarItem,
-    @JsonKey(name: 'reward_boost') required Boost? boost,
-  }) = _ChallengeReward;
+abstract class BoostReward with _$BoostReward {
+  const BoostReward._();
+  const factory BoostReward({
+    @JsonKey(name: 'boost') required Boost boost,
+    @JsonKey(name: 'boost_amount') required int amount,
+  }) = _BoostReward;
 
-  factory ChallengeReward.fromJson(Map<String, dynamic> json) => _$ChallengeRewardFromJson(json);
+  factory BoostReward.fromJson(Map<String, dynamic> json) => _$BoostRewardFromJson(json);
 }

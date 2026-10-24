@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/enums/boost_type.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,10 @@ abstract class BoostInventory with _$BoostInventory {
       return effect.toStringAsFixed(2);
     }
     return '${(effect*100).round()}%';
+  }
+
+  static String getBoostName(AppLocalizations locale, Boost boost) {
+    return boost.getName(locale);
   }
 
   static IconData getBoostIcon(String type) {
