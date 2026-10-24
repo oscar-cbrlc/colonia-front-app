@@ -81,6 +81,7 @@ class IndividualMapButton extends StatelessWidget {
   final Widget? iconWidget;
   final Color? iconColor;
   final Color? borderColor;
+  final Color? splashColor;
   final VoidCallback onPressed;
   final double width;
   final double height;
@@ -91,6 +92,7 @@ class IndividualMapButton extends StatelessWidget {
     this.iconWidget,
     this.iconColor,
     this.borderColor,
+    this.splashColor,
     required this.onPressed,
     this.width = 44,
     this.height = 44,
@@ -99,6 +101,7 @@ class IndividualMapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBorderColor = borderColor ?? AppTheme.primaryColor.withAlpha(120);
+    final splashCol = splashColor ?? AppTheme.primaryColor;
 
     return Container(
       width: width,
@@ -120,7 +123,7 @@ class IndividualMapButton extends StatelessWidget {
           customBorder: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          splashColor: AppTheme.primaryColor.withAlpha(40),
+          splashColor: splashCol.withAlpha(40),
           child: Center(
             child: iconWidget ?? Icon(icon, color: iconColor ?? Colors.white, size: 22),
           ),
