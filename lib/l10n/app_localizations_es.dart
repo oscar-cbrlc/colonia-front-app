@@ -1173,4 +1173,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get decemberLabel => 'Diciembre';
+
+  @override
+  String get publish => 'Publicar';
 }

@@ -1166,4 +1166,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get decemberLabel => 'December';
+
+  @override
+  String get publish => 'Publish';
 }

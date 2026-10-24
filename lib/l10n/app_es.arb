@@ -1292,5 +1292,8 @@
     "@novemberLabel": {},
 
     "decemberLabel": "Diciembre",
-    "@decemberLabel": {}
+    "@decemberLabel": {},
+
+    "publish": "Publicar",
+    "@publish": {}
 }

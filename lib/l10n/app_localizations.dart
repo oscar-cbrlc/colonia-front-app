@@ -2269,6 +2269,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Diciembre'**
   String get decemberLabel;
+
+  /// No description provided for @publish.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar'**
+  String get publish;
 }
 
 class _AppLocalizationsDelegate
