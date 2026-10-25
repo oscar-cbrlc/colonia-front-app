@@ -29,9 +29,21 @@ abstract class Boost with _$Boost {
   IconData get icon => BoostInventory.getBoostIcon(type);
 
   String getName(AppLocalizations locale) {
+    if (type == BoostType.score.name) return locale.boostMultiplierName;
+    if (type == BoostType.impact_area.name) return locale.boostRadioName;
+    if (type == BoostType.impact_distance.name) return locale.boostDistanceName;
+    return locale.errorUnknown;
+  }
+
+  String getCompleteName(AppLocalizations locale) {
     if (type == BoostType.score.name) return '${locale.boostMultiplierName} x${effect.toStringAsFixed(1)}';
     if (type == BoostType.impact_area.name) return '${locale.boostRadioName} ${(effect * 100).round()}%';
     if (type == BoostType.impact_distance.name) return '${locale.boostDistanceName} ${(effect * 100).round()}%';
     return locale.errorUnknown;
+  }
+
+  String getEffectFormatted() {
+    if (type == BoostType.score.name) return 'x${effect.toStringAsFixed(2)}';
+    return '${(effect * 100).round()}%';
   }
 }

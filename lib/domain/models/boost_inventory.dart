@@ -57,7 +57,7 @@ abstract class BoostInventory with _$BoostInventory {
   }
 
   static String getBoostName(AppLocalizations locale, Boost boost) {
-    return boost.getName(locale);
+    return boost.getCompleteName(locale);
   }
 
   static IconData getBoostIcon(String type) {

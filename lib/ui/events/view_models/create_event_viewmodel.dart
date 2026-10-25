@@ -66,7 +66,7 @@ class CreateEventViewModel extends ChangeNotifier {
 
   int getBoostQuantity(Boost boost) => _boostQuantities[boost.id] ?? 0;
 
-  String getBoostName(Boost boost, AppLocalizations locale) => boost.getName(locale);
+  String getBoostName(Boost boost, AppLocalizations locale) => boost.getCompleteName(locale);
 
   bool get hasSelectedRewards => _boostQuantities.values.any((quantity) => quantity > 0);
 
@@ -200,6 +200,7 @@ class CreateEventViewModel extends ChangeNotifier {
 
   void onMapCreated(MapboxMap map) {
     _mapboxMap = map;
+    _configureOrnaments();
   }
 
   Future<void> onStyleLoaded() async {
@@ -332,6 +333,13 @@ class CreateEventViewModel extends ChangeNotifier {
   void saveEvent() {
     if (!isSaveEnabled) return;
     debugPrint("Event created: Name='$_eventName', Start=$_startDate, End=$_endDate, Boosts=$_boostQuantities, Hexagons=$_selectedHexagonIds");
+  }
+
+  void _configureOrnaments() {
+    final map = _mapboxMap;
+    if (map == null) return;
+    map.compass.updateSettings(CompassSettings(enabled: false));
+    map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10, isMetricUnits: true));
   }
 
   @override

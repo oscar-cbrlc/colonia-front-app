@@ -366,7 +366,7 @@ class MapViewModel extends ChangeNotifier {
     final map = _mapboxMap;
     if (map == null) return;
     map.compass.updateSettings(CompassSettings(enabled: false));
-    map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10));
+    map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10, isMetricUnits: true));
   }
 
   void _setMapDaylight() {

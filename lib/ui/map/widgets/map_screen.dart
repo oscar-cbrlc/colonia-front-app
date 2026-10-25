@@ -813,40 +813,77 @@ class _ChallengeListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
 
+                    decoration: ShapeDecoration(
+                      color: AppTheme.secondaryColor.withAlpha(25),
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                        side: BorderSide(color: AppTheme.secondaryColor.withAlpha(120), width: 1),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(challenge.objectiveIcon, color: Colors.white70, size: 18)
+                      ]
+                    )
+                  ),
+                  const SizedBox(width: 10),
+                  RichText(
+                      text: TextSpan(
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                          children: <TextSpan> [
+                            TextSpan(text: "${descriptionParts['action']} "),
+                            TextSpan(text: "${descriptionParts['value']} ", style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.secondaryColor)),
+                            TextSpan(text: descriptionParts['unit']),
+                          ]
+                      )
+                  ),
+                ]
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: ShapeDecoration(
-                  color: AppTheme.secondaryColor.withAlpha(25),
+                  color: difficultyColor.withAlpha(25),
                   shape: BeveledRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
-                    side: BorderSide(color: AppTheme.secondaryColor.withAlpha(120), width: 1),
+                    side: BorderSide(color: difficultyColor.withAlpha(120), width: 1),
                   ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(challenge.objectiveIcon, color: Colors.white70, size: 18)
-                  ]
-                )
-              ),
-              const SizedBox(width: 10),
-              RichText(
-                  text: TextSpan(
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                    //Icon(Icons.star, color: difficultyColor, size: 14),
+                    Text(
+                      "XP",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 8,
                       ),
-                      children: <TextSpan> [
-                        TextSpan(text: "${descriptionParts['action']} "),
-                        TextSpan(text: "${descriptionParts['value']} ", style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.secondaryColor)),
-                        TextSpan(text: descriptionParts['unit']),
-                      ]
-                  )
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${challenge.xpReward}",
+                      style: TextStyle(
+                        color: difficultyColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-
             ]
           ),
           const SizedBox(height: 12),
@@ -860,8 +897,8 @@ class _ChallengeListItem extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${locale.rewards.toUpperCase()}:',
@@ -873,50 +910,20 @@ class _ChallengeListItem extends StatelessWidget {
                     letterSpacing: 1.2,
                   ),
                 ),
+                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     if (boostRewards.isNotEmpty) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: boostRewards.map((boostReward) =>
                             _ExpandableRewardCard(boostReward: boostReward.boost, avatarItemReward: null, amount: boostReward.amount, locale: locale)
                           ).toList()
                         )
                     ],
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: ShapeDecoration(
-                        color: difficultyColor.withAlpha(25),
-                        shape: BeveledRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          side: BorderSide(color: difficultyColor.withAlpha(120), width: 1),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          //Icon(Icons.star, color: difficultyColor, size: 14),
-                          Text(
-                            "XP",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 8,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            "${challenge.xpReward}",
-                            style: TextStyle(
-                              color: difficultyColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+
                   ],
                 )
               ]
@@ -1029,14 +1036,14 @@ class _ExpandableRewardCardState extends State<_ExpandableRewardCard> {
     final avatarItem = widget.avatarItemReward;
 
     IconData icon = Icons.attach_money;
-    String nameType = '';
+    String desc = '';
 
     if (boost != null) {
       icon = BoostInventory.getBoostIcon(boost.type);
-      nameType = BoostInventory.getNameType(widget.locale, boost.type).toUpperCase();
+      desc = boost.getName(widget.locale).toUpperCase();
     } else if (avatarItem != null) {
       icon = Icons.checkroom;
-      nameType = avatarItem.name.toUpperCase();
+      desc = avatarItem.name.toUpperCase();
     }
 
     return GestureDetector(
@@ -1059,7 +1066,7 @@ class _ExpandableRewardCardState extends State<_ExpandableRewardCard> {
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
               color: _isExpanded
-                  ? Colors.white
+                  ? Colors.white70
                   : AppTheme.tertiaryColor.withAlpha(140),
               width: 1,
             ),
@@ -1074,14 +1081,27 @@ class _ExpandableRewardCardState extends State<_ExpandableRewardCard> {
               size: 16,
             ),
             const SizedBox(width: 6),
+            if (boost != null)
+              Text(
+                boost.getEffectFormatted().toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+
+            const SizedBox(width: 6),
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOutCubicEmphasized,
-              child: _isExpanded && nameType.isNotEmpty
+              child: _isExpanded && desc.isNotEmpty
                   ? Padding(
                       padding: const EdgeInsets.only(right: 6.0),
                       child: Text(
-                        nameType,
+                        desc,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,

@@ -137,7 +137,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       children: [
                         IndividualMapButton(
                           icon: Icons.front_hand_sharp,
-                          iconColor: vm.mapMode == MapRouteEditMode.navigate? AppTheme.tertiaryColor : AppTheme.tertiaryColor.withAlpha(100),
+                          iconColor: vm.mapMode == MapRouteEditMode.navigate? Colors.white : Colors.white.withAlpha(100),
                           borderColor: vm.mapMode == MapRouteEditMode.navigate ? AppTheme.tertiaryColor : Colors.white38,
                           splashColor: AppTheme.tertiaryColor,
                           width: 54,
@@ -149,7 +149,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         ),
                         IndividualMapButton(
                           icon: Icons.brush_sharp,
-                          iconColor: vm.mapMode == MapRouteEditMode.paint? AppTheme.primaryColor : AppTheme.primaryColor.withAlpha(100),
+                          iconColor: vm.mapMode == MapRouteEditMode.paint? Colors.white : Colors.white.withAlpha(100),
                           borderColor: vm.mapMode == MapRouteEditMode.paint ? AppTheme.primaryColor : Colors.white38,
                           splashColor: AppTheme.primaryColor,
                           width: 54,
@@ -162,7 +162,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         //const SizedBox(width: 8),
                         IndividualMapButton(
                           icon: Icons.hexagon_outlined,
-                          iconColor: vm.mapMode == MapRouteEditMode.erase? AppTheme.secondaryColor : AppTheme.secondaryColor.withAlpha(100),
+                          iconColor: vm.mapMode == MapRouteEditMode.erase? Colors.white : Colors.white.withAlpha(100),
                           borderColor: vm.mapMode == MapRouteEditMode.erase? AppTheme.secondaryColor: Colors.white38,
                           splashColor: AppTheme.secondaryColor,
                           width: 54,
@@ -417,7 +417,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                                       final boost = entry.key;
                                       final qty = entry.value;
                                       final icon = BoostInventory.getBoostIcon(boost.type);
-                                      final name = BoostInventory.getBoostName(locale, boost);
+                                      final name = boost.getCompleteName(locale).toUpperCase();
 
                                       return Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -740,7 +740,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                         children: vm.availableBoosts.map((boost) {
                           final count = tempBoosts[boost] ?? 0;
                           final icon = BoostInventory.getBoostIcon(boost.type);
-                          final name = BoostInventory.getBoostName(locale, boost)
+                          final name = boost.getCompleteName(locale)
                               .toUpperCase();
 
                           return Container(
