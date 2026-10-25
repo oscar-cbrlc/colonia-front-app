@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/enums/boost_type.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,21 @@ abstract class BoostInventory with _$BoostInventory {
       return effect.toStringAsFixed(2);
     }
     return '${(effect*100).round()}%';
+  }
+
+  static String getBoostName(AppLocalizations locale, Boost boost) {
+    return boost.getCompleteName(locale);
+  }
+
+  static IconData getBoostIcon(String type) {
+    return _boostTypeIcons[type] ?? Icons.bolt;
+  }
+
+  static String getNameType(AppLocalizations locale, String type) {
+    if (type == BoostType.score.name) return locale.boostMultiplierName;
+    if (type == BoostType.impact_area.name) return locale.boostRadioName;
+    if (type == BoostType.impact_distance.name) return locale.boostDistanceName;
+    return locale.errorUnknown;
   }
 }
 

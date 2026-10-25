@@ -25,6 +25,8 @@ import 'package:colonia_front_app/ui/auth/widgets/email_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/login_password_screen.dart';
 import 'package:colonia_front_app/ui/auth/widgets/welcome_screen.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/events/view_models/create_event_viewmodel.dart';
+import 'package:colonia_front_app/ui/events/widgets/create_event_screen.dart';
 import 'package:colonia_front_app/ui/navigation/main_navigation_screen.dart';
 import 'package:colonia_front_app/ui/team/widgets/colony_details_screen.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
@@ -43,6 +45,7 @@ class AppRouter {
   static const String summary = "/summary";
   static const String colonyDetails = "/colony_details";
   static const String profile = "/profile";
+  static const String createEvent = "/create_event";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -260,6 +263,20 @@ class AppRouter {
             ),
             body: const Center(
               child: Text("Error: User data missing", style: TextStyle(color: Colors.white70)),
+            ),
+          ),
+        );
+
+      case createEvent:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => ChangeNotifierProvider<CreateEventViewModel>(
+            create: (context) => CreateEventViewModel(
+              trackingRepository: context.read<TrackingRepository>(),
+              boostRepository: context.read<BoostRepository>(),
+            ),
+            child: Consumer<CreateEventViewModel>(
+              builder: (context, viewModel, _) => CreateEventScreen(viewModel: viewModel),
             ),
           ),
         );

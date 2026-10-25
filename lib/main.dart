@@ -32,6 +32,8 @@ import 'package:colonia_front_app/data/repositories/team_request_repository.dart
 import 'package:colonia_front_app/data/services/api/team_chat_service.dart';
 import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/data/services/api/boost_service.dart';
+import 'package:colonia_front_app/data/services/api/challenge_service.dart';
+import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
@@ -93,6 +95,16 @@ void main() async {
 
         ProxyProvider<ApiClient, BoostService>(
           update: (_, apiClient, previous) => previous ?? BoostService(apiClient),
+        ),
+
+        ProxyProvider<ApiClient, ChallengeService>(
+          update: (_, apiClient, previous) => previous ?? ChallengeService(apiClient),
+        ),
+
+        ChangeNotifierProxyProvider<ChallengeService, ChallengeRepository>(
+          create: (context) => ChallengeRepository(context.read<ChallengeService>()),
+          update: (_, challengeService, previous) =>
+              previous ?? ChallengeRepository(challengeService),
         ),
 
         ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
@@ -224,16 +236,17 @@ void main() async {
               previous ?? SessionRepository(trackingRepository, territoryRepository, localStorageService, boostRepository),
         ),
 
-        ChangeNotifierProxyProvider5<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, BoostRepository, MapViewModel>(
+        ChangeNotifierProxyProvider6<TrackingRepository, TerritoryRepository, TeamRepository, SessionRepository, BoostRepository, ChallengeRepository, MapViewModel>(
           create: (context) => MapViewModel(
             context.read<TrackingRepository>(),
             context.read<TerritoryRepository>(),
             context.read<TeamRepository>(),
             context.read<SessionRepository>(),
             context.read<BoostRepository>(),
+            context.read<ChallengeRepository>(),
           ),
-          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, previous) =>
-              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository),
+          update: (_, trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, challengeRepository, previous) =>
+              previous ?? MapViewModel(trackingRepository, territoryRepository, teamRepository, sessionRepository, boostRepository, challengeRepository),
         ),
 
         ChangeNotifierProxyProvider4<TeamRepository, AuthRepository, TeamRequestRepository, TeamChatRepository, TeamViewModel>(

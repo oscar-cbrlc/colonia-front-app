@@ -603,6 +603,19 @@ class TrackingSession {
     this.impactPoints = 0.0,
   });
 
+  int get validSeconds => secondsWalk + secondsRun + secondsBike;
+  double get validDistance => distanceWalk + distanceRun + distanceBike;
+
+  int get secondsInactive {
+    final diff = durationSeconds - validSeconds;
+    return diff > 0 ? diff : 0;
+  }
+
+  double get distanceInactive {
+    final diff = totalDistance - validDistance;
+    return diff > 0 ? diff : 0.0;
+  }
+
   void setTerritories(List<Territory> newTerritories) => territories = newTerritories;
 
   Point? get routeCenter {

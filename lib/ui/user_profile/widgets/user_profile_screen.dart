@@ -75,7 +75,12 @@ class UserProfileScreen extends StatelessWidget {
                     onEditAccountPressed: () => _showEditAccountBottomSheet(context, vm),
                     onEditAvatarPressed: () => _showEditAvatarBottomSheet(context, vm),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+
+                  _LevelXpSection(viewModel: vm),
+
+
+                  const SizedBox(height: 20),
 
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
@@ -644,6 +649,136 @@ class _BeveledCircleClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+class _LevelXpSection extends StatelessWidget {
+  final UserProfileViewModel viewModel;
+  const _LevelXpSection({required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final isCurrentUser = viewModel.user == AuthRepository.instance.currentUser;
+    final level = viewModel.level;
+    final xp = viewModel.xp;
+    final xpForNextLevel = viewModel.xpForNextLevel;
+
+    final double progressRatio = xpForNextLevel > 0
+        ? (xp * 1.0 / (xp + xpForNextLevel))
+        : 0.0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: ShapeDecoration(
+        color: AppTheme.tertiaryColor.withAlpha(15),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: AppTheme.tertiaryColor.withAlpha(160),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: ShapeDecoration(
+                  color: AppTheme.tertiaryColor.withAlpha(40),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: AppTheme.tertiaryColor, width: 1),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 6),
+                    Text(
+                      '${locale.levelLabel.toUpperCase()} $level',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Oswald',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: ShapeDecoration(
+                  color: AppTheme.secondaryColor.withAlpha(40),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: AppTheme.secondaryColor, width: 1),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$xp XP',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Oswald',
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          if (isCurrentUser) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  locale.xpForNextLevelLabel.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                Text(
+                  '$xpForNextLevel XP',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progressRatio,
+                minHeight: 8,
+                backgroundColor: Colors.white10,
+                valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.tertiaryColor),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _InputField extends StatelessWidget {

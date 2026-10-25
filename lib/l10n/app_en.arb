@@ -947,5 +947,351 @@
     "@autoResumed": {},
 
     "byLabel": "by:",
-    "@byLabel": {}
+    "@byLabel": {},
+
+    "difficulty": "Difficulty",
+    "@difficulty": {},
+
+    "easy": "Easy",
+    "@easy": {},
+
+    "medium": "Medium",
+    "@medium": {},
+
+    "hard": "Hard",
+    "@hard": {},
+
+    "total_time": "Total Time",
+    "@total_time": {},
+
+    "walk_time": "Walk Time",
+    "@walk_time": {},
+
+    "run_time": "Run Time",
+    "@run_time": {},
+
+    "bike_time": "Bike Time",
+    "@bike_time": {},
+
+    "total_distance": "Total Distance",
+    "@total_distance": {},
+
+    "walk_distance": "Walk Distance",
+    "@walk_distance": {},
+
+    "run_distance": "Run Distance",
+    "@run_distance": {},
+
+    "bike_distance": "Bike Distance",
+    "@bike_distance": {},
+
+    "territories_captured": "Territories Captured",
+    "@territories_captured": {},
+
+    "route": "Route",
+    "@route": {},
+
+    "totalDistanceChallengeDescription": "Complete {distance}km of total activity",
+    "@totalDistanceChallengeDescription": {
+        "placeholders": {
+            "distance": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "activityDistanceChallengeDescription": "Complete {km}km of {activity} activity",
+    "@activityDistanceChallengeDescription": {
+        "placeholders": {
+            "km": {
+                "type": "int",
+                "example": "100"
+            },
+            "activity": {
+                "type": "String",
+                "example": "walk"
+            }
+        }
+    },
+
+    "totalTimeChallengeDescription": "Complete {hours} hours of total activity",
+    "@totalTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+
+    "activityTimeChallengeDescription": "Complete {hours} of {activity} activity",
+    "@activityTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "10"
+            },
+            "activity": {
+                "type": "String",
+                "example": "walk"
+            }
+        }
+    },
+
+    "territoriesCapturedChallengeDescription": "Capture {territories} territories",
+    "@territoriesCapturedChallengeDescription": {
+        "placeholders": {
+            "territories": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+
+    "routeChallengeDescription": "Complete the territory route",
+    "@routeChallengeDescription": {},
+
+    "weekChallenges": "Week Challenges",
+    "@weekChallenges": {},
+
+    "complete": "Complete",
+    "@complete": {},
+
+    "hoursOfTotalActivity": "hours of total activity",
+    "@hoursOfTotalActivity": {},
+
+    "hoursOfWalkActivity": "hours of walking",
+    "@hoursOfWalkActivity": {},
+
+    "hoursOfRunActivity": "hours of running",
+    "@hoursOfRunActivity": {},
+
+    "hoursOfBikeActivity": "hours of cycling",
+    "@hoursOfBikeActivity": {},
+
+    "kmOfTotalActivity": "km of total activity",
+    "@kmOfTotalActivity": {},
+
+    "kmOfWalkActivity": "km of walking",
+    "@kmOfWalkActivity": {},
+
+    "kmOfRunActivity": "km of running",
+    "@kmOfRunActivity": {},
+
+    "kmOfBikeActivity": "km of cycling",
+    "@kmOfBikeActivity": {},
+
+    "capture": "Capture",
+    "@capture": {},
+
+    "rewards": "Rewards",
+    "@rewards": {},
+
+    "validSummary": "Valid Excursion",
+    "@validSummary": {},
+
+    "standingTime": "Standing",
+    "@standingTime": {},
+
+    "vehicleTime": "Vehicle",
+    "@vehicleTime": {},
+
+    "unknownTime": "Inactive/Other",
+    "@unknownTime": {},
+
+    "totalDuration": "Total Elapsed",
+    "@totalDuration": {},
+
+    "levelLabel": "Level",
+    "@levelLabel": {},
+
+    "xpLabel": "XP",
+    "@xpLabel": {},
+
+    "xpForNextLevelLabel": "XP for Next Level",
+    "@xpForNextLevelLabel": {},
+
+    "events": "Events",
+    "@events": {},
+
+    "eventsSubtitle": "Demonstrate your loyalty to the colony, by participating in events and competing for rewards.",
+    "@eventsSubtitle": {},
+
+    "noActiveEvents": "No active events",
+    "@noActiveEvents": {},
+
+    "noActiveEventsDescription": "As an Admin you can create a new one.",
+    "@noActiveEventsDescription": {},
+
+    "createNewEvent": "CREATE NEW EVENT",
+    "@createNewEvent": {},
+
+    "createEventTitle": "Creating Event",
+    "@createEventTitle": {},
+
+    "hexagonsSelected": "{count} hex",
+    "@hexagonsSelected": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "hexagonsInRoute": "{count} hexagon(s) in route",
+    "@hexagonsInRoute": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "tapMapToSelectHexagons": "Tap the map to select hexagons",
+    "@tapMapToSelectHexagons": {},
+
+    "clearSelection": "Clear",
+    "@clearSelection": {},
+
+    "eventNameLabel": "Event Name",
+    "@eventNameLabel": {},
+
+    "dateAndTimeLabel": "Date and Time",
+    "@dateAndTimeLabel": {},
+
+    "rewardLabel": "Reward",
+    "@rewardLabel": {},
+
+    "details": "DETAILS",
+    "@details": {},
+
+    "save": "SAVE",
+    "@save": {},
+
+    "eventDetailsTitle": "EVENT DETAILS",
+    "@eventDetailsTitle": {},
+
+    "eventNameHint": "City's half marathon",
+    "@eventNameHint": {},
+
+    "selectRewardTitle": "Select Reward (Boost)",
+    "@selectRewardTitle": {},
+
+    "confirmDetails": "CONFIRM DETAILS",
+    "@confirmDetails": {},
+
+    "eventSavedSuccess": "Event \"{name}\" saved successfully",
+    "@eventSavedSuccess": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+
+    "startTimestamp": "Start Datetime",
+    "@startTimestamp": {},
+
+    "endTimestamp": "End Datetime",
+    "@endTimestamp": {},
+
+    "selectStartTimestamp": "Select start time",
+    "@selectStartTimestamp": {},
+
+    "selectEndTimestamp": "Select end time",
+    "@selectEndTimestamp": {},
+
+    "boostRewards": "BOOST REWARDS",
+    "@boostRewards": {},
+
+    "avatarItemRewards": "AVATAR ITEM REWARDS",
+    "@avatarItemRewards": {},
+
+    "noAvatarItems": "No avatar items available at the moment.",
+    "@noAvatarItems": {},
+
+    "invalidDatesError": "End time must be after start time.",
+    "@invalidDatesError": {},
+
+    "modeLabel": "Mode",
+    "@modeLabel": {},
+
+    "freePainting": "Free Painting",
+    "@painting": {},
+
+    "singlePainting": "Single Painting",
+    "@singlePainting": {},
+
+    "eventMustEndBySunday": "Event must end by Sunday of the same week.",
+    "@eventMustEndBySunday": {},
+
+    "eventScheduleLabel": "EVENT SCHEDULE",
+    "@eventScheduleLabel": {},
+
+    "startTimeLabel": "START TIME",
+    "@startTimeLabel": {},
+
+    "endTimeLabel": "END TIME",
+    "@endTimeLabel": {},
+
+    "mondayShort": "MO",
+    "@mondayShort": {},
+
+    "tuesdayShort": "TU",
+    "@tuesdayShort": {},
+
+    "wednesdayShort": "WE",
+    "@wednesdayShort": {},
+
+    "thursdayShort": "TH",
+    "@thursdayShort": {},
+
+    "fridayShort": "FR",
+    "@fridayShort": {},
+
+    "saturdayShort": "SA",
+    "@saturdayShort": {},
+
+    "sundayShort": "SU",
+    "@sundayShort": {},
+
+    "januaryLabel": "January",
+    "@januaryLabel": {},
+
+    "februaryLabel": "February",
+    "@februaryLabel": {},
+
+    "marchLabel": "March",
+    "@marchLabel": {},
+
+    "aprilLabel": "April",
+    "@aprilLabel": {},
+
+    "mayLabel": "May",
+    "@mayLabel": {},
+
+    "juneLabel": "June",
+    "@juneLabel": {},
+
+    "julyLabel": "July",
+    "@julyLabel": {},
+
+    "augustLabel": "August",
+    "@augustLabel": {},
+
+    "septemberLabel": "September",
+    "@septemberLabel": {},
+
+    "octoberLabel": "October",
+    "@octoberLabel": {},
+
+    "novemberLabel": "November",
+    "@novemberLabel": {},
+
+    "decemberLabel": "December",
+    "@decemberLabel": {},
+
+    "publish": "Publish",
+    "@publish": {}
 }

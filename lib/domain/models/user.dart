@@ -20,6 +20,7 @@ abstract class User with _$User {
     UserStats? stats,
     UserTeam? team,
     @JsonKey(name: 'achievements') required List<Achievement> achievements,
+    @JsonKey(name: 'xp_for_next_level') int? xpForNextLevel,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -77,6 +78,8 @@ abstract class UserStats with _$UserStats {
     @JsonKey(name: 'total_attack', readValue: _parseNumOrString) @Default(0.0) double totalAttack,
     @JsonKey(name: 'total_defence', readValue: _parseNumOrString) @Default(0.0) double totalDefense,
     @JsonKey(name: 'territories_captured') @Default(0) int territoriesCaptured,
+    @JsonKey(name: 'user_level') @Default(0) int level,
+    @JsonKey(name: 'user_xp') @Default(0) int xp,
   }) = _UserStats;
 
   factory UserStats.fromJson(Map<String, dynamic> json) => _$UserStatsFromJson(json);

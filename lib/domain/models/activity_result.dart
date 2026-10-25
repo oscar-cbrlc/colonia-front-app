@@ -1,3 +1,5 @@
+import 'package:colonia_front_app/domain/models/achievement.dart';
+import 'package:colonia_front_app/domain/models/started_challenge.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,8 +19,11 @@ abstract class ActivityResult with _$ActivityResult{
   const ActivityResult._();
   const factory ActivityResult({
     @JsonKey(name: 'user') required ActivityResultUser user,
+    @JsonKey(name: 'training') required TrainingResult trainingResult,
     @JsonKey(name: 'territories') required List<Territory> territories,
-    @JsonKey(name: 'boost_id') int? boostId,
+    @JsonKey(name: 'achievements') required List<Achievement> achievements,
+    @JsonKey(name: 'challenges') required List<StartedChallenge> challenges,
+
   }) = _ActivityResult;
 
   factory ActivityResult.fromJson(Map<String, dynamic> json) => _$ActivityResultFromJson(json);
@@ -37,3 +42,15 @@ abstract class ActivityResultUser with _$ActivityResultUser{
   factory ActivityResultUser.fromJson(Map<String, dynamic> json) => _$ActivityResultUserFromJson(json);
 }
 
+@freezed
+abstract class TrainingResult with _$TrainingResult{
+  const TrainingResult._();
+  const factory TrainingResult({
+    @JsonKey(name: 'time_xp') required int timeXp,
+    @JsonKey(name: 'distance_xp') required int distance,
+    @JsonKey(name: 'territories_xp') required int territoriesXp,
+    @JsonKey(name: 'total_xp') required int totalXp,
+  }) = _TrainingResult;
+
+  factory TrainingResult.fromJson(Map<String, dynamic> json) => _$TrainingResultFromJson(json);
+}

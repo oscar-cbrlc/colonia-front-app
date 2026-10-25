@@ -1705,6 +1705,576 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'por:'**
   String get byLabel;
+
+  /// No description provided for @difficulty.
+  ///
+  /// In es, this message translates to:
+  /// **'Dificultad'**
+  String get difficulty;
+
+  /// No description provided for @easy.
+  ///
+  /// In es, this message translates to:
+  /// **'Fácil'**
+  String get easy;
+
+  /// No description provided for @medium.
+  ///
+  /// In es, this message translates to:
+  /// **'Media'**
+  String get medium;
+
+  /// No description provided for @hard.
+  ///
+  /// In es, this message translates to:
+  /// **'Difícil'**
+  String get hard;
+
+  /// No description provided for @total_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Total'**
+  String get total_time;
+
+  /// No description provided for @walk_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Caminando'**
+  String get walk_time;
+
+  /// No description provided for @run_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Corriendo'**
+  String get run_time;
+
+  /// No description provided for @bike_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo en Bicicleta'**
+  String get bike_time;
+
+  /// No description provided for @total_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Total'**
+  String get total_distance;
+
+  /// No description provided for @walk_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Caminando'**
+  String get walk_distance;
+
+  /// No description provided for @run_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia Corriendo'**
+  String get run_distance;
+
+  /// No description provided for @bike_distance.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia en Bicicleta'**
+  String get bike_distance;
+
+  /// No description provided for @territories_captured.
+  ///
+  /// In es, this message translates to:
+  /// **'Territorios Capturados'**
+  String get territories_captured;
+
+  /// No description provided for @route.
+  ///
+  /// In es, this message translates to:
+  /// **'Ruta'**
+  String get route;
+
+  /// No description provided for @totalDistanceChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {km}km de actividad total'**
+  String totalDistanceChallengeDescription(int km);
+
+  /// No description provided for @activityDistanceChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {km}km de {activity}'**
+  String activityDistanceChallengeDescription(int km, String activity);
+
+  /// No description provided for @totalTimeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {hours} horas de actividad total'**
+  String totalTimeChallengeDescription(int hours);
+
+  /// No description provided for @activityTimeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa {hours} horas de {activity}'**
+  String activityTimeChallengeDescription(int hours, String activity);
+
+  /// No description provided for @territoriesCapturedChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Captura {territories} territorios'**
+  String territoriesCapturedChallengeDescription(int territories);
+
+  /// No description provided for @routeChallengeDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa la ruta de territorios'**
+  String get routeChallengeDescription;
+
+  /// No description provided for @weekChallenges.
+  ///
+  /// In es, this message translates to:
+  /// **'Retos semanales'**
+  String get weekChallenges;
+
+  /// No description provided for @complete.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa'**
+  String get complete;
+
+  /// No description provided for @hoursOfTotalActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas en total de actividades'**
+  String get hoursOfTotalActivity;
+
+  /// No description provided for @hoursOfWalkActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas caminando'**
+  String get hoursOfWalkActivity;
+
+  /// No description provided for @hoursOfRunActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas trotando'**
+  String get hoursOfRunActivity;
+
+  /// No description provided for @hoursOfBikeActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'horas en bicicleta'**
+  String get hoursOfBikeActivity;
+
+  /// No description provided for @kmOfTotalActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km en total de actividades'**
+  String get kmOfTotalActivity;
+
+  /// No description provided for @kmOfWalkActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km caminando'**
+  String get kmOfWalkActivity;
+
+  /// No description provided for @kmOfRunActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km trotando'**
+  String get kmOfRunActivity;
+
+  /// No description provided for @kmOfBikeActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'km en bicicleta'**
+  String get kmOfBikeActivity;
+
+  /// No description provided for @capture.
+  ///
+  /// In es, this message translates to:
+  /// **'Captura'**
+  String get capture;
+
+  /// No description provided for @rewards.
+  ///
+  /// In es, this message translates to:
+  /// **'Recompensas'**
+  String get rewards;
+
+  /// No description provided for @validSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión Válida'**
+  String get validSummary;
+
+  /// No description provided for @standingTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Inmóvil'**
+  String get standingTime;
+
+  /// No description provided for @vehicleTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Vehículo'**
+  String get vehicleTime;
+
+  /// No description provided for @unknownTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo/Otro'**
+  String get unknownTime;
+
+  /// No description provided for @totalDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo Total Transcurrido'**
+  String get totalDuration;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel'**
+  String get levelLabel;
+
+  /// No description provided for @xpLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'XP'**
+  String get xpLabel;
+
+  /// No description provided for @xpForNextLevelLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'XP para siguiente nivel'**
+  String get xpForNextLevelLabel;
+
+  /// No description provided for @events.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos'**
+  String get events;
+
+  /// No description provided for @eventsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Demuestra tu lealtad a la colonia, participando en eventos y compitiendo por recomensas.'**
+  String get eventsSubtitle;
+
+  /// No description provided for @noActiveEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos activos'**
+  String get noActiveEvents;
+
+  /// No description provided for @noActiveEventsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Como administrador, puedes crear uno nuevo.'**
+  String get noActiveEventsDescription;
+
+  /// No description provided for @createNewEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'CREAR NUEVO EVENTO'**
+  String get createNewEvent;
+
+  /// No description provided for @createEventTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'CREAR EVENTO'**
+  String get createEventTitle;
+
+  /// No description provided for @hexagonsSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} hex'**
+  String hexagonsSelected(int count);
+
+  /// No description provided for @hexagonsInRoute.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} hexágono(s) en la ruta'**
+  String hexagonsInRoute(int count);
+
+  /// No description provided for @tapMapToSelectHexagons.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca el mapa para seleccionar hexágonos'**
+  String get tapMapToSelectHexagons;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar'**
+  String get clearSelection;
+
+  /// No description provided for @eventNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Evento'**
+  String get eventNameLabel;
+
+  /// No description provided for @dateAndTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y Hora'**
+  String get dateAndTimeLabel;
+
+  /// No description provided for @rewardLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Recompensa'**
+  String get rewardLabel;
+
+  /// No description provided for @details.
+  ///
+  /// In es, this message translates to:
+  /// **'DETALLES'**
+  String get details;
+
+  /// No description provided for @save.
+  ///
+  /// In es, this message translates to:
+  /// **'GUARDAR'**
+  String get save;
+
+  /// No description provided for @eventDetailsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'DETALLES DEL EVENTO'**
+  String get eventDetailsTitle;
+
+  /// No description provided for @eventNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Medio maratón de la ciudad'**
+  String get eventNameHint;
+
+  /// No description provided for @selectRewardTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Recompensa (Boost)'**
+  String get selectRewardTitle;
+
+  /// No description provided for @confirmDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'CONFIRMAR DETALLES'**
+  String get confirmDetails;
+
+  /// No description provided for @eventSavedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Evento \"{name}\" guardado con éxito'**
+  String eventSavedSuccess(String name);
+
+  /// No description provided for @startTimestamp.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y Hora Inicio'**
+  String get startTimestamp;
+
+  /// No description provided for @endTimestamp.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y Hora Fin'**
+  String get endTimestamp;
+
+  /// No description provided for @selectStartTimestamp.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fecha de inicio'**
+  String get selectStartTimestamp;
+
+  /// No description provided for @selectEndTimestamp.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fecha de fin'**
+  String get selectEndTimestamp;
+
+  /// No description provided for @boostRewards.
+  ///
+  /// In es, this message translates to:
+  /// **'RECOMPENSAS DE BOOST'**
+  String get boostRewards;
+
+  /// No description provided for @avatarItemRewards.
+  ///
+  /// In es, this message translates to:
+  /// **'RECOMPENSAS DE ITEMS DE AVATAR'**
+  String get avatarItemRewards;
+
+  /// No description provided for @noAvatarItems.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay items de avatar disponibles por ahora.'**
+  String get noAvatarItems;
+
+  /// No description provided for @invalidDatesError.
+  ///
+  /// In es, this message translates to:
+  /// **'La fecha de fin debe ser posterior a la de inicio.'**
+  String get invalidDatesError;
+
+  /// No description provided for @modeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo'**
+  String get modeLabel;
+
+  /// No description provided for @freePainting.
+  ///
+  /// In es, this message translates to:
+  /// **'Pintura libre'**
+  String get freePainting;
+
+  /// No description provided for @singlePainting.
+  ///
+  /// In es, this message translates to:
+  /// **'Pintura individual'**
+  String get singlePainting;
+
+  /// No description provided for @eventMustEndBySunday.
+  ///
+  /// In es, this message translates to:
+  /// **'El evento debe terminar como máximo el domingo de esa misma semana.'**
+  String get eventMustEndBySunday;
+
+  /// No description provided for @eventScheduleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'HORARIO DEL EVENTO'**
+  String get eventScheduleLabel;
+
+  /// No description provided for @startTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'HORA INICIO'**
+  String get startTimeLabel;
+
+  /// No description provided for @endTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'HORA FIN'**
+  String get endTimeLabel;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'LU'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'MA'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'MI'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'JU'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'VI'**
+  String get fridayShort;
+
+  /// No description provided for @saturdayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'SÁ'**
+  String get saturdayShort;
+
+  /// No description provided for @sundayShort.
+  ///
+  /// In es, this message translates to:
+  /// **'DO'**
+  String get sundayShort;
+
+  /// No description provided for @januaryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Enero'**
+  String get januaryLabel;
+
+  /// No description provided for @februaryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Febrero'**
+  String get februaryLabel;
+
+  /// No description provided for @marchLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Marzo'**
+  String get marchLabel;
+
+  /// No description provided for @aprilLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Abril'**
+  String get aprilLabel;
+
+  /// No description provided for @mayLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Mayo'**
+  String get mayLabel;
+
+  /// No description provided for @juneLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Junio'**
+  String get juneLabel;
+
+  /// No description provided for @julyLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Julio'**
+  String get julyLabel;
+
+  /// No description provided for @augustLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Agosto'**
+  String get augustLabel;
+
+  /// No description provided for @septemberLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Septiembre'**
+  String get septemberLabel;
+
+  /// No description provided for @octoberLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Octubre'**
+  String get octoberLabel;
+
+  /// No description provided for @novemberLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Noviembre'**
+  String get novemberLabel;
+
+  /// No description provided for @decemberLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Diciembre'**
+  String get decemberLabel;
+
+  /// No description provided for @publish.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicar'**
+  String get publish;
 }
 
 class _AppLocalizationsDelegate

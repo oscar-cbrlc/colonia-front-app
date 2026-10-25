@@ -865,4 +865,308 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get byLabel => 'by:';
+
+  @override
+  String get difficulty => 'Difficulty';
+
+  @override
+  String get easy => 'Easy';
+
+  @override
+  String get medium => 'Medium';
+
+  @override
+  String get hard => 'Hard';
+
+  @override
+  String get total_time => 'Total Time';
+
+  @override
+  String get walk_time => 'Walk Time';
+
+  @override
+  String get run_time => 'Run Time';
+
+  @override
+  String get bike_time => 'Bike Time';
+
+  @override
+  String get total_distance => 'Total Distance';
+
+  @override
+  String get walk_distance => 'Walk Distance';
+
+  @override
+  String get run_distance => 'Run Distance';
+
+  @override
+  String get bike_distance => 'Bike Distance';
+
+  @override
+  String get territories_captured => 'Territories Captured';
+
+  @override
+  String get route => 'Route';
+
+  @override
+  String totalDistanceChallengeDescription(int km) {
+    return 'Complete ${distance}km of total activity';
+  }
+
+  @override
+  String activityDistanceChallengeDescription(int km, String activity) {
+    return 'Complete ${km}km of $activity activity';
+  }
+
+  @override
+  String totalTimeChallengeDescription(int hours) {
+    return 'Complete $hours hours of total activity';
+  }
+
+  @override
+  String activityTimeChallengeDescription(int hours, String activity) {
+    return 'Complete $hours of $activity activity';
+  }
+
+  @override
+  String territoriesCapturedChallengeDescription(int territories) {
+    return 'Capture $territories territories';
+  }
+
+  @override
+  String get routeChallengeDescription => 'Complete the territory route';
+
+  @override
+  String get weekChallenges => 'Week Challenges';
+
+  @override
+  String get complete => 'Complete';
+
+  @override
+  String get hoursOfTotalActivity => 'hours of total activity';
+
+  @override
+  String get hoursOfWalkActivity => 'hours of walking';
+
+  @override
+  String get hoursOfRunActivity => 'hours of running';
+
+  @override
+  String get hoursOfBikeActivity => 'hours of cycling';
+
+  @override
+  String get kmOfTotalActivity => 'km of total activity';
+
+  @override
+  String get kmOfWalkActivity => 'km of walking';
+
+  @override
+  String get kmOfRunActivity => 'km of running';
+
+  @override
+  String get kmOfBikeActivity => 'km of cycling';
+
+  @override
+  String get capture => 'Capture';
+
+  @override
+  String get rewards => 'Rewards';
+
+  @override
+  String get validSummary => 'Valid Excursion';
+
+  @override
+  String get standingTime => 'Standing';
+
+  @override
+  String get vehicleTime => 'Vehicle';
+
+  @override
+  String get unknownTime => 'Inactive/Other';
+
+  @override
+  String get totalDuration => 'Total Elapsed';
+
+  @override
+  String get levelLabel => 'Level';
+
+  @override
+  String get xpLabel => 'XP';
+
+  @override
+  String get xpForNextLevelLabel => 'XP for Next Level';
+
+  @override
+  String get events => 'Events';
+
+  @override
+  String get eventsSubtitle =>
+      'Demonstrate your loyalty to the colony, by participating in events and competing for rewards.';
+
+  @override
+  String get noActiveEvents => 'No active events';
+
+  @override
+  String get noActiveEventsDescription =>
+      'As an Admin you can create a new one.';
+
+  @override
+  String get createNewEvent => 'CREATE NEW EVENT';
+
+  @override
+  String get createEventTitle => 'Creating Event';
+
+  @override
+  String hexagonsSelected(int count) {
+    return '$count hex';
+  }
+
+  @override
+  String hexagonsInRoute(int count) {
+    return '$count hexagon(s) in route';
+  }
+
+  @override
+  String get tapMapToSelectHexagons => 'Tap the map to select hexagons';
+
+  @override
+  String get clearSelection => 'Clear';
+
+  @override
+  String get eventNameLabel => 'Event Name';
+
+  @override
+  String get dateAndTimeLabel => 'Date and Time';
+
+  @override
+  String get rewardLabel => 'Reward';
+
+  @override
+  String get details => 'DETAILS';
+
+  @override
+  String get save => 'SAVE';
+
+  @override
+  String get eventDetailsTitle => 'EVENT DETAILS';
+
+  @override
+  String get eventNameHint => 'City\'s half marathon';
+
+  @override
+  String get selectRewardTitle => 'Select Reward (Boost)';
+
+  @override
+  String get confirmDetails => 'CONFIRM DETAILS';
+
+  @override
+  String eventSavedSuccess(String name) {
+    return 'Event \"$name\" saved successfully';
+  }
+
+  @override
+  String get startTimestamp => 'Start Datetime';
+
+  @override
+  String get endTimestamp => 'End Datetime';
+
+  @override
+  String get selectStartTimestamp => 'Select start time';
+
+  @override
+  String get selectEndTimestamp => 'Select end time';
+
+  @override
+  String get boostRewards => 'BOOST REWARDS';
+
+  @override
+  String get avatarItemRewards => 'AVATAR ITEM REWARDS';
+
+  @override
+  String get noAvatarItems => 'No avatar items available at the moment.';
+
+  @override
+  String get invalidDatesError => 'End time must be after start time.';
+
+  @override
+  String get modeLabel => 'Mode';
+
+  @override
+  String get freePainting => 'Free Painting';
+
+  @override
+  String get singlePainting => 'Single Painting';
+
+  @override
+  String get eventMustEndBySunday =>
+      'Event must end by Sunday of the same week.';
+
+  @override
+  String get eventScheduleLabel => 'EVENT SCHEDULE';
+
+  @override
+  String get startTimeLabel => 'START TIME';
+
+  @override
+  String get endTimeLabel => 'END TIME';
+
+  @override
+  String get mondayShort => 'MO';
+
+  @override
+  String get tuesdayShort => 'TU';
+
+  @override
+  String get wednesdayShort => 'WE';
+
+  @override
+  String get thursdayShort => 'TH';
+
+  @override
+  String get fridayShort => 'FR';
+
+  @override
+  String get saturdayShort => 'SA';
+
+  @override
+  String get sundayShort => 'SU';
+
+  @override
+  String get januaryLabel => 'January';
+
+  @override
+  String get februaryLabel => 'February';
+
+  @override
+  String get marchLabel => 'March';
+
+  @override
+  String get aprilLabel => 'April';
+
+  @override
+  String get mayLabel => 'May';
+
+  @override
+  String get juneLabel => 'June';
+
+  @override
+  String get julyLabel => 'July';
+
+  @override
+  String get augustLabel => 'August';
+
+  @override
+  String get septemberLabel => 'September';
+
+  @override
+  String get octoberLabel => 'October';
+
+  @override
+  String get novemberLabel => 'November';
+
+  @override
+  String get decemberLabel => 'December';
+
+  @override
+  String get publish => 'Publish';
 }

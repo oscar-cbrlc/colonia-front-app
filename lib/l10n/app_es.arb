@@ -948,5 +948,352 @@
     "@autoResumed": {},
 
     "byLabel": "por:",
-    "@byLabel": {}
+    "@byLabel": {},
+
+    "difficulty": "Dificultad",
+    "@difficulty": {},
+
+    "easy": "Fácil",
+    "@easy": {},
+
+    "medium": "Media",
+    "@medium": {},
+
+    "hard": "Difícil",
+    "@hard": {},
+
+    "total_time": "Tiempo Total",
+    "@total_time": {},
+
+    "walk_time": "Tiempo Caminando",
+    "@walk_time": {},
+
+    "run_time": "Tiempo Corriendo",
+    "@run_time": {},
+
+    "bike_time": "Tiempo en Bicicleta",
+    "@bike_time": {},
+
+
+    "total_distance": "Distancia Total",
+    "@total_distance": {},
+
+    "walk_distance": "Distancia Caminando",
+    "@walk_distance": {},
+
+    "run_distance": "Distancia Corriendo",
+    "@run_distance": {},
+
+    "bike_distance": "Distancia en Bicicleta",
+    "@bike_distance": {},
+
+    "territories_captured": "Territorios Capturados",
+    "@territories_captured": {},
+
+    "route": "Ruta",
+    "@route": {},
+
+    "totalDistanceChallengeDescription": "Completa {km}km de actividad total",
+    "@totalDistanceChallengeDescription": {
+        "placeholders": {
+            "km": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "activityDistanceChallengeDescription": "Completa {km}km de {activity}",
+    "@activityDistanceChallengeDescription": {
+        "placeholders": {
+            "km": {
+                "type": "int",
+                "example": "100"
+            },
+            "activity": {
+                "type": "String",
+                "example": "Caminar"
+            }
+        }
+    },
+
+    "totalTimeChallengeDescription": "Completa {hours} horas de actividad total",
+    "@totalTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "activityTimeChallengeDescription": "Completa {hours} horas de {activity}",
+    "@activityTimeChallengeDescription": {
+        "placeholders": {
+            "hours": {
+                "type": "int",
+                "example": "100"
+            },
+            "activity": {
+                "type": "String",
+                "example": "Caminar"
+            }
+        }
+    },
+
+    "territoriesCapturedChallengeDescription": "Captura {territories} territorios",
+    "@territoriesCapturedChallengeDescription": {
+        "placeholders": {
+            "territories": {
+                "type": "int",
+                "example": "100"
+            }
+        }
+    },
+
+    "routeChallengeDescription": "Completa la ruta de territorios",
+    "@routeChallengeDescription": {},
+
+    "weekChallenges": "Retos semanales",
+    "@weekChallenges": {},
+
+    "complete": "Completa",
+    "@complete": {},
+
+    "hoursOfTotalActivity": "horas en total de actividades",
+    "@hoursOfTotalActivity": {},
+
+    "hoursOfWalkActivity": "horas caminando",
+    "@hoursOfWalkActivity": {},
+
+    "hoursOfRunActivity": "horas trotando",
+    "@hoursOfRunActivity": {},
+
+    "hoursOfBikeActivity": "horas en bicicleta",
+    "@hoursOfBikeActivity": {},
+
+    "kmOfTotalActivity": "km en total de actividades",
+    "@kmOfTotalActivity": {},
+
+    "kmOfWalkActivity": "km caminando",
+    "@kmOfWalkActivity": {},
+
+    "kmOfRunActivity": "km trotando",
+    "@kmOfRunActivity": {},
+
+    "kmOfBikeActivity": "km en bicicleta",
+    "@kmOfBikeActivity": {},
+
+    "capture": "Captura",
+    "@capture": {},
+
+    "rewards": "Recompensas",
+    "@rewards": {},
+
+    "validSummary": "Excursión Válida",
+    "@validSummary": {},
+
+    "standingTime": "Inmóvil",
+    "@standingTime": {},
+
+    "vehicleTime": "Vehículo",
+    "@vehicleTime": {},
+
+    "unknownTime": "Inactivo/Otro",
+    "@unknownTime": {},
+
+    "totalDuration": "Tiempo Total Transcurrido",
+    "@totalDuration": {},
+
+    "levelLabel": "Nivel",
+    "@levelLabel": {},
+
+    "xpLabel": "XP",
+    "@xpLabel": {},
+
+    "xpForNextLevelLabel": "XP para siguiente nivel",
+    "@xpForNextLevelLabel": {},
+
+    "events": "Eventos",
+    "@events": {},
+
+    "eventsSubtitle": "Demuestra tu lealtad a la colonia, participando en eventos y compitiendo por recomensas.",
+    "@eventsSubtitle": {},
+
+    "noActiveEvents": "No hay eventos activos",
+    "@noActiveEvents": {},
+
+    "noActiveEventsDescription": "Como administrador, puedes crear uno nuevo.",
+    "@noActiveEventsDescription": {},
+
+    "createNewEvent": "CREAR NUEVO EVENTO",
+    "@createNewEvent": {},
+
+    "createEventTitle": "CREAR EVENTO",
+    "@createEventTitle": {},
+
+    "hexagonsSelected": "{count} hex",
+    "@hexagonsSelected": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "hexagonsInRoute": "{count} hexágono(s) en la ruta",
+    "@hexagonsInRoute": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "tapMapToSelectHexagons": "Toca el mapa para seleccionar hexágonos",
+    "@tapMapToSelectHexagons": {},
+
+    "clearSelection": "Limpiar",
+    "@clearSelection": {},
+
+    "eventNameLabel": "Nombre del Evento",
+    "@eventNameLabel": {},
+
+    "dateAndTimeLabel": "Fecha y Hora",
+    "@dateAndTimeLabel": {},
+
+    "rewardLabel": "Recompensa",
+    "@rewardLabel": {},
+
+    "details": "DETALLES",
+    "@details": {},
+
+    "save": "GUARDAR",
+    "@save": {},
+
+    "eventDetailsTitle": "DETALLES DEL EVENTO",
+    "@eventDetailsTitle": {},
+
+    "eventNameHint": "Medio maratón de la ciudad",
+    "@eventNameHint": {},
+
+    "selectRewardTitle": "Seleccionar Recompensa (Boost)",
+    "@selectRewardTitle": {},
+
+    "confirmDetails": "CONFIRMAR DETALLES",
+    "@confirmDetails": {},
+
+    "eventSavedSuccess": "Evento \"{name}\" guardado con éxito",
+    "@eventSavedSuccess": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+
+    "startTimestamp": "Fecha y Hora Inicio",
+    "@startTimestamp": {},
+
+    "endTimestamp": "Fecha y Hora Fin",
+    "@endTimestamp": {},
+
+    "selectStartTimestamp": "Seleccionar fecha de inicio",
+    "@selectStartTimestamp": {},
+
+    "selectEndTimestamp": "Seleccionar fecha de fin",
+    "@selectEndTimestamp": {},
+
+    "boostRewards": "RECOMPENSAS DE BOOST",
+    "@boostRewards": {},
+
+    "avatarItemRewards": "RECOMPENSAS DE ITEMS DE AVATAR",
+    "@avatarItemRewards": {},
+
+    "noAvatarItems": "No hay items de avatar disponibles por ahora.",
+    "@noAvatarItems": {},
+
+    "invalidDatesError": "La fecha de fin debe ser posterior a la de inicio.",
+    "@invalidDatesError": {},
+
+    "modeLabel": "Modo",
+    "@modeLabel": {},
+
+    "freePainting": "Pintura libre",
+    "@painting": {},
+
+    "singlePainting": "Pintura individual",
+    "@singlePainting": {},
+
+    "eventMustEndBySunday": "El evento debe terminar como máximo el domingo de esa misma semana.",
+    "@eventMustEndBySunday": {},
+
+    "eventScheduleLabel": "HORARIO DEL EVENTO",
+    "@eventScheduleLabel": {},
+
+    "startTimeLabel": "HORA INICIO",
+    "@startTimeLabel": {},
+
+    "endTimeLabel": "HORA FIN",
+    "@endTimeLabel": {},
+
+    "mondayShort": "LU",
+    "@mondayShort": {},
+
+    "tuesdayShort": "MA",
+    "@tuesdayShort": {},
+
+    "wednesdayShort": "MI",
+    "@wednesdayShort": {},
+
+    "thursdayShort": "JU",
+    "@thursdayShort": {},
+
+    "fridayShort": "VI",
+    "@fridayShort": {},
+
+    "saturdayShort": "SÁ",
+    "@saturdayShort": {},
+
+    "sundayShort": "DO",
+    "@sundayShort": {},
+
+    "januaryLabel": "Enero",
+    "@januaryLabel": {},
+
+    "februaryLabel": "Febrero",
+    "@februaryLabel": {},
+
+    "marchLabel": "Marzo",
+    "@marchLabel": {},
+
+    "aprilLabel": "Abril",
+    "@aprilLabel": {},
+
+    "mayLabel": "Mayo",
+    "@mayLabel": {},
+
+    "juneLabel": "Junio",
+    "@juneLabel": {},
+
+    "julyLabel": "Julio",
+    "@julyLabel": {},
+
+    "augustLabel": "Agosto",
+    "@augustLabel": {},
+
+    "septemberLabel": "Septiembre",
+    "@septemberLabel": {},
+
+    "octoberLabel": "Octubre",
+    "@octoberLabel": {},
+
+    "novemberLabel": "Noviembre",
+    "@novemberLabel": {},
+
+    "decemberLabel": "Diciembre",
+    "@decemberLabel": {},
+
+    "publish": "Publicar",
+    "@publish": {}
 }

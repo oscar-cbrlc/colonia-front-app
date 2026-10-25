@@ -7,12 +7,7 @@ class AuthService {
   AuthService(this._apiClient);
 
   Future<http.Response> getUserById(int id) async {
-    return await _apiClient.get(
-      '/users/',
-      queryParameters: {
-        'user_id': id.toString(),
-      },
-    );
+    return await _apiClient.get('/users/$id');
   }
 
   Future<http.Response> getCurrentUserData() async {

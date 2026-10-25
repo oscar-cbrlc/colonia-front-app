@@ -5,19 +5,21 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 class MapControlGroup extends StatelessWidget {
   final Listenable listenable;
   final double currentBearing;
-  final bool showPoints;
+  final bool? showPoints;
   final VoidCallback onCenterOnUser;
-  final VoidCallback onToggleShowPoints;
+  final VoidCallback? onToggleShowPoints;
   final VoidCallback onResetNorth;
+  final bool showPointsButton;
 
   const MapControlGroup({
     super.key,
     required this.listenable,
     required this.currentBearing,
-    required this.showPoints,
+    this.showPoints,
     required this.onCenterOnUser,
-    required this.onToggleShowPoints,
+    this.onToggleShowPoints,
     required this.onResetNorth,
+    this.showPointsButton = true,
   });
 
   @override
@@ -39,16 +41,18 @@ class MapControlGroup extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            IndividualMapButton(
-              icon: showPoints ? Icons.shield_sharp : Icons.shield_outlined,
-              iconColor: showPoints ? AppTheme.primaryColor : Colors.white38,
-              borderColor: showPoints ? AppTheme.primaryColor.withAlpha(180) : null,
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                onToggleShowPoints();
-              },
-            ),
-            const SizedBox(height: 8),
+            if (showPointsButton)...[
+              IndividualMapButton(
+                icon: showPoints! ? Icons.shield_sharp : Icons.shield_outlined,
+                iconColor: showPoints! ? AppTheme.primaryColor : Colors.white38,
+                borderColor: showPoints! ? AppTheme.primaryColor.withAlpha(180) : null,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  onToggleShowPoints!();
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
 
             IndividualMapButton(
               iconWidget: Transform.rotate(
@@ -77,7 +81,10 @@ class IndividualMapButton extends StatelessWidget {
   final Widget? iconWidget;
   final Color? iconColor;
   final Color? borderColor;
+  final Color? splashColor;
   final VoidCallback onPressed;
+  final double width;
+  final double height;
 
   const IndividualMapButton({
     super.key,
@@ -85,16 +92,20 @@ class IndividualMapButton extends StatelessWidget {
     this.iconWidget,
     this.iconColor,
     this.borderColor,
+    this.splashColor,
     required this.onPressed,
+    this.width = 44,
+    this.height = 44,
   });
 
   @override
   Widget build(BuildContext context) {
     final effectiveBorderColor = borderColor ?? AppTheme.primaryColor.withAlpha(120);
+    final splashCol = splashColor ?? AppTheme.primaryColor;
 
     return Container(
-      width: 44,
-      height: 44,
+      width: width,
+      height: height,
       decoration: ShapeDecoration(
         color: AppTheme.darkBackground.withAlpha(220),
         shape: BeveledRectangleBorder(
@@ -112,7 +123,7 @@ class IndividualMapButton extends StatelessWidget {
           customBorder: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          splashColor: AppTheme.primaryColor.withAlpha(40),
+          splashColor: splashCol.withAlpha(40),
           child: Center(
             child: iconWidget ?? Icon(icon, color: iconColor ?? Colors.white, size: 22),
           ),

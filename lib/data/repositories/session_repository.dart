@@ -209,8 +209,8 @@ class SessionRepository extends ChangeNotifier {
       }).toList();
 
       final impact = PendingActivityImpact(
-        totalDistance: finalDistance,
-        totalTime: finalSeconds,
+        totalDistance: _distanceWalked+_distanceRun+_secondsBike,
+        totalTime: _secondsWalk+_secondsRun+_secondsBike,
         timestamp: DateTime.now().toIso8601String(),
         territories: territoriesJson,
         boostId: _trainingConfig?.boost?.id,

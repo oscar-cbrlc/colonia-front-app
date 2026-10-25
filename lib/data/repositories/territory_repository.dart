@@ -32,6 +32,22 @@ class TerritoryRepository extends ChangeNotifier {
     }
   }
 
+  Future<Territory?> fetchTerritoryById(String id) async {
+    try {
+      final response = await _territoryService.getTerritoryById(id);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final territory = Territory.fromJson(data);
+        _territories[territory.id] = territory;
+        notifyListeners();
+        return territory;
+      }
+    } catch (e) {
+      debugPrint('TerritoryRepository: Error fetching territory by id: $e');
+    }
+    return null;
+  }
+
   Future<({ActivityResult? result, bool isOffline, String? error})> applyTerritoryImpact({
     required double totalDistance,
     required int totalTime,

@@ -19,6 +19,10 @@ class UserProfileViewModel extends ChangeNotifier {
   int get unlockedCount => unlockedAchievements.length;
   int get totalAchievements => achievements.length;
 
+  int get level => _user.stats?.level ?? 0;
+  int get xp => _user.stats?.xp ?? 0;
+  int get xpForNextLevel => _user.xpForNextLevel ?? 0;
+
   String get formattedDistance {
     final distInKm = ((_user.stats?.totalDistance ?? 0.0) / 1000.0);
     return '${distInKm.toStringAsFixed(1)} km';

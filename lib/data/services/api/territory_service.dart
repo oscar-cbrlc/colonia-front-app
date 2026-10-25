@@ -38,9 +38,9 @@ class TerritoryService {
       'seconds_walk': secondsWalk,
       'seconds_run': secondsRun,
       'seconds_bike': secondsBike,
-      'distance_walk': distanceWalk,
-      'distance_run': distanceRun,
-      'distance_bike': distanceBike,
+      'meters_walk': distanceWalk,
+      'meters_run': distanceRun,
+      'meters_bike': distanceBike,
     });
   }
 }
