@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
+import 'package:flutter_3d_controller/flutter_3d_controller.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final UserProfileViewModel viewModel;
@@ -535,7 +536,7 @@ class _TopHeaderBarOtherUser extends StatelessWidget {
   }
 }
 
-class _AvatarSection extends StatelessWidget {
+class _AvatarSection extends StatefulWidget {
   final UserProfileViewModel viewModel;
   final VoidCallback onEditAccountPressed;
   final VoidCallback onEditAvatarPressed;
@@ -547,8 +548,17 @@ class _AvatarSection extends StatelessWidget {
   });
 
   @override
+  State<_AvatarSection> createState() => _AvatarSectionState();
+}
+
+class _AvatarSectionState extends State<_AvatarSection> {
+  final Flutter3DController _controller = Flutter3DController();
+
+  @override
   Widget build(BuildContext context) {
-    final user = viewModel.user;
+    final user = widget.viewModel.user;
+    final modelPath = widget.viewModel.baseModelPath;
+    final baseAvatarContainerColor = Colors.white;
 
     return Column(
       children: [
@@ -556,34 +566,53 @@ class _AvatarSection extends StatelessWidget {
           alignment: Alignment.bottomRight,
           children: [
             Container(
-              width: 130,
-              height: 130,
+              width: 220,
+              height: 220,
               decoration: ShapeDecoration(
-                color: Colors.black26,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    baseAvatarContainerColor.withAlpha(40),
+                    baseAvatarContainerColor.withAlpha(20),
+                    baseAvatarContainerColor.withAlpha(10),
+                    baseAvatarContainerColor.withAlpha(10),
+                    baseAvatarContainerColor.withAlpha(20),
+                    baseAvatarContainerColor.withAlpha(40),
+                  ],
+                  stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                ),
                 shape: BeveledRectangleBorder(
-                  side: const BorderSide(color: AppTheme.primaryColor, width: 2),
-                  borderRadius: BorderRadius.circular(65),
+                  side: BorderSide(color: widget.viewModel.user.team != null? Color(widget.viewModel.user.team!.color).withAlpha(100) : AppTheme.primaryColor.withAlpha(100), width: 1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              child: user.avatar?.thumbnailUrl != null
-                  ? ClipPath(
-                      clipper: _BeveledCircleClipper(),
-                      child: Image.network(user.avatar!.thumbnailUrl!, fit: BoxFit.cover),
-                    )
-                  : const Icon(Icons.person, size: 70, color: Colors.white54),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Flutter3DViewer(
+                  controller: _controller,
+                  src: modelPath,
+                  enableTouch: true,
+                  progressBarColor: AppTheme.primaryColor,
+                ),
+              ),
             ),
-            if (viewModel.user == AuthRepository.instance.currentUser)
-              GestureDetector(
-                onTap: onEditAvatarPressed,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const ShapeDecoration(
-                    color: AppTheme.primaryColor,
-                    shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+            if (widget.viewModel.user == AuthRepository.instance.currentUser)
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: widget.onEditAvatarPressed,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const ShapeDecoration(
+                      color: AppTheme.primaryColor,
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
                     ),
+                    child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                   ),
-                  child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                 ),
               ),
           ],
@@ -598,10 +627,10 @@ class _AvatarSection extends StatelessWidget {
               user.username,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            if (viewModel.user == AuthRepository.instance.currentUser)...[
+            if (widget.viewModel.user == AuthRepository.instance.currentUser)...[
               const SizedBox(width: 6),
               InkWell(
-                onTap: onEditAccountPressed,
+                onTap: widget.onEditAccountPressed,
                 customBorder: const CircleBorder(),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),

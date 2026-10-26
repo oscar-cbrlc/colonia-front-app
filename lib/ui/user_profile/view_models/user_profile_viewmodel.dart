@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:flutter/foundation.dart';
@@ -7,12 +8,15 @@ class UserProfileViewModel extends ChangeNotifier {
   User _user;
   bool _isLoading = false;
   String? _errorMessage;
+  final AvatarItemRepository _avatarItemRepository = AvatarItemRepository();
 
   UserProfileViewModel(this._user);
 
   User get user => _user;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  String get baseModelPath => _avatarItemRepository.baseModelPath;
 
   List<Achievement> get achievements => _user.achievements;
   List<Achievement> get unlockedAchievements => _user.unlockedAchievements;
