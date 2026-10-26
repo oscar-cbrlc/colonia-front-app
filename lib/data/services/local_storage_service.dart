@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
@@ -15,6 +17,8 @@ class LocalStorageService {
   static const String _activityKey = 'colonia_pending_activity_data';
   static const String _inventoryKey = 'colonia_inventory_data';
   static const String _availableBoostsKey = 'colonia_available_boosts_data';
+  static const String _avatarItemsKey = 'colonia_avatar_items_data';
+  static const String _avatarModelKey = 'colonia_avatar_model_data';
 
 
   LocalStorageService({FlutterSecureStorage? secureStorage})
@@ -100,5 +104,33 @@ class LocalStorageService {
 
   Future<void> saveInventory(List<BoostInventory> boostInventory) async {
     await _secureStorage.write(key: _inventoryKey, value: jsonEncode(boostInventory.map((e) => e.toJson()).toList()));
+  }
+
+
+  /*Future<File> downloadFile(String url, String fileName) async {
+    var httpClient = HttpClient();
+    try {
+      var request = await httpClient.getUrl(Uri.parse(url));
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      final dir = await getTemporaryDirectory();
+      var file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(bytes);
+      return file;
+    } finally {
+      httpClient.close();
+    }
+  }*/
+
+
+  Future<List<AvatarItemModel>> getAvatarItemModels() async {
+    final data = await _secureStorage.read(key: _avatarItemsKey);
+    if (data == null) return [];
+    final List<dynamic> decoded = jsonDecode(data);
+    return decoded.map((e) => AvatarItemModel.fromJson(e)).toList();
+  }
+
+  Future<void> saveAvatarItemModels(List<AvatarItemModel> avatarItemModels) async {
+    await _secureStorage.write(key: _avatarItemsKey, value: jsonEncode(avatarItemModels.map((e) => e.toJson()).toList()));
   }
 }

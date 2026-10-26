@@ -30,4 +30,7 @@ abstract class GameConfig {
 
   static int limitConsecutiveInvalidUnits = 4;
 
+
+  static const String baseModelPath = 'assets/avatar/base_model/AntTexturized.glb';
+
 }

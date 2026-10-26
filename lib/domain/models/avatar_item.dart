@@ -14,7 +14,6 @@ enum AvatarItemType {
 }
 
 @freezed
-@freezed
 abstract class AvatarItem with _$AvatarItem {
   const AvatarItem._();
   const factory AvatarItem({
@@ -26,4 +25,14 @@ abstract class AvatarItem with _$AvatarItem {
   }) = _AvatarItem;
 
   factory AvatarItem.fromJson(Map<String, dynamic> json) => _$AvatarItemFromJson(json);
+}
+
+@freezed
+abstract class AvatarItemModel with _$AvatarItemModel {
+  const AvatarItemModel._();
+  const factory AvatarItemModel({
+    @JsonKey(name: 'avatar_item_id') required int id,
+    @JsonKey(name: 'item_file_path') required String filePath,
+  }) = _AvatarItemModel;
+  factory AvatarItemModel.fromJson(Map<String, dynamic> json) => _$AvatarItemModelFromJson(json);
 }
