@@ -57,6 +57,9 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   custom_floating_action_button_location: ^0.0.1
   flutter_3d_controller: ^2.3.0
+  flutter_downloader: ^1.12.1
+  path_provider: ^2.1.5
+  http: ^1.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
