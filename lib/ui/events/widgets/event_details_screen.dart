@@ -28,7 +28,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   List<String> get _hexagonIds {
     final condition = widget.activeChallenge.challenge.objectiveCondition;
-    final hexRaw = condition['hexagons'];
+    final hexRaw = condition['route'];
     if (hexRaw is List) {
       return hexRaw.map((e) => e.toString()).toList();
     }
@@ -37,7 +37,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   List<GeoCoord> get _routeCords {
     final condition = widget.activeChallenge.challenge.objectiveCondition;
-    final hexRaw = condition['hexagons'];
+    final hexRaw = condition['route'];
     if (hexRaw is List) {
       return hexRaw.map((e) => H3Helper.getHexCenter(e)).toList();
     }
