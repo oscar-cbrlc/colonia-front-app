@@ -30,4 +30,19 @@ class ChallengeService {
   Future<http.Response> getMyChallengeProgress() async {
     return await _apiClient.get('/activeChallenge/mine/progress');
   }
+
+  Future<http.Response> getMyEventProgress() async {
+    return await _apiClient.get('/activeChallenge/events/mine/progress');
+  }
+
+  Future<http.Response> listEvents() async {
+    return await _apiClient.get('/activeChallenge/events');
+  }
+
+  Future<http.Response> createEvent(Map<String, dynamic> eventData) async {
+    return await _apiClient.post(
+      '/admin/activeChallenge/events',
+      body: eventData,
+    );
+  }
 }

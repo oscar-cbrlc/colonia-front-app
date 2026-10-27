@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -15,12 +16,14 @@ enum MapRouteEditMode { paint, erase, navigate }
 class CreateEventViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final BoostRepository _boostRepository;
+  final ChallengeRepository _challengeRepository;
 
   MapboxMap? _mapboxMap;
   Timer? _debounceTimer;
 
   double _mapBearing = 0.0;
   bool _showPoints = true;
+  bool _isSaving = false;
 
   final List<String> _selectedHexagonIds = [];
   String _eventName = '';
@@ -35,11 +38,15 @@ class CreateEventViewModel extends ChangeNotifier {
   CreateEventViewModel({
     required TrackingRepository trackingRepository,
     required BoostRepository boostRepository,
+    required ChallengeRepository challengeRepository,
   })  : _trackingRepository = trackingRepository,
-        _boostRepository = boostRepository {
+        _boostRepository = boostRepository,
+        _challengeRepository = challengeRepository {
     _boostRepository.addListener(notifyListeners);
     _boostRepository.getAvailableBoosts();
   }
+
+  bool get isSaving => _isSaving;
 
   MapboxMap? get mapboxMap => _mapboxMap;
   Point? get userPosition => _trackingRepository.userPosition;
@@ -330,9 +337,47 @@ class CreateEventViewModel extends ChangeNotifier {
     }));
   }
 
-  void saveEvent() {
-    if (!isSaveEnabled) return;
-    debugPrint("Event created: Name='$_eventName', Start=$_startDate, End=$_endDate, Boosts=$_boostQuantities, Hexagons=$_selectedHexagonIds");
+  Future<bool> saveEvent() async {
+    if (!isSaveEnabled || _isSaving) return false;
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      final boostsList = <Map<String, dynamic>>[];
+      _boostQuantities.forEach((boostId, quantity) {
+        if (quantity > 0) {
+          boostsList.add({
+            'challenge_id': 0,
+            'boost_id': boostId,
+            'boost_amount': quantity,
+          });
+        }
+      });
+
+      final payload = {
+        'challenge': {
+          'challenge_name': _eventName,
+          'objective_type': 10,
+          'objective_condition': {
+            'hexagons': _selectedHexagonIds,
+            'route': _selectedHexagonIds.length,
+          },
+          'challenge_difficulty': 1,
+          'boosts_reward': boostsList,
+        },
+        'challenge_start_date': _startDate!.toUtc().toIso8601String(),
+        'challenge_end_date': _endDate!.toUtc().toIso8601String(),
+      };
+
+      final success = await _challengeRepository.createEvent(payload);
+      return success;
+    } catch (e) {
+      debugPrint("Error creating event: $e");
+      return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
   }
 
   void _configureOrnaments() {
