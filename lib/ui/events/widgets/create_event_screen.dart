@@ -2,6 +2,7 @@ import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
+import 'package:colonia_front_app/ui/events/widgets/event_details_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -233,330 +234,112 @@ class _ExpandableEventSummary extends StatefulWidget {
 }
 
 class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
-  bool _isExpanded = false;
-
-  String _formatDateTime(DateTime? dt) {
-    if (dt == null) return '';
-    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = widget.viewModel;
     final locale = AppLocalizations.of(context)!;
 
+    final rewards = vm.boostQuantities.entries
+        .where((entry) => entry.value > 0)
+        .map((entry) => RewardItem(boost: entry.key, amount: entry.value))
+        .toList();
 
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        setState(() {
-          _isExpanded = !_isExpanded;
-        });
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOutCubicEmphasized,
-        padding: const EdgeInsets.only(left: 24, right: 24, top: 12),
-        margin: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
-        decoration: ShapeDecoration(
-          color: AppTheme.darkBackground,
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: BorderSide(
-              color: AppTheme.tertiaryColor,
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              locale.eventDetailsTitle.toUpperCase(),
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Oswald',
-                fontSize: 16,
-                letterSpacing: 1.0,
+    return EventDetailsCard(
+      eventName: vm.eventName,
+      territoriesCount: vm.selectedHexagonsCount,
+      startDate: vm.startDate,
+      endDate: vm.endDate,
+      rewards: rewards,
+      bottomActions: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppTheme.tertiaryColor),
+                  foregroundColor: AppTheme.primaryColor,
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => _showEventDetailsSheet(context, vm, locale),
+                icon: const Icon(Icons.edit_note, size: 20, color: Colors.white),
+                label: Text(
+                  locale.details,
+                  style: const TextStyle(
+                    fontFamily: 'Oswald',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOutCubicEmphasized,
-
-              child: _isExpanded
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 8),
-                        if (vm.isDetailsValid || vm.selectedHexagonsCount > 0)...[
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: ShapeDecoration(
-                              color: Colors.white.withAlpha(15),
-                              shape: BeveledRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: AppTheme.tertiaryColor.withAlpha(100),
-                                  width: 1,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.secondaryColor,
+                  foregroundColor: AppTheme.darkBackground,
+                  disabledBackgroundColor: AppTheme.secondaryColor.withAlpha(80),
+                  disabledForegroundColor: Colors.white38,
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: (vm.isSaveEnabled && !vm.isSaving)
+                    ? () async {
+                        HapticFeedback.mediumImpact();
+                        final success = await vm.saveEvent();
+                        if (context.mounted) {
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  locale.eventSavedSuccess(vm.eventName),
                                 ),
+                                backgroundColor: AppTheme.successColor,
                               ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (vm.eventName.isNotEmpty) ...[
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.title,
-                                          color: AppTheme.primaryColor, size: 16),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.eventNameLabel.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        vm.eventName,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-
-                                if (vm.selectedHexagonsCount > 0) ...[
-                                  const Divider(color: Colors.white12, height: 16),
-                                  Row(
-                                      children: [
-                                        const Icon(Icons.map_outlined,
-                                            color: AppTheme.primaryColor, size: 16),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          locale.territories.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Colors.white54,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.8,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                          '${vm.selectedHexagonsCount}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Oswald',
-                                          ),
-                                        ),
-                                      ]
-                                  )
-                                ],
-
-                                if (vm.startDate != null && vm.endDate != null) ...[
-                                  if (vm.eventName.isNotEmpty) const Divider(color: Colors.white12, height: 16),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.calendar_today_outlined,
-                                          color: AppTheme.primaryColor, size: 16),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          '${_formatDateTime(vm.startDate)}  ➔  ${_formatDateTime(vm.endDate)}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-
-                                if (vm.hasSelectedRewards) ...[
-                                  const Divider(color: Colors.white12, height: 16),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.electric_bolt_sharp,
-                                          color: AppTheme.primaryColor, size: 16),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.boostRewards.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  const SizedBox(height: 6),
-                                  Wrap(
-                                    spacing: 6,
-                                    runSpacing: 6,
-                                    children: vm.boostQuantities.entries
-                                        .where((entry) => entry.value > 0)
-                                        .map((entry) {
-                                      final boost = entry.key;
-                                      final qty = entry.value;
-                                      final icon = BoostInventory.getBoostIcon(boost.type);
-                                      final name = boost.getCompleteName(locale).toUpperCase();
-
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: ShapeDecoration(
-                                          color: AppTheme.tertiaryColor.withAlpha(40),
-                                          shape: BeveledRectangleBorder(
-                                            borderRadius: BorderRadius.circular(6),
-                                            side: BorderSide(
-                                              color: AppTheme.tertiaryColor.withAlpha(140),
-                                              width: 1,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(icon, color: Colors.white, size: 14),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              name,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                              decoration: BoxDecoration(
-                                                color: AppTheme.secondaryColor,
-                                                borderRadius: BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                'x$qty',
-                                                style: const TextStyle(
-                                                  color: AppTheme.darkBackground,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 10,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: OutlinedButton.icon(
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(
-                                        color: AppTheme.tertiaryColor
-                                    ),
-                                    foregroundColor: AppTheme.primaryColor,
-                                    shape: BeveledRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () => _showEventDetailsSheet(context, vm, locale),
-                                  icon: const Icon(Icons.edit_note, size: 20, color: Colors.white),
-                                  label: Text(
-                                    locale.details,
-                                    style: const TextStyle(
-                                        fontFamily: 'Oswald',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.white
-                                    ),
-                                  ),
-                                ),
+                            );
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error al publicar el evento'),
+                                backgroundColor: Colors.redAccent,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.secondaryColor,
-                                    foregroundColor: AppTheme.darkBackground,
-                                    disabledBackgroundColor:
-                                    AppTheme.secondaryColor.withAlpha(80),
-                                    disabledForegroundColor: Colors.white38,
-                                    shape: BeveledRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: vm.isSaveEnabled
-                                      ? () {
-                                    HapticFeedback.mediumImpact();
-                                    vm.saveEvent();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          locale.eventSavedSuccess(vm.eventName),
-                                        ),
-                                        backgroundColor: AppTheme.successColor,
-                                      ),
-                                    );
-                                    Navigator.pop(context);
-                                  }
-                                      : null,
-                                  icon: const Icon(Icons.post_add_sharp, size: 20),
-                                  label: Text(
-                                    locale.publish.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontFamily: 'Oswald',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                            );
+                          }
+                        }
+                      }
+                    : null,
+                icon: vm.isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.darkBackground,
                         ),
-
-                      ],
-
-
-                )
-                  : const SizedBox.shrink(),
+                      )
+                    : const Icon(Icons.post_add_sharp, size: 20),
+                label: Text(
+                  locale.publish.toUpperCase(),
+                  style: const TextStyle(
+                    fontFamily: 'Oswald',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
             ),
-            Icon(_isExpanded? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up, color: AppTheme.secondaryColor, size: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
