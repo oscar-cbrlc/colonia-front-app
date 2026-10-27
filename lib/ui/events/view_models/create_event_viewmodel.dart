@@ -359,8 +359,7 @@ class CreateEventViewModel extends ChangeNotifier {
           'challenge_name': _eventName,
           'objective_type': 10,
           'objective_condition': {
-            'hexagons': _selectedHexagonIds,
-            'route': _selectedHexagonIds.length,
+            'route': _selectedHexagonIds,
           },
           'challenge_difficulty': 1,
           'boosts_reward': boostsList,
