@@ -2275,6 +2275,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Publicar'**
   String get publish;
+
+  /// No description provided for @downloadingModel.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargando modelos...'**
+  String get downloadingModel;
+
+  /// No description provided for @downloadingModelProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargando modelos ({progress}%)'**
+  String downloadingModelProgress(int progress);
+
+  /// No description provided for @checkingStorage.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificando almacenamiento local...'**
+  String get checkingStorage;
+
+  /// No description provided for @avatarItemTypeHead.
+  ///
+  /// In es, this message translates to:
+  /// **'Cabeza'**
+  String get avatarItemTypeHead;
+
+  /// No description provided for @avatarItemTypeNeck.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuello'**
+  String get avatarItemTypeNeck;
+
+  /// No description provided for @avatarItemTypeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuerpo'**
+  String get avatarItemTypeBody;
+
+  /// No description provided for @avatarItemTypeFootwear.
+  ///
+  /// In es, this message translates to:
+  /// **'Calzado'**
+  String get avatarItemTypeFootwear;
+
+  /// No description provided for @noItemsForCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay items disponibles en esta categoría por ahora.'**
+  String get noItemsForCategory;
 }
 
 class _AppLocalizationsDelegate

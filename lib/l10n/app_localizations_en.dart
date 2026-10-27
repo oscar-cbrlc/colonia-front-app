@@ -937,7 +937,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeChallengeDescription => 'Complete the territory route';
 
   @override
-  String get weekChallenges => 'Week Challenges';
+  String get weekChallenges => 'Challenges of the week';
 
   @override
   String get complete => 'Complete';
@@ -1169,4 +1169,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publish => 'Publish';
+
+  @override
+  String get downloadingModel => 'Downloading models...';
+
+  @override
+  String downloadingModelProgress(int progress) {
+    return 'Downloading models ($progress%)';
+  }
+
+  @override
+  String get checkingStorage => 'Checking local storage...';
+
+  @override
+  String get avatarItemTypeHead => 'Head';
+
+  @override
+  String get avatarItemTypeNeck => 'Neck';
+
+  @override
+  String get avatarItemTypeBody => 'Body';
+
+  @override
+  String get avatarItemTypeFootwear => 'Footwear';
+
+  @override
+  String get noItemsForCategory => 'No items available in this category.';
 }

@@ -1295,5 +1295,35 @@
     "@decemberLabel": {},
 
     "publish": "Publicar",
-    "@publish": {}
+    "@publish": {},
+
+    "downloadingModel": "Descargando modelos...",
+    "@downloadingModel": {},
+
+    "downloadingModelProgress": "Descargando modelos ({progress}%)",
+    "@downloadingModelProgress": {
+        "placeholders": {
+            "progress": {
+                "type": "int"
+            }
+        }
+    },
+
+    "checkingStorage": "Verificando almacenamiento local...",
+    "@checkingStorage": {},
+
+    "avatarItemTypeHead": "Cabeza",
+    "@avatarItemTypeHead": {},
+
+    "avatarItemTypeNeck": "Cuello",
+    "@avatarItemTypeNeck": {},
+
+    "avatarItemTypeBody": "Cuerpo",
+    "@avatarItemTypeBody": {},
+
+    "avatarItemTypeFootwear": "Calzado",
+    "@avatarItemTypeFootwear": {},
+
+    "noItemsForCategory": "No hay items disponibles en esta categoría por ahora.",
+    "@noItemsForCategory": {}
 }

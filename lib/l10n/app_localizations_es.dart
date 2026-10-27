@@ -1176,4 +1176,31 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get publish => 'Publicar';
+
+  @override
+  String get downloadingModel => 'Descargando modelos...';
+
+  @override
+  String downloadingModelProgress(int progress) {
+    return 'Descargando modelos ($progress%)';
+  }
+
+  @override
+  String get checkingStorage => 'Verificando almacenamiento local...';
+
+  @override
+  String get avatarItemTypeHead => 'Cabeza';
+
+  @override
+  String get avatarItemTypeNeck => 'Cuello';
+
+  @override
+  String get avatarItemTypeBody => 'Cuerpo';
+
+  @override
+  String get avatarItemTypeFootwear => 'Calzado';
+
+  @override
+  String get noItemsForCategory =>
+      'No hay items disponibles en esta categoría por ahora.';
 }

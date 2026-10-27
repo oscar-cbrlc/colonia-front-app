@@ -1052,7 +1052,7 @@
     "routeChallengeDescription": "Complete the territory route",
     "@routeChallengeDescription": {},
 
-    "weekChallenges": "Week Challenges",
+    "weekChallenges": "Challenges of the week",
     "@weekChallenges": {},
 
     "complete": "Complete",
@@ -1293,5 +1293,35 @@
     "@decemberLabel": {},
 
     "publish": "Publish",
-    "@publish": {}
+    "@publish": {},
+
+    "downloadingModel": "Downloading models...",
+    "@downloadingModel": {},
+
+    "downloadingModelProgress": "Downloading models ({progress}%)",
+    "@downloadingModelProgress": {
+        "placeholders": {
+            "progress": {
+                "type": "int"
+            }
+        }
+    },
+
+    "checkingStorage": "Checking local storage...",
+    "@checkingStorage": {},
+
+    "avatarItemTypeHead": "Head",
+    "@avatarItemTypeHead": {},
+
+    "avatarItemTypeNeck": "Neck",
+    "@avatarItemTypeNeck": {},
+
+    "avatarItemTypeBody": "Body",
+    "@avatarItemTypeBody": {},
+
+    "avatarItemTypeFootwear": "Footwear",
+    "@avatarItemTypeFootwear": {},
+
+    "noItemsForCategory": "No items available in this category.",
+    "@noItemsForCategory": {}
 }
