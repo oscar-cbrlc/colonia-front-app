@@ -135,4 +135,9 @@ class H3Helper {
 
     return cells.map((cell) => cell.toRadixString(16)).toList();
   }
+
+  static GeoCoord getHexCenter(String h3Index) {
+    final BigInt index = BigInt.parse(h3Index, radix: 16);
+    return h3.cellToGeo(index);
+  }
 }
