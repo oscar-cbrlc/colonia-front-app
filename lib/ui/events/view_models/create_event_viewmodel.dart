@@ -53,7 +53,7 @@ class CreateEventViewModel extends ChangeNotifier {
 
   void _loadFromTemplate(ActiveChallenge event) {
     _eventName = event.challenge.name ?? '';
-    final hexRaw = event.challenge.objectiveCondition['hexagons'];
+    final hexRaw = event.challenge.objectiveCondition['route'];
     if (hexRaw is List) {
       _selectedHexagonIds.addAll(hexRaw.map((e) => e.toString()));
     }
@@ -226,30 +226,54 @@ class CreateEventViewModel extends ChangeNotifier {
     _configureOrnaments();
   }
 
+  Future<void> _fitCameraToRoute() async {
+    final map = _mapboxMap;
+    if (map == null || _selectedHexagonIds.isEmpty) return;
+    try {
+      final routeCords = _selectedHexagonIds
+          .map((hexId) => H3Helper.getHexCenter(hexId))
+          .toList();
+
+      if (routeCords.isEmpty) return;
+
+      Map<String, dynamic> geometry;
+      if (routeCords.length > 1) {
+        geometry = {
+          "type": "LineString",
+          "coordinates": routeCords.map((c) => [c.lon, c.lat]).toList(),
+        };
+      } else {
+        geometry = {
+          "type": "Point",
+          "coordinates": [routeCords.first.lon, routeCords.first.lat],
+        };
+      }
+
+      final camera = await map.cameraForGeometry(
+        geometry,
+        MbxEdgeInsets(top: 50, left: 50, bottom: 250, right: 50),
+        0.0,
+        0.0,
+      );
+      await map.setCamera(CameraOptions(
+        center: camera.center,
+        zoom: camera.zoom != null ? camera.zoom! - 0.5 : 12.0,
+        pitch: camera.pitch,
+        bearing: 0.0,
+      ));
+      _mapBearing = 0.0;
+    } catch (e) {
+      debugPrint("CreateEventViewModel: Error in _fitCameraToRoute: $e");
+    }
+  }
+
   Future<void> onStyleLoaded() async {
     await _initializeLayers();
     if (inEditMode) {
       await _updateGestureSettings();
     }
     if (_selectedHexagonIds.isNotEmpty) {
-      double sumLat = 0.0;
-      double sumLon = 0.0;
-      int count = 0;
-      for (final hexId in _selectedHexagonIds) {
-        try {
-          final center = H3Helper.getCellCenter(hexId);
-          sumLat += center.lat;
-          sumLon += center.lon;
-          count++;
-        } catch (_) {}
-      }
-      if (count > 0) {
-        final avgLat = sumLat / count;
-        final avgLon = sumLon / count;
-        await _mapboxMap?.setCamera(
-          CameraOptions(center: Point(coordinates: Position(avgLon, avgLat)), zoom: 14.0),
-        );
-      }
+      await _fitCameraToRoute();
     } else if (userPosition != null) {
       await _mapboxMap?.setCamera(
         CameraOptions(center: userPosition!, zoom: 15.0),

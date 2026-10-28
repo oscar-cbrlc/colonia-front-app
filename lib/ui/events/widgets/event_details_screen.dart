@@ -74,7 +74,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       );
       await map.setCamera(CameraOptions(
         center: camera.center,
-        zoom: camera.zoom != null? camera.zoom! - 1.5 : 12.0,
+        zoom: camera.zoom != null? camera.zoom! - 0.5 : 12.0,
         pitch: camera.pitch,
         bearing: 0.0,
       ));

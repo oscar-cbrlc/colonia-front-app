@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -367,7 +365,7 @@ class _EventsSheetState extends State<EventsSheet> {
                                         ),
                                       ],
                                       const SizedBox(height: 16),
-                                      if (!isCompleted) ...[
+                                      if (isCompleted) ...[
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
