@@ -1195,4 +1195,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noItemsForCategory => 'No items available in this category.';
+
+  @override
+  String get comingSoonLabel => 'Coming soon';
+
+  @override
+  String get inProgressLabel => 'In progress';
+
+  @override
+  String get endedLabel => 'Ended';
+
+  @override
+  String get editForNewEvent => 'Edit for new';
+
+  @override
+  String get showRoute => 'Show route';
 }

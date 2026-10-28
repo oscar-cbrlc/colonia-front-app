@@ -1325,5 +1325,20 @@
     "@avatarItemTypeFootwear": {},
 
     "noItemsForCategory": "No hay items disponibles en esta categoría por ahora.",
-    "@noItemsForCategory": {}
+    "@noItemsForCategory": {},
+
+    "comingSoonLabel": "Próximamente",
+    "@eventNotStarted": {},
+
+    "inProgressLabel": "En progreso",
+    "@eventInProgress": {},
+
+    "endedLabel": "Terminado",
+    "@eventEnded": {},
+
+    "editForNewEvent": "Editar para nuevo",
+    "@editForNewEvent": {},
+
+    "showRoute": "Ver ruta",
+    "@showRoute": {}
 }

@@ -1323,5 +1323,20 @@
     "@avatarItemTypeFootwear": {},
 
     "noItemsForCategory": "No items available in this category.",
-    "@noItemsForCategory": {}
+    "@noItemsForCategory": {},
+
+    "comingSoonLabel": "Coming soon",
+    "@eventNotStarted": {},
+
+    "inProgressLabel": "In progress",
+    "@eventInProgress": {},
+
+    "endedLabel": "Ended",
+    "@eventEnded": {},
+
+    "editForNewEvent": "Edit for new",
+    "@editForNewEvent": {},
+
+    "showRoute": "Show route",
+    "@showRoute": {}
 }

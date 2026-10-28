@@ -2323,6 +2323,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay items disponibles en esta categoría por ahora.'**
   String get noItemsForCategory;
+
+  /// No description provided for @comingSoonLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximamente'**
+  String get comingSoonLabel;
+
+  /// No description provided for @inProgressLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'En progreso'**
+  String get inProgressLabel;
+
+  /// No description provided for @endedLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminado'**
+  String get endedLabel;
+
+  /// No description provided for @editForNewEvent.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar para nuevo'**
+  String get editForNewEvent;
+
+  /// No description provided for @showRoute.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver ruta'**
+  String get showRoute;
 }
 
 class _AppLocalizationsDelegate
