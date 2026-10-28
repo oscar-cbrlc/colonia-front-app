@@ -326,7 +326,16 @@ class ChallengeListItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: boostRewards.map((boostReward) =>
-                            ExpandableRewardCard(boostReward: boostReward.boost, avatarItemReward: null, amount: boostReward.amount, locale: locale)
+                            ExpandableRewardCard(
+                                boostReward: boostReward.boost,
+                                avatarItemReward: null,
+                                amount: boostReward.amount,
+                                locale: locale,
+                                mainColor: AppTheme.tertiaryColor,
+                                mainTextColor: Colors.white,
+                                secondaryColor: AppTheme.secondaryColor,
+                                secondaryTextColor: AppTheme.darkBackground
+                            )
                           ).toList()
                         )
                     ],
@@ -422,6 +431,10 @@ class ExpandableRewardCard extends StatefulWidget {
   final AvatarItem? avatarItemReward;
   final int amount;
   final AppLocalizations locale;
+  final Color mainColor;
+  final Color mainTextColor;
+  final Color secondaryColor;
+  final Color secondaryTextColor;
 
   const ExpandableRewardCard({
     super.key,
@@ -429,6 +442,10 @@ class ExpandableRewardCard extends StatefulWidget {
     required this.avatarItemReward,
     required this.amount,
     required this.locale,
+    required this.mainColor,
+    required this.mainTextColor,
+    required this.secondaryColor,
+    required this.secondaryTextColor,
   });
 
   @override
@@ -468,14 +485,14 @@ class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: ShapeDecoration(
           color: _isExpanded
-              ? AppTheme.tertiaryColor.withAlpha(50)
-              : AppTheme.tertiaryColor.withAlpha(25),
+              ? widget.mainColor.withAlpha(50)
+              : widget.mainColor.withAlpha(25),
           shape: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
               color: _isExpanded
                   ? Colors.white70
-                  : AppTheme.tertiaryColor.withAlpha(140),
+                  : widget.mainColor.withAlpha(140),
               width: 1,
             ),
           ),
@@ -485,15 +502,15 @@ class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
           children: [
             Icon(
               icon,
-              color: Colors.white,
+              color: widget.mainTextColor,
               size: 16,
             ),
             const SizedBox(width: 6),
             if (boost != null)
               Text(
                 boost.getEffectFormatted().toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: widget.mainTextColor,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.8,
@@ -510,8 +527,8 @@ class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
                       padding: const EdgeInsets.only(right: 6.0),
                       child: Text(
                         desc,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: widget.mainTextColor,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.8,
@@ -524,15 +541,15 @@ class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
               decoration: ShapeDecoration(
-                color: AppTheme.secondaryColor.withAlpha(180),
+                color: widget.secondaryColor.withAlpha(180),
                 shape: BeveledRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
               child: Text(
                 "x${widget.amount}",
-                style: const TextStyle(
-                  color: AppTheme.darkBackground,
+                style: TextStyle(
+                  color: widget.secondaryTextColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 10,
                   decoration: TextDecoration.none,

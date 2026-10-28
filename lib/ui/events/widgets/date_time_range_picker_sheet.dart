@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
+enum DateSelectionTarget { start, end }
+
 Future<({DateTime start, DateTime end})?> showDateTimeRangePickerSheet(
   BuildContext context, {
   DateTime? initialStart,
@@ -37,6 +39,8 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
   late DateTime _displayedMonth;
   DateTime? _selectedStart;
   DateTime? _selectedEnd;
+
+  DateSelectionTarget _selectionTarget = DateSelectionTarget.start;
 
   int _startHour = 9;
   int _startMinute = 0;
@@ -73,34 +77,21 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
   void _onDaySelected(DateTime date) {
     HapticFeedback.selectionClick();
     setState(() {
-      if (_selectedStart == null) {
+      if (_selectionTarget == DateSelectionTarget.start) {
         _selectedStart = date;
-      } else {
-        if (_isSameDay(_selectedStart!, date)) {
-          _selectedEnd = date;
-          return;
+        if (_selectedEnd != null && _selectedEnd!.isBefore(_selectedStart!)) {
+          _selectedEnd = _selectedStart;
         }
-        if (_selectedEnd == null) {
-          if (!date.isBefore(_selectedStart!)) {
-            _selectedEnd = date;
-          } else {
-            _selectedStart = date;
-            _selectedEnd = null;
-          }
+        if (_selectedEnd != null && maxSunday != null && _selectedEnd!.isAfter(maxSunday!)) {
+          _selectedEnd = maxSunday;
+        }
+        _selectionTarget = DateSelectionTarget.end;
+      } else {
+        if (_selectedStart != null && date.isBefore(_selectedStart!)) {
+          _selectedStart = date;
+          _selectedEnd = null;
         } else {
-          if (date.isAfter(_selectedEnd!)) {
-            _selectedStart = date;
-            _selectedEnd = null;
-          } else {
-            _selectedStart = date;
-            if (_selectedEnd!.isBefore(_selectedStart!)) {
-              _selectedEnd = _selectedStart;
-              _selectedStart = date;
-            }
-            if (_selectedEnd!.isAfter(maxSunday!)) {
-              _selectedEnd = maxSunday;
-            }
-          }
+          _selectedEnd = date;
         }
       }
     });
@@ -292,108 +283,166 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: ShapeDecoration(
-                        color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor.withAlpha(40) : AppTheme.tertiaryColor.withAlpha(40),
-                        shape: BeveledRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor : AppTheme.tertiaryColor, width: 1.5),
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _selectionTarget = DateSelectionTarget.start;
+                        });
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: ShapeDecoration(
+                          color: _selectionTarget == DateSelectionTarget.start
+                              ? AppTheme.tertiaryColor.withAlpha(60)
+                              : AppTheme.tertiaryColor.withAlpha(20),
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                              color: _selectionTarget == DateSelectionTarget.start
+                                  ? AppTheme.tertiaryColor
+                                  : AppTheme.tertiaryColor.withAlpha(80),
+                              width: _selectionTarget == DateSelectionTarget.start ? 2.5 : 1.0,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: ShapeDecoration(
-                                  color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor : AppTheme.tertiaryColor,
-                                  shape: BeveledRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: const ShapeDecoration(
+                                    color: AppTheme.tertiaryColor,
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomRight: Radius.circular(10),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                locale.startTimestamp.toUpperCase(),
-                                style: TextStyle(
-                                  color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? Colors.white : AppTheme.tertiaryColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    locale.startTimestamp.toUpperCase(),
+                                    style: TextStyle(
+                                      color: _selectionTarget == DateSelectionTarget.start
+                                          ? Colors.white
+                                          : AppTheme.tertiaryColor.withAlpha(180),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            finalStart != null ? _formatDateTime(finalStart) : '--/--/---- --:--',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
+                                if (_selectionTarget == DateSelectionTarget.start)
+                                  const Icon(
+                                    Icons.edit_calendar_sharp,
+                                    size: 14,
+                                    color: AppTheme.tertiaryColor,
+                                  ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              finalStart != null ? _formatDateTime(finalStart) : '--/--/---- --:--',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: _selectionTarget == DateSelectionTarget.start
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
 
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: ShapeDecoration(
-                        color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor.withAlpha(40) : AppTheme.secondaryColor.withAlpha(40),
-                        shape: BeveledRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor : AppTheme.secondaryColor, width: 1.5),
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _selectionTarget = DateSelectionTarget.end;
+                        });
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: ShapeDecoration(
+                          color: _selectionTarget == DateSelectionTarget.end
+                              ? AppTheme.secondaryColor.withAlpha(60)
+                              : AppTheme.secondaryColor.withAlpha(20),
+                          shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                              color: _selectionTarget == DateSelectionTarget.end
+                                  ? AppTheme.secondaryColor
+                                  : AppTheme.secondaryColor.withAlpha(80),
+                              width: _selectionTarget == DateSelectionTarget.end ? 2.5 : 1.0,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: ShapeDecoration(
-                                  color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? AppTheme.primaryColor : AppTheme.secondaryColor,
-                                  shape: BeveledRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: const ShapeDecoration(
+                                    color: AppTheme.secondaryColor,
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                locale.endTimestamp.toUpperCase(),
-                                style: TextStyle(
-                                  color: finalStart != null && finalEnd != null  && _isSameDay(finalStart, finalEnd)? Colors.white : AppTheme.secondaryColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    locale.endTimestamp.toUpperCase(),
+                                    style: TextStyle(
+                                      color: _selectionTarget == DateSelectionTarget.end
+                                          ? Colors.white
+                                          : AppTheme.secondaryColor.withAlpha(180),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            finalEnd != null ? _formatDateTime(finalEnd) : '--/--/---- --:--',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
+                                if (_selectionTarget == DateSelectionTarget.end)
+                                  const Icon(
+                                    Icons.edit_calendar_sharp,
+                                    size: 14,
+                                    color: AppTheme.secondaryColor,
+                                  ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              finalEnd != null ? _formatDateTime(finalEnd) : '--/--/---- --:--',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: _selectionTarget == DateSelectionTarget.end
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -401,7 +450,6 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
               ),
 
               const SizedBox(height: 20),
-
 
               SizedBox(
                 width: double.infinity,
@@ -503,7 +551,7 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
 
       gridCells.add(
         GestureDetector(
-          onTap:  () => _onDaySelected(cellDate),
+          onTap: () => _onDaySelected(cellDate),
           child: Container(
             margin: const EdgeInsets.all(2),
             decoration: ShapeDecoration(

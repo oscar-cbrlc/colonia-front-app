@@ -6,6 +6,7 @@ import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/domain/models/active_challenge.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -39,11 +40,26 @@ class CreateEventViewModel extends ChangeNotifier {
     required TrackingRepository trackingRepository,
     required BoostRepository boostRepository,
     required ChallengeRepository challengeRepository,
+    ActiveChallenge? initialEvent,
   })  : _trackingRepository = trackingRepository,
         _boostRepository = boostRepository,
         _challengeRepository = challengeRepository {
     _boostRepository.addListener(notifyListeners);
     _boostRepository.getAvailableBoosts();
+    if (initialEvent != null) {
+      _loadFromTemplate(initialEvent);
+    }
+  }
+
+  void _loadFromTemplate(ActiveChallenge event) {
+    _eventName = event.challenge.name ?? '';
+    final hexRaw = event.challenge.objectiveCondition['hexagons'];
+    if (hexRaw is List) {
+      _selectedHexagonIds.addAll(hexRaw.map((e) => e.toString()));
+    }
+    for (final br in event.challenge.boostRewards) {
+      _boostQuantities[br.boost.id] = br.amount;
+    }
   }
 
   bool get isSaving => _isSaving;
@@ -215,7 +231,26 @@ class CreateEventViewModel extends ChangeNotifier {
     if (inEditMode) {
       await _updateGestureSettings();
     }
-    if (userPosition != null) {
+    if (_selectedHexagonIds.isNotEmpty) {
+      double sumLat = 0.0;
+      double sumLon = 0.0;
+      int count = 0;
+      for (final hexId in _selectedHexagonIds) {
+        try {
+          final center = H3Helper.getCellCenter(hexId);
+          sumLat += center.lat;
+          sumLon += center.lon;
+          count++;
+        } catch (_) {}
+      }
+      if (count > 0) {
+        final avgLat = sumLat / count;
+        final avgLon = sumLon / count;
+        await _mapboxMap?.setCamera(
+          CameraOptions(center: Point(coordinates: Position(avgLon, avgLat)), zoom: 14.0),
+        );
+      }
+    } else if (userPosition != null) {
       await _mapboxMap?.setCamera(
         CameraOptions(center: userPosition!, zoom: 15.0),
       );
