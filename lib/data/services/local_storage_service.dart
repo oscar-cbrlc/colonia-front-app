@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
@@ -64,6 +63,8 @@ class LocalStorageService {
     await _secureStorage.delete(key: _accessTokenKey);
     await _secureStorage.delete(key: _refreshTokenKey);
     await _secureStorage.delete(key: _userKey);
+    await _secureStorage.delete(key: _activityKey);
+    await _secureStorage.delete(key: _inventoryKey);
   }
 
   Future<List<PendingActivityImpact>> getPendingActivityImpacts() async {
@@ -107,22 +108,6 @@ class LocalStorageService {
   }
 
 
-  /*Future<File> downloadFile(String url, String fileName) async {
-    var httpClient = HttpClient();
-    try {
-      var request = await httpClient.getUrl(Uri.parse(url));
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      final dir = await getTemporaryDirectory();
-      var file = File('${dir.path}/$fileName');
-      await file.writeAsBytes(bytes);
-      return file;
-    } finally {
-      httpClient.close();
-    }
-  }*/
-
-
   Future<List<AvatarItemModel>> getAvatarItemModels() async {
     final data = await _secureStorage.read(key: _avatarItemsKey);
     if (data == null) return [];
@@ -133,4 +118,6 @@ class LocalStorageService {
   Future<void> saveAvatarItemModels(List<AvatarItemModel> avatarItemModels) async {
     await _secureStorage.write(key: _avatarItemsKey, value: jsonEncode(avatarItemModels.map((e) => e.toJson()).toList()));
   }
+
+
 }
