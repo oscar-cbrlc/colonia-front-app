@@ -1338,5 +1338,17 @@
     "@editForNewEvent": {},
 
     "showRoute": "Show route",
-    "@showRoute": {}
+    "@showRoute": {},
+
+    "avatarUpdatedSuccess": "Avatar updated",
+    "@avatarUpdatedSuccess": {},
+
+    "avatarUpdateError": "Failed to update avatar.",
+    "@avatarUpdateError": {},
+
+    "itemIsLocked": "Locked item",
+    "@itemIsLocked": {},
+
+    "cannotSaveLockedItems": "Cannot save changes with locked items.",
+    "@cannotSaveLockedItems": {}
 }

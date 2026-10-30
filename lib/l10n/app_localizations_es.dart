@@ -1218,4 +1218,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showRoute => 'Ver ruta';
+
+  @override
+  String get avatarUpdatedSuccess => 'Avatar actualizado';
+
+  @override
+  String get avatarUpdateError => 'Error al actualizar el avatar.';
+
+  @override
+  String get itemIsLocked => 'Ítem bloqueado';
+
+  @override
+  String get cannotSaveLockedItems =>
+      'No puedes guardar cambios con ítems bloqueados.';
 }

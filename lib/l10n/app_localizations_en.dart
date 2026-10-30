@@ -1210,4 +1210,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showRoute => 'Show route';
+
+  @override
+  String get avatarUpdatedSuccess => 'Avatar updated';
+
+  @override
+  String get avatarUpdateError => 'Failed to update avatar.';
+
+  @override
+  String get itemIsLocked => 'Locked item';
+
+  @override
+  String get cannotSaveLockedItems => 'Cannot save changes with locked items.';
 }

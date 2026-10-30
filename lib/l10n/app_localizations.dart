@@ -2353,6 +2353,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ver ruta'**
   String get showRoute;
+
+  /// No description provided for @avatarUpdatedSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Avatar actualizado'**
+  String get avatarUpdatedSuccess;
+
+  /// No description provided for @avatarUpdateError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al actualizar el avatar.'**
+  String get avatarUpdateError;
+
+  /// No description provided for @itemIsLocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Ítem bloqueado'**
+  String get itemIsLocked;
+
+  /// No description provided for @cannotSaveLockedItems.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes guardar cambios con ítems bloqueados.'**
+  String get cannotSaveLockedItems;
 }
 
 class _AppLocalizationsDelegate
