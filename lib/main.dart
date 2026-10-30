@@ -4,6 +4,7 @@ import 'package:colonia_front_app/data/services/sensor_service.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/env/env.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,6 +25,8 @@ import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/data/services/api/territory_service.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
+import 'package:colonia_front_app/data/services/api/avatar_service.dart';
 
 import 'package:colonia_front_app/data/services/api/team_service.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
@@ -39,13 +42,17 @@ import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MapboxOptions.setAccessToken(Env.mapboxAccessToken);
   await NotificationService().init();
+  await FlutterDownloader.initialize(
+    debug: kDebugMode,
+    ignoreSsl: true,
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -116,12 +123,28 @@ void main() async {
               previous ?? BoostRepository(localStorageService, boostService),
         ),
 
-        ChangeNotifierProxyProvider3<AuthService, LocalStorageService, BoostRepository, AuthRepository>(
+        ProxyProvider<ApiClient, AvatarService>(
+          update: (_, apiClient, previous) => previous ?? AvatarService(apiClient),
+        ),
+
+        ChangeNotifierProxyProvider2<LocalStorageService, AvatarService, AvatarItemRepository>(
+          create: (context) => AvatarItemRepository(
+            localStorageService: context.read<LocalStorageService>(),
+            avatarService: context.read<AvatarService>(),
+          ),
+          update: (_, localStorageService, avatarService, previous) =>
+              previous ?? AvatarItemRepository(
+                localStorageService: localStorageService,
+                avatarService: avatarService,
+              ),
+        ),
+
+        ChangeNotifierProxyProvider4<AuthService, LocalStorageService, BoostRepository, AvatarItemRepository, AuthRepository>(
           create: (context) => AuthRepository(
             context.read<AuthService>(),
             context.read<LocalStorageService>(),
           ),
-          update: (context, authService, localStorageService, boostRepository, previous) {
+          update: (context, authService, localStorageService, boostRepository, avatarRepo, previous) {
             final authRepository = previous ?? AuthRepository(authService, localStorageService);
 
             final apiClient = Provider.of<ApiClient>(context, listen: false);
@@ -129,7 +152,9 @@ void main() async {
             
             authRepository.onSessionInitialized = () {
               boostRepository.getAvailableBoosts();
-              boostRepository.fetchMyInventory();
+              avatarRepo.fetchCatalogItems();
+              avatarRepo.fetchMyInventory();
+              avatarRepo.checkAndDownloadModels(onProgress: (_) {});
             };
 
             return authRepository;
@@ -177,29 +202,21 @@ void main() async {
               previous ?? TeamChatRepository(teamChatService),
         ),
 
-        ChangeNotifierProxyProvider<AuthRepository, UserProfileViewModel>(
+        ChangeNotifierProxyProvider2<AuthRepository, AvatarItemRepository, UserProfileViewModel>(
           create: (context) {
             final authRepo = context.read<AuthRepository>();
+            final avatarRepo = context.read<AvatarItemRepository>();
             final fallbackUser = authRepo.currentUser ?? const User(id: 0, username: '', achievements: []);
-            return UserProfileViewModel(fallbackUser);
+            return UserProfileViewModel(fallbackUser, avatarRepo);
           },
-          update: (_, authRepository, previous) {
+          update: (_, authRepository, avatarRepo, previous) {
             final currentUser = authRepository.currentUser ?? const User(id: 0, username: '', achievements: []);
             if (previous != null) {
               previous.updateUser(currentUser);
               return previous;
             }
-            return UserProfileViewModel(currentUser);
+            return UserProfileViewModel(currentUser, avatarRepo);
           },
-        ),
-
-        ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
-          create: (context) => BoostRepository(
-            context.read<LocalStorageService>(),
-            context.read<BoostService>(),
-          ),
-          update: (_, localStorageService, boostService, previous) =>
-              previous ?? BoostRepository(localStorageService, boostService),
         ),
 
         Provider<LocationService>(

@@ -1,5 +1,7 @@
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/firebase_auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
@@ -34,6 +36,9 @@ import 'package:colonia_front_app/ui/user_profile/widgets/user_profile_screen.da
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:colonia_front_app/domain/models/active_challenge.dart';
+import 'package:colonia_front_app/ui/events/widgets/event_details_screen.dart';
+
 class AppRouter {
   static const String welcome = "/";
   static const String emailInput = "/email_input";
@@ -46,6 +51,7 @@ class AppRouter {
   static const String colonyDetails = "/colony_details";
   static const String profile = "/profile";
   static const String createEvent = "/create_event";
+  static const String eventDetails = "/event_details";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -214,7 +220,7 @@ class AppRouter {
           return MaterialPageRoute(
             settings: settings,
             builder: (context) => ChangeNotifierProvider<UserProfileViewModel>(
-              create: (context) => UserProfileViewModel(userArg),
+              create: (context) => UserProfileViewModel(userArg, context.read<AvatarItemRepository>()),
               child: Consumer<UserProfileViewModel>(
                 builder: (context, viewModel, _) => UserProfileScreen(viewModel: viewModel),
               ),
@@ -268,17 +274,27 @@ class AppRouter {
         );
 
       case createEvent:
+        final initialEvent = settings.arguments as ActiveChallenge?;
         return MaterialPageRoute(
           settings: settings,
           builder: (context) => ChangeNotifierProvider<CreateEventViewModel>(
             create: (context) => CreateEventViewModel(
               trackingRepository: context.read<TrackingRepository>(),
               boostRepository: context.read<BoostRepository>(),
+              challengeRepository: context.read<ChallengeRepository>(),
+              initialEvent: initialEvent,
             ),
             child: Consumer<CreateEventViewModel>(
               builder: (context, viewModel, _) => CreateEventScreen(viewModel: viewModel),
             ),
           ),
+        );
+
+      case eventDetails:
+        final activeChallenge = settings.arguments as ActiveChallenge;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => EventDetailsScreen(activeChallenge: activeChallenge),
         );
 
       default:
@@ -326,7 +342,7 @@ class AppRouter {
     }
 
     return ChangeNotifierProvider<UserProfileViewModel>(
-      create: (context) => UserProfileViewModel(snapshot.data!),
+      create: (context) => UserProfileViewModel(snapshot.data!, context.read<AvatarItemRepository>()),
       child: Consumer<UserProfileViewModel>(
         builder: (context, viewModel, _) => UserProfileScreen(viewModel: viewModel),
       ),
