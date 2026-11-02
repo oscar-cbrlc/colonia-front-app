@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'dart:math' as math;
 import 'dart:io';
@@ -460,8 +461,11 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
     return ListenableBuilder(
       listenable: vm,
       builder: (context, _) {
-        final categoryItems = vm.availableAvatarItems
-            .where((item) => item.type == _selectedCategory.name)
+        final selectionItems = vm.availableAvatarItems
+            .map((item) => ItemSelectionData.fromAvatarItem(
+                  item,
+                  isUnlocked: vm.isItemUnlocked(item.id),
+                ))
             .toList();
 
         return Container(
@@ -540,10 +544,17 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                         ),
                       ),
                       child: ClipRRect(
-                        child: ThreeJsAvatarView(
-                          baseGlbPath: widget.viewModel.baseModelPath,
-                          equippedGlbPaths: _equippedGlbPaths,
-                          avatarColor: _selectedColor,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onVerticalDragStart: (_) {},
+                          onVerticalDragUpdate: (_) {},
+                          onHorizontalDragStart: (_) {},
+                          onHorizontalDragUpdate: (_) {},
+                          child: ThreeJsAvatarView(
+                            baseGlbPath: widget.viewModel.baseModelPath,
+                            equippedGlbPaths: _equippedGlbPaths,
+                            avatarColor: _selectedColor,
+                          ),
                         ),
                       )
                     ),
@@ -586,189 +597,45 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                   ),
 
                   const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _AvatarItemChoiceChip(
-                        icon: avatarItemTypeIcons[AvatarItemType.head]!,
-                        isSelected: _selectedCategory == AvatarItemType.head,
-                        onSelected: () => setState(() => _selectedCategory = AvatarItemType.head),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(8),
-                          bottomLeft: Radius.circular(8),
+
+                  ItemSelectionWidget(
+                    items: selectionItems,
+                    initialCategoryId: _selectedCategory.name,
+                    selectedItemId: _selectedItemId,
+                    itemsPerPage: 6,
+                    onCategoryChanged: (catTab) {
+                      final cat = AvatarItemType.values.firstWhere(
+                        (t) => t.name == catTab.id,
+                        orElse: () => AvatarItemType.head,
+                      );
+                      setState(() {
+                        _selectedCategory = cat;
+                      });
+                    },
+                    onLockedItemTap: (itemData) {
+                      HapticFeedback.heavyImpact();
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(locale.itemIsLocked),
+                          backgroundColor: Colors.orangeAccent,
+                          duration: const Duration(seconds: 2),
                         ),
-                        color: AppTheme.tertiaryColor,
-                      ),
-                      _AvatarItemChoiceChip(
-                        icon: avatarItemTypeIcons[AvatarItemType.neck]!,
-                        isSelected: _selectedCategory == AvatarItemType.neck,
-                        onSelected: () => setState(() => _selectedCategory = AvatarItemType.neck),
-                        borderRadius: BorderRadius.circular(0),
-                        color: AppTheme.tertiaryColor,
-                      ),
-                      _AvatarItemChoiceChip(
-                        icon: avatarItemTypeIcons[AvatarItemType.body]!,
-                        isSelected: _selectedCategory == AvatarItemType.body,
-                        onSelected: () => setState(() => _selectedCategory = AvatarItemType.body),
-                        borderRadius: BorderRadius.circular(0),
-                        color: AppTheme.tertiaryColor,
-                      ),
-                      _AvatarItemChoiceChip(
-                        icon: avatarItemTypeIcons[AvatarItemType.footwear]!,
-                        isSelected: _selectedCategory == AvatarItemType.footwear,
-                        onSelected: () => setState(() => _selectedCategory = AvatarItemType.footwear),
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(8),
-                          bottomRight: Radius.circular(8),
-                        ),
-                        color: AppTheme.tertiaryColor,
-                      )
-                    ]
+                      );
+                    },
+                    onItemSelected: (itemData) {
+                      final itemId = itemData.id as int;
+                      final isSelected = _selectedItemId == itemId;
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _setItemSelection(isSelected ? null : itemId);
+                        debugPrint('Item $itemId selected');
+                      });
+                    },
                   ),
-                  const SizedBox(height: 12),
-
-                  if (categoryItems.isEmpty) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                      decoration: ShapeDecoration(
-                        color: Colors.white.withAlpha(10),
-                        shape: BeveledRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: const BorderSide(color: Colors.white24, width: 1),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.checkroom_outlined, size: 40, color: Colors.white.withAlpha(80)),
-                          const SizedBox(height: 8),
-                          Text(
-                            ((locale as dynamic).noItemsForCategory as String?) ??
-                                'No hay items disponibles en esta categoría por ahora.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white.withAlpha(120),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ] else ...[
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 0.85,
-                      ),
-                      itemCount: categoryItems.length,
-                      itemBuilder: (context, index) {
-                        final avatarItem = categoryItems[index];
-                        final isSelected = _selectedItemId == avatarItem.id;
-                        final isUnlocked = vm.isItemUnlocked(avatarItem.id);
-
-                        return GestureDetector(
-                          onTap: () {
-                            if (!isUnlocked) {
-                              HapticFeedback.heavyImpact();
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(locale.itemIsLocked),
-                                  backgroundColor: Colors.orangeAccent,
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                              return;
-                            }
-
-                            HapticFeedback.selectionClick();
-                            setState(() {
-                              _setItemSelection(isSelected ? null : avatarItem.id);
-                            });
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                decoration: ShapeDecoration(
-                                  color: isSelected
-                                      ? AppTheme.tertiaryColor.withAlpha(25)
-                                      : (isUnlocked ? Colors.black26 : Colors.white.withAlpha(5)),
-                                  shape: BeveledRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    side: BorderSide(
-                                      color: isSelected
-                                          ? AppTheme.secondaryColor
-                                          : (isUnlocked ? Colors.white24 : Colors.white12),
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(4.0),
-                                        child: ClipPath(
-                                          clipper: ShapeBorderClipper(
-                                            shape: BeveledRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          child: Opacity(
-                                            opacity: isUnlocked ? 1.0 : 0.4,
-                                            child: Image.network(
-                                              avatarItem.image,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return const Center(
-                                                  child: Icon(Icons.checkroom, color: Colors.white38, size: 32),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (!isUnlocked)
-                                Positioned(
-                                  top: 6,
-                                  right: 6,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: ShapeDecoration(
-                                      color: Colors.black54,
-                                      shape: BeveledRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        side: BorderSide(
-                                          color: isUnlocked ? AppTheme.successColor : Colors.orangeAccent,
-                                          width: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.lock,
-                                      size: 11,
-                                      color: isUnlocked ? AppTheme.successColor : Colors.orangeAccent,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
 
                   const SizedBox(height: 24),
 
-                  // Save Changes CTA Button
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -787,7 +654,6 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                           : () async {
                               HapticFeedback.mediumImpact();
 
-                              // Block saving if any selected item is locked
                               final selectedIds = [_selectedHead, _selectedNeck, _selectedBody, _selectedFootwear];
                               for (final id in selectedIds) {
                                 if (id != null && !vm.isItemUnlocked(id)) {
@@ -954,48 +820,6 @@ class _TopHeaderBarCurrentUser extends StatelessWidget {
   }
 }
 
-class _TopHeaderBarOtherUser extends StatelessWidget {
-  final UserProfileViewModel viewModel;
-  final VoidCallback onBackPressed;
-
-  const _TopHeaderBarOtherUser({
-    required this.viewModel,
-    required this.onBackPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        InkWell(
-          onTap: onBackPressed,
-          customBorder: const BeveledRectangleBorder(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: ShapeDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              shape: const BeveledRectangleBorder(
-                side: BorderSide(color: Colors.white24, width: 1),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
-              ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.arrow_back, color: AppTheme.primaryColor, size: 20),
-                SizedBox(width: 6),
-              ]
-            )
-          )
-        )
-      ]
-    );
-  }
-}
-
 class _AvatarSection extends StatefulWidget {
   final UserProfileViewModel viewModel;
   final VoidCallback onEditAccountPressed;
@@ -1069,10 +893,17 @@ class _AvatarSectionState extends State<_AvatarSection> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: ThreeJsAvatarView(
-                  baseGlbPath: modelPath,
-                  equippedGlbPaths: _equippedGlbPaths,
-                  avatarColor: _avatarColor,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onVerticalDragStart: (_) {},
+                  onVerticalDragUpdate: (_) {},
+                  onHorizontalDragStart: (_) {},
+                  onHorizontalDragUpdate: (_) {},
+                  child: ThreeJsAvatarView(
+                    baseGlbPath: modelPath,
+                    equippedGlbPaths: _equippedGlbPaths,
+                    avatarColor: _avatarColor,
+                  ),
                 ),
               ),
             ),
@@ -1620,65 +1451,7 @@ class _AchievementsSection extends StatelessWidget {
   }
 }
 
-class _AvatarItemChoiceChip extends StatelessWidget {
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onSelected;
-  final Color color;
-  final BorderRadius borderRadius;
 
-  const _AvatarItemChoiceChip({
-    required this.icon,
-    required this.isSelected,
-    required this.onSelected,
-    required this.color,
-    required this.borderRadius,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onSelected();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal:28, vertical: 4),
-            alignment: Alignment.center,
-            decoration: ShapeDecoration(
-              color: isSelected ? color : color.withAlpha(20),
-              shape: BeveledRectangleBorder(
-                borderRadius: borderRadius,
-                side: BorderSide(
-                  color: isSelected ? Colors.white : color.withAlpha(100),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? AppTheme.darkBackground : Colors.white,
-                  size: 22,
-                ),
-
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _AchievementGrid extends StatelessWidget {
   final List<Achievement> achievements;
@@ -1845,7 +1618,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
     if (_orbitControls != null) {
       _orbitControls!.target.setFrom(center);
-      _orbitControls!.enablePan = true;
+      _orbitControls!.enablePan = false;
       _orbitControls!.minDistance = distance * 0.5;
       _orbitControls!.maxDistance = distance * 1.5;
       _orbitControls!.update();
@@ -1934,8 +1707,8 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
       });
 
       return sceneObj;
-    } catch (e) {
-      debugPrint("Error loading 3D model ($path): $e");
+    } catch (e, stackTrace) {
+      debugPrint("Error loading 3D model ($path): $e\n$stackTrace");
       return null;
     }
   }
@@ -1955,6 +1728,8 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
         final file = File(cleanPath);
         if (await file.exists()) {
           bytes = await file.readAsBytes();
+        } else {
+          debugPrint("3D model file does not exist on disk: $cleanPath");
         }
       }
 
@@ -1962,8 +1737,8 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
         _modelByteCache[path] = bytes;
       }
       return bytes;
-    } catch (e) {
-      debugPrint("Error fetching bytes for 3D model ($path): $e");
+    } catch (e, stackTrace) {
+      debugPrint("Error fetching bytes for 3D model ($path): $e\n$stackTrace");
       return null;
     }
   }
