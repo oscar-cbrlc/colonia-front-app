@@ -49,6 +49,8 @@ abstract class User with _$User {
 
 @freezed
 abstract class UserAvatar with _$UserAvatar {
+  const UserAvatar._();
+
   const factory UserAvatar({
     @JsonKey(name: 'user_thumbnail') String? thumbnailUrl,
     @JsonKey(name: 'model_url') String? modelUrl,
@@ -60,6 +62,8 @@ abstract class UserAvatar with _$UserAvatar {
   }) = _UserAvatar;
 
   factory UserAvatar.fromJson(Map<String, dynamic> json) => _$UserAvatarFromJson(json);
+
+  List<int> get equippedModelIds => [head, neck, body, footwear].whereType<int>().toList();
 }
 
 Object? _parseNumOrString(Map json, String key) {

@@ -1,10 +1,10 @@
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
-import 'package:colonia_front_app/data/services/api/avatar_service.dart';
 import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 class UserProfileViewModel extends ChangeNotifier {
@@ -163,5 +163,11 @@ class UserProfileViewModel extends ChangeNotifier {
   void updateUser(User newUser) {
     _user = newUser;
     notifyListeners();
+  }
+
+  Future<void> saveMergedModelLocally({Color? baseColor}) async {
+    final paths = await _avatarItemRepository.getEquippedModelPaths();
+    final color = baseColor ?? (_user.avatar?.color != null ? Color(_user.avatar!.color!) : null);
+    await _avatarItemRepository.saveMergedModelLocally(paths, baseColor: color);
   }
 }

@@ -689,6 +689,7 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                                 });
 
                                 if (success) {
+                                  await vm.saveMergedModelLocally(baseColor: _selectedColor);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(locale.avatarUpdatedSuccess),
@@ -1030,17 +1031,6 @@ class _AvatarSectionState extends State<_AvatarSection> {
       ],
     );
   }
-}
-
-class _BeveledCircleClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final border = BeveledRectangleBorder(borderRadius: BorderRadius.circular(size.width / 2));
-    return border.getOuterPath(Offset.zero & size);
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 class _LevelXpSection extends StatelessWidget {

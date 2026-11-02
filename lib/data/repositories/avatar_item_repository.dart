@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +29,21 @@ class AvatarItemRepository extends ChangeNotifier {
 
   List<AvatarInventoryItem> get myInventory => List.unmodifiable(_myInventory);
   bool get isLoading => _isLoading;
+
+  Future<List<String>> getEquippedModelPaths() async {
+    final ids = AuthRepository.instance.currentUser?.avatar?.equippedModelIds ?? [];
+    if (ids.isEmpty) return [];
+
+    final storedModels = await getStoredItemModels();
+    final paths = <String>[];
+    for (final id in ids) {
+      final model = storedModels.where((m) => m.id == id).firstOrNull;
+      if (model != null && model.filePath.isNotEmpty) {
+        paths.add(model.filePath);
+      }
+    }
+    return paths;
+  }
 
   Future<List<AvatarItem>> fetchCatalogItems() async {
     _isLoading = true;
@@ -207,5 +224,9 @@ class AvatarItemRepository extends ChangeNotifier {
 
   Future<String> getApplicationDocDirectory() async {
     return await getApplicationDocumentsDirectory().then((dir) => dir.path);
+  }
+
+  Future<void> saveMergedModelLocally(List<String> equippedModelPaths, {Color? baseColor}) async {
+    await _localStorageService.saveMergedModelLocally(equippedModelPaths, baseColor: baseColor);
   }
 }
