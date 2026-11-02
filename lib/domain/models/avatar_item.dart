@@ -1,6 +1,9 @@
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+
+import 'package:colonia_front_app/utils/icon_helper.dart';
 
 part 'avatar_item.freezed.dart';
 part 'avatar_item.g.dart';
@@ -49,11 +52,11 @@ abstract class AvatarItemModel with _$AvatarItemModel {
 }
 
 
-final Map<AvatarItemType, IconData> avatarItemTypeIcons = {
-  AvatarItemType.head: Icons.headphones,
-  AvatarItemType.neck: Icons.headphones,
-  AvatarItemType.body: Icons.shopping_bag,
-  AvatarItemType.footwear: Icons.do_not_step_sharp,
+final Map<AvatarItemType, IconWidgetBuilder> avatarItemTypeIcons = {
+  AvatarItemType.head: (color, size) => iconoir.Hat(color: color, width: size, height: size),
+  AvatarItemType.neck: (color, size) => iconoir.Scarf(color: color, width: size, height: size),
+  AvatarItemType.body: (color, size) => iconoir.Shirt(color: color, width: size, height: size),
+  AvatarItemType.footwear: (color, size) => iconoir.Sandals(color: color, width: size, height: size),
 };
 
 class AvatarInventoryItem {
