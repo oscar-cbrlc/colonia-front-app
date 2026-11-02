@@ -573,6 +573,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: "09dcde8ab90ffae1a7d65ff2ef96fc62a17ad9d0ce7c127b317ded676b0d5935"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.0.0"
   freezed:
     dependency: "direct dev"
     description:
@@ -813,6 +821,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  iconoir_flutter:
+    dependency: "direct main"
+    description:
+      name: iconoir_flutter
+      sha256: "959aa18a876aff791e0a03774530c96c10131775bf5990092d29e37d4a57d258"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.12.1"
   image:
     dependency: transitive
     description:
