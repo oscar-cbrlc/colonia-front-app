@@ -9,16 +9,13 @@ import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/team/widgets/team_shared_widgets.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/three_js_avatar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
-import 'package:three_js/three_js.dart' as three;
-import 'dart:math' as math;
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 
 
 class UserProfileScreen extends StatelessWidget {
@@ -544,17 +541,10 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                         ),
                       ),
                       child: ClipRRect(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onVerticalDragStart: (_) {},
-                          onVerticalDragUpdate: (_) {},
-                          onHorizontalDragStart: (_) {},
-                          onHorizontalDragUpdate: (_) {},
-                          child: ThreeJsAvatarView(
-                            baseGlbPath: widget.viewModel.baseModelPath,
-                            equippedGlbPaths: _equippedGlbPaths,
-                            avatarColor: _selectedColor,
-                          ),
+                        child: ThreeJsAvatarView(
+                          baseGlbPath: widget.viewModel.baseModelPath,
+                          equippedGlbPaths: _equippedGlbPaths,
+                          avatarColor: _selectedColor,
                         ),
                       )
                     ),
@@ -588,7 +578,7 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _HueSlider(
+                  HueSlider(
                     hue: _hue ?? 200.0,
                     onChanged: (val) => setState(() {
                       _hue = val;
@@ -888,23 +878,16 @@ class _AvatarSectionState extends State<_AvatarSection> {
                   stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
                 ),
                 shape: BeveledRectangleBorder(
-                  side: BorderSide(color: widget.viewModel.user.team != null? Color(widget.viewModel.user.team!.color).withAlpha(100) : AppTheme.primaryColor.withAlpha(100), width: 1),
+                  side: BorderSide(color: Colors.white.withAlpha(100), width: 1),
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onVerticalDragStart: (_) {},
-                  onVerticalDragUpdate: (_) {},
-                  onHorizontalDragStart: (_) {},
-                  onHorizontalDragUpdate: (_) {},
-                  child: ThreeJsAvatarView(
-                    baseGlbPath: modelPath,
-                    equippedGlbPaths: _equippedGlbPaths,
-                    avatarColor: _avatarColor,
-                  ),
+                child: ThreeJsAvatarView(
+                  baseGlbPath: modelPath,
+                  equippedGlbPaths: _equippedGlbPaths,
+                  avatarColor: _avatarColor,
                 ),
               ),
             ),
@@ -1518,250 +1501,13 @@ class _AchievementGrid extends StatelessWidget {
 }
 
 
-class ThreeJsAvatarView extends StatefulWidget {
-  final String baseGlbPath;
-  final List<String> equippedGlbPaths;
-  final Color? avatarColor;
 
-  const ThreeJsAvatarView({
-    super.key,
-    required this.baseGlbPath,
-    required this.equippedGlbPaths,
-    this.avatarColor,
-  });
 
-  @override
-  State<ThreeJsAvatarView> createState() => _ThreeJsAvatarViewState();
-}
-
-class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
-  static final Map<String, Uint8List> _modelByteCache = {};
-
-  late three.ThreeJS _threeJS;
-  final three.Group _avatarGroup = three.Group();
-  three.OrbitControls? _orbitControls;
-  int _loadVersion = 0;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _threeJS = three.ThreeJS(
-      settings: three.Settings(
-        clearColor: 0x00000000,
-        alpha: true,
-      ),
-      setup: () async {
-        _threeJS.scene = three.Scene();
-        _threeJS.camera = three.PerspectiveCamera(
-          45,
-          1,
-          0.1,
-          2000,
-        );
-
-        _threeJS.scene.add(_avatarGroup);
-        _threeJS.scene.add(three.AmbientLight(0xffffff, 1));
-        final directionalLight = three.DirectionalLight(0xffffff, 1);
-        directionalLight.position.setValues(0, 1, 1);
-        _threeJS.scene.add(directionalLight);
-        _threeJS.renderer?.setClearColor(three.Color(0x000000), 0);
-      },
-      onSetupComplete: () async {
-        await _reloadAllModels();
-        _orbitControls = three.OrbitControls(
-          _threeJS.camera,
-          _threeJS.globalKey,
-        );
-        _fitCameraToGroup();
-        if (mounted) {
-          setState(() {});
-        }
-      }
-    );
-  }
-
-  void _fitCameraToGroup() {
-    final box = three.BoundingBox();
-    box.setFromObject(_avatarGroup);
-    if (box.isEmpty()) return;
-
-    final center = three.Vector3();
-    box.getCenter(center);
-
-    final size = three.Vector3();
-    box.getSize(size);
-
-    double maxDim = math.max(size.x, math.max(size.y, size.z));
-    if (maxDim <= 0) maxDim = 1.0;
-
-    final camera = _threeJS.camera as three.PerspectiveCamera;
-    final fovRad = camera.fov * (math.pi / 180.0);
-
-    double distance = (maxDim / (2 * math.tan(fovRad / 2))) * 1.2;
-
-    camera.near = (distance / 100).clamp(0.01, 10.0);
-    camera.far = distance * 100;
-    camera.position.setValues(center.x, center.y, center.z + distance);
-    camera.lookAt(center);
-    camera.updateProjectionMatrix();
-
-    if (_orbitControls != null) {
-      _orbitControls!.target.setFrom(center);
-      _orbitControls!.enablePan = false;
-      _orbitControls!.minDistance = distance * 0.5;
-      _orbitControls!.maxDistance = distance * 1.5;
-      _orbitControls!.update();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant ThreeJsAvatarView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.equippedGlbPaths, widget.equippedGlbPaths) ||
-        oldWidget.baseGlbPath != widget.baseGlbPath ||
-        oldWidget.avatarColor != widget.avatarColor) {
-      _reloadAllModels();
-    }
-  }
-
-  Future<void> _reloadAllModels() async {
-    final version = ++_loadVersion;
-    if (!_isLoading) {
-      _isLoading = true;
-      if (mounted) setState(() {});
-    }
-
-    final loadedObjects = <three.Object3D>[];
-
-    final baseObj = await _loadModelPath(widget.baseGlbPath, isBase: true);
-    if (version != _loadVersion) return;
-    if (baseObj != null) loadedObjects.add(baseObj);
-
-    for (final itemPath in widget.equippedGlbPaths) {
-      if (version != _loadVersion) return;
-      final itemObj = await _loadModelPath(itemPath, isBase: false);
-      if (itemObj != null) loadedObjects.add(itemObj);
-    }
-
-    if (version != _loadVersion) return;
-
-    while (_avatarGroup.children.isNotEmpty) {
-      _avatarGroup.remove(_avatarGroup.children.first);
-    }
-    for (final obj in loadedObjects) {
-      _avatarGroup.add(obj);
-    }
-
-    _fitCameraToGroup();
-    _isLoading = false;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<three.Object3D?> _loadModelPath(String path, {bool isBase = false}) async {
-    if (path.isEmpty) return null;
-    try {
-      final bytes = await _getBytesForPath(path);
-      if (bytes == null) return null;
-
-      final loader = three.GLTFLoader();
-      final gltf = await loader.fromBytes(bytes);
-      final sceneObj = gltf?.scene;
-
-      sceneObj?.traverse((child) {
-        if (child is three.Mesh) {
-          final mat = child.material;
-
-          if (mat != null) {
-            mat.transparent = false;
-            mat.opacity = 1.0;
-            mat.depthWrite = true;
-            mat.depthTest = true;
-            mat.blending = three.NormalBlending;
-            mat.needsUpdate = true;
-          }
-
-          if (isBase && widget.avatarColor != null) {
-            child.material = child.material?.clone();
-
-            if (child.material is three.MeshStandardMaterial) {
-              final stdMat = child.material as three.MeshStandardMaterial;
-              final c = widget.avatarColor!;
-              stdMat.color = three.Color(c.r, c.g, c.b);
-              stdMat.needsUpdate = true;
-            }
-          }
-        }
-      });
-
-      return sceneObj;
-    } catch (e, stackTrace) {
-      debugPrint("Error loading 3D model ($path): $e\n$stackTrace");
-      return null;
-    }
-  }
-
-  Future<Uint8List?> _getBytesForPath(String path) async {
-    if (_modelByteCache.containsKey(path)) {
-      return _modelByteCache[path];
-    }
-
-    try {
-      Uint8List? bytes;
-      if (path.startsWith('assets/')) {
-        final byteData = await rootBundle.load(path);
-        bytes = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
-      } else {
-        final cleanPath = path.startsWith('file://') ? path.replaceFirst('file://', '') : path;
-        final file = File(cleanPath);
-        if (await file.exists()) {
-          bytes = await file.readAsBytes();
-        } else {
-          debugPrint("3D model file does not exist on disk: $cleanPath");
-        }
-      }
-
-      if (bytes != null) {
-        _modelByteCache[path] = bytes;
-      }
-      return bytes;
-    } catch (e, stackTrace) {
-      debugPrint("Error fetching bytes for 3D model ($path): $e\n$stackTrace");
-      return null;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _threeJS.build(),
-        if (_isLoading)
-          Container(
-            color: Colors.black38,
-            child: const Center(
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CircularProgressIndicator(
-                  color: AppTheme.primaryColor,
-                  strokeWidth: 3,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _HueSlider extends StatelessWidget {
+class HueSlider extends StatelessWidget {
   final double hue;
   final ValueChanged<double> onChanged;
 
-  const _HueSlider({required this.hue, required this.onChanged});
+  const HueSlider({super.key, required this.hue, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
