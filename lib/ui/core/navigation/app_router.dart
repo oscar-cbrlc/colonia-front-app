@@ -282,6 +282,7 @@ class AppRouter {
               trackingRepository: context.read<TrackingRepository>(),
               boostRepository: context.read<BoostRepository>(),
               challengeRepository: context.read<ChallengeRepository>(),
+              avatarItemRepository: context.read<AvatarItemRepository>(),
               initialEvent: initialEvent,
             ),
             child: Consumer<CreateEventViewModel>(

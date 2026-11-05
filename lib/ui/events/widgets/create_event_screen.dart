@@ -250,6 +250,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
       startDate: vm.startDate,
       endDate: vm.endDate,
       rewards: rewards,
+      avatarItemReward: vm.selectedAvatarItem,
       bottomActions: Row(
         children: [
           Expanded(
@@ -350,6 +351,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
     DateTime? tempStart = vm.startDate;
     DateTime? tempEnd = vm.endDate;
     final Map<Boost, int> tempBoosts = Map.from(vm.boostQuantities);
+    AvatarItem? tempAvatarItem = vm.selectedAvatarItem;
 
     Widget subtitle(String text) => Padding(
       padding: const EdgeInsets.only(top: 18.0, bottom: 8.0),
@@ -384,7 +386,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                 tempEnd != null &&
                 tempEnd!.isAfter(tempStart!) &&
                 (maxEndSunday == null || !tempEnd!.isAfter(maxEndSunday));
-            final hasRewards = tempBoosts.values.any((q) => q > 0);
+            final hasRewards = tempBoosts.values.any((q) => q > 0) || tempAvatarItem != null;
             final canConfirm = isNameValid && isDatesValid && hasRewards;
 
             String formatDateTime(DateTime? dt) {
@@ -615,28 +617,163 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                       ),
 
                       subtitle(locale.avatarItemRewards),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: ShapeDecoration(
-                          color: Colors.white.withAlpha(10),
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                              color: Colors.white.withAlpha(30),
-                              width: 1,
-                            ),
-                          ),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
-                          locale.noAvatarItems,
-                          textAlign: TextAlign.center,
+                          locale.selectOnlyOneAvatarItem,
                           style: TextStyle(
-                            color: Colors.white.withAlpha(120),
-                            fontSize: 13,
+                            color: Colors.white.withAlpha(150),
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),
+                      if (vm.availableAvatarItems.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: ShapeDecoration(
+                            color: Colors.white.withAlpha(10),
+                            shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: Colors.white.withAlpha(30),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            locale.noAvatarItems,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withAlpha(120),
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      else
+                        ...() {
+                          final Map<AvatarItemType, List<AvatarItem>> groupedItems = {};
+                          for (final item in vm.availableAvatarItems) {
+                            final type = AvatarItemType.values.firstWhere(
+                              (t) => t.name.toLowerCase() == item.type.toLowerCase(),
+                              orElse: () => AvatarItemType.head,
+                            );
+                            groupedItems.putIfAbsent(type, () => []).add(item);
+                          }
+
+                          final List<Widget> typeWidgets = [];
+
+                          for (final entry in groupedItems.entries) {
+                            final type = entry.key;
+                            final items = entry.value;
+
+                            typeWidgets.add(
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+                                child: Text(
+                                  type.getLocale(locale).toUpperCase(),
+                                  style: const TextStyle(
+                                    color: AppTheme.secondaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            );
+
+                            for (int i = 0; i < items.length; i += 2) {
+                              final item1 = items[i];
+                              final item2 = (i + 1 < items.length) ? items[i + 1] : null;
+
+                              Widget buildItemCard(AvatarItem item) {
+                                final isSelected = tempAvatarItem?.id == item.id;
+                                final itemType = AvatarItemType.values.firstWhere(
+                                  (t) => t.name.toLowerCase() == item.type.toLowerCase(),
+                                  orElse: () => AvatarItemType.head,
+                                );
+                                final iconBuilder = avatarItemTypeIcons[itemType];
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setModalState(() {
+                                      if (tempAvatarItem?.id == item.id) {
+                                        tempAvatarItem = null;
+                                      } else {
+                                        tempAvatarItem = item;
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 10),
+                                    decoration: ShapeDecoration(
+                                      color: isSelected
+                                          ? AppTheme.tertiaryColor.withAlpha(50)
+                                          : AppTheme.tertiaryColor.withAlpha(20),
+                                      shape: BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        side: BorderSide(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : AppTheme.tertiaryColor.withAlpha(120),
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        if (iconBuilder != null)
+                                          iconBuilder(Colors.white, 20)
+                                        else
+                                          const Icon(Icons.checkroom, color: Colors.white, size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            item.getNameLocale(locale).toUpperCase(),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.6,
+                                            ),
+                                          ),
+                                        ),
+                                        if (isSelected)
+                                          const Icon(
+                                            Icons.check_circle_sharp,
+                                            color: AppTheme.secondaryColor,
+                                            size: 18,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              typeWidgets.add(
+                                Row(
+                                  children: [
+                                    Expanded(child: buildItemCard(item1)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: item2 != null
+                                          ? buildItemCard(item2)
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+
+                          return typeWidgets;
+                        }(),
 
                       const SizedBox(height: 24),
 
@@ -661,6 +798,7 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                             tempBoosts.forEach((type, qty) {
                               vm.setBoostQuantity(type, qty);
                             });
+                            vm.setSelectedAvatarItem(tempAvatarItem);
                             Navigator.pop(context);
                           }
                               : null,

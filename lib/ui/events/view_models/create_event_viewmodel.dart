@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/domain/models/active_challenge.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -18,6 +20,7 @@ class CreateEventViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final BoostRepository _boostRepository;
   final ChallengeRepository _challengeRepository;
+  final AvatarItemRepository? avatarItemRepository;
 
   MapboxMap? _mapboxMap;
   Timer? _debounceTimer;
@@ -33,6 +36,7 @@ class CreateEventViewModel extends ChangeNotifier {
   DateTime? _endDate;
 
   final Map<int, int> _boostQuantities = {};
+  AvatarItem? _selectedAvatarItem;
 
   MapRouteEditMode _mapMode = MapRouteEditMode.navigate;
 
@@ -40,12 +44,15 @@ class CreateEventViewModel extends ChangeNotifier {
     required TrackingRepository trackingRepository,
     required BoostRepository boostRepository,
     required ChallengeRepository challengeRepository,
+    this.avatarItemRepository,
     ActiveChallenge? initialEvent,
   })  : _trackingRepository = trackingRepository,
         _boostRepository = boostRepository,
         _challengeRepository = challengeRepository {
     _boostRepository.addListener(notifyListeners);
     _boostRepository.getAvailableBoosts();
+    avatarItemRepository?.addListener(notifyListeners);
+    avatarItemRepository?.fetchCatalogItems();
     if (initialEvent != null) {
       _loadFromTemplate(initialEvent);
     }
@@ -60,6 +67,7 @@ class CreateEventViewModel extends ChangeNotifier {
     for (final br in event.challenge.boostRewards) {
       _boostQuantities[br.boost.id] = br.amount;
     }
+    _selectedAvatarItem = event.challenge.avatarItemReward;
   }
 
   bool get isSaving => _isSaving;
@@ -71,6 +79,10 @@ class CreateEventViewModel extends ChangeNotifier {
   bool get showPoints => _showPoints;
 
   List<Boost> get availableBoosts => _boostRepository.availableBoosts;
+  List<AvatarItem> get availableAvatarItems =>
+      avatarItemRepository?.availableAvatarItems ?? [];
+
+  AvatarItem? get selectedAvatarItem => _selectedAvatarItem;
 
   List<String> get selectedHexagonIds => List.unmodifiable(_selectedHexagonIds);
   int get selectedHexagonsCount => _selectedHexagonIds.length;
@@ -91,7 +103,8 @@ class CreateEventViewModel extends ChangeNotifier {
 
   String getBoostName(Boost boost, AppLocalizations locale) => boost.getCompleteName(locale);
 
-  bool get hasSelectedRewards => _boostQuantities.values.any((quantity) => quantity > 0);
+  bool get hasSelectedRewards =>
+      _boostQuantities.values.any((quantity) => quantity > 0) || _selectedAvatarItem != null;
 
   bool get isHexagonSelectionValid => _selectedHexagonIds.isNotEmpty;
 
@@ -164,6 +177,11 @@ class CreateEventViewModel extends ChangeNotifier {
 
   void setBoostQuantity(Boost boost, int quantity) {
     _boostQuantities[boost.id] = quantity < 0 ? 0 : quantity;
+    notifyListeners();
+  }
+
+  void setSelectedAvatarItem(AvatarItem? item) {
+    _selectedAvatarItem = item;
     notifyListeners();
   }
 
@@ -422,6 +440,7 @@ class CreateEventViewModel extends ChangeNotifier {
           },
           'challenge_difficulty': 1,
           'boosts_reward': boostsList,
+          'avatar_item_id': _selectedAvatarItem?.id,
         },
         'challenge_start_date': _startDate!.toUtc().toIso8601String(),
         'challenge_end_date': _endDate!.toUtc().toIso8601String(),
@@ -449,6 +468,7 @@ class CreateEventViewModel extends ChangeNotifier {
   void dispose() {
     _debounceTimer?.cancel();
     _boostRepository.removeListener(notifyListeners);
+    avatarItemRepository?.removeListener(notifyListeners);
     super.dispose();
   }
 }

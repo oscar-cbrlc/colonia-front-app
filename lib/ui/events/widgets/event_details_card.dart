@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -21,6 +22,7 @@ class EventDetailsCard extends StatefulWidget {
   final DateTime? startDate;
   final DateTime? endDate;
   final List<RewardItem> rewards;
+  final AvatarItem? avatarItemReward;
   final Widget? bottomActions;
   final bool initiallyExpanded;
 
@@ -31,6 +33,7 @@ class EventDetailsCard extends StatefulWidget {
     this.startDate,
     this.endDate,
     this.rewards = const [],
+    this.avatarItemReward,
     this.bottomActions,
     this.initiallyExpanded = false,
   });
@@ -111,7 +114,8 @@ class _EventDetailsCardState extends State<EventDetailsCard> {
                         if (widget.eventName.isNotEmpty ||
                             widget.territoriesCount > 0 ||
                             (widget.startDate != null && widget.endDate != null) ||
-                            activeRewards.isNotEmpty) ...[
+                            activeRewards.isNotEmpty ||
+                            widget.avatarItemReward != null) ...[
                           const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -286,6 +290,70 @@ class _EventDetailsCardState extends State<EventDetailsCard> {
                                         ),
                                       );
                                     }).toList(),
+                                  ),
+                                ],
+                                if (widget.avatarItemReward != null) ...[
+                                  const Divider(color: Colors.white12, height: 16),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.checkroom,
+                                          color: AppTheme.primaryColor, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        locale.avatarItemRewards.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Builder(
+                                    builder: (context) {
+                                      final item = widget.avatarItemReward!;
+                                      final itemType = AvatarItemType.values.firstWhere(
+                                        (t) => t.name.toLowerCase() == item.type.toLowerCase(),
+                                        orElse: () => AvatarItemType.head,
+                                      );
+                                      final iconBuilder = avatarItemTypeIcons[itemType];
+                                      final name = item.getNameLocale(locale).toUpperCase();
+
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: ShapeDecoration(
+                                          color: AppTheme.tertiaryColor.withAlpha(40),
+                                          shape: BeveledRectangleBorder(
+                                            borderRadius: BorderRadius.circular(6),
+                                            side: BorderSide(
+                                              color: AppTheme.tertiaryColor.withAlpha(140),
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (iconBuilder != null)
+                                              iconBuilder(Colors.white, 14)
+                                            else
+                                              const Icon(Icons.checkroom, color: Colors.white, size: 14),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              name,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ],

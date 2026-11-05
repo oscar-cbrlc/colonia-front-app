@@ -274,6 +274,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     startDate: widget.activeChallenge.startDate,
                     endDate: widget.activeChallenge.endDate,
                     rewards: rewards,
+                    avatarItemReward: challenge.avatarItemReward,
                     bottomActions: null,
                     initiallyExpanded: false,
                   ),
