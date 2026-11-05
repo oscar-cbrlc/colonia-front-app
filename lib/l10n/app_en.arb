@@ -1052,7 +1052,7 @@
     "routeChallengeDescription": "Complete the territory route",
     "@routeChallengeDescription": {},
 
-    "weekChallenges": "Week Challenges",
+    "weekChallenges": "Challenges of the week",
     "@weekChallenges": {},
 
     "complete": "Complete",
@@ -1208,6 +1208,9 @@
     "avatarItemRewards": "AVATAR ITEM REWARDS",
     "@avatarItemRewards": {},
 
+    "selectOnlyOneAvatarItem": "Select only one item",
+    "@selectOnlyOneAvatarItem": {},
+
     "noAvatarItems": "No avatar items available at the moment.",
     "@noAvatarItems": {},
 
@@ -1293,5 +1296,125 @@
     "@decemberLabel": {},
 
     "publish": "Publish",
-    "@publish": {}
+    "@publish": {},
+
+    "downloadingModel": "Downloading models...",
+    "@downloadingModel": {},
+
+    "downloadingModelProgress": "Downloading models ({progress}%)",
+    "@downloadingModelProgress": {
+        "placeholders": {
+            "progress": {
+                "type": "int"
+            }
+        }
+    },
+
+    "checkingStorage": "Checking local storage...",
+    "@checkingStorage": {},
+
+    "avatarItemTypeHead": "Head",
+    "@avatarItemTypeHead": {},
+
+    "avatarItemTypeNeck": "Neck",
+    "@avatarItemTypeNeck": {},
+
+    "avatarItemTypeBody": "Body",
+    "@avatarItemTypeBody": {},
+
+    "avatarItemTypeFootwear": "Footwear",
+    "@avatarItemTypeFootwear": {},
+
+    "noItemsForCategory": "No items available in this category.",
+    "@noItemsForCategory": {},
+
+    "comingSoonLabel": "Coming soon",
+    "@eventNotStarted": {},
+
+    "inProgressLabel": "In progress",
+    "@eventInProgress": {},
+
+    "endedLabel": "Ended",
+    "@eventEnded": {},
+
+    "editForNewEvent": "Edit for new",
+    "@editForNewEvent": {},
+
+    "showRoute": "Show route",
+    "@showRoute": {},
+
+    "avatarUpdatedSuccess": "Avatar updated",
+    "@avatarUpdatedSuccess": {},
+
+    "avatarUpdateError": "Failed to update avatar.",
+    "@avatarUpdateError": {},
+
+    "itemIsLocked": "Locked item",
+    "@itemIsLocked": {},
+
+    "cannotSaveLockedItems": "Cannot save changes with locked items.",
+    "@cannotSaveLockedItems": {},
+
+    "profileImage": "Profile image",
+    "@profileImage": {},
+
+    "runningGlasses": "Running Glasses",
+    "@runningGlasses": {},
+
+    "headband": "Headband",
+    "@headband": {},
+
+    "crown": "Crown",
+    "@crown": {},
+
+    "cowboyHat": "Cowboy Hat",
+    "@cowboyHat": {},
+
+    "luchadorMask": "Luchador Mask",
+    "@luchadorMask": {},
+
+    "bandana": "Bandana",
+    "@bandana": {},
+
+    "medal1": "Medal 1",
+    "@medal1": {},
+
+    "medal2": "Medal 2",
+    "@medal2": {},
+
+    "medal3": "Medal 3",
+    "@medal3": {},
+
+    "luchadorCape": "Luchador Cape",
+    "@luchadorCape": {},
+
+    "kingCape": "King Cape",
+    "@kingCape": {},
+
+    "luchadorBelt": "Luchador Belt",
+    "@luchadorBelt": {},
+
+    "cowboyBelt": "Cowboy Belt",
+    "@cowboyBelt": {},
+
+    "fannyPack": "Fanny Pack",
+    "@fannyPack": {},
+
+    "leaf": "Leaf",
+    "@leaf": {},
+
+    "tShirt": "T-Shirt",
+    "@tShirt": {},
+
+    "backpack": "Backpack",
+    "@backpack": {},
+
+    "cowboyBoots": "Cowboy Boots",
+    "@cowboyBoots": {},
+
+    "runningShoes": "Running Shoes",
+    "@runningShoes": {},
+
+    "sandals": "Sandals",
+    "@sandals": {}
 }

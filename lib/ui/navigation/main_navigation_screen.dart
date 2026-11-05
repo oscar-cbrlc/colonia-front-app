@@ -9,6 +9,7 @@ import 'package:colonia_front_app/ui/map/widgets/map_screen.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:flutter/services.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -30,6 +31,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
         HapticFeedback.selectionClick();
       }
     });
+
   }
 
   @override

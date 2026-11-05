@@ -1210,6 +1210,9 @@
     "avatarItemRewards": "RECOMPENSAS DE ITEMS DE AVATAR",
     "@avatarItemRewards": {},
 
+    "selectOnlyOneAvatarItem": "Selecciona solo un ítem",
+    "@selectOnlyOneAvatarItem": {},
+
     "noAvatarItems": "No hay items de avatar disponibles por ahora.",
     "@noAvatarItems": {},
 
@@ -1295,5 +1298,125 @@
     "@decemberLabel": {},
 
     "publish": "Publicar",
-    "@publish": {}
+    "@publish": {},
+
+    "downloadingModel": "Descargando modelos...",
+    "@downloadingModel": {},
+
+    "downloadingModelProgress": "Descargando modelos ({progress}%)",
+    "@downloadingModelProgress": {
+        "placeholders": {
+            "progress": {
+                "type": "int"
+            }
+        }
+    },
+
+    "checkingStorage": "Verificando almacenamiento local...",
+    "@checkingStorage": {},
+
+    "avatarItemTypeHead": "Cabeza",
+    "@avatarItemTypeHead": {},
+
+    "avatarItemTypeNeck": "Cuello",
+    "@avatarItemTypeNeck": {},
+
+    "avatarItemTypeBody": "Cuerpo",
+    "@avatarItemTypeBody": {},
+
+    "avatarItemTypeFootwear": "Calzado",
+    "@avatarItemTypeFootwear": {},
+
+    "noItemsForCategory": "No hay items disponibles en esta categoría por ahora.",
+    "@noItemsForCategory": {},
+
+    "comingSoonLabel": "Próximamente",
+    "@eventNotStarted": {},
+
+    "inProgressLabel": "En progreso",
+    "@eventInProgress": {},
+
+    "endedLabel": "Terminado",
+    "@eventEnded": {},
+
+    "editForNewEvent": "Editar para nuevo",
+    "@editForNewEvent": {},
+
+    "showRoute": "Ver ruta",
+    "@showRoute": {},
+
+    "avatarUpdatedSuccess": "Avatar actualizado",
+    "@avatarUpdatedSuccess": {},
+
+    "avatarUpdateError": "Error al actualizar el avatar.",
+    "@avatarUpdateError": {},
+
+    "itemIsLocked": "Ítem bloqueado",
+    "@itemIsLocked": {},
+
+    "cannotSaveLockedItems": "No puedes guardar cambios con ítems bloqueados.",
+    "@cannotSaveLockedItems": {},
+
+    "profileImage": "Imagen de Perfil",
+    "@profileImage": {},
+
+    "runningGlasses": "Lentes Corredor",
+    "@runningGlasses": {},
+
+    "headband": "Banda Deportiva",
+    "@headband": {},
+
+    "crown": "Corona",
+    "@crown": {},
+
+    "cowboyHat": "Sombrero de Vaquero",
+    "@cowboyHat": {},
+
+    "luchadorMask": "Máscara de Luchador",
+    "@luchadorMask": {},
+
+    "bandana": "Bandana",
+    "@bandana": {},
+
+    "medal1": "Medalla 1",
+    "@medal1": {},
+
+    "medal2": "Medalla 2",
+    "@medal2": {},
+
+    "medal3": "Medalla 3",
+    "@medal3": {},
+
+    "luchadorCape": "Capa de Luchador",
+    "@luchadorCape": {},
+
+    "kingCape": "Capa de Rey",
+    "@kingCape": {},
+
+    "luchadorBelt": "Cinturón de Luchador",
+    "@luchadorBelt": {},
+
+    "cowboyBelt": "Cinturón de Vaquero",
+    "@cowboyBelt": {},
+
+    "fannyPack": "Riñonera",
+    "@fannyPack": {},
+
+    "leaf": "Hoja",
+    "@leaf": {},
+
+    "tShirt": "Playera",
+    "@tShirt": {},
+
+    "backpack": "Mochila",
+    "@backpack": {},
+
+    "cowboyBoots": "Botas de Vaquero",
+    "@cowboyBoots": {},
+
+    "runningShoes": "Tennis Corredor",
+    "@runningShoes": {},
+
+    "sandals": "Sandalias",
+    "@sandals": {}
 }

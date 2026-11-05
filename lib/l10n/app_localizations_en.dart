@@ -937,7 +937,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeChallengeDescription => 'Complete the territory route';
 
   @override
-  String get weekChallenges => 'Week Challenges';
+  String get weekChallenges => 'Challenges of the week';
 
   @override
   String get complete => 'Complete';
@@ -1083,6 +1083,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get avatarItemRewards => 'AVATAR ITEM REWARDS';
 
   @override
+  String get selectOnlyOneAvatarItem => 'Select only one item';
+
+  @override
   String get noAvatarItems => 'No avatar items available at the moment.';
 
   @override
@@ -1169,4 +1172,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publish => 'Publish';
+
+  @override
+  String get downloadingModel => 'Downloading models...';
+
+  @override
+  String downloadingModelProgress(int progress) {
+    return 'Downloading models ($progress%)';
+  }
+
+  @override
+  String get checkingStorage => 'Checking local storage...';
+
+  @override
+  String get avatarItemTypeHead => 'Head';
+
+  @override
+  String get avatarItemTypeNeck => 'Neck';
+
+  @override
+  String get avatarItemTypeBody => 'Body';
+
+  @override
+  String get avatarItemTypeFootwear => 'Footwear';
+
+  @override
+  String get noItemsForCategory => 'No items available in this category.';
+
+  @override
+  String get comingSoonLabel => 'Coming soon';
+
+  @override
+  String get inProgressLabel => 'In progress';
+
+  @override
+  String get endedLabel => 'Ended';
+
+  @override
+  String get editForNewEvent => 'Edit for new';
+
+  @override
+  String get showRoute => 'Show route';
+
+  @override
+  String get avatarUpdatedSuccess => 'Avatar updated';
+
+  @override
+  String get avatarUpdateError => 'Failed to update avatar.';
+
+  @override
+  String get itemIsLocked => 'Locked item';
+
+  @override
+  String get cannotSaveLockedItems => 'Cannot save changes with locked items.';
+
+  @override
+  String get profileImage => 'Profile image';
+
+  @override
+  String get runningGlasses => 'Running Glasses';
+
+  @override
+  String get headband => 'Headband';
+
+  @override
+  String get crown => 'Crown';
+
+  @override
+  String get cowboyHat => 'Cowboy Hat';
+
+  @override
+  String get luchadorMask => 'Luchador Mask';
+
+  @override
+  String get bandana => 'Bandana';
+
+  @override
+  String get medal1 => 'Medal 1';
+
+  @override
+  String get medal2 => 'Medal 2';
+
+  @override
+  String get medal3 => 'Medal 3';
+
+  @override
+  String get luchadorCape => 'Luchador Cape';
+
+  @override
+  String get kingCape => 'King Cape';
+
+  @override
+  String get luchadorBelt => 'Luchador Belt';
+
+  @override
+  String get cowboyBelt => 'Cowboy Belt';
+
+  @override
+  String get fannyPack => 'Fanny Pack';
+
+  @override
+  String get leaf => 'Leaf';
+
+  @override
+  String get tShirt => 'T-Shirt';
+
+  @override
+  String get backpack => 'Backpack';
+
+  @override
+  String get cowboyBoots => 'Cowboy Boots';
+
+  @override
+  String get runningShoes => 'Running Shoes';
+
+  @override
+  String get sandals => 'Sandals';
 }

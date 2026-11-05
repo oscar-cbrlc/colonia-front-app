@@ -56,6 +56,14 @@ dependencies:
   flutter_litert: ^3.9.3
   flutter_local_notifications: ^18.0.1
   custom_floating_action_button_location: ^0.0.1
+  flutter_3d_controller: ^2.3.0
+  flutter_downloader: ^1.12.1
+  path_provider: ^2.1.5
+  http: ^1.2.2
+  vector_math: ^2.4.4
+  three_js: ^0.3.0
+  font_awesome_flutter: ^11.0.0
+  iconoir_flutter: ^7.12.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -84,6 +92,15 @@ flutter:
     - assets/icons/google.svg
     - assets/icons/apple.svg
     - assets/har_model/har_model_pipeline.tflite
+    - assets/avatar/base_model/AntTexturized.glb
+    - assets/avatar/base_model/Ant.glb
+    - assets/avatar/base_model/AntT.glb
+    - assets/avatar/base_model/AntAtri.glb
+    - assets/avatar/base_model/AntTan.glb
+    - assets/avatar/base_model/Ant1.glb
+    - assets/avatar/base_model/Ant2.glb
+    - assets/avatar/base_model/LuchadorMask.glb
+    - assets/avatar/base_model/LuchadorMask2.glb
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

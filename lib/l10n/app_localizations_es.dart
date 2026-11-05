@@ -1089,6 +1089,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get avatarItemRewards => 'RECOMPENSAS DE ITEMS DE AVATAR';
 
   @override
+  String get selectOnlyOneAvatarItem => 'Selecciona solo un ítem';
+
+  @override
   String get noAvatarItems => 'No hay items de avatar disponibles por ahora.';
 
   @override
@@ -1176,4 +1179,122 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get publish => 'Publicar';
+
+  @override
+  String get downloadingModel => 'Descargando modelos...';
+
+  @override
+  String downloadingModelProgress(int progress) {
+    return 'Descargando modelos ($progress%)';
+  }
+
+  @override
+  String get checkingStorage => 'Verificando almacenamiento local...';
+
+  @override
+  String get avatarItemTypeHead => 'Cabeza';
+
+  @override
+  String get avatarItemTypeNeck => 'Cuello';
+
+  @override
+  String get avatarItemTypeBody => 'Cuerpo';
+
+  @override
+  String get avatarItemTypeFootwear => 'Calzado';
+
+  @override
+  String get noItemsForCategory =>
+      'No hay items disponibles en esta categoría por ahora.';
+
+  @override
+  String get comingSoonLabel => 'Próximamente';
+
+  @override
+  String get inProgressLabel => 'En progreso';
+
+  @override
+  String get endedLabel => 'Terminado';
+
+  @override
+  String get editForNewEvent => 'Editar para nuevo';
+
+  @override
+  String get showRoute => 'Ver ruta';
+
+  @override
+  String get avatarUpdatedSuccess => 'Avatar actualizado';
+
+  @override
+  String get avatarUpdateError => 'Error al actualizar el avatar.';
+
+  @override
+  String get itemIsLocked => 'Ítem bloqueado';
+
+  @override
+  String get cannotSaveLockedItems =>
+      'No puedes guardar cambios con ítems bloqueados.';
+
+  @override
+  String get profileImage => 'Imagen de Perfil';
+
+  @override
+  String get runningGlasses => 'Lentes Corredor';
+
+  @override
+  String get headband => 'Banda Deportiva';
+
+  @override
+  String get crown => 'Corona';
+
+  @override
+  String get cowboyHat => 'Sombrero de Vaquero';
+
+  @override
+  String get luchadorMask => 'Máscara de Luchador';
+
+  @override
+  String get bandana => 'Bandana';
+
+  @override
+  String get medal1 => 'Medalla 1';
+
+  @override
+  String get medal2 => 'Medalla 2';
+
+  @override
+  String get medal3 => 'Medalla 3';
+
+  @override
+  String get luchadorCape => 'Capa de Luchador';
+
+  @override
+  String get kingCape => 'Capa de Rey';
+
+  @override
+  String get luchadorBelt => 'Cinturón de Luchador';
+
+  @override
+  String get cowboyBelt => 'Cinturón de Vaquero';
+
+  @override
+  String get fannyPack => 'Riñonera';
+
+  @override
+  String get leaf => 'Hoja';
+
+  @override
+  String get tShirt => 'Playera';
+
+  @override
+  String get backpack => 'Mochila';
+
+  @override
+  String get cowboyBoots => 'Botas de Vaquero';
+
+  @override
+  String get runningShoes => 'Tennis Corredor';
+
+  @override
+  String get sandals => 'Sandalias';
 }

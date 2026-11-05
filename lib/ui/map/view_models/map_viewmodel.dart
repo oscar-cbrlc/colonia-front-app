@@ -8,6 +8,7 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:math' as math;
 
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -28,7 +29,7 @@ class MapViewModel extends ChangeNotifier {
   final ChallengeRepository _challengeRepository;
 
   static const double minZoomToRender = 13.0;
-  static const double minZoomToShowPoints = 14.0;
+  static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
 
   MapboxMap? _mapboxMap;
@@ -131,6 +132,7 @@ class MapViewModel extends ChangeNotifier {
       _territoryRepository.fetchAllTerritories();
     }
     _lastActivityState = _trackingRepository.isActivityActive;
+    _updatePuckRing();
 
     notifyListeners();
   }
@@ -155,6 +157,9 @@ class MapViewModel extends ChangeNotifier {
 
   Future<void> onStyleLoaded() async {
     await _initializeH3Layer();
+    if (_isLocationPermissionGranted) {
+      await _enableLocationComponent();
+    }
     if (userPosition != null) {
       _hasInitialCenter = true;
       centerOnUser();
@@ -182,14 +187,39 @@ class MapViewModel extends ChangeNotifier {
   Future<void> _enableLocationComponent() async {
     final map = _mapboxMap;
     if (map == null) return;
+
+    String? topLayerId;
+    if (await map.style.styleLayerExists("puck-ring-outline-layer")) {
+      topLayerId = "puck-ring-outline-layer";
+    } else if (await map.style.styleLayerExists("h3-health-label-layer")) {
+      topLayerId = "h3-health-label-layer";
+    } else if (await map.style.styleLayerExists("h3-grid-layer")) {
+      topLayerId = "h3-grid-layer";
+    }
+
+    final puckModelUri = await _sessionRepository.localStorageService.getMergedModelPathOrDefault();
+
     await map.location.updateSettings(
       LocationComponentSettings(
-        enabled: true, 
-        pulsingEnabled: true,
+        enabled: true,
         puckBearingEnabled: true,
         puckBearing: PuckBearing.HEADING,
+        layerAbove: topLayerId,
+        locationPuck: LocationPuck(
+          locationPuck3D: LocationPuck3D(
+            modelUri: puckModelUri,
+            modelRotation: [0, 0, 180],
+            modelScale: [1, 1, 1],
+            modelScaleMode: ModelScaleMode.MAP,
+            modelEmissiveStrength: 1.0,
+            modelReceiveShadows: true
+
+            //modelOpacity: 0.5,
+          ),
+        ),
       ),
     );
+    await _updatePuckRing();
     centerOnUser();
   }
 
@@ -358,6 +388,59 @@ class MapViewModel extends ChangeNotifier {
       "type": "FeatureCollection",
       "features": features,
     });
+  }
+
+  Future<void> _updatePuckRing() async {
+    final map = _mapboxMap;
+    final pos = userPosition;
+    if (map == null || pos == null) return;
+
+    final style = map.style;
+
+    final centerLng = pos.coordinates.lng;
+    final centerLat = pos.coordinates.lat;
+    const radiusMeters = 15.0;
+
+    final hexagonCoords = <List<double>>[];
+    for (var i = 0; i <= 6; i++) {
+      final angleRad = (i * 60.0) * (math.pi / 180.0);
+      final dLat = (radiusMeters * math.sin(angleRad)) / 111111.0;
+      final dLng = (radiusMeters * math.cos(angleRad)) / (111111.0 * math.cos(centerLat * math.pi / 180.0));
+      hexagonCoords.add([centerLng + dLng, centerLat + dLat]);
+    }
+
+    final hexagonJson = jsonEncode({
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [hexagonCoords]
+      }
+    });
+
+    if (!await style.styleSourceExists("puck-ring-source")) {
+      await style.addSource(GeoJsonSource(
+        id: "puck-ring-source",
+        data: hexagonJson,
+      ));
+
+      await style.addLayer(FillLayer(
+        id: "puck-ring-glow-layer",
+        sourceId: "puck-ring-source",
+        fillColor: Colors.white.toARGB32(),
+        fillOpacity: 0.5,
+        //fillEmissiveStrength: 2.0
+      ));
+
+      await style.addLayer(LineLayer(
+        id: "puck-ring-outline-layer",
+        sourceId: "puck-ring-source",
+        lineColor: Colors.white.toARGB32(),
+        lineWidth: 2.0,
+      ));
+    } else {
+      final source = await style.getSource("puck-ring-source") as GeoJsonSource?;
+      await source?.updateGeoJSON(hexagonJson);
+    }
   }
 
   bool _setEquals(Set<String> a, Set<String> b) => a.length == b.length && a.containsAll(b);

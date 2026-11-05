@@ -1,15 +1,22 @@
+
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/domain/models/achievement.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
+import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/team/widgets/team_shared_widgets.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/three_js_avatar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
+
 
 class UserProfileScreen extends StatelessWidget {
   final UserProfileViewModel viewModel;
@@ -241,6 +248,8 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                /// TODO: set profile image
                 const SizedBox(height: 24),
                 _InputField(
                   controller: usernameController,
@@ -347,64 +356,380 @@ class UserProfileScreen extends StatelessWidget {
   }
 
   void _showEditAvatarBottomSheet(BuildContext context, UserProfileViewModel vm) {
-    final locale = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.darkBackground,
-      shape: const BeveledRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  locale!.customizeAvatar.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Oswald',
-                    fontSize: 20,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Center(
-              child: Icon(Icons.checkroom, size: 60, color: AppTheme.primaryColor),
-            ),
-            const SizedBox(height: 12),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _EditAvatarBottomSheet(viewModel: vm),
+    );
+  }
+}
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+class _EditAvatarBottomSheet extends StatefulWidget {
+  final UserProfileViewModel viewModel;
+  const _EditAvatarBottomSheet({required this.viewModel});
+
+  @override
+  State<_EditAvatarBottomSheet> createState() => _EditAvatarBottomSheetState();
+}
+
+class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
+  AvatarItemType _selectedCategory = AvatarItemType.footwear;
+
+  int? _selectedHead;
+  int? _selectedNeck;
+  int? _selectedBody;
+  int? _selectedFootwear;
+  Color? _selectedColor;
+  double? _hue;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final avatar = widget.viewModel.user.avatar;
+    _selectedHead = avatar?.head;
+    _selectedNeck = avatar?.neck;
+    _selectedBody = avatar?.body;
+    _selectedFootwear = avatar?.footwear;
+
+    if (avatar?.color != null) {
+      _selectedColor = Color(avatar!.color!);
+      _hue = HSVColor.fromColor(_selectedColor!).hue;
+    } else {
+      _selectedColor = null;
+      _hue = null;
+    }
+
+    widget.viewModel.loadDownloadedItemModels();
+  }
+
+  List<String> get _equippedGlbPaths {
+    final paths = <String>[];
+    final selectedIds = [_selectedHead, _selectedNeck, _selectedBody, _selectedFootwear];
+    for (final id in selectedIds) {
+      if (id != null) {
+        final model = widget.viewModel.downloadedItemModels.where((m) => m.id == id).firstOrNull;
+        if (model != null && model.filePath.isNotEmpty) {
+          paths.add(model.filePath);
+        }
+      }
+    }
+    return paths;
+  }
+
+  int? get _selectedItemId {
+    switch (_selectedCategory) {
+      case AvatarItemType.head:
+        return _selectedHead;
+      case AvatarItemType.neck:
+        return _selectedNeck;
+      case AvatarItemType.body:
+        return _selectedBody;
+      case AvatarItemType.footwear:
+        return _selectedFootwear;
+    }
+  }
+
+  void _setItemSelection(int? itemId) {
+    switch (_selectedCategory) {
+      case AvatarItemType.head:
+        _selectedHead = itemId;
+        break;
+      case AvatarItemType.neck:
+        _selectedNeck = itemId;
+        break;
+      case AvatarItemType.body:
+        _selectedBody = itemId;
+        break;
+      case AvatarItemType.footwear:
+        _selectedFootwear = itemId;
+        break;
+    }
+  }
+
+  List<int?> get _selectedItemIds => [
+        _selectedHead,
+        _selectedNeck,
+        _selectedBody,
+        _selectedFootwear,
+      ];
+
+  bool get _hasLockedItemSelected =>
+      widget.viewModel.hasLockedItemSelected(_selectedItemIds);
+
+  bool get _canSaveChanges => !_isSaving && !_hasLockedItemSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final vm = widget.viewModel;
+
+    return ListenableBuilder(
+      listenable: vm,
+      builder: (context, _) {
+        final equippedIds = [
+          vm.user.avatar?.head,
+          vm.user.avatar?.neck,
+          vm.user.avatar?.body,
+          vm.user.avatar?.footwear,
+        ].whereType<int>().toSet();
+
+        final selectionItems = vm.availableAvatarItems
+            .map((item) => ItemSelectionData.fromAvatarItem(
+                  item,
+                  isUnlocked: vm.isItemUnlocked(item.id),
+                  isEquipped: equippedIds.contains(item.id),
+                ))
+            .toList();
+
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 16,
+            bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          decoration: const ShapeDecoration(
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            ),
+            color: AppTheme.darkBackground,
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  // TODO: Implement avatar customization
-                  Navigator.pop(ctx);
-                },
-                child: Text(locale.saveChanges.toUpperCase(), style: TextStyle(color: AppTheme.fontPrimaryColor, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.customizeAvatar.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          fontSize: 20,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white54),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  Center(
+                    child: Container(
+                      width: 220,
+                      height: 220,
+                      decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withAlpha(40),
+                            Colors.white.withAlpha(20),
+                            Colors.white.withAlpha(10),
+                            Colors.white.withAlpha(10),
+                            Colors.white.withAlpha(20),
+                            Colors.white.withAlpha(40),
+                          ],
+                          stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                        ),
+                        shape: BeveledRectangleBorder(
+                          side: const BorderSide(color: AppTheme.tertiaryColor, width: 1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        child: ThreeJsAvatarView(
+                          baseGlbPath: widget.viewModel.baseModelPath,
+                          equippedGlbPaths: _equippedGlbPaths,
+                          avatarColor: _selectedColor,
+                        ),
+                      )
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.color.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontFamily: 'Oswald',
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: _selectedColor ?? Colors.white24,
+                          shape: BoxShape.rectangle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: _selectedColor == null
+                            ? const Icon(Icons.palette, size: 14, color: Colors.white70)
+                            : null,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  HueSlider(
+                    hue: _hue ?? 200.0,
+                    onChanged: (val) => setState(() {
+                      _hue = val;
+                      _selectedColor = HSVColor.fromAHSV(1.0, val, 0.8, 0.9).toColor();
+                    }),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ItemSelectionWidget(
+                    items: selectionItems,
+                    equippedItemIds: equippedIds,
+                    initialCategoryId: _selectedCategory.name,
+                    selectedItemId: _selectedItemId,
+                    itemsPerPage: 3,
+                    onCategoryChanged: (catTab) {
+                      final cat = AvatarItemType.values.firstWhere(
+                        (t) => t.name == catTab.id,
+                        orElse: () => AvatarItemType.head,
+                      );
+                      setState(() {
+                        _selectedCategory = cat;
+                      });
+                    },
+                    onLockedItemTap: (itemData) {
+                      HapticFeedback.heavyImpact();
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(locale.itemIsLocked),
+                          backgroundColor: Colors.orangeAccent,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    onItemSelected: (itemData) {
+                      final itemId = itemData.id as int;
+                      final isSelected = _selectedItemId == itemId;
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _setItemSelection(isSelected ? null : itemId);
+                        debugPrint('Item $itemId selected');
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _canSaveChanges
+                            ? AppTheme.primaryColor
+                            : AppTheme.primaryColor.withAlpha(80),
+                        foregroundColor: AppTheme.fontPrimaryColor,
+                        disabledBackgroundColor: AppTheme.primaryColor.withAlpha(80),
+                        disabledForegroundColor: Colors.white38,
+                        shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                      ),
+                      onPressed: _canSaveChanges
+                          ? () async {
+                              HapticFeedback.mediumImpact();
+
+                              setState(() {
+                                _isSaving = true;
+                              });
+
+                              final currentAvatar = vm.user.avatar ?? const UserAvatar();
+                              final updatedAvatar = currentAvatar.copyWith(
+                                head: _selectedHead,
+                                neck: _selectedNeck,
+                                body: _selectedBody,
+                                footwear: _selectedFootwear,
+                                color: _selectedColor?.toARGB32(),
+                              );
+
+                              final success = await vm.updateAvatar(updatedAvatar);
+
+                              if (mounted) {
+                                setState(() {
+                                  _isSaving = false;
+                                });
+
+                                if (success) {
+                                  await vm.saveMergedModelLocally(baseColor: _selectedColor);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(locale.avatarUpdatedSuccess),
+                                      backgroundColor: AppTheme.successColor,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(locale.avatarUpdateError),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          : null,
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.darkBackground,
+                              ),
+                            )
+                          : Text(
+                              locale.saveChanges.toUpperCase(),
+                              style: const TextStyle(
+                                fontFamily: 'Oswald',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -493,49 +818,7 @@ class _TopHeaderBarCurrentUser extends StatelessWidget {
   }
 }
 
-class _TopHeaderBarOtherUser extends StatelessWidget {
-  final UserProfileViewModel viewModel;
-  final VoidCallback onBackPressed;
-
-  const _TopHeaderBarOtherUser({
-    required this.viewModel,
-    required this.onBackPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        InkWell(
-          onTap: onBackPressed,
-          customBorder: const BeveledRectangleBorder(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: ShapeDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              shape: const BeveledRectangleBorder(
-                side: BorderSide(color: Colors.white24, width: 1),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
-              ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.arrow_back, color: AppTheme.primaryColor, size: 20),
-                SizedBox(width: 6),
-              ]
-            )
-          )
-        )
-      ]
-    );
-  }
-}
-
-class _AvatarSection extends StatelessWidget {
+class _AvatarSection extends StatefulWidget {
   final UserProfileViewModel viewModel;
   final VoidCallback onEditAccountPressed;
   final VoidCallback onEditAvatarPressed;
@@ -547,8 +830,37 @@ class _AvatarSection extends StatelessWidget {
   });
 
   @override
+  State<_AvatarSection> createState() => _AvatarSectionState();
+}
+
+class _AvatarSectionState extends State<_AvatarSection> {
+  Color? get _avatarColor {
+    final colorInt = widget.viewModel.user.avatar?.color;
+    return colorInt != null ? Color(colorInt) : null;
+  }
+
+  List<String> get _equippedGlbPaths {
+    final paths = <String>[];
+    final avatar = widget.viewModel.user.avatar;
+    if (avatar != null) {
+      final selectedIds = [avatar.head, avatar.neck, avatar.body, avatar.footwear];
+      for (final id in selectedIds) {
+        if (id != null) {
+          final model = widget.viewModel.downloadedItemModels.where((m) => m.id == id).firstOrNull;
+          if (model != null && model.filePath.isNotEmpty) {
+            paths.add(model.filePath);
+          }
+        }
+      }
+    }
+    return paths;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = viewModel.user;
+    final user = widget.viewModel.user;
+    final modelPath = widget.viewModel.baseModelPath;
+    final baseAvatarContainerColor = Colors.white;
 
     return Column(
       children: [
@@ -556,38 +868,109 @@ class _AvatarSection extends StatelessWidget {
           alignment: Alignment.bottomRight,
           children: [
             Container(
-              width: 130,
-              height: 130,
+              width: 220,
+              height: 220,
               decoration: ShapeDecoration(
-                color: Colors.black26,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    baseAvatarContainerColor.withAlpha(40),
+                    baseAvatarContainerColor.withAlpha(20),
+                    baseAvatarContainerColor.withAlpha(10),
+                    baseAvatarContainerColor.withAlpha(10),
+                    baseAvatarContainerColor.withAlpha(20),
+                    baseAvatarContainerColor.withAlpha(40),
+                  ],
+                  stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                ),
                 shape: BeveledRectangleBorder(
-                  side: const BorderSide(color: AppTheme.primaryColor, width: 2),
-                  borderRadius: BorderRadius.circular(65),
+                  side: BorderSide(color: Colors.white.withAlpha(100), width: 1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              child: user.avatar?.thumbnailUrl != null
-                  ? ClipPath(
-                      clipper: _BeveledCircleClipper(),
-                      child: Image.network(user.avatar!.thumbnailUrl!, fit: BoxFit.cover),
-                    )
-                  : const Icon(Icons.person, size: 70, color: Colors.white54),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ThreeJsAvatarView(
+                  baseGlbPath: modelPath,
+                  equippedGlbPaths: _equippedGlbPaths,
+                  avatarColor: _avatarColor,
+                ),
+              ),
             ),
-            if (viewModel.user == AuthRepository.instance.currentUser)
-              GestureDetector(
-                onTap: onEditAvatarPressed,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const ShapeDecoration(
-                    color: AppTheme.primaryColor,
-                    shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+            if (widget.viewModel.user == AuthRepository.instance.currentUser)
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: widget.onEditAvatarPressed,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const ShapeDecoration(
+                      color: AppTheme.primaryColor,
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
                     ),
+                    child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                   ),
-                  child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                 ),
               ),
           ],
         ),
+        if (widget.viewModel.isDownloadingModels) ...[
+          const SizedBox(height: 8),
+          Container(
+            width: 220,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: ShapeDecoration(
+              color: AppTheme.darkBackground,
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                  color: AppTheme.primaryColor.withAlpha(150),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      ((AppLocalizations.of(context) as dynamic).downloadingModel as String?) ?? 'Descargando modelos 3D...',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${(widget.viewModel.downloadProgress * 100).toInt()}%',
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: widget.viewModel.downloadProgress,
+                    backgroundColor: Colors.white12,
+                    color: AppTheme.primaryColor,
+                    minHeight: 4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
 
         Row(
@@ -598,10 +981,10 @@ class _AvatarSection extends StatelessWidget {
               user.username,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            if (viewModel.user == AuthRepository.instance.currentUser)...[
+            if (widget.viewModel.user == AuthRepository.instance.currentUser)...[
               const SizedBox(width: 6),
               InkWell(
-                onTap: onEditAccountPressed,
+                onTap: widget.onEditAccountPressed,
                 customBorder: const CircleBorder(),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
@@ -638,17 +1021,6 @@ class _AvatarSection extends StatelessWidget {
       ],
     );
   }
-}
-
-class _BeveledCircleClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final border = BeveledRectangleBorder(borderRadius: BorderRadius.circular(size.width / 2));
-    return border.getOuterPath(Offset.zero & size);
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 class _LevelXpSection extends StatelessWidget {
@@ -1059,6 +1431,8 @@ class _AchievementsSection extends StatelessWidget {
   }
 }
 
+
+
 class _AchievementGrid extends StatelessWidget {
   final List<Achievement> achievements;
   final Function(Achievement) onTap;
@@ -1122,7 +1496,87 @@ class _AchievementGrid extends StatelessWidget {
                   style: TextStyle(
                     color: isUnlocked ? Colors.white : Colors.white38,
                     fontSize: 12,
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.normal,                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+
+
+class HueSlider extends StatelessWidget {
+  final double hue;
+  final ValueChanged<double> onChanged;
+
+  const HueSlider({super.key, required this.hue, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        const double thumbRadius = 12.0;
+        final double thumbLeft = ((hue / 360.0) * width - thumbRadius).clamp(0.0, width - thumbRadius * 2);
+
+        return GestureDetector(
+          onPanUpdate: (details) {
+            double newHue = (details.localPosition.dx / width) * 360.0;
+            onChanged(newHue.clamp(0.0, 360.0));
+          },
+          onTapDown: (details) {
+            double newHue = (details.localPosition.dx / width) * 360.0;
+            onChanged(newHue.clamp(0.0, 360.0));
+          },
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(
+            height: 32,
+            width: double.infinity,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.centerLeft,
+              children: [
+                Container(
+                  height: 12,
+                  width: double.infinity,
+                  decoration: ShapeDecoration(
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFF0000),
+                        Color(0xFFFFFF00),
+                        Color(0xFF00FF00),
+                        Color(0xFF00FFFF),
+                        Color(0xFF0000FF),
+                        Color(0xFFFF00FF),
+                        Color(0xFFFF0000),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: thumbLeft,
+                  child: Container(
+                    width: thumbRadius * 2,
+                    height: thumbRadius * 2,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black12, width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(40),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

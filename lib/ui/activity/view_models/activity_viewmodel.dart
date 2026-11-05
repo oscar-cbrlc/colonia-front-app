@@ -36,7 +36,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final SensorRepository? _sensorRepository;
 
   static const double minZoomToRender = 13.0;
-  static const double minZoomToShowPoints = 14.0;
+  static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
 
   MapboxMap? _mapboxMap;
@@ -155,6 +155,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onTrackingDataChanged() {
     notifyListeners();
+    _updatePuckRing();
 
     if (_isFollowingUser && userPosition != null && !_hasInitialCenter) {
       _hasInitialCenter = true;
@@ -287,8 +288,11 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> onStyleLoaded() async {
     await _initializeH3Layer();
     await _initializeTrackingPolygon();
+    if (_isLocationPermissionGranted) {
+      await _enableLocationComponent();
+    }
     if (userPosition != null) {
-        centerOnUser();
+      centerOnUser();
     }
     unawaited(_territoryRepository.fetchAllTerritories());
     await _updateMapLayers();
@@ -536,8 +540,91 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _enableLocationComponent() async {
     final map = _mapboxMap;
     if (map == null) return;
-    await map.location.updateSettings(LocationComponentSettings(enabled: true, pulsingEnabled: true, puckBearingEnabled: true, puckBearing: PuckBearing.HEADING));
+
+    String? topLayerId;
+    if (await map.style.styleLayerExists("tracking-nodes-label-layer")) {
+      topLayerId = "tracking-nodes-label-layer";
+    } else if (await map.style.styleLayerExists("tracking-nodes-layer")) {
+      topLayerId = "tracking-nodes-layer";
+    } else if (await map.style.styleLayerExists("puck-ring-outline-layer")) {
+      topLayerId = "puck-ring-outline-layer";
+    } else if (await map.style.styleLayerExists("h3-health-label-layer")) {
+      topLayerId = "h3-health-label-layer";
+    }
+
+    final puckModelUri = await _sessionRepository.localStorageService.getMergedModelPathOrDefault();
+
+    await map.location.updateSettings(
+      LocationComponentSettings(
+        enabled: true,
+        puckBearingEnabled: true,
+        puckBearing: PuckBearing.HEADING,
+        layerAbove: topLayerId,
+        locationPuck: LocationPuck(
+          locationPuck3D: LocationPuck3D(
+            modelUri: puckModelUri,
+            modelRotation: [0, 0, 180],
+            modelScale: [1, 1, 1],
+            modelScaleMode: ModelScaleMode.MAP,
+            modelEmissiveStrength: 1.0,
+          ),
+        ),
+      ),
+    );
+    await _updatePuckRing();
     centerOnUser();
+  }
+
+  Future<void> _updatePuckRing() async {
+    final map = _mapboxMap;
+    final pos = userPosition;
+    if (map == null || pos == null) return;
+
+    final style = map.style;
+
+    final centerLng = pos.coordinates.lng;
+    final centerLat = pos.coordinates.lat;
+    const radiusMeters = 15.0;
+
+    final hexagonCoords = <List<double>>[];
+    for (var i = 0; i <= 6; i++) {
+      final angleRad = (i * 60.0) * (pi / 180.0);
+      final dLat = (radiusMeters * sin(angleRad)) / 111111.0;
+      final dLng = (radiusMeters * cos(angleRad)) / (111111.0 * cos(centerLat * pi / 180.0));
+      hexagonCoords.add([centerLng + dLng, centerLat + dLat]);
+    }
+
+    final hexagonJson = jsonEncode({
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [hexagonCoords]
+      }
+    });
+
+    if (!await style.styleSourceExists("puck-ring-source")) {
+      await style.addSource(GeoJsonSource(
+        id: "puck-ring-source",
+        data: hexagonJson,
+      ));
+
+      await style.addLayer(FillLayer(
+        id: "puck-ring-glow-layer",
+        sourceId: "puck-ring-source",
+        fillColor: Colors.white.toARGB32(),
+        fillOpacity: 0.25,
+      ));
+
+      await style.addLayer(LineLayer(
+        id: "puck-ring-outline-layer",
+        sourceId: "puck-ring-source",
+        lineColor: Colors.white.toARGB32(),
+        lineWidth: 2.0,
+      ));
+    } else {
+      final source = await style.getSource("puck-ring-source") as GeoJsonSource?;
+      await source?.updateGeoJSON(hexagonJson);
+    }
   }
 
   @override

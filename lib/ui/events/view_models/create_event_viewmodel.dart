@@ -3,8 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
+import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/domain/models/active_challenge.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -15,12 +19,15 @@ enum MapRouteEditMode { paint, erase, navigate }
 class CreateEventViewModel extends ChangeNotifier {
   final TrackingRepository _trackingRepository;
   final BoostRepository _boostRepository;
+  final ChallengeRepository _challengeRepository;
+  final AvatarItemRepository? avatarItemRepository;
 
   MapboxMap? _mapboxMap;
   Timer? _debounceTimer;
 
   double _mapBearing = 0.0;
   bool _showPoints = true;
+  bool _isSaving = false;
 
   final List<String> _selectedHexagonIds = [];
   String _eventName = '';
@@ -29,17 +36,41 @@ class CreateEventViewModel extends ChangeNotifier {
   DateTime? _endDate;
 
   final Map<int, int> _boostQuantities = {};
+  AvatarItem? _selectedAvatarItem;
 
   MapRouteEditMode _mapMode = MapRouteEditMode.navigate;
 
   CreateEventViewModel({
     required TrackingRepository trackingRepository,
     required BoostRepository boostRepository,
+    required ChallengeRepository challengeRepository,
+    this.avatarItemRepository,
+    ActiveChallenge? initialEvent,
   })  : _trackingRepository = trackingRepository,
-        _boostRepository = boostRepository {
+        _boostRepository = boostRepository,
+        _challengeRepository = challengeRepository {
     _boostRepository.addListener(notifyListeners);
     _boostRepository.getAvailableBoosts();
+    avatarItemRepository?.addListener(notifyListeners);
+    avatarItemRepository?.fetchCatalogItems();
+    if (initialEvent != null) {
+      _loadFromTemplate(initialEvent);
+    }
   }
+
+  void _loadFromTemplate(ActiveChallenge event) {
+    _eventName = event.challenge.name ?? '';
+    final hexRaw = event.challenge.objectiveCondition['route'];
+    if (hexRaw is List) {
+      _selectedHexagonIds.addAll(hexRaw.map((e) => e.toString()));
+    }
+    for (final br in event.challenge.boostRewards) {
+      _boostQuantities[br.boost.id] = br.amount;
+    }
+    _selectedAvatarItem = event.challenge.avatarItemReward;
+  }
+
+  bool get isSaving => _isSaving;
 
   MapboxMap? get mapboxMap => _mapboxMap;
   Point? get userPosition => _trackingRepository.userPosition;
@@ -48,6 +79,10 @@ class CreateEventViewModel extends ChangeNotifier {
   bool get showPoints => _showPoints;
 
   List<Boost> get availableBoosts => _boostRepository.availableBoosts;
+  List<AvatarItem> get availableAvatarItems =>
+      avatarItemRepository?.availableAvatarItems ?? [];
+
+  AvatarItem? get selectedAvatarItem => _selectedAvatarItem;
 
   List<String> get selectedHexagonIds => List.unmodifiable(_selectedHexagonIds);
   int get selectedHexagonsCount => _selectedHexagonIds.length;
@@ -68,7 +103,8 @@ class CreateEventViewModel extends ChangeNotifier {
 
   String getBoostName(Boost boost, AppLocalizations locale) => boost.getCompleteName(locale);
 
-  bool get hasSelectedRewards => _boostQuantities.values.any((quantity) => quantity > 0);
+  bool get hasSelectedRewards =>
+      _boostQuantities.values.any((quantity) => quantity > 0) || _selectedAvatarItem != null;
 
   bool get isHexagonSelectionValid => _selectedHexagonIds.isNotEmpty;
 
@@ -144,6 +180,11 @@ class CreateEventViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSelectedAvatarItem(AvatarItem? item) {
+    _selectedAvatarItem = item;
+    notifyListeners();
+  }
+
   void toggleHexagonSelection(String hexId) {
     if (_selectedHexagonIds.contains(hexId)) {
       _selectedHexagonIds.remove(hexId);
@@ -203,12 +244,55 @@ class CreateEventViewModel extends ChangeNotifier {
     _configureOrnaments();
   }
 
+  Future<void> _fitCameraToRoute() async {
+    final map = _mapboxMap;
+    if (map == null || _selectedHexagonIds.isEmpty) return;
+    try {
+      final routeCords = _selectedHexagonIds
+          .map((hexId) => H3Helper.getHexCenter(hexId))
+          .toList();
+
+      if (routeCords.isEmpty) return;
+
+      Map<String, dynamic> geometry;
+      if (routeCords.length > 1) {
+        geometry = {
+          "type": "LineString",
+          "coordinates": routeCords.map((c) => [c.lon, c.lat]).toList(),
+        };
+      } else {
+        geometry = {
+          "type": "Point",
+          "coordinates": [routeCords.first.lon, routeCords.first.lat],
+        };
+      }
+
+      final camera = await map.cameraForGeometry(
+        geometry,
+        MbxEdgeInsets(top: 50, left: 50, bottom: 250, right: 50),
+        0.0,
+        0.0,
+      );
+      await map.setCamera(CameraOptions(
+        center: camera.center,
+        zoom: camera.zoom != null ? camera.zoom! - 0.5 : 12.0,
+        pitch: camera.pitch,
+        bearing: 0.0,
+      ));
+      _mapBearing = 0.0;
+    } catch (e) {
+      debugPrint("CreateEventViewModel: Error in _fitCameraToRoute: $e");
+    }
+  }
+
   Future<void> onStyleLoaded() async {
     await _initializeLayers();
     if (inEditMode) {
       await _updateGestureSettings();
     }
-    if (userPosition != null) {
+    if (_selectedHexagonIds.isNotEmpty) {
+      await _fitCameraToRoute();
+    } else if (userPosition != null) {
       await _mapboxMap?.setCamera(
         CameraOptions(center: userPosition!, zoom: 15.0),
       );
@@ -330,9 +414,47 @@ class CreateEventViewModel extends ChangeNotifier {
     }));
   }
 
-  void saveEvent() {
-    if (!isSaveEnabled) return;
-    debugPrint("Event created: Name='$_eventName', Start=$_startDate, End=$_endDate, Boosts=$_boostQuantities, Hexagons=$_selectedHexagonIds");
+  Future<bool> saveEvent() async {
+    if (!isSaveEnabled || _isSaving) return false;
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      final boostsList = <Map<String, dynamic>>[];
+      _boostQuantities.forEach((boostId, quantity) {
+        if (quantity > 0) {
+          boostsList.add({
+            'challenge_id': 0,
+            'boost_id': boostId,
+            'boost_amount': quantity,
+          });
+        }
+      });
+
+      final payload = {
+        'challenge': {
+          'challenge_name': _eventName,
+          'objective_type': 10,
+          'objective_condition': {
+            'route': _selectedHexagonIds,
+          },
+          'challenge_difficulty': 1,
+          'boosts_reward': boostsList,
+          'avatar_item_id': _selectedAvatarItem?.id,
+        },
+        'challenge_start_date': _startDate!.toUtc().toIso8601String(),
+        'challenge_end_date': _endDate!.toUtc().toIso8601String(),
+      };
+
+      final success = await _challengeRepository.createEvent(payload);
+      return success;
+    } catch (e) {
+      debugPrint("Error creating event: $e");
+      return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
   }
 
   void _configureOrnaments() {
@@ -346,6 +468,7 @@ class CreateEventViewModel extends ChangeNotifier {
   void dispose() {
     _debounceTimer?.cancel();
     _boostRepository.removeListener(notifyListeners);
+    avatarItemRepository?.removeListener(notifyListeners);
     super.dispose();
   }
 }

@@ -1,18 +1,62 @@
+import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/domain/models/achievement.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class UserProfileViewModel extends ChangeNotifier {
   User _user;
   bool _isLoading = false;
   String? _errorMessage;
+  final AvatarItemRepository _avatarItemRepository;
 
-  UserProfileViewModel(this._user);
+  bool _isDownloadingModels = false;
+  double _downloadProgress = 0.0;
+  List<AvatarItemModel> _downloadedItemModels = [];
+
+  UserProfileViewModel(this._user, this._avatarItemRepository)
+  {
+    checkAndDownloadAvatarModels();
+  }
 
   User get user => _user;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  String get baseModelPath => GameConfig.baseModelPath;
+  bool get isDownloadingModels => _isDownloadingModels;
+  double get downloadProgress => _downloadProgress;
+  List<AvatarItemModel> get downloadedItemModels => List.unmodifiable(_downloadedItemModels);
+  List<AvatarItem> get availableAvatarItems => _avatarItemRepository.availableAvatarItems;
+
+  AvatarItemRepository get avatarItemRepository => _avatarItemRepository;
+  bool isItemDownloaded(int id) {
+    return _downloadedItemModels.any((model) => model.id == id);
+  }
+
+  bool isItemUnlocked(int itemId) {
+    final isEquipped = _user.avatar?.head == itemId ||
+        _user.avatar?.neck == itemId ||
+        _user.avatar?.body == itemId ||
+        _user.avatar?.footwear == itemId;
+    final inInventory = _avatarItemRepository.myInventory.any((inv) => inv.item.id == itemId);
+    return isEquipped || inInventory;
+  }
+
+  bool hasLockedItemSelected(Iterable<int?> itemIds) {
+    for (final id in itemIds) {
+      if (id != null && !isItemUnlocked(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool areAllSelectedItemsUnlocked(Iterable<int?> itemIds) {
+    return !hasLockedItemSelected(itemIds);
+  }
 
   List<Achievement> get achievements => _user.achievements;
   List<Achievement> get unlockedAchievements => _user.unlockedAchievements;
@@ -50,6 +94,31 @@ class UserProfileViewModel extends ChangeNotifier {
     return count.toString();
   }
 
+  Future<void> loadDownloadedItemModels() async {
+    await _avatarItemRepository.fetchCatalogItems();
+    await _avatarItemRepository.fetchMyInventory();
+    _downloadedItemModels = await _avatarItemRepository.getStoredItemModels();
+    notifyListeners();
+  }
+
+  Future<void> checkAndDownloadAvatarModels({List<AvatarItem>? items}) async {
+    _isDownloadingModels = true;
+    _downloadProgress = 0.0;
+    notifyListeners();
+
+    await _avatarItemRepository.checkAndDownloadModels(
+      items: items,
+      onProgress: (progress) {
+        _downloadProgress = progress;
+        notifyListeners();
+      },
+    );
+
+    _downloadedItemModels = await _avatarItemRepository.getStoredItemModels();
+    _isDownloadingModels = false;
+    notifyListeners();
+  }
+
   Future<bool> updateAccountInfo({required String newUsername, String? newPassword}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -78,6 +147,14 @@ class UserProfileViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await _avatarItemRepository.updateAvatar(
+        head: updatedAvatar.head,
+        neck: updatedAvatar.neck,
+        body: updatedAvatar.body,
+        footwear: updatedAvatar.footwear,
+        color: updatedAvatar.color,
+      );
+
       final updatedUser = _user.copyWith(avatar: updatedAvatar);
       await AuthRepository.instance.updateCurrentUser(updatedUser);
       _user = updatedUser;
@@ -97,5 +174,11 @@ class UserProfileViewModel extends ChangeNotifier {
   void updateUser(User newUser) {
     _user = newUser;
     notifyListeners();
+  }
+
+  Future<void> saveMergedModelLocally({Color? baseColor}) async {
+    final paths = await _avatarItemRepository.getEquippedModelPaths();
+    final color = baseColor ?? (_user.avatar?.color != null ? Color(_user.avatar!.color!) : null);
+    await _avatarItemRepository.saveMergedModelLocally(paths, baseColor: color);
   }
 }
