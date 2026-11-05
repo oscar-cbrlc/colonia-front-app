@@ -193,6 +193,7 @@ class _EventsSheetState extends State<EventsSheet> {
                               final event = events[index];
                               final challenge = event.challenge;
                               final boostRewards = challenge.boostRewards;
+                              final avatarItemReward = challenge.avatarItemReward;
 
                               final now = DateTime.now();
 
@@ -327,7 +328,7 @@ class _EventsSheetState extends State<EventsSheet> {
                                           ),
                                         ],
                                       ),
-                                      if (boostRewards.isNotEmpty) ...[
+                                      if (boostRewards.isNotEmpty || avatarItemReward != null) ...[
                                         const SizedBox(height: 16),
                                         Text(
                                           '${locale.rewards.toUpperCase()}:',
@@ -340,27 +341,35 @@ class _EventsSheetState extends State<EventsSheet> {
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 6,
                                           children: [
-                                            Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: boostRewards.map((boostReward) =>
-                                                ExpandableRewardCard(
-                                                  boostReward: boostReward.boost,
-                                                  avatarItemReward: null,
-                                                  amount: boostReward.amount,
-                                                  locale: locale,
-                                                  mainColor:
-                                                    (isInCourse || isExpired) ? AppTheme.secondaryColor :
-                                                    AppTheme.tertiaryColor,
-                                                  mainTextColor: Colors.white,
-                                                  secondaryColor: (isInCourse || isExpired)? AppTheme.tertiaryColor : AppTheme.secondaryColor,
-                                                  secondaryTextColor: (isInCourse || isExpired) ? Colors.white : AppTheme.darkBackground,
-                                                )
-                                              ).toList(),
+                                            ...boostRewards.map((boostReward) =>
+                                              ExpandableRewardCard(
+                                                boostReward: boostReward.boost,
+                                                avatarItemReward: null,
+                                                amount: boostReward.amount,
+                                                locale: locale,
+                                                mainColor:
+                                                  (isInCourse || isExpired) ? AppTheme.secondaryColor :
+                                                  AppTheme.tertiaryColor,
+                                                mainTextColor: Colors.white,
+                                                secondaryColor: (isInCourse || isExpired)? AppTheme.tertiaryColor : AppTheme.secondaryColor,
+                                                secondaryTextColor: (isInCourse || isExpired) ? Colors.white : AppTheme.darkBackground,
+                                              )
                                             ),
+                                            if (avatarItemReward != null)
+                                              ExpandableRewardCard(
+                                                boostReward: null,
+                                                avatarItemReward: avatarItemReward,
+                                                amount: 1,
+                                                locale: locale,
+                                                mainColor: AppTheme.primaryColor,
+                                                mainTextColor: AppTheme.primaryColor,
+                                                secondaryColor: AppTheme.secondaryColor,
+                                                secondaryTextColor: Colors.white,
+                                              ),
                                           ],
                                         ),
                                       ],

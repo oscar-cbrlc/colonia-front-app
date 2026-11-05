@@ -195,6 +195,7 @@ class ChallengeListItem extends StatelessWidget {
     );
 
     final boostRewards = activeChallenge.challenge.boostRewards;
+    final avatarItemReward = activeChallenge.challenge.avatarItemReward;
     final descriptionParts = challenge.getDescriptionParts(locale);
 
     final difficultyColor = switch (challenge.difficulty) {
@@ -301,10 +302,11 @@ class ChallengeListItem extends StatelessWidget {
             progressText: progressText,
             isCompleted: isCompleted,
           ),
-          const SizedBox(height: 12),
-          const Divider(color: Colors.white12, height: 0.2),
-          const SizedBox(height: 12),
-          Column(
+          if (boostRewards.isNotEmpty || avatarItemReward != null) ...[
+            const SizedBox(height: 12),
+            const Divider(color: Colors.white12, height: 0.2),
+            const SizedBox(height: 12),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -318,32 +320,38 @@ class ChallengeListItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    if (boostRewards.isNotEmpty) ...[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: boostRewards.map((boostReward) =>
-                            ExpandableRewardCard(
-                                boostReward: boostReward.boost,
-                                avatarItemReward: null,
-                                amount: boostReward.amount,
-                                locale: locale,
-                                mainColor: AppTheme.tertiaryColor,
-                                mainTextColor: Colors.white,
-                                secondaryColor: AppTheme.secondaryColor,
-                                secondaryTextColor: AppTheme.darkBackground
-                            )
-                          ).toList()
-                        )
-                    ],
-
+                    ...boostRewards.map((boostReward) =>
+                      ExpandableRewardCard(
+                        boostReward: boostReward.boost,
+                        avatarItemReward: null,
+                        amount: boostReward.amount,
+                        locale: locale,
+                        mainColor: AppTheme.tertiaryColor,
+                        mainTextColor: Colors.white,
+                        secondaryColor: AppTheme.secondaryColor,
+                        secondaryTextColor: AppTheme.darkBackground,
+                      ),
+                    ),
+                    if (avatarItemReward != null)
+                      ExpandableRewardCard(
+                        boostReward: null,
+                        avatarItemReward: avatarItemReward,
+                        amount: 1,
+                        locale: locale,
+                        mainColor: AppTheme.primaryColor,
+                        mainTextColor: AppTheme.primaryColor,
+                        secondaryColor: AppTheme.secondaryColor,
+                        secondaryTextColor: Colors.white,
+                      ),
                   ],
-                )
-              ]
-          ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -455,20 +463,64 @@ class ExpandableRewardCard extends StatefulWidget {
 class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
   bool _isExpanded = false;
 
+  Widget _buildAvatarImageOrIcon(AvatarItem item, Color color, double size) {
+    final itemType = AvatarItemType.values.firstWhere(
+      (t) => t.name.toLowerCase() == item.type.toLowerCase(),
+      orElse: () => AvatarItemType.head,
+    );
+    final iconBuilder = avatarItemTypeIcons[itemType];
+    final defaultIcon = iconBuilder != null
+        ? iconBuilder(color, size)
+        : Icon(Icons.checkroom, color: color, size: size);
+
+    if (item.image.isNotEmpty) {
+      if (item.image.startsWith('http://') || item.image.startsWith('https://')) {
+        return Image.network(
+          item.image,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => defaultIcon,
+        );
+      } else {
+        return Image.asset(
+          item.image,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => defaultIcon,
+        );
+      }
+    }
+    return defaultIcon;
+  }
+
   @override
   Widget build(BuildContext context) {
     final boost = widget.boostReward;
     final avatarItem = widget.avatarItemReward;
 
-    IconData icon = Icons.attach_money;
-    String desc = '';
+    Widget? iconWidget;
+    String label = '';
+    String expandedBoostName = '';
 
     if (boost != null) {
-      icon = BoostInventory.getBoostIcon(boost.type);
-      desc = boost.getName(widget.locale).toUpperCase();
+      final iconData = BoostInventory.getBoostIcon(boost.type);
+      iconWidget = Icon(iconData, color: widget.mainTextColor, size: 16);
+      label = boost.getEffectFormatted().toUpperCase();
+      expandedBoostName = boost.getName(widget.locale).toUpperCase();
     } else if (avatarItem != null) {
-      icon = Icons.checkroom;
-      desc = avatarItem.name.toUpperCase();
+      final itemType = AvatarItemType.values.firstWhere(
+        (t) => t.name.toLowerCase() == avatarItem.type.toLowerCase(),
+        orElse: () => AvatarItemType.head,
+      );
+      final iconBuilder = avatarItemTypeIcons[itemType];
+      if (iconBuilder != null) {
+        iconWidget = iconBuilder(widget.mainTextColor, 16);
+      } else {
+        iconWidget = Icon(Icons.checkroom, color: widget.mainTextColor, size: 16);
+      }
+      label = avatarItem.getNameLocale(widget.locale).toUpperCase();
     }
 
     return GestureDetector(
@@ -497,65 +549,94 @@ class _ExpandableRewardCardState extends State<ExpandableRewardCard> {
             ),
           ),
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: widget.mainTextColor,
-              size: 16,
-            ),
-            const SizedBox(width: 6),
-            if (boost != null)
-              Text(
-                boost.getEffectFormatted().toUpperCase(),
-                style: TextStyle(
-                  color: widget.mainTextColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.8,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-
-            const SizedBox(width: 6),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOutCubicEmphasized,
-              child: _isExpanded && desc.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.only(right: 6.0),
-                      child: Text(
-                        desc,
-                        style: TextStyle(
-                          color: widget.mainTextColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
-                          decoration: TextDecoration.none,
-                        ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (iconWidget != null) iconWidget,
+                if (label.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: widget.mainTextColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+                if (boost != null)
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOutCubicEmphasized,
+                    child: _isExpanded && expandedBoostName.isNotEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.only(left: 6.0),
+                            child: Text(
+                              expandedBoostName,
+                              style: TextStyle(
+                                color: widget.mainTextColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.8,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                if (boost != null) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                    decoration: ShapeDecoration(
+                      color: widget.secondaryColor.withAlpha(180),
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                    )
-                  : const SizedBox.shrink(),
+                    ),
+                    child: Text(
+                      "x${widget.amount}",
+                      style: TextStyle(
+                        color: widget.secondaryTextColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-              decoration: ShapeDecoration(
-                color: widget.secondaryColor.withAlpha(180),
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
+            if (avatarItem != null)
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOutCubicEmphasized,
+                child: _isExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: ShapeDecoration(
+                            color: widget.mainColor.withAlpha(30),
+                            shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: widget.mainColor.withAlpha(120),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: _buildAvatarImageOrIcon(avatarItem, widget.mainTextColor, 64),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
-              child: Text(
-                "x${widget.amount}",
-                style: TextStyle(
-                  color: widget.secondaryTextColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ),
           ],
         ),
       ),
