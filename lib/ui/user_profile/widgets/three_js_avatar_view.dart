@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -52,9 +53,20 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
         _threeJS.scene.add(_avatarGroup);
         _threeJS.scene.add(three.AmbientLight(0xffffff, 1));
-        final directionalLight = three.DirectionalLight(0xffffff, 1);
-        directionalLight.position.setValues(0, 1, 1);
-        _threeJS.scene.add(directionalLight);
+        final directionalLightFront= three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightBack= three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightTop= three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightBottom= three.DirectionalLight(0xffffff, 0.5);
+        directionalLightFront.position.setValues(0, 0, 1);
+        directionalLightBack.position.setValues(0, 0, -1);
+        directionalLightTop.position.setValues(0, 1, 0);
+        directionalLightBottom.position.setValues(0, -1, 0);
+        _threeJS.scene.add(directionalLightFront);
+        _threeJS.scene.add(directionalLightBack);
+        _threeJS.scene.add(directionalLightTop);
+        _threeJS.scene.add(directionalLightBottom);
+
+
         _threeJS.renderer?.setClearColor(three.Color(0x000000), 0);
       },
       onSetupComplete: () async {
@@ -204,19 +216,8 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
       clonedObj.traverse((child) {
         if (child is three.Mesh) {
-          final mat = child.material;
-
-          if (mat != null) {
-            mat.transparent = false;
-            mat.opacity = 1.0;
-            mat.depthWrite = true;
-            mat.depthTest = true;
-            mat.blending = three.NormalBlending;
-            mat.needsUpdate = true;
-          }
-
-          if (isBase && widget.avatarColor != null) {
-            child.material = child.material?.clone();
+          if (isBase && widget.avatarColor != null && child.material != null) {
+            child.material = child.material!.clone();
 
             if (child.material is three.MeshStandardMaterial) {
               final stdMat = child.material as three.MeshStandardMaterial;
@@ -256,6 +257,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
       }
 
       if (bytes != null) {
+        bytes = _sanitizeGlbBytesForThreeJs(bytes);
         _modelByteCache[path] = bytes;
       }
       return bytes;
@@ -263,6 +265,123 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
       debugPrint("Error fetching bytes for 3D model ($path): $e\n$stackTrace");
       return null;
     }
+  }
+
+  Uint8List _sanitizeGlbBytesForThreeJs(Uint8List bytes) {
+    if (bytes.length < 20) return bytes;
+
+    final magic = utf8.decode(bytes.sublist(0, 4));
+    if (magic != 'glTF') return bytes;
+
+    final byteData = bytes.buffer.asByteData(bytes.offsetInBytes, bytes.lengthInBytes);
+    final jsonChunkLength = byteData.getUint32(12, Endian.little);
+    final jsonChunkType = utf8.decode(bytes.sublist(16, 20));
+    if (jsonChunkType != 'JSON') return bytes;
+
+    final jsonStart = 20;
+    final jsonEnd = jsonStart + jsonChunkLength;
+    if (jsonEnd > bytes.length) return bytes;
+
+    try {
+      final jsonBytes = bytes.sublist(jsonStart, jsonEnd);
+      var jsonMap = jsonDecode(utf8.decode(jsonBytes)) as Map<String, dynamic>;
+
+      jsonMap = _sanitizeGltfNode(jsonMap) as Map<String, dynamic>;
+
+      final finalJsonString = jsonEncode(jsonMap);
+      var finalJsonBytes = Uint8List.fromList(utf8.encode(finalJsonString));
+
+      final remainder = finalJsonBytes.length % 4;
+      if (remainder != 0) {
+        final padCount = 4 - remainder;
+        final padded = Uint8List(finalJsonBytes.length + padCount);
+        padded.setAll(0, finalJsonBytes);
+        for (var p = finalJsonBytes.length; p < padded.length; p++) {
+          padded[p] = 0x20;
+        }
+        finalJsonBytes = padded;
+      }
+
+      final binBytes = bytes.sublist(jsonEnd);
+      final totalLength = 12 + 8 + finalJsonBytes.length + binBytes.length;
+
+      final outputBytes = Uint8List(totalLength);
+      final outputByteData = outputBytes.buffer.asByteData();
+
+      outputBytes.setAll(0, utf8.encode('glTF'));
+      outputByteData.setUint32(4, 2, Endian.little);
+      outputByteData.setUint32(8, totalLength, Endian.little);
+
+      outputByteData.setUint32(12, finalJsonBytes.length, Endian.little);
+      outputBytes.setAll(16, utf8.encode('JSON'));
+      outputBytes.setAll(20, finalJsonBytes);
+
+      outputBytes.setAll(20 + finalJsonBytes.length, binBytes);
+      return outputBytes;
+    } catch (e) {
+      debugPrint("sanitizeGlbBytesForThreeJs error: $e");
+    }
+
+    return bytes;
+  }
+
+  dynamic _sanitizeGltfNode(dynamic obj, [String? keyContext]) {
+    const floatFactorKeys = {
+      'offset',
+      'scale',
+      'rotation',
+      'translation',
+      'matrix',
+      'weights',
+      'roughnessFactor',
+      'metallicFactor',
+      'clearcoatFactor',
+      'clearcoatRoughnessFactor',
+      'ior',
+      'transmissionFactor',
+      'thickness',
+      'specularFactor',
+      'alphaCutoff',
+      'roughness',
+      'metalness',
+      'clearcoat',
+      'clearcoatRoughness',
+      'intensity',
+      'range',
+      'innerConeAngle',
+      'outerConeAngle',
+    };
+
+    const floatArrayKeys = {
+      'offset',
+      'scale',
+      'translation',
+      'matrix',
+      'weights',
+      'baseColorFactor',
+      'emissiveFactor',
+      'specularColorFactor',
+      'sheenColorFactor',
+    };
+
+    if (obj is Map) {
+      final result = <String, dynamic>{};
+      obj.forEach((key, value) {
+        result[key as String] = _sanitizeGltfNode(value, key);
+      });
+      return result;
+    } else if (obj is List) {
+      if (floatArrayKeys.contains(keyContext)) {
+        return obj.map((item) => item is int ? item.toDouble() : _sanitizeGltfNode(item, keyContext)).toList();
+      }
+      return obj.map((item) => _sanitizeGltfNode(item, keyContext)).toList();
+    } else if (obj is int) {
+      if (floatFactorKeys.contains(keyContext)) {
+        return obj.toDouble();
+      }
+      return obj;
+    }
+    return obj;
   }
 
   @override

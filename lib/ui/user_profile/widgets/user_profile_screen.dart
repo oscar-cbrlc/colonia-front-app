@@ -448,7 +448,17 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
     }
   }
 
+  List<int?> get _selectedItemIds => [
+        _selectedHead,
+        _selectedNeck,
+        _selectedBody,
+        _selectedFootwear,
+      ];
 
+  bool get _hasLockedItemSelected =>
+      widget.viewModel.hasLockedItemSelected(_selectedItemIds);
+
+  bool get _canSaveChanges => !_isSaving && !_hasLockedItemSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -458,10 +468,18 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
     return ListenableBuilder(
       listenable: vm,
       builder: (context, _) {
+        final equippedIds = [
+          vm.user.avatar?.head,
+          vm.user.avatar?.neck,
+          vm.user.avatar?.body,
+          vm.user.avatar?.footwear,
+        ].whereType<int>().toSet();
+
         final selectionItems = vm.availableAvatarItems
             .map((item) => ItemSelectionData.fromAvatarItem(
                   item,
                   isUnlocked: vm.isItemUnlocked(item.id),
+                  isEquipped: equippedIds.contains(item.id),
                 ))
             .toList();
 
@@ -590,9 +608,10 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
 
                   ItemSelectionWidget(
                     items: selectionItems,
+                    equippedItemIds: equippedIds,
                     initialCategoryId: _selectedCategory.name,
                     selectedItemId: _selectedItemId,
-                    itemsPerPage: 6,
+                    itemsPerPage: 3,
                     onCategoryChanged: (catTab) {
                       final cat = AvatarItemType.values.firstWhere(
                         (t) => t.name == catTab.id,
@@ -631,7 +650,9 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                     height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
+                        backgroundColor: _canSaveChanges
+                            ? AppTheme.primaryColor
+                            : AppTheme.primaryColor.withAlpha(80),
                         foregroundColor: AppTheme.fontPrimaryColor,
                         disabledBackgroundColor: AppTheme.primaryColor.withAlpha(80),
                         disabledForegroundColor: Colors.white38,
@@ -639,24 +660,9 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
                       ),
-                      onPressed: _isSaving
-                          ? null
-                          : () async {
+                      onPressed: _canSaveChanges
+                          ? () async {
                               HapticFeedback.mediumImpact();
-
-                              final selectedIds = [_selectedHead, _selectedNeck, _selectedBody, _selectedFootwear];
-                              for (final id in selectedIds) {
-                                if (id != null && !vm.isItemUnlocked(id)) {
-                                  ScaffoldMessenger.of(context).clearSnackBars();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(locale.cannotSaveLockedItems),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                  return;
-                                }
-                              }
 
                               setState(() {
                                 _isSaving = true;
@@ -696,7 +702,8 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                                   );
                                 }
                               }
-                            },
+                            }
+                          : null,
                       child: _isSaving
                           ? const SizedBox(
                               width: 20,

@@ -5,7 +5,6 @@ import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 class UserProfileViewModel extends ChangeNotifier {
   User _user;
@@ -16,7 +15,6 @@ class UserProfileViewModel extends ChangeNotifier {
   bool _isDownloadingModels = false;
   double _downloadProgress = 0.0;
   List<AvatarItemModel> _downloadedItemModels = [];
-
 
   UserProfileViewModel(this._user, this._avatarItemRepository)
   {
@@ -45,6 +43,19 @@ class UserProfileViewModel extends ChangeNotifier {
         _user.avatar?.footwear == itemId;
     final inInventory = _avatarItemRepository.myInventory.any((inv) => inv.item.id == itemId);
     return isEquipped || inInventory;
+  }
+
+  bool hasLockedItemSelected(Iterable<int?> itemIds) {
+    for (final id in itemIds) {
+      if (id != null && !isItemUnlocked(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool areAllSelectedItemsUnlocked(Iterable<int?> itemIds) {
+    return !hasLockedItemSelected(itemIds);
   }
 
   List<Achievement> get achievements => _user.achievements;

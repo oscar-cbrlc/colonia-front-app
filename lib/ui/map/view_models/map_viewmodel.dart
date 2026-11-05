@@ -209,9 +209,12 @@ class MapViewModel extends ChangeNotifier {
           locationPuck3D: LocationPuck3D(
             modelUri: puckModelUri,
             modelRotation: [0, 0, 180],
-            modelScale: [0.02, 0.02, 0.02],
+            modelScale: [1, 1, 1],
             modelScaleMode: ModelScaleMode.MAP,
-            modelEmissiveStrength: 2.0,
+            modelEmissiveStrength: 1.0,
+            modelReceiveShadows: true
+
+            //modelOpacity: 0.5,
           ),
         ),
       ),
@@ -424,7 +427,8 @@ class MapViewModel extends ChangeNotifier {
         id: "puck-ring-glow-layer",
         sourceId: "puck-ring-source",
         fillColor: Colors.white.toARGB32(),
-        fillOpacity: 0.25,
+        fillOpacity: 0.5,
+        //fillEmissiveStrength: 2.0
       ));
 
       await style.addLayer(LineLayer(

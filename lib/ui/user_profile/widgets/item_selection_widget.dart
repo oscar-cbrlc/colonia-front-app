@@ -46,6 +46,7 @@ class ItemSelectionData {
   final dynamic icon;
   final int? cost;
   final bool isUnlocked;
+  final bool isEquipped;
   final dynamic originalItem;
 
   const ItemSelectionData({
@@ -56,12 +57,14 @@ class ItemSelectionData {
     this.icon,
     this.cost,
     this.isUnlocked = true,
+    this.isEquipped = false,
     this.originalItem,
   });
 
   factory ItemSelectionData.fromAvatarItem(
     AvatarItem avatarItem, {
     bool isUnlocked = true,
+    bool isEquipped = false,
     int? cost,
     dynamic icon,
   }) {
@@ -73,6 +76,7 @@ class ItemSelectionData {
       icon: icon,
       cost: cost,
       isUnlocked: isUnlocked,
+      isEquipped: isEquipped,
       originalItem: avatarItem,
     );
   }
@@ -84,6 +88,7 @@ class ItemSelectionWidget extends StatefulWidget {
   final String? initialCategoryId;
   final dynamic selectedItemId;
   final Set<dynamic>? selectedItemIds;
+  final Set<dynamic>? equippedItemIds;
   final ValueChanged<ItemSelectionData>? onItemSelected;
   final ValueChanged<ItemSelectionData>? onLockedItemTap;
   final ValueChanged<CategoryTabData>? onCategoryChanged;
@@ -100,10 +105,11 @@ class ItemSelectionWidget extends StatefulWidget {
     this.initialCategoryId,
     this.selectedItemId,
     this.selectedItemIds,
+    this.equippedItemIds,
     this.onItemSelected,
     this.onLockedItemTap,
     this.onCategoryChanged,
-    this.itemsPerPage = 6,
+    this.itemsPerPage = 3,
     this.crossAxisCount = 3,
     this.childAspectRatio,
     this.showTabs = true,
@@ -376,9 +382,18 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
     );
   }
 
+  bool _isItemEquipped(ItemSelectionData item) {
+    if (item.isEquipped) return true;
+    if (widget.equippedItemIds != null && widget.equippedItemIds!.contains(item.id)) {
+      return true;
+    }
+    return false;
+  }
+
   Widget _buildItemCard(BuildContext context, ItemSelectionData item) {
     final isSelected = _isItemSelected(item.id);
     final isUnlocked = item.isUnlocked;
+    final isEquipped = _isItemEquipped(item);
 
     return GestureDetector(
       onTap: () {
@@ -393,13 +408,17 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
             decoration: ShapeDecoration(
               color: isSelected
                   ? AppTheme.tertiaryColor.withAlpha(25)
-                  : (isUnlocked ? Colors.black26 : Colors.white.withAlpha(5)),
+                  : (isEquipped
+                      ? AppTheme.primaryColor.withAlpha(25)
+                      : (isUnlocked ? Colors.black26 : Colors.white.withAlpha(5))),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
                   color: isSelected
                       ? AppTheme.secondaryColor
-                      : (isUnlocked ? Colors.white24 : Colors.white12),
+                      : (isEquipped
+                          ? AppTheme.primaryColor.withAlpha(160)
+                          : (isUnlocked ? Colors.white24 : Colors.white12)),
                   width: 1,
                 ),
               ),
@@ -415,9 +434,18 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Opacity(
-                        opacity: isUnlocked ? 1.0 : 0.4,
-                        child: _buildItemVisual(item),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Opacity(
+                            opacity: isUnlocked ? 1.0 : 0.4,
+                            child: _buildItemVisual(item),
+                          ),
+                          if (isEquipped)
+                            Container(
+                              color: AppTheme.primaryColor.withAlpha(45),
+                            ),
+                        ],
                       ),
                     ),
                   ),

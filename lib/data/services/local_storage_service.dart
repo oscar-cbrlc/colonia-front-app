@@ -157,8 +157,21 @@ class LocalStorageService {
   Future<String?> getMergedModelPathOrDefault() async {
     final appDir = await getApplicationDocumentsDirectory();
     final customPuckFile = File('${appDir.path}/$_mergedModelFileName');
-    return await customPuckFile.exists()
-        ? 'file://${customPuckFile.path}'
-        : 'asset://${GameConfig.baseModelPath}';
+
+    if (!await customPuckFile.exists()) {
+      try {
+        final savedUser = await user;
+        final colorInt = savedUser?.avatar?.color;
+        final color = colorInt != null ? Color(colorInt) : null;
+        await saveMergedModelLocally([], baseColor: color);
+      } catch (e) {
+        debugPrint('LocalStorageService: Failed auto-generating puck model: $e');
+      }
+    }
+
+    if (await customPuckFile.exists()) {
+      return 'file://${customPuckFile.path}';
+    }
+    return 'asset://${GameConfig.baseModelPath}';
   }
 }

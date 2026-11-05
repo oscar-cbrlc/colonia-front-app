@@ -37,11 +37,17 @@ class GlbMerger {
       mergedJson['meshes'] = List<dynamic>.from(mergedJson['meshes'] ?? []);
       mergedJson['materials'] = List<dynamic>.from(mergedJson['materials'] ?? []);
 
-      // Apply baseColorFactor to base GLB materials if specified
       if (baseColorFactor != null && (mergedJson['materials'] as List).isNotEmpty) {
-        for (var i = 0; i < (mergedJson['materials'] as List).length; i++) {
-          final mat = Map<String, dynamic>.from(mergedJson['materials'][i]);
-          final pbr = Map<String, dynamic>.from(mat['pbrMetallicRoughness'] ?? {});
+        final matCount = (mergedJson['materials'] as List).length;
+        for (var i = 0; i < matCount; i++) {
+          final mat = Map<String, dynamic>.from(mergedJson['materials'][i] as Map);
+          final matName = (mat['name'] as String? ?? '').toLowerCase();
+
+          if (matCount > 1 && (matName.contains('pearl') || matName.contains('eye'))) {
+            continue;
+          }
+
+          final pbr = Map<String, dynamic>.from(mat['pbrMetallicRoughness'] as Map? ?? {});
           pbr['baseColorFactor'] = baseColorFactor;
           mat['pbrMetallicRoughness'] = pbr;
           mergedJson['materials'][i] = mat;
@@ -67,6 +73,29 @@ class GlbMerger {
         final primaryScene = Map<String, dynamic>.from(scenes[0]);
         primaryScene['nodes'] = List<dynamic>.from(primaryScene['nodes'] ?? []);
         mergedJson['scenes'][0] = primaryScene;
+      }
+
+      final extensionsUsed = <String>{};
+      final extensionsRequired = <String>{};
+
+      for (final parsed in parsedGlbs) {
+        if (parsed.json.containsKey('extensionsUsed')) {
+          for (final ext in List<String>.from(parsed.json['extensionsUsed'])) {
+            extensionsUsed.add(ext);
+          }
+        }
+        if (parsed.json.containsKey('extensionsRequired')) {
+          for (final ext in List<String>.from(parsed.json['extensionsRequired'])) {
+            extensionsRequired.add(ext);
+          }
+        }
+      }
+
+      if (extensionsUsed.isNotEmpty) {
+        mergedJson['extensionsUsed'] = extensionsUsed.toList();
+      }
+      if (extensionsRequired.isNotEmpty) {
+        mergedJson['extensionsRequired'] = extensionsRequired.toList();
       }
 
       for (var i = 1; i < parsedGlbs.length; i++) {
@@ -127,16 +156,8 @@ class GlbMerger {
         }
 
         for (final mat in (currentJson['materials'] as List? ?? [])) {
-          final newMat = Map<String, dynamic>.from(mat);
-          if (newMat.containsKey('pbrMetallicRoughness')) {
-            final pbr = Map<String, dynamic>.from(newMat['pbrMetallicRoughness']);
-            if (pbr.containsKey('baseColorTexture')) {
-              final tex = Map<String, dynamic>.from(pbr['baseColorTexture']);
-              tex['index'] = (tex['index'] as int) + textureOffset;
-              pbr['baseColorTexture'] = tex;
-            }
-            newMat['pbrMetallicRoughness'] = pbr;
-          }
+          final newMat = Map<String, dynamic>.from(mat as Map);
+          _updateTextureIndicesInMap(newMat, textureOffset);
           (mergedJson['materials'] as List).add(newMat);
         }
 
@@ -158,6 +179,18 @@ class GlbMerger {
                 attrs[key] = (val as int) + accessorOffset;
               });
               newPrim['attributes'] = attrs;
+            }
+            if (newPrim.containsKey('targets')) {
+              final targets = List<dynamic>.from(newPrim['targets']);
+              final newTargets = <Map<String, dynamic>>[];
+              for (final target in targets) {
+                final targetAttrs = Map<String, dynamic>.from(target as Map);
+                targetAttrs.forEach((key, val) {
+                  targetAttrs[key] = (val as int) + accessorOffset;
+                });
+                newTargets.add(targetAttrs);
+              }
+              newPrim['targets'] = newTargets;
             }
             newPrimitives.add(newPrim);
           }
@@ -235,6 +268,21 @@ class GlbMerger {
     } catch (e, stack) {
       debugPrint("GlbMerger failed: $e\n$stack");
       return null;
+    }
+  }
+
+  static void _updateTextureIndicesInMap(dynamic obj, int textureOffset) {
+    if (obj is Map) {
+      if (obj.containsKey('index') && obj['index'] is int) {
+        obj['index'] = (obj['index'] as int) + textureOffset;
+      }
+      for (final val in obj.values) {
+        _updateTextureIndicesInMap(val, textureOffset);
+      }
+    } else if (obj is List) {
+      for (final item in obj) {
+        _updateTextureIndicesInMap(item, textureOffset);
+      }
     }
   }
 

@@ -564,9 +564,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
           locationPuck3D: LocationPuck3D(
             modelUri: puckModelUri,
             modelRotation: [0, 0, 180],
-            modelScale: [0.02, 0.02, 0.02],
+            modelScale: [1, 1, 1],
             modelScaleMode: ModelScaleMode.MAP,
-            modelEmissiveStrength: 2.0,
+            modelEmissiveStrength: 1.0,
           ),
         ),
       ),
