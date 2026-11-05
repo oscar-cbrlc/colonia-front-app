@@ -2102,6 +2102,12 @@ abstract class AppLocalizations {
   /// **'RECOMPENSAS DE ITEMS DE AVATAR'**
   String get avatarItemRewards;
 
+  /// No description provided for @selectOnlyOneAvatarItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona solo un ítem'**
+  String get selectOnlyOneAvatarItem;
+
   /// No description provided for @noAvatarItems.
   ///
   /// In es, this message translates to:
@@ -2377,6 +2383,132 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No puedes guardar cambios con ítems bloqueados.'**
   String get cannotSaveLockedItems;
+
+  /// No description provided for @profileImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de Perfil'**
+  String get profileImage;
+
+  /// No description provided for @runningGlasses.
+  ///
+  /// In es, this message translates to:
+  /// **'Lentes Corredor'**
+  String get runningGlasses;
+
+  /// No description provided for @headband.
+  ///
+  /// In es, this message translates to:
+  /// **'Banda Deportiva'**
+  String get headband;
+
+  /// No description provided for @crown.
+  ///
+  /// In es, this message translates to:
+  /// **'Corona'**
+  String get crown;
+
+  /// No description provided for @cowboyHat.
+  ///
+  /// In es, this message translates to:
+  /// **'Sombrero de Vaquero'**
+  String get cowboyHat;
+
+  /// No description provided for @luchadorMask.
+  ///
+  /// In es, this message translates to:
+  /// **'Máscara de Luchador'**
+  String get luchadorMask;
+
+  /// No description provided for @bandana.
+  ///
+  /// In es, this message translates to:
+  /// **'Bandana'**
+  String get bandana;
+
+  /// No description provided for @medal1.
+  ///
+  /// In es, this message translates to:
+  /// **'Medalla 1'**
+  String get medal1;
+
+  /// No description provided for @medal2.
+  ///
+  /// In es, this message translates to:
+  /// **'Medalla 2'**
+  String get medal2;
+
+  /// No description provided for @medal3.
+  ///
+  /// In es, this message translates to:
+  /// **'Medalla 3'**
+  String get medal3;
+
+  /// No description provided for @luchadorCape.
+  ///
+  /// In es, this message translates to:
+  /// **'Capa de Luchador'**
+  String get luchadorCape;
+
+  /// No description provided for @kingCape.
+  ///
+  /// In es, this message translates to:
+  /// **'Capa de Rey'**
+  String get kingCape;
+
+  /// No description provided for @luchadorBelt.
+  ///
+  /// In es, this message translates to:
+  /// **'Cinturón de Luchador'**
+  String get luchadorBelt;
+
+  /// No description provided for @cowboyBelt.
+  ///
+  /// In es, this message translates to:
+  /// **'Cinturón de Vaquero'**
+  String get cowboyBelt;
+
+  /// No description provided for @fannyPack.
+  ///
+  /// In es, this message translates to:
+  /// **'Riñonera'**
+  String get fannyPack;
+
+  /// No description provided for @leaf.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoja'**
+  String get leaf;
+
+  /// No description provided for @tShirt.
+  ///
+  /// In es, this message translates to:
+  /// **'Playera'**
+  String get tShirt;
+
+  /// No description provided for @backpack.
+  ///
+  /// In es, this message translates to:
+  /// **'Mochila'**
+  String get backpack;
+
+  /// No description provided for @cowboyBoots.
+  ///
+  /// In es, this message translates to:
+  /// **'Botas de Vaquero'**
+  String get cowboyBoots;
+
+  /// No description provided for @runningShoes.
+  ///
+  /// In es, this message translates to:
+  /// **'Tennis Corredor'**
+  String get runningShoes;
+
+  /// No description provided for @sandals.
+  ///
+  /// In es, this message translates to:
+  /// **'Sandalias'**
+  String get sandals;
 }
 
 class _AppLocalizationsDelegate

@@ -1083,6 +1083,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get avatarItemRewards => 'AVATAR ITEM REWARDS';
 
   @override
+  String get selectOnlyOneAvatarItem => 'Select only one item';
+
+  @override
   String get noAvatarItems => 'No avatar items available at the moment.';
 
   @override
@@ -1222,4 +1225,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cannotSaveLockedItems => 'Cannot save changes with locked items.';
+
+  @override
+  String get profileImage => 'Profile image';
+
+  @override
+  String get runningGlasses => 'Running Glasses';
+
+  @override
+  String get headband => 'Headband';
+
+  @override
+  String get crown => 'Crown';
+
+  @override
+  String get cowboyHat => 'Cowboy Hat';
+
+  @override
+  String get luchadorMask => 'Luchador Mask';
+
+  @override
+  String get bandana => 'Bandana';
+
+  @override
+  String get medal1 => 'Medal 1';
+
+  @override
+  String get medal2 => 'Medal 2';
+
+  @override
+  String get medal3 => 'Medal 3';
+
+  @override
+  String get luchadorCape => 'Luchador Cape';
+
+  @override
+  String get kingCape => 'King Cape';
+
+  @override
+  String get luchadorBelt => 'Luchador Belt';
+
+  @override
+  String get cowboyBelt => 'Cowboy Belt';
+
+  @override
+  String get fannyPack => 'Fanny Pack';
+
+  @override
+  String get leaf => 'Leaf';
+
+  @override
+  String get tShirt => 'T-Shirt';
+
+  @override
+  String get backpack => 'Backpack';
+
+  @override
+  String get cowboyBoots => 'Cowboy Boots';
+
+  @override
+  String get runningShoes => 'Running Shoes';
+
+  @override
+  String get sandals => 'Sandals';
 }

@@ -39,6 +39,53 @@ abstract class AvatarItem with _$AvatarItem {
   }) = _AvatarItem;
 
   factory AvatarItem.fromJson(Map<String, dynamic> json) => _$AvatarItemFromJson(json);
+
+  String getNameLocale(AppLocalizations locale) {
+    switch (name) {
+      case "h_hat-norteno":
+        return locale.cowboyHat;
+      case "h_mask-luchador":
+        return locale.luchadorMask;
+      case "h_glasses-running":
+        return locale.runningGlasses;
+      case "h_band-sweat":
+        return locale.headband;
+      case "h_crown":
+        return locale.crown;
+      case "n_paliacate":
+        return locale.bandana;
+      case "n_medal-1":
+        return locale.medal1;
+      case "n_medal-2":
+        return locale.medal2;
+      case "n_medal-3":
+        return locale.medal3;
+      case "n_cape-luchador":
+        return locale.luchadorCape;
+      case "n_cape-king":
+        return locale.kingCape;
+      case "b_belt-luchador":
+        return locale.luchadorBelt;
+      case "b_belt-cowboy":
+        return locale.cowboyBelt;
+      case "b_mariconera":
+        return locale.fannyPack;
+      case "b_leaf":
+        return locale.leaf;
+      case "b_t-shirt":
+        return locale.tShirt;
+      case "b_backpack":
+        return locale.backpack;
+      case "s_shoes-run":
+        return locale.runningShoes;
+      case "s_sandals":
+        return locale.sandals;
+      case "s_boots-cowboy":
+        return locale.cowboyBoots;
+      default:
+        return name;
+    }
+  }
 }
 
 @freezed

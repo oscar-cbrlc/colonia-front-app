@@ -1208,6 +1208,9 @@
     "avatarItemRewards": "AVATAR ITEM REWARDS",
     "@avatarItemRewards": {},
 
+    "selectOnlyOneAvatarItem": "Select only one item",
+    "@selectOnlyOneAvatarItem": {},
+
     "noAvatarItems": "No avatar items available at the moment.",
     "@noAvatarItems": {},
 
@@ -1350,5 +1353,68 @@
     "@itemIsLocked": {},
 
     "cannotSaveLockedItems": "Cannot save changes with locked items.",
-    "@cannotSaveLockedItems": {}
+    "@cannotSaveLockedItems": {},
+
+    "profileImage": "Profile image",
+    "@profileImage": {},
+
+    "runningGlasses": "Running Glasses",
+    "@runningGlasses": {},
+
+    "headband": "Headband",
+    "@headband": {},
+
+    "crown": "Crown",
+    "@crown": {},
+
+    "cowboyHat": "Cowboy Hat",
+    "@cowboyHat": {},
+
+    "luchadorMask": "Luchador Mask",
+    "@luchadorMask": {},
+
+    "bandana": "Bandana",
+    "@bandana": {},
+
+    "medal1": "Medal 1",
+    "@medal1": {},
+
+    "medal2": "Medal 2",
+    "@medal2": {},
+
+    "medal3": "Medal 3",
+    "@medal3": {},
+
+    "luchadorCape": "Luchador Cape",
+    "@luchadorCape": {},
+
+    "kingCape": "King Cape",
+    "@kingCape": {},
+
+    "luchadorBelt": "Luchador Belt",
+    "@luchadorBelt": {},
+
+    "cowboyBelt": "Cowboy Belt",
+    "@cowboyBelt": {},
+
+    "fannyPack": "Fanny Pack",
+    "@fannyPack": {},
+
+    "leaf": "Leaf",
+    "@leaf": {},
+
+    "tShirt": "T-Shirt",
+    "@tShirt": {},
+
+    "backpack": "Backpack",
+    "@backpack": {},
+
+    "cowboyBoots": "Cowboy Boots",
+    "@cowboyBoots": {},
+
+    "runningShoes": "Running Shoes",
+    "@runningShoes": {},
+
+    "sandals": "Sandals",
+    "@sandals": {}
 }
