@@ -37,6 +37,8 @@ import 'package:colonia_front_app/data/repositories/team_chat_repository.dart';
 import 'package:colonia_front_app/data/services/api/boost_service.dart';
 import 'package:colonia_front_app/data/services/api/challenge_service.dart';
 import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
+import 'package:colonia_front_app/data/services/api/notification_api_service.dart';
+import 'package:colonia_front_app/data/repositories/notification_repository.dart';
 import 'package:colonia_front_app/data/services/notification_service.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
@@ -112,6 +114,16 @@ void main() async {
           create: (context) => ChallengeRepository(context.read<ChallengeService>()),
           update: (_, challengeService, previous) =>
               previous ?? ChallengeRepository(challengeService),
+        ),
+
+        ProxyProvider<ApiClient, NotificationApiService>(
+          update: (_, apiClient, previous) => previous ?? NotificationApiService(apiClient),
+        ),
+
+        ChangeNotifierProxyProvider<NotificationApiService, NotificationRepository>(
+          create: (context) => NotificationRepository(context.read<NotificationApiService>()),
+          update: (_, notificationApiService, previous) =>
+              previous ?? NotificationRepository(notificationApiService),
         ),
 
         ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
