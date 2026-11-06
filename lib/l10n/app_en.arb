@@ -1416,5 +1416,63 @@
     "@runningShoes": {},
 
     "sandals": "Sandals",
-    "@sandals": {}
+    "@sandals": {},
+
+    "notification_join_team_request_accepted": "You have been accepted into the colony {colonyName}. Take a visit.",
+    "@notification_join_team_request_accepted": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_join_team_request_denied":  "You have been denied entry to the colony {colonyName}",
+    "@notification_join_team_request_denied": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_team_kick":  "You have been exiled from the colony {colonyName}",
+    "@notification_team_kick": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_event": "{eventName} is coming soon. Take a look in the Events.",
+    "@notification_event": {
+        "placeholders": {
+            "eventName": {
+                "type": "String",
+                "example": "City's Half Marathon"
+            }
+        }
+    },
+
+    "notificationsTitle": "NOTIFICATIONS",
+    "@notificationsTitle": {},
+
+    "globalNotifications": "Global",
+    "@globalNotifications": {},
+
+    "personalNotifications": "Personal",
+    "@personalNotifications": {},
+
+    "noGlobalNotifications": "No global notifications.",
+    "@noGlobalNotifications": {},
+
+    "noPersonalNotifications": "No personal notifications.",
+    "@noPersonalNotifications": {},
+
+    "deleteNotification": "Delete notification",
+    "@deleteNotification": {}
 }

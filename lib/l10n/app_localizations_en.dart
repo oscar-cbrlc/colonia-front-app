@@ -1288,4 +1288,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sandals => 'Sandals';
+
+  @override
+  String notification_join_team_request_accepted(String colonyName) {
+    return 'You have been accepted into the colony $colonyName. Take a visit.';
+  }
+
+  @override
+  String notification_join_team_request_denied(String colonyName) {
+    return 'You have been denied entry to the colony $colonyName';
+  }
+
+  @override
+  String notification_team_kick(String colonyName) {
+    return 'You have been exiled from the colony $colonyName';
+  }
+
+  @override
+  String notification_event(String eventName) {
+    return '$eventName is coming soon. Take a look in the Events.';
+  }
+
+  @override
+  String get notificationsTitle => 'NOTIFICATIONS';
+
+  @override
+  String get globalNotifications => 'Global';
+
+  @override
+  String get personalNotifications => 'Personal';
+
+  @override
+  String get noGlobalNotifications => 'No global notifications.';
+
+  @override
+  String get noPersonalNotifications => 'No personal notifications.';
+
+  @override
+  String get deleteNotification => 'Delete notification';
 }

@@ -2509,6 +2509,66 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sandalias'**
   String get sandals;
+
+  /// No description provided for @notification_join_team_request_accepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Has sido aceptado en la colonia {colonyName}'**
+  String notification_join_team_request_accepted(String colonyName);
+
+  /// No description provided for @notification_join_team_request_denied.
+  ///
+  /// In es, this message translates to:
+  /// **'Se te ha denegado unirte a la colonia {colonyName}'**
+  String notification_join_team_request_denied(String colonyName);
+
+  /// No description provided for @notification_team_kick.
+  ///
+  /// In es, this message translates to:
+  /// **'Te han exiliado de la colonia {colonyName}'**
+  String notification_team_kick(String colonyName);
+
+  /// No description provided for @notification_event.
+  ///
+  /// In es, this message translates to:
+  /// **'{eventName} ocurrirá pronto. Visita la sección de Eventos.'**
+  String notification_event(String eventName);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'NOTIFICACIONES'**
+  String get notificationsTitle;
+
+  /// No description provided for @globalNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Globales'**
+  String get globalNotifications;
+
+  /// No description provided for @personalNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Personales'**
+  String get personalNotifications;
+
+  /// No description provided for @noGlobalNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones globales.'**
+  String get noGlobalNotifications;
+
+  /// No description provided for @noPersonalNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones personales.'**
+  String get noPersonalNotifications;
+
+  /// No description provided for @deleteNotification.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar notificación'**
+  String get deleteNotification;
 }
 
 class _AppLocalizationsDelegate

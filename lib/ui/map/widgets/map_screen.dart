@@ -10,6 +10,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:colonia_front_app/env/env.dart';
 import 'package:colonia_front_app/ui/events/widgets/challenges_sheet.dart';
 import 'package:colonia_front_app/ui/events/widgets/events_sheet.dart';
+import 'package:colonia_front_app/ui/notifications/widgets/notifications_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 
 class MapScreen extends StatefulWidget {
@@ -47,6 +48,7 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
                       borderColor: AppTheme.primaryColor,
                       onTap: () {
                         HapticFeedback.lightImpact();
+                        showNotificationsSheet(context);
                       },
                       shape: const StarBorder(
                         side: BorderSide(color: AppTheme.primaryColor, width: 2),
@@ -350,6 +352,18 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
                     width: 54,
                     height: 54,
                   ),
+                  const SizedBox(height: 12),
+                  IndividualMapButton(
+                    icon: Icons.notifications_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.secondaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showNotificationsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  )
                 ]
               )
             ),
