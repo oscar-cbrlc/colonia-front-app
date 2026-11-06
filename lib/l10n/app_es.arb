@@ -1418,5 +1418,63 @@
     "@runningShoes": {},
 
     "sandals": "Sandalias",
-    "@sandals": {}
+    "@sandals": {},
+
+    "notification_join_team_request_accepted": "Has sido aceptado en la colonia {colonyName}",
+    "@notification_join_team_request_accepted": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_join_team_request_denied":  "Se te ha denegado unirte a la colonia {colonyName}",
+    "@notification_join_team_request_denied": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_team_kick":  "Te han exiliado de la colonia {colonyName}",
+    "@notification_team_kick": {
+        "placeholders": {
+            "colonyName": {
+                "type": "String",
+                "example": "The Colony"
+            }
+        }
+    },
+
+    "notification_event": "{eventName} ocurrirá pronto. Visita la sección de Eventos.",
+    "@notification_event": {
+        "placeholders": {
+            "eventName": {
+                "type": "String",
+                "example": "City's Half Marathon"
+            }
+        }
+    },
+
+    "notificationsTitle": "NOTIFICACIONES",
+    "@notificationsTitle": {},
+
+    "globalNotifications": "Globales",
+    "@globalNotifications": {},
+
+    "personalNotifications": "Personales",
+    "@personalNotifications": {},
+
+    "noGlobalNotifications": "No hay notificaciones globales.",
+    "@noGlobalNotifications": {},
+
+    "noPersonalNotifications": "No hay notificaciones personales.",
+    "@noPersonalNotifications": {},
+
+    "deleteNotification": "Eliminar notificación",
+    "@deleteNotification": {}
 }
