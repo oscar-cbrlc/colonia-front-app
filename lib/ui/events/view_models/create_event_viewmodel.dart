@@ -462,6 +462,16 @@ class CreateEventViewModel extends ChangeNotifier {
     if (map == null) return;
     map.compass.updateSettings(CompassSettings(enabled: false));
     map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10, isMetricUnits: true));
+    map.attribution.updateSettings(AttributionSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 20,
+    ));
+    map.logo.updateSettings(LogoSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 45,
+    ));
   }
 
   @override

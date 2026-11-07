@@ -323,10 +323,34 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           alignment: Alignment.topLeft,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(top: 20, left: 16),
+              padding: const EdgeInsets.only(top: 80, left: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  IndividualMapButton(
+                    icon: Icons.notifications_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.secondaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showNotificationsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  ),
+                  const SizedBox(height: 12),
+                  IndividualMapButton(
+                    icon: Icons.event_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.tertiaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showEventsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  ),
+                  const SizedBox(height: 12),
                   IndividualMapButton(
                     icon: Icons.fact_check_outlined,
                     iconColor: Colors.white,
@@ -360,30 +384,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.event_sharp,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.tertiaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      showEventsSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
-                  ),
-                  const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.notifications_sharp,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.secondaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      showNotificationsSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
-                  )
                 ]
               )
             ),

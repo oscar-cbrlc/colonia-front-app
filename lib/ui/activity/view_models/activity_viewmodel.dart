@@ -513,6 +513,16 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void _configureOrnaments() {
     _mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     _mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
+    _mapboxMap?.attribution.updateSettings(AttributionSettings(
+      position: OrnamentPosition.TOP_LEFT,
+      marginTop: 170,
+      marginLeft: 225,
+    ));
+    _mapboxMap?.logo.updateSettings(LogoSettings(
+      position: OrnamentPosition.TOP_LEFT,
+      marginTop: 170,
+      marginLeft: 135,
+    ));
   }
 
   void _setMapDaylight() {

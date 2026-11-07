@@ -391,8 +391,17 @@ class ActivitySummaryViewModel extends ChangeNotifier {
 
     map.compass.updateSettings(CompassSettings(enabled: false));
     map.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-    map.attribution.updateSettings(AttributionSettings(position: OrnamentPosition.BOTTOM_LEFT, marginLeft: 20, marginBottom: 70));
-    map.logo.updateSettings(LogoSettings(position: OrnamentPosition.BOTTOM_LEFT, marginBottom: 70, marginLeft: 40));
+
+    map.attribution.updateSettings(AttributionSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 50,
+      marginRight: 20,
+    ));
+    map.logo.updateSettings(LogoSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 50,
+      marginRight: 45,
+    ));
   }
 
   void _setMapDaylight() {
