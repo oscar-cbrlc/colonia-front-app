@@ -115,6 +115,15 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> reloadMapData() async {
+    await checkPendingActivities();
+    await _territoryRepository.fetchAllTerritories();
+    await fetchActiveChallenges();
+    _lastH3Indexes = {};
+    await _updateH3Grid();
+    await centerOnUser();
+  }
+
   void _onTerritoriesChanged() {
     _lastH3Indexes = {};
     _updateH3Grid();

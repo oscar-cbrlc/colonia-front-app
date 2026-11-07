@@ -12,6 +12,7 @@ import 'package:colonia_front_app/ui/events/widgets/challenges_sheet.dart';
 import 'package:colonia_front_app/ui/events/widgets/events_sheet.dart';
 import 'package:colonia_front_app/ui/notifications/widgets/notifications_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, required this.viewModel});
@@ -21,10 +22,28 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> with RouteAware {
+class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin, RouteAware {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
   @override
   void didPopNext() {
-    widget.viewModel.checkPendingActivities();
+    widget.viewModel.reloadMapData();
   }
 
   Widget get _profileGroup => Visibility(
@@ -259,6 +278,7 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final locale = AppLocalizations.of(context)!;
     
     return ListenableBuilder(
@@ -393,9 +413,10 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child:ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   HapticFeedback.lightImpact();
-                  navigateToActivityScreen(context);
+                  await navigateToActivityScreen(context);
+                  widget.viewModel.reloadMapData();
                 },
                 child: Text(locale.startActivity)
               )
