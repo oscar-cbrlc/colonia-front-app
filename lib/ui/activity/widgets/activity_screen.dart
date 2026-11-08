@@ -1386,7 +1386,8 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.orangeAccent,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontFamily: 'Oswald',
+                    fontSize: 14,
                     letterSpacing: 1.0,
                     decoration: TextDecoration.none,
                   ),
@@ -1399,9 +1400,11 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
             viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription(GameConfig.limitConsecutiveInvalidUnits),
             style: const TextStyle(
               color: Colors.white70,
-              fontSize: 11,
-              height: 1.3,
+              fontSize: 13,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
               decoration: TextDecoration.none,
+              fontFamily: 'Oswald',
             ),
           ),
         ],
