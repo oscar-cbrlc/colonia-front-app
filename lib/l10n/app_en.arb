@@ -205,7 +205,7 @@
     "sec": "sec",
     "@sec": {},
 
-    "targetPace": "Target pace (min/km)",
+    "targetPace": "Target pace",
     "@targetPace": {},
 
     "confirm": "Confirm",
@@ -268,7 +268,10 @@
     "createTeam": "Create a Colony",
     "@createTeam": {},
 
-    "joinTeam": "Join a Colony",
+    "joinATeam": "Join a Colony",
+    "@joinATeam": {},
+
+    "joinTeam": "Join Colony",
     "@joinTeam": {},
 
     "description": "Description",
@@ -418,6 +421,16 @@
     "memberPromotedToMod": "Member promoted to moderator",
     "@memberPromotedToMod": {},
 
+    "promoteToModConfirm": "Are you sure you want to promote {username} to Moderator?",
+    "@promoteToModConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
     "promoteToLeaderConfirm": "Are you sure you want to promote {username} to Leader? You will lose Leader privileges.",
     "@promoteToLeaderConfirm": {
         "placeholders": {
@@ -433,6 +446,16 @@
 
     "memberDemotedToMember": "Member demoted to member",
     "@memberDemotedToMember": {},
+
+    "demoteToMemberConfirm": "Are you sure you want to demote {username} to Member?",
+    "@demoteToMemberConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
 
     "kickMemberConfirm": "Are you sure you want to exile {username} from the colony?",
     "@kickMemberConfirm": {
@@ -923,7 +946,7 @@
     "suspectedInvalidTitle": "Suspected Invalid Motion",
     "@suspectedInvalidTitle": {},
 
-    "suspectedOnFootDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.",
+    "suspectedOnFootDescription": "Suspicious motion for {limit} consecutive units. Resume on foot to auto-resume, or tap Resume.",
     "@suspectedOnFootDescription": {
         "placeholders" :{
             "limit": {
@@ -933,7 +956,7 @@
         }
     },
 
-    "suspectedOnBikeDescription": "Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.",
+    "suspectedOnBikeDescription": "Suspicious motion for {limit} consecutive units. Resume on bike to auto-resume, or tap Resume.",
     "@suspectedOnBikeDescription": {
         "placeholders" :{
             "limit": {
@@ -945,6 +968,12 @@
 
     "autoResumed": "Valid motion detected. Excursion resumed.",
     "@autoResumed": {},
+
+    "leaveExcursionTitle": "ABANDON EXCURSION?",
+    "@leaveExcursionTitle": {},
+
+    "leaveExcursionDescription": "Are you sure you want to leave? Your excursion progress and territory impacts will be lost.",
+    "@leaveExcursionDescription": {},
 
     "byLabel": "by:",
     "@byLabel": {},
@@ -1171,6 +1200,15 @@
 
     "eventDetailsTitle": "EVENT DETAILS",
     "@eventDetailsTitle": {},
+
+    "excursionDetailsTitle": "EXCURSION DETAILS",
+    "@excursionDetailsTitle": {},
+
+    "editSelection": "EDIT SELECTION",
+    "@editSelection": {},
+
+    "noBoost": "NO BOOST",
+    "@noBoost": {},
 
     "eventNameHint": "City's half marathon",
     "@eventNameHint": {},
@@ -1474,5 +1512,11 @@
     "@noPersonalNotifications": {},
 
     "deleteNotification": "Delete notification",
-    "@deleteNotification": {}
+    "@deleteNotification": {},
+
+    "blockedToExcursionTitle": "LONELY ANT",
+    "@blockedToExcursionTitle": {},
+
+    "blockedToExcursionText": "You must be part of a Colony to start an excursion",
+    "@blockedToExcursionText": {}
 }

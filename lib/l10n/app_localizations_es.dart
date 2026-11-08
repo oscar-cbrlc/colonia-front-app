@@ -218,7 +218,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sec => 'seg';
 
   @override
-  String get targetPace => 'Ritmo objetivo (min/km)';
+  String get targetPace => 'Ritmo objetivo';
 
   @override
   String get confirm => 'Confirmar';
@@ -281,7 +281,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createTeam => 'Crear una Colonia';
 
   @override
-  String get joinTeam => 'Unirse a una Colonia';
+  String get joinATeam => 'Unirse a una Colonia';
+
+  @override
+  String get joinTeam => 'Unirse a Colonia';
 
   @override
   String get description => 'Descripción';
@@ -417,6 +420,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get memberPromotedToMod => 'Miembro ascendido a moderador';
 
   @override
+  String promoteToModConfirm(String username) {
+    return '¿Estás seguro de que quieres ascender a $username a Moderador?';
+  }
+
+  @override
   String promoteToLeaderConfirm(String username) {
     return '¿Estás seguro de que quieres ascender a $username a Líder? Perderás tus privilegios de Líder.';
   }
@@ -426,6 +434,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get memberDemotedToMember => 'Miembro descendido a miembro';
+
+  @override
+  String demoteToMemberConfirm(String username) {
+    return '¿Estás seguro de que quieres descender a $username a Miembro?';
+  }
 
   @override
   String kickMemberConfirm(String username) {
@@ -857,16 +870,23 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String suspectedOnFootDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+    return 'Movimiento sospechoso por más de $limit unidades consecutivas. Continúa a pie para resumir o presiona Resumir.';
   }
 
   @override
   String suspectedOnBikeDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+    return 'Movimiento sospechoso por más de $limit unidades consecutivas. Continúa en bicicleta para resumir o presiona Resumir.';
   }
 
   @override
   String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
+
+  @override
+  String get leaveExcursionTitle => '¿ABANDONAR EXCURSIÓN?';
+
+  @override
+  String get leaveExcursionDescription =>
+      '¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.';
 
   @override
   String get byLabel => 'por:';
@@ -1055,6 +1075,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get eventDetailsTitle => 'DETALLES DEL EVENTO';
+
+  @override
+  String get excursionDetailsTitle => 'DETALLES DE LA EXCURSIÓN';
+
+  @override
+  String get editSelection => 'EDITAR SELECCIÓN';
+
+  @override
+  String get noBoost => 'SIN BOOST';
 
   @override
   String get eventNameHint => 'Medio maratón de la ciudad';
@@ -1335,4 +1364,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Eliminar notificación';
+
+  @override
+  String get blockedToExcursionTitle => 'HORMIGA SOLITARIA';
+
+  @override
+  String get blockedToExcursionText =>
+      'Debes ser parte de una Colonia para empezar una excursión';
 }

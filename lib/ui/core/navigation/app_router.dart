@@ -39,6 +39,8 @@ import 'package:provider/provider.dart';
 import 'package:colonia_front_app/domain/models/active_challenge.dart';
 import 'package:colonia_front_app/ui/events/widgets/event_details_screen.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 class AppRouter {
   static const String welcome = "/";
   static const String emailInput = "/email_input";

@@ -127,20 +127,28 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
 
               SafeArea(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildHeader(context),
                     if (widget.viewModel.showStats) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       _buildMissionStatus(context),
-                      const Spacer(),
-                      _buildSummaryCard(context),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: _SummaryExpandableCard(viewModel: widget.viewModel),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                     ] else ...[
                       const Spacer(),
                     ],
                     _buildActionButtons(context),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -258,7 +266,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: ShapeDecoration(
-          color: statusColor.withAlpha(30),
+          color: statusColor.withAlpha(60),
           shape: BeveledRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: statusColor.withAlpha(150), width: 1.5),
@@ -279,193 +287,6 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
                 fontFamily: 'Oswald',
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
-    final vm = widget.viewModel;
-    final session = vm.session;
-
-    final bool hasWalk = session.secondsWalk > 0 || session.distanceWalk > 0;
-    final bool hasRun = session.secondsRun > 0 || session.distanceRun > 0;
-    final bool hasBike = session.secondsBike > 0 || session.distanceBike > 0;
-    final bool hasInactive = session.secondsInactive > 0 || session.distanceInactive > 0;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
-      decoration: ShapeDecoration(
-        color: Colors.black.withAlpha(160),
-        shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.3), width: 1),
-        ),
-      ),
-      child: ClipRRect(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              locale.validSummary.toUpperCase(),
-              style: const TextStyle(
-                color: AppTheme.primaryColor,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.1,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: _SummaryStat(
-                    label: locale.distance.toUpperCase(),
-                    value: vm.formattedValidDistance,
-                    unit: locale.km.toUpperCase(),
-                  ),
-                ),
-                Expanded(
-                  child: _SummaryStat(
-                    label: locale.time.toUpperCase(),
-                    value: vm.formattedValidTime,
-                    unit: "",
-                  ),
-                ),
-                Expanded(
-                  child: _SummaryStat(
-                    label: locale.avgPace,
-                    value: vm.formattedPace,
-                    unit: "MIN/KM",
-                  ),
-                ),
-              ],
-            ),
-
-            if (hasWalk || hasRun || hasBike) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Divider(color: Colors.white10, height: 1),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  if (hasWalk)
-                    Expanded(
-                      child: _SummaryStat(
-                        label: locale.walk.toUpperCase(),
-                        value: vm.formattedWalkDistance,
-                        unit: "${locale.km.toUpperCase()} (${vm.formattedWalkTime})",
-                        color: AppTheme.walkColor,
-                      ),
-                    ),
-                  if (hasRun)
-                    Expanded(
-                      child: _SummaryStat(
-                        label: locale.run.toUpperCase(),
-                        value: vm.formattedRunDistance,
-                        unit: "${locale.km.toUpperCase()} (${vm.formattedRunTime})",
-                        color: AppTheme.runColor,
-                      ),
-                    ),
-                  if (hasBike)
-                    Expanded(
-                      child: _SummaryStat(
-                        label: locale.bike.toUpperCase(),
-                        value: vm.formattedBikeDistance,
-                        unit: "${locale.km.toUpperCase()} (${vm.formattedBikeTime})",
-                        color: AppTheme.bikeColor,
-                      ),
-                    ),
-                ],
-              ),
-            ],
-
-            if (hasInactive) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Divider(color: Colors.white10, height: 1),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    child: _SummaryStat(
-                      label: locale.unknownTime.toUpperCase(),
-                      value: vm.formattedInactiveTime,
-                      unit: "(${vm.formattedInactiveDistance} km)",
-                      color: Colors.orangeAccent,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Divider(color: Colors.white10, height: 1),
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: _SummaryStat(
-                    label: locale.impacted.toUpperCase(),
-                    value: vm.session.territories.length.toString(),
-                    unit: locale.hexagons.toUpperCase(),
-                    color: AppTheme.secondaryColor,
-                  ),
-                ),
-                Expanded(
-                  child: _SummaryStat(
-                    label: locale.totalDuration.toUpperCase(),
-                    value: vm.formattedTotalSessionTime,
-                    unit: "",
-                  ),
-                ),
-              ],
-            ),
-
-            if (vm.activityResult != null) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Divider(color: Colors.white10, height: 1),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    child: _SummaryStat(
-                      label: locale.captured.toUpperCase(),
-                      value: vm.capturedCount.toString(),
-                      unit: "",
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  Expanded(
-                    child: _SummaryStat(
-                      label: locale.attacked.toUpperCase(),
-                      value: vm.attackedCount.toString(),
-                      unit: "",
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                  Expanded(
-                    child: _SummaryStat(
-                      label: locale.defended.toUpperCase(),
-                      value: vm.defendedCount.toString(),
-                      unit: "",
-                      color: AppTheme.tertiaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),
@@ -494,6 +315,279 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
           child: Text(
             locale.backToMap,
             style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryExpandableCard extends StatefulWidget {
+  final ActivitySummaryViewModel viewModel;
+  final bool initiallyExpanded;
+
+  const _SummaryExpandableCard({
+    required this.viewModel,
+    this.initiallyExpanded = true,
+  });
+
+  @override
+  State<_SummaryExpandableCard> createState() => _SummaryExpandableCardState();
+}
+
+class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
+  late bool _isExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _isExpanded = widget.initiallyExpanded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final vm = widget.viewModel;
+    final session = vm.session;
+
+    final bool hasWalk = session.secondsWalk > 0 || session.distanceWalk > 0;
+    final bool hasRun = session.secondsRun > 0 || session.distanceRun > 0;
+    final bool hasBike = session.secondsBike > 0 || session.distanceBike > 0;
+    final bool hasInactive = session.secondsInactive > 0 || session.distanceInactive > 0;
+
+    return Material(
+      color: Colors.transparent,
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() {
+            _isExpanded = !_isExpanded;
+          });
+        },
+        behavior: HitTestBehavior.deferToChild,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubicEmphasized,
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: ShapeDecoration(
+            color: AppTheme.darkBackground,
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(
+                color: AppTheme.primaryColor,
+                width: 1.5,
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                locale.results.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Oswald',
+                  fontSize: 16,
+                  letterSpacing: 1.0,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOutCubicEmphasized,
+                child: _isExpanded
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: ShapeDecoration(
+                              color: Colors.white.withAlpha(15),
+                              shape: BeveledRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: AppTheme.primaryColor.withAlpha(100),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  locale.validSummary.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryColor,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.1,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Expanded(
+                                      child: _SummaryStat(
+                                        label: locale.distance.toUpperCase(),
+                                        value: vm.formattedValidDistance,
+                                        unit: locale.km.toUpperCase(),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _SummaryStat(
+                                        label: locale.time.toUpperCase(),
+                                        value: vm.formattedValidTime,
+                                        unit: "",
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _SummaryStat(
+                                        label: locale.avgPace,
+                                        value: vm.formattedPace,
+                                        unit: "MIN/KM",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (hasWalk || hasRun || hasBike) ...[
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Divider(color: Colors.white12, height: 1),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      if (hasWalk)
+                                        Expanded(
+                                          child: _SummaryStat(
+                                            label: locale.walk.toUpperCase(),
+                                            value: vm.formattedWalkDistance,
+                                            unit: "${locale.km.toUpperCase()} (${vm.formattedWalkTime})",
+                                            color: AppTheme.walkColor,
+                                          ),
+                                        ),
+                                      if (hasRun)
+                                        Expanded(
+                                          child: _SummaryStat(
+                                            label: locale.run.toUpperCase(),
+                                            value: vm.formattedRunDistance,
+                                            unit: "${locale.km.toUpperCase()} (${vm.formattedRunTime})",
+                                            color: AppTheme.runColor,
+                                          ),
+                                        ),
+                                      if (hasBike)
+                                        Expanded(
+                                          child: _SummaryStat(
+                                            label: locale.bike.toUpperCase(),
+                                            value: vm.formattedBikeDistance,
+                                            unit: "${locale.km.toUpperCase()} (${vm.formattedBikeTime})",
+                                            color: AppTheme.bikeColor,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+
+                                if (hasInactive) ...[
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Divider(color: Colors.white12, height: 1),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        child: _SummaryStat(
+                                          label: locale.unknownTime.toUpperCase(),
+                                          value: vm.formattedInactiveTime,
+                                          unit: "(${vm.formattedInactiveDistance} km)",
+                                          color: Colors.orangeAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  child: Divider(color: Colors.white12, height: 1),
+                                ),
+
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Expanded(
+                                      child: _SummaryStat(
+                                        label: locale.impacted.toUpperCase(),
+                                        value: vm.session.territories.length.toString(),
+                                        unit: locale.hexagons.toUpperCase(),
+                                        color: AppTheme.secondaryColor,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _SummaryStat(
+                                        label: locale.totalDuration.toUpperCase(),
+                                        value: vm.formattedTotalSessionTime,
+                                        unit: "",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (vm.activityResult != null) ...[
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Divider(color: Colors.white12, height: 1),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        child: _SummaryStat(
+                                          label: locale.captured.toUpperCase(),
+                                          value: vm.capturedCount.toString(),
+                                          unit: "",
+                                          color: AppTheme.primaryColor,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: _SummaryStat(
+                                          label: locale.attacked.toUpperCase(),
+                                          value: vm.attackedCount.toString(),
+                                          unit: "",
+                                          color: Colors.redAccent,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: _SummaryStat(
+                                          label: locale.defended.toUpperCase(),
+                                          value: vm.defendedCount.toString(),
+                                          unit: "",
+                                          color: AppTheme.tertiaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              Icon(
+                _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                color: AppTheme.secondaryColor,
+                size: 32,
+              ),
+            ],
           ),
         ),
       ),

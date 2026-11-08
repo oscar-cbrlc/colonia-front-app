@@ -98,6 +98,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       marginRight: 10,
       isMetricUnits: true,
     ));
+    map.attribution.updateSettings(AttributionSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 20,
+    ));
+    map.logo.updateSettings(LogoSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 45,
+    ));
   }
 
   void _onCameraChanged(CameraChangedEventData data) {

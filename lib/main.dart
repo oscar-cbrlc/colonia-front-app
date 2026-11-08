@@ -347,6 +347,7 @@ class _ColoniaAppState extends State<ColoniaApp> {
       themeMode: ThemeMode.system,
 
       navigatorKey: _navigatorKey,
+      navigatorObservers: [routeObserver],
 
       localizationsDelegates: const [
         AppLocalizations.delegate,

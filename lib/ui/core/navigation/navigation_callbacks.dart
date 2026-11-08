@@ -44,8 +44,8 @@ void navigateToMapScreen(BuildContext context) {
   );
 }
 
-void navigateToActivityScreen(BuildContext context) {
-  Navigator.of(context).pushNamed(
+Future<T?> navigateToActivityScreen<T extends Object?>(BuildContext context) {
+  return Navigator.of(context).pushNamed<T>(
     AppRouter.activity,
   );
 }

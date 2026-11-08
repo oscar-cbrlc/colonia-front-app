@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:colonia_front_app/env/env.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/ui/events/widgets/challenges_sheet.dart';
 import 'package:colonia_front_app/ui/events/widgets/events_sheet.dart';
 import 'package:colonia_front_app/ui/notifications/widgets/notifications_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, required this.viewModel});
@@ -21,10 +23,28 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> with RouteAware {
+class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixin, RouteAware {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
   @override
   void didPopNext() {
-    widget.viewModel.checkPendingActivities();
+    widget.viewModel.reloadMapData();
   }
 
   Widget get _profileGroup => Visibility(
@@ -259,6 +279,7 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final locale = AppLocalizations.of(context)!;
     
     return ListenableBuilder(
@@ -303,10 +324,34 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
           alignment: Alignment.topLeft,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(top: 20, left: 16),
+              padding: const EdgeInsets.only(top: 80, left: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  IndividualMapButton(
+                    icon: Icons.notifications_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.secondaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showNotificationsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  ),
+                  const SizedBox(height: 12),
+                  IndividualMapButton(
+                    icon: Icons.event_sharp,
+                    iconColor: Colors.white,
+                    borderColor: AppTheme.tertiaryColor,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      showEventsSheet(context);
+                    },
+                    width: 54,
+                    height: 54,
+                  ),
+                  const SizedBox(height: 12),
                   IndividualMapButton(
                     icon: Icons.fact_check_outlined,
                     iconColor: Colors.white,
@@ -340,30 +385,6 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
                       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.event_sharp,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.tertiaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      showEventsSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
-                  ),
-                  const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.notifications_sharp,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.secondaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      showNotificationsSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
-                  )
                 ]
               )
             ),
@@ -393,11 +414,26 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child:ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   HapticFeedback.lightImpact();
-                  navigateToActivityScreen(context);
+                  final currentUser = AuthRepository.instance.currentUser;
+                  final hasTeam = currentUser?.hasTeam ?? false;
+                  if (!hasTeam) {
+                    _showBlockedToExcursionDialog(context);
+                    return;
+                  }
+                  await navigateToActivityScreen(context);
+                  widget.viewModel.reloadMapData();
                 },
-                child: Text(locale.startActivity)
+                child: Text(
+                    locale.startActivity.toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 1.0,
+                      color: AppTheme.darkBackground
+                    ),
+                )
               )
             ),
           ),
@@ -413,6 +449,144 @@ class _MapScreenState extends State<MapScreen> with RouteAware {
 
   void _showActiveChallengesSheet(BuildContext context) {
     showChallengesSheet(context, widget.viewModel);
+  }
+}
+
+void _showBlockedToExcursionDialog(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _BlockedToExcursionDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+}
+
+class _BlockedToExcursionDialog extends StatelessWidget {
+  const _BlockedToExcursionDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+              color: AppTheme.primaryColor,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.no_accounts_outlined,
+                  color: AppTheme.primaryColor,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    locale.blockedToExcursionTitle.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1.0,
+                      fontFamily: 'Oswald',
+                      decoration: TextDecoration.none,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              locale.blockedToExcursionText,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: AppTheme.darkBackground,
+                  shape: const BeveledRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  locale.ok.toUpperCase(),
+                  style: const TextStyle(
+                    fontFamily: 'Oswald',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

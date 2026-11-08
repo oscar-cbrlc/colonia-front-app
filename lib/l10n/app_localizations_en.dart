@@ -214,7 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sec => 'sec';
 
   @override
-  String get targetPace => 'Target pace (min/km)';
+  String get targetPace => 'Target pace';
 
   @override
   String get confirm => 'Confirm';
@@ -277,7 +277,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createTeam => 'Create a Colony';
 
   @override
-  String get joinTeam => 'Join a Colony';
+  String get joinATeam => 'Join a Colony';
+
+  @override
+  String get joinTeam => 'Join Colony';
 
   @override
   String get description => 'Description';
@@ -412,6 +415,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberPromotedToMod => 'Member promoted to moderator';
 
   @override
+  String promoteToModConfirm(String username) {
+    return 'Are you sure you want to promote $username to Moderator?';
+  }
+
+  @override
   String promoteToLeaderConfirm(String username) {
     return 'Are you sure you want to promote $username to Leader? You will lose Leader privileges.';
   }
@@ -421,6 +429,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberDemotedToMember => 'Member demoted to member';
+
+  @override
+  String demoteToMemberConfirm(String username) {
+    return 'Are you sure you want to demote $username to Member?';
+  }
 
   @override
   String kickMemberConfirm(String username) {
@@ -852,16 +865,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String suspectedOnFootDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+    return 'Suspicious motion for $limit consecutive units. Resume on foot to auto-resume, or tap Resume.';
   }
 
   @override
   String suspectedOnBikeDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+    return 'Suspicious motion for $limit consecutive units. Resume on bike to auto-resume, or tap Resume.';
   }
 
   @override
   String get autoResumed => 'Valid motion detected. Excursion resumed.';
+
+  @override
+  String get leaveExcursionTitle => 'ABANDON EXCURSION?';
+
+  @override
+  String get leaveExcursionDescription =>
+      'Are you sure you want to leave? Your excursion progress and territory impacts will be lost.';
 
   @override
   String get byLabel => 'by:';
@@ -1049,6 +1069,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventDetailsTitle => 'EVENT DETAILS';
+
+  @override
+  String get excursionDetailsTitle => 'EXCURSION DETAILS';
+
+  @override
+  String get editSelection => 'EDIT SELECTION';
+
+  @override
+  String get noBoost => 'NO BOOST';
 
   @override
   String get eventNameHint => 'City\'s half marathon';
@@ -1326,4 +1355,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Delete notification';
+
+  @override
+  String get blockedToExcursionTitle => 'LONELY ANT';
+
+  @override
+  String get blockedToExcursionText =>
+      'You must be part of a Colony to start an excursion';
 }

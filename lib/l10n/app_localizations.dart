@@ -509,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @targetPace.
   ///
   /// In es, this message translates to:
-  /// **'Ritmo objetivo (min/km)'**
+  /// **'Ritmo objetivo'**
   String get targetPace;
 
   /// No description provided for @confirm.
@@ -632,10 +632,16 @@ abstract class AppLocalizations {
   /// **'Crear una Colonia'**
   String get createTeam;
 
-  /// No description provided for @joinTeam.
+  /// No description provided for @joinATeam.
   ///
   /// In es, this message translates to:
   /// **'Unirse a una Colonia'**
+  String get joinATeam;
+
+  /// No description provided for @joinTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirse a Colonia'**
   String get joinTeam;
 
   /// No description provided for @description.
@@ -884,6 +890,12 @@ abstract class AppLocalizations {
   /// **'Miembro ascendido a moderador'**
   String get memberPromotedToMod;
 
+  /// No description provided for @promoteToModConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres ascender a {username} a Moderador?'**
+  String promoteToModConfirm(String username);
+
   /// No description provided for @promoteToLeaderConfirm.
   ///
   /// In es, this message translates to:
@@ -901,6 +913,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Miembro descendido a miembro'**
   String get memberDemotedToMember;
+
+  /// No description provided for @demoteToMemberConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres descender a {username} a Miembro?'**
+  String demoteToMemberConfirm(String username);
 
   /// No description provided for @kickMemberConfirm.
   ///
@@ -1685,13 +1703,13 @@ abstract class AppLocalizations {
   /// No description provided for @suspectedOnFootDescription.
   ///
   /// In es, this message translates to:
-  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.'**
+  /// **'Movimiento sospechoso por más de {limit} unidades consecutivas. Continúa a pie para resumir o presiona Resumir.'**
   String suspectedOnFootDescription(int limit);
 
   /// No description provided for @suspectedOnBikeDescription.
   ///
   /// In es, this message translates to:
-  /// **'Motion detected as vehicle or unknown for {limit} consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.'**
+  /// **'Movimiento sospechoso por más de {limit} unidades consecutivas. Continúa en bicicleta para resumir o presiona Resumir.'**
   String suspectedOnBikeDescription(int limit);
 
   /// No description provided for @autoResumed.
@@ -1699,6 +1717,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Movimiento válido detectado. Excursión reanudada.'**
   String get autoResumed;
+
+  /// No description provided for @leaveExcursionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿ABANDONAR EXCURSIÓN?'**
+  String get leaveExcursionTitle;
+
+  /// No description provided for @leaveExcursionDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.'**
+  String get leaveExcursionDescription;
 
   /// No description provided for @byLabel.
   ///
@@ -2041,6 +2071,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'DETALLES DEL EVENTO'**
   String get eventDetailsTitle;
+
+  /// No description provided for @excursionDetailsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'DETALLES DE LA EXCURSIÓN'**
+  String get excursionDetailsTitle;
+
+  /// No description provided for @editSelection.
+  ///
+  /// In es, this message translates to:
+  /// **'EDITAR SELECCIÓN'**
+  String get editSelection;
+
+  /// No description provided for @noBoost.
+  ///
+  /// In es, this message translates to:
+  /// **'SIN BOOST'**
+  String get noBoost;
 
   /// No description provided for @eventNameHint.
   ///
@@ -2569,6 +2617,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar notificación'**
   String get deleteNotification;
+
+  /// No description provided for @blockedToExcursionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'HORMIGA SOLITARIA'**
+  String get blockedToExcursionTitle;
+
+  /// No description provided for @blockedToExcursionText.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes ser parte de una Colonia para empezar una excursión'**
+  String get blockedToExcursionText;
 }
 
 class _AppLocalizationsDelegate

@@ -115,6 +115,15 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> reloadMapData() async {
+    await checkPendingActivities();
+    await _territoryRepository.fetchAllTerritories();
+    await fetchActiveChallenges();
+    _lastH3Indexes = {};
+    await _updateH3Grid();
+    await centerOnUser();
+  }
+
   void _onTerritoriesChanged() {
     _lastH3Indexes = {};
     _updateH3Grid();
@@ -234,11 +243,11 @@ class MapViewModel extends ChangeNotifier {
     if (pos == null) return;
     
     if (_mapboxMap != null) {
-      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 15.0, pitch: 0.0));
+      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 16.0, pitch: 0.0));
     }
 
     _viewport = FollowPuckViewportState(
-      zoom: 15.0, 
+      zoom: 16.0,
       bearing: FollowPuckViewportStateBearingHeading(), 
       pitch: 0.0
     );
@@ -450,6 +459,16 @@ class MapViewModel extends ChangeNotifier {
     if (map == null) return;
     map.compass.updateSettings(CompassSettings(enabled: false));
     map.scaleBar.updateSettings(ScaleBarSettings(enabled: true, position: OrnamentPosition.TOP_RIGHT, marginTop: 60, marginRight: 10, isMetricUnits: true));
+    map.attribution.updateSettings(AttributionSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 20,
+    ));
+    map.logo.updateSettings(LogoSettings(
+      position: OrnamentPosition.TOP_RIGHT,
+      marginTop: 90,
+      marginRight: 45,
+    ));
   }
 
   void _setMapDaylight() {

@@ -45,12 +45,23 @@ class TrackingRepository extends ChangeNotifier {
   ActivityType? get activityType => _activityType;
 
   HarActivity _currentHarActivity = HarActivity.unknown;
+  HarActivity? _lastValidHarActivity;
   int _secondsWalk = 0;
   int _secondsRun = 0;
   int _secondsBike = 0;
   double _distanceWalk = 0.0;
   double _distanceRun = 0.0;
   double _distanceBike = 0.0;
+
+  HarActivity get _effectiveHarActivity {
+    if (_currentHarActivity == HarActivity.walk ||
+        _currentHarActivity == HarActivity.run ||
+        _currentHarActivity == HarActivity.bike) {
+      return _currentHarActivity;
+    }
+    return _lastValidHarActivity ??
+        (_activityType == ActivityType.onBike ? HarActivity.bike : HarActivity.walk);
+  }
 
   double _pendingNodeImpactPoints = 0.0;
 
@@ -101,7 +112,7 @@ class TrackingRepository extends ChangeNotifier {
   double get pendingNodeImpactPoints => _pendingNodeImpactPoints;
 
   int get currentActivityUnitPoints {
-    switch (_currentHarActivity) {
+    switch (_effectiveHarActivity) {
       case HarActivity.walk:
         return GameConfig.walkUnitPoints;
       case HarActivity.run:
@@ -109,7 +120,7 @@ class TrackingRepository extends ChangeNotifier {
       case HarActivity.bike:
         return GameConfig.bikeUnitPoints;
       default:
-        return 0;
+        return GameConfig.walkUnitPoints;
     }
   }
 
@@ -144,19 +155,14 @@ class TrackingRepository extends ChangeNotifier {
       valid = true;
     }
 
-    if (!valid) {
-      _consecutiveInvalidUnits++;
-      if (_consecutiveInvalidUnits >= GameConfig.limitConsecutiveInvalidUnits && !_isPaused) {
-        _isPaused = true;
-        _pausedBySuspectedInvalid = true;
-        _gameTimer?.cancel();
-        _routineTimer?.cancel();
-        onSuspectedInvalidNotification?.call();
-        notifyListeners();
-        return;
-      }
-    } else {
+    if (valid) {
       _consecutiveInvalidUnits = 0;
+      if (activity == HarActivity.walk ||
+          activity == HarActivity.run ||
+          activity == HarActivity.bike) {
+        _lastValidHarActivity = activity;
+      }
+
       if (_isPaused && _pausedBySuspectedInvalid) {
         _isPaused = false;
         _pausedBySuspectedInvalid = false;
@@ -167,11 +173,23 @@ class TrackingRepository extends ChangeNotifier {
         onAutoResumedNotification?.call();
         notifyListeners();
       }
+    } else {
+      _consecutiveInvalidUnits++;
+      if (_consecutiveInvalidUnits >= GameConfig.limitConsecutiveInvalidUnits && !_isPaused) {
+        _isPaused = true;
+        _pausedBySuspectedInvalid = true;
+        _gameTimer?.cancel();
+        _routineTimer?.cancel();
+        onSuspectedInvalidNotification?.call();
+        notifyListeners();
+        return;
+      }
     }
 
     if (!_isPaused) {
+      final effectiveActivity = _effectiveHarActivity;
       final unitPoints = currentActivityUnitPoints;
-      switch (activity) {
+      switch (effectiveActivity) {
         case HarActivity.walk:
           _secondsWalk += GameConfig.unitSeconds;
           _nodeSecondsWalk += GameConfig.unitSeconds;
@@ -244,6 +262,7 @@ class TrackingRepository extends ChangeNotifier {
     _warmupUnits = 3;
     _pausedBySuspectedInvalid = false;
     _currentHarActivity = HarActivity.unknown;
+    _lastValidHarActivity = activityType == ActivityType.onBike ? HarActivity.bike : HarActivity.walk;
     _perimeter.clear();
     _onTrackNodes.clear();
     _visitedCells.clear();
@@ -271,7 +290,7 @@ class TrackingRepository extends ChangeNotifier {
 
     final partialSeconds = _totalSecondsElapsed % GameConfig.unitSeconds;
     if (partialSeconds > 0 || _unitDistanceTracked > 0) {
-      switch (_currentHarActivity) {
+      switch (_effectiveHarActivity) {
         case HarActivity.walk:
           _secondsWalk += partialSeconds;
           _nodeSecondsWalk += partialSeconds;
@@ -538,6 +557,7 @@ class TrackingRepository extends ChangeNotifier {
     _isPaused = false;
     _userPosition = null;
     _currentCell = null;
+    _lastValidHarActivity = null;
     _perimeter.clear();
     _visitedCells.clear();
     _onTrackNodes.clear();

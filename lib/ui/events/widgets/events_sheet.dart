@@ -272,27 +272,6 @@ class _EventsSheetState extends State<EventsSheet> {
                                                     Row(
                                                       mainAxisSize: MainAxisSize.min,
                                                       children: [
-                                                        if (isCompleted) ...[
-                                                          Container(
-                                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                                            decoration: ShapeDecoration(
-                                                              color: AppTheme.successColor.withAlpha(25),
-                                                              shape: BeveledRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(4),
-                                                                side: const BorderSide(color: AppTheme.successColor, width: 1),
-                                                              ),
-                                                            ),
-                                                            child: Text(
-                                                              locale.completed.toUpperCase(),
-                                                              style: const TextStyle(
-                                                                color: AppTheme.successColor,
-                                                                fontWeight: FontWeight.bold,
-                                                                fontSize: 9,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 6),
-                                                        ],
                                                         Container(
                                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                                           decoration: ShapeDecoration(
@@ -381,16 +360,16 @@ class _EventsSheetState extends State<EventsSheet> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                               decoration: ShapeDecoration(
-                                                color: AppTheme.secondaryColor.withAlpha(15),
+                                                color: AppTheme.successColor.withAlpha(15),
                                                 shape: BeveledRectangleBorder(
                                                   borderRadius: BorderRadius.circular(6),
-                                                  side: const BorderSide(color: AppTheme.secondaryColor, width: 1),
+                                                  side: const BorderSide(color: AppTheme.successColor, width: 1),
                                                 ),
                                               ),
                                               child: Text(
                                                 locale.completed.toUpperCase(),
                                                 style: const TextStyle(
-                                                  color: AppTheme.primaryColor,
+                                                  color: AppTheme.successColor,
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 12,
                                                   fontFamily: 'Oswald',

@@ -3,7 +3,6 @@ import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
-import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -11,6 +10,7 @@ import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -32,6 +32,20 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.viewModel.trainingConfig == null) {
+        widget.viewModel.setActivityConfig(
+          activityType: ActivityType.onFoot,
+          trainingType: TrainingType.free,
+          distance: 0.0,
+          time: Duration.zero,
+          pace: 0.0,
+          boost: null,
+        );
+      }
+    });
 
     widget.viewModel.sessionRepository.onStartNotification = () {
       if (!mounted) return;
@@ -68,90 +82,104 @@ class _ActivityScreenState extends State<ActivityScreen> {
         );
       }
     };
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showActivitySelector();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    return ListenableBuilder(
-      listenable: widget.viewModel,
-      builder: (context, _) {
-        return Stack(
-          children: [
-            mapbox.MapWidget(
-              key: const ValueKey("activity_screen_mapbox"),
-              styleUri: mapbox.MapboxStyles.STANDARD,
-              onMapCreated: widget.viewModel.onMapCreated,
-              onStyleLoadedListener: (data) {
-                widget.viewModel.onStyleLoaded();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (widget.viewModel.playingState != PlayingState.stopped) {
+          final shouldLeave = await _showLeaveExcursionDialog(context);
+          if (shouldLeave && context.mounted) {
+            widget.viewModel.cancelActivity();
+            Navigator.of(context).pop();
+          }
+        } else {
+          widget.viewModel.cancelActivity();
+          Navigator.of(context).pop();
+        }
+      },
+      child: ListenableBuilder(
+        listenable: widget.viewModel,
+        builder: (context, _) {
+          return Stack(
+            children: [
+              mapbox.MapWidget(
+                key: const ValueKey("activity_screen_mapbox"),
+                styleUri: mapbox.MapboxStyles.STANDARD,
+                onMapCreated: widget.viewModel.onMapCreated,
+                onStyleLoadedListener: (data) {
+                  widget.viewModel.onStyleLoaded();
 
-                final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
-                  if (widget.viewModel.playingState != PlayingState.stopped) return;
+                  final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                    if (widget.viewModel.playingState != PlayingState.stopped) return;
 
-                  final lat = gestureContext.point.coordinates.lat.toDouble();
-                  final lon = gestureContext.point.coordinates.lng.toDouble();
+                    final lat = gestureContext.point.coordinates.lat.toDouble();
+                    final lon = gestureContext.point.coordinates.lng.toDouble();
 
-                  final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
-                  if (territory != null) {
-                    showTerritorySummaryBottomSheet(context, territory);
-                  }
-                });
+                    final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
+                    if (territory != null) {
+                      showTerritorySummaryBottomSheet(context, territory, showVisitColonyButton: false);
+                    }
+                  });
 
-                widget.viewModel.mapboxMap?.addInteraction(
-                  tapInteraction,
-                  interactionID: 'hexagon-click',
-                );
-              },
-              onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-              viewport: widget.viewModel.viewport ??
-                  (widget.viewModel.userPosition != null
-                      ? mapbox.CameraViewportState(
-                    center: widget.viewModel.userPosition!,
-                    zoom: 17.0,
-                  )
-                      : null),
-            ),
-
-            if (widget.viewModel.isSaving)
-              Container(
-                color: Colors.black.withAlpha(220),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: AppTheme.secondaryColor),
-                      SizedBox(height: 16),
-                      Text(
-                        locale.savingActivity,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
-                      ),
-                    ],
-                  ),
-                ),
+                  widget.viewModel.mapboxMap?.addInteraction(
+                    tapInteraction,
+                    interactionID: 'hexagon-click',
+                  );
+                },
+                onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
+                viewport: widget.viewModel.viewport ??
+                    (widget.viewModel.userPosition != null
+                        ? mapbox.CameraViewportState(
+                      center: widget.viewModel.userPosition!,
+                      zoom: 17.0,
+                    )
+                        : null),
               ),
 
-            if (widget.viewModel.playingState == PlayingState.stopped)
-              Align(
-                alignment: Alignment.topLeft,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      behavior: HitTestBehavior.opaque,
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppTheme.primaryColor,
-                        size: 32.0,
+              if (widget.viewModel.isSaving)
+                Container(
+                  color: Colors.black.withAlpha(220),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppTheme.secondaryColor),
+                        SizedBox(height: 16),
+                        Text(
+                          locale.savingActivity,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (widget.viewModel.playingState == PlayingState.stopped)
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          widget.viewModel.cancelActivity();
+                          Navigator.of(context).pop();
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: AppTheme.primaryColor,
+                          size: 32.0,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
             Align(
               alignment: Alignment.centerRight,
@@ -184,17 +212,21 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   ],
                 ),
               ),
-            if (widget.viewModel.equippedBoost != null && widget.viewModel.playingState != PlayingState.stopped)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _EquippedBoostBadge(boost: widget.viewModel.equippedBoost!)
-              ),
-
-
             if (widget.viewModel.playingState != PlayingState.stopped)
               Align(
                 alignment: Alignment.bottomCenter,
-                child: _ActivityProgressPanel(viewModel: widget.viewModel),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.viewModel.selectedTrainingType != TrainingType.free &&
+                        widget.viewModel.selectedTrainingType != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: _TrainingObjectiveWidget(viewModel: widget.viewModel),
+                      ),
+                    _ActivityProgressPanel(viewModel: widget.viewModel),
+                  ],
+                ),
               ),
 
             if (widget.viewModel.playingState == PlayingState.stopped)
@@ -204,7 +236,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.viewModel.readyToStart && !widget.viewModel.isSaving) ...[
-                      _PreActivityOverview(viewModel: widget.viewModel),
+                      _PreActivityOverviewCard(viewModel: widget.viewModel),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         child: SizedBox(
@@ -214,6 +246,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: AppTheme.secondaryColor,
+                              foregroundColor: AppTheme.darkBackground,
+                              shape: const BeveledRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                              ),
                             ),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
@@ -221,253 +257,352 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                 locale.start.toUpperCase(), 
                                 style: const TextStyle(
                                   color: AppTheme.darkBackground, 
-                                  fontWeight: FontWeight.bold
-                                )
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ],
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          _showActivitySelector();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: AppTheme.darkBackground.withAlpha(230),
-                          foregroundColor: AppTheme.primaryColor,
-                          splashFactory: InkRipple.splashFactory,
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                              locale.setUpActivity.toUpperCase(),
-                              style: const TextStyle(color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.bold
-                              )
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-              )
-          ],
-        );
-      },
-    );
-  }
-
-  void _showActivitySelector() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _ActivitySelectorSheet(viewModel: widget.viewModel),
-      useSafeArea: true,
-      showDragHandle: true,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
 
-class _PreActivityOverview extends StatelessWidget {
+void _showActivitySelectorSheet(BuildContext context, ActivityViewModel viewModel) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => _ActivitySelectorSheet(viewModel: viewModel),
+  );
+}
+
+class _PreActivityOverviewCard extends StatefulWidget {
   final ActivityViewModel viewModel;
-  const _PreActivityOverview({required this.viewModel});
+  final bool initiallyExpanded;
+
+  const _PreActivityOverviewCard({
+    required this.viewModel,
+    this.initiallyExpanded = true,
+  });
+
+  @override
+  State<_PreActivityOverviewCard> createState() => _PreActivityOverviewCardState();
+}
+
+class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
+  late bool _isExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _isExpanded = widget.initiallyExpanded;
+  }
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
 
     return ListenableBuilder(
-        listenable: viewModel,
-        builder: (context, _) {
-          final TrainingType training = viewModel.selectedTrainingType ?? viewModel.selectedPreTrainingType ?? TrainingType.free;
-          final BoostInventory? boost = viewModel.selectedBoost;
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final ActivityType activityType = widget.viewModel.selectedActivityType ?? ActivityType.onFoot;
+        final TrainingType training = widget.viewModel.selectedTrainingType ?? widget.viewModel.selectedPreTrainingType ?? TrainingType.free;
+        final BoostInventory? boost = widget.viewModel.equippedBoost;
 
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            padding: const EdgeInsets.all(20),
-            decoration: ShapeDecoration(
-              shape: BeveledRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: AppTheme.primaryColor, width: 1),
-              ),
-              color: AppTheme.darkBackground.withAlpha(240),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.directions_walk, color: AppTheme.walkColor, size: 20),
-                        SizedBox(width: 2),
-                        Icon(Icons.directions_bike, color: AppTheme.bikeColor, size: 20),
-                        SizedBox(width: 2),
-                        Icon(Icons.directions_run, color: AppTheme.runColor, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          locale.realTimeHar,
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, decoration: TextDecoration.none),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: ShapeDecoration(
-                        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        color: AppTheme.primaryColor.withAlpha(40),
-                      ),
-                      child: Text(
-                        training.getLocale(locale).toUpperCase(),
-                        style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial)
-                      Expanded(
-                        child: _OverviewStat(
-                          label: locale.distance.toUpperCase(),
-                          value: (viewModel.selectedDistance! / 1000).toStringAsFixed(1),
-                          unit: "KM",
-                        ),
-                      ),
-                    if (training == TrainingType.time || training == TrainingType.timeTrial)
-                      Expanded(
-                        child: _OverviewStat(
-                          label: locale.time.toUpperCase(),
-                          value: _formatDurationShort(viewModel.selectedTime!),
-                          unit: "",
-                        ),
-                      ),
-                    if (training == TrainingType.pace)
-                      Expanded(
-                        child: _OverviewStat(
-                          label: locale.targetPace.toUpperCase(),
-                          value: viewModel.formattedSelectedPace,
-                          unit: "MIN/KM",
-                        ),
-                      ),
-                  ],
-                ),
-                if (boost != null) ...[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: Colors.white10, height: 1),
+        return Material(
+          color: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
+            behavior: HitTestBehavior.opaque,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOutCubicEmphasized,
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: ShapeDecoration(
+                color: AppTheme.darkBackground,
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: const BorderSide(
+                    color: AppTheme.primaryColor,
+                    width: 1.5,
                   ),
-                  Row(
-                    children: [
-                      Icon(boost.icon, color: AppTheme.tertiaryColor, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    locale.excursionDetailsTitle.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Oswald',
+                      fontSize: 16,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOutCubicEmphasized,
+                  child: _isExpanded
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              boost.getName(locale).toUpperCase(),
-                              style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 14, decoration: TextDecoration.none),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: ShapeDecoration(
+                                color: Colors.white.withAlpha(15),
+                                shape: BeveledRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: Colors.white.withAlpha(100),
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        activityType == ActivityType.onBike
+                                            ? Icons.pedal_bike_sharp
+                                            : Icons.hiking_sharp,
+                                        color: AppTheme.primaryColor,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        locale.activity.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        (activityType == ActivityType.onBike
+                                                ? locale.onBike
+                                                : locale.onFoot)
+                                            .toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Oswald',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Divider(color: Colors.white12, height: 16),
+
+                                  Row(
+                                    children: [
+                                      Icon(widget.viewModel.selectedTrainingType?.getIcon(),
+                                          color: AppTheme.primaryColor, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        locale.training.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        training.getLocale(locale).toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Oswald',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  if (training != TrainingType.free) ...[
+                                    const Divider(color: Colors.white12, height: 16),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.flag_outlined,
+                                            color: AppTheme.primaryColor, size: 16),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          locale.setObjective.toUpperCase(),
+                                          style: const TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.8,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          _formatObjectiveSummary(widget.viewModel, training, locale),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Oswald',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+
+                                  const Divider(color: Colors.white12, height: 16),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        boost != null ? boost.icon : Icons.electric_bolt_sharp,
+                                        color: AppTheme.primaryColor,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        locale.boosts.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        boost != null
+                                            ? boost.getNameWithEffect(locale).toUpperCase()
+                                            : locale.noBoost.toUpperCase(),
+                                        style: TextStyle(
+                                          color: boost != null ? AppTheme.tertiaryColor : Colors.white54,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Oswald',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Divider(color: Colors.white12, height: 16),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.data_thresholding_sharp,
+                                          color: AppTheme.primaryColor, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        locale.trainingImpactMod.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        "x${widget.viewModel.currentMultiplier.toStringAsFixed(2)}",
+                                        style: const TextStyle(
+                                          color: AppTheme.secondaryColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Oswald',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            Text(
-                              boost.getDescription(locale),
-                              style: const TextStyle(color: Colors.white54, fontSize: 12, decoration: TextDecoration.none),
+
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryColor,
+                                      foregroundColor: AppTheme.darkBackground,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      shape: const BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      HapticFeedback.mediumImpact();
+                                      _showActivitySelectorSheet(context, widget.viewModel);
+                                    },
+                                    icon: const Icon(Icons.tune, size: 18),
+                                    label: Text(
+                                      locale.editSelection.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontFamily: 'Oswald',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _MultiplierMini(label: locale.trainingImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
-                  ],
-                )
-              ],
-            ),
-          );
-        }
-    );
-  }
-
-  String _formatDurationShort(Duration d) {
-    if (d.inHours > 0) return "${d.inHours}H ${d.inMinutes.remainder(60)}M";
-    return "${d.inMinutes}M ${d.inSeconds.remainder(60)}S";
-  }
-}
-
-class _OverviewStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final String unit;
-  const _OverviewStat({required this.label, required this.value, required this.unit});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            label, 
-            style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
-          ),
-        ),
-        const SizedBox(height: 4),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value, 
-                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
-              ),
-              if (unit.isNotEmpty) ...[
-                const SizedBox(width: 2),
-                Text(
-                  unit, 
-                  style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Icon(
+                  _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                  color: AppTheme.secondaryColor,
+                  size: 32,
                 ),
               ],
-            ],
+            ),
           ),
         ),
-      ],
+        );
+      },
     );
   }
-}
 
-class _MultiplierMini extends StatelessWidget {
-  final String label;
-  final double multiplier;
-  final Color color;
-  const _MultiplierMini({required this.label, required this.multiplier, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text("$label: ", style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
-        Text("x${multiplier.toStringAsFixed(2)}", style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none)),
-      ],
-    );
+  String _formatObjectiveSummary(ActivityViewModel viewModel, TrainingType training, AppLocalizations locale) {
+    if (training == TrainingType.distance) {
+      final d = viewModel.selectedDistance ?? 0.0;
+      return "${(d / 1000).toStringAsFixed(1)} KM";
+    } else if (training == TrainingType.time) {
+      final t = viewModel.selectedTime ?? Duration.zero;
+      if (t.inHours > 0) return "${t.inHours}H ${t.inMinutes.remainder(60)}MIN";
+      return "${t.inMinutes}MIN ${t.inSeconds.remainder(60)}S";
+    } else if (training == TrainingType.pace) {
+      final d = viewModel.selectedDistance ?? 0.0;
+      return "${(d / 1000).toStringAsFixed(1)} KM @ ${viewModel.formattedSelectedPace} MIN/KM";
+    } else if (training == TrainingType.timeTrial) {
+      final d = viewModel.selectedDistance ?? 0.0;
+      final t = viewModel.selectedTime ?? Duration.zero;
+      return "${(d / 1000).toStringAsFixed(1)} KM IN ${t.inMinutes} MIN";
+    }
+    return "";
   }
 }
 
@@ -477,7 +612,6 @@ class _DistanceProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -509,15 +643,31 @@ class _DistanceProgressPanel extends StatelessWidget {
                   ),
                 ),
                 if (targetDistanceMeters > 0)
-                  Text(
-                    "${((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2)} KM",
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      decoration: TextDecoration.none
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        ((targetDistanceMeters - viewModel.totalMetersTracked).clamp(0, double.infinity) / 1000).toStringAsFixed(2),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          decoration: TextDecoration.none
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "KM",
+                        style: TextStyle(
+                          color: AppTheme.primaryColor.withAlpha(180),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          decoration: TextDecoration.none
+                        ),
+                      )
+                    ]
                   ),
+
               ],
             ),
             const SizedBox(height: 8),
@@ -736,14 +886,29 @@ class _PaceEquilibriumPanel extends StatelessWidget {
                     decoration: TextDecoration.none
                   ),
                 ),
-                Text(
-                  "${locale.targetPace.toUpperCase()}: ${viewModel.formattedSelectedPace}",
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    decoration: TextDecoration.none
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      viewModel.formattedSelectedPace,
+                      style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          decoration: TextDecoration.none
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "MIN/KM",
+                      style: TextStyle(
+                          color: AppTheme.primaryColor.withAlpha(180),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          decoration: TextDecoration.none
+                      ),
+                    )
+                  ]
                 ),
                 Text(
                   locale.ahead.toUpperCase(),
@@ -815,10 +980,11 @@ class _NextImpactPanel extends StatelessWidget {
 
 class _TrainingObjectiveWidget extends StatelessWidget {
   final ActivityViewModel viewModel;
-  const _TrainingObjectiveWidget({required this.viewModel});
+  const _TrainingObjectiveWidget({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {
@@ -827,71 +993,74 @@ class _TrainingObjectiveWidget extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: ShapeDecoration(
+            color: AppTheme.darkBackground.withAlpha(230),
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: AppTheme.primaryColor.withAlpha(180),
+                width: 1.5,
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(training.getIcon(), color: AppTheme.primaryColor, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${locale.setObjective.toUpperCase()} — ${training.getLocale(locale).toUpperCase()}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Oswald',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      letterSpacing: 0.8,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
-              _DistanceProgressPanel(viewModel: viewModel),
+              if (training == TrainingType.distance || training == TrainingType.pace || training == TrainingType.timeTrial) ...[
+                _DistanceProgressPanel(viewModel: viewModel),
+              ],
+              if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
+                if (training != TrainingType.timeTrial) const SizedBox(height: 6),
+                _TimeProgressPanel(viewModel: viewModel),
+              ],
+              if (training == TrainingType.pace) ...[
+                const SizedBox(height: 6),
+                _PaceEquilibriumPanel(viewModel: viewModel),
+              ],
             ],
-            if (training == TrainingType.time || training == TrainingType.timeTrial) ...[
-              if (training != TrainingType.timeTrial) const SizedBox(height: 8),
-              _TimeProgressPanel(viewModel: viewModel),
-            ],
-            if (training == TrainingType.pace) ...[
-              const SizedBox(height: 8),
-              _PaceEquilibriumPanel(viewModel: viewModel),
-            ],
-          ],
+          ),
         );
       },
     );
   }
 }
 
-class _EquippedBoostBadge extends StatelessWidget {
-  final BoostInventory boost;
-  const _EquippedBoostBadge({required this.boost});
+class _ActivityProgressPanel extends StatefulWidget {
+  final ActivityViewModel viewModel;
+  const _ActivityProgressPanel({super.key, required this.viewModel});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: ShapeDecoration(
-        shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.only(topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
-          side: BorderSide(color: Colors.white, width: 1.0),
-        ),
-        color: AppTheme.tertiaryColor.withAlpha(60),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(boost.icon, color: AppTheme.tertiaryColor, size: 28),
-          const SizedBox(width: 4),
-          Text(
-            boost.getEffectFormatted(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.none,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  State<_ActivityProgressPanel> createState() => _ActivityProgressPanelState();
 }
 
-class _ActivityProgressPanel extends StatelessWidget {
-  final ActivityViewModel viewModel;
-  const _ActivityProgressPanel({required this.viewModel});
+class _ActivityProgressPanelState extends State<_ActivityProgressPanel> {
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
+    final viewModel = widget.viewModel;
 
     return ListenableBuilder(
       listenable: viewModel,
@@ -904,200 +1073,277 @@ class _ActivityProgressPanel extends StatelessWidget {
           ActivityType.onBike => Icons.pedal_bike_sharp,
         };
         final Color activityTypeColor = switch (activityType) {
-          ActivityType.onFoot => AppTheme.walkColor,
+          ActivityType.onFoot => AppTheme.runColor,
           ActivityType.onBike => AppTheme.bikeColor,
         };
-        final IconData trainingIcon = switch (training) {
-          TrainingType.distance => Icons.straighten,
-          TrainingType.time => Icons.timer,
-          TrainingType.pace => Icons.linear_scale,
-          TrainingType.timeTrial => Icons.av_timer_sharp,
-          TrainingType.free => Icons.timer_off,
-        };
+        final IconData trainingIcon = training.getIcon();
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: ShapeDecoration(
             shape: BeveledRectangleBorder(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               side: BorderSide(
                 color: activityTypeColor,
                 width: 1.5,
-              )
+              ),
             ),
-            color: AppTheme.darkBackground.withAlpha(200),
+            color: AppTheme.darkBackground.withAlpha(240),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(activityIcon, color: activityTypeColor, size: 32),
-                      const SizedBox(width: 8),
-                      Text(
-                        activityType.getLocale(locale).toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22, decoration: TextDecoration.none),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        decoration: ShapeDecoration(
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          color: AppTheme.secondaryColor.withAlpha(180),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            Icon(trainingIcon, color: Colors.white.withAlpha(200), size: 18),
-                            const SizedBox(width: 6),
+                            Icon(activityIcon, color: activityTypeColor, size: 28),
+                            const SizedBox(width: 8),
                             Text(
-                              training.getLocale(locale).toUpperCase(),
-                              style: TextStyle(color: Colors.white.withAlpha(200), fontSize: 14, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                              activityType.getLocale(locale).toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'Oswald',
+                                decoration: TextDecoration.none,
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    child: _StatDisplay(
-                      label: locale.distance.toUpperCase(),
-                      value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
-                      unit: "KM",
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              decoration: ShapeDecoration(
+                                shape: BeveledRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  side: BorderSide(
+                                    color: AppTheme.secondaryColor.withAlpha(180),
+                                    width: 1.0,
+                                  ),
+                                ),
+                                color: AppTheme.secondaryColor.withAlpha(100),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(trainingIcon, color: Colors.white.withAlpha(200), size: 16),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    training.getLocale(locale).toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Oswald',
+                                      decoration: TextDecoration.none,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                              color: AppTheme.secondaryColor,
+                              size: 28,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  Expanded(
-                    child: _StatDisplay(
-                      label: locale.time.toUpperCase(),
-                      value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
-                      unit: "",
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOutCubicEmphasized,
+                      child: _isExpanded
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: _StatDisplay(
+                                        label: locale.distance.toUpperCase(),
+                                        value: (viewModel.totalMetersTracked / 1000).toStringAsFixed(2),
+                                        unit: "KM",
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _StatDisplay(
+                                        label: locale.time.toUpperCase(),
+                                        value: _formatDuration(Duration(seconds: viewModel.totalSecondsElapsed)),
+                                        unit: "",
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _StatDisplay(
+                                        label: locale.pace.toUpperCase(),
+                                        value: viewModel.formattedCurrentPace,
+                                        unit: "MIN/KM",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                if (viewModel.equippedBoost != null) ...[
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: ShapeDecoration(
+                                      color: AppTheme.tertiaryColor.withAlpha(20),
+                                      shape: BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        side: BorderSide(
+                                          color: AppTheme.tertiaryColor.withAlpha(180),
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(viewModel.equippedBoost!.icon, color: Colors.white, size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                viewModel.equippedBoost!.getName(locale).toUpperCase(),
+                                                style: TextStyle(
+                                                  color: Colors.white.withAlpha(210),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13,
+                                                  fontFamily: 'Oswald',
+                                                  decoration: TextDecoration.none,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          viewModel.equippedBoost!.getEffectFormatted(),
+                                          style: const TextStyle(
+                                            color: AppTheme.secondaryColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            fontFamily: 'Oswald',
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                if (viewModel.pausedBySuspectedInvalid) ...[
+                                  const SizedBox(height: 12),
+                                  _SuspectedInvalidActivityBanner(viewModel: viewModel),
+                                ],
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                     ),
-                  ),
-                  Expanded(
-                    child: _StatDisplay(
-                      label: locale.pace.toUpperCase(),
-                      value: viewModel.formattedCurrentPace,
-                      unit: "MIN/KM",
-                    ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    const Divider(color: Colors.white12, height: 16),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _MultiplierMini(label: locale.finalImpactMod.toUpperCase(), multiplier: viewModel.currentMultiplier, color: Colors.redAccent),
-                ],
-              ),
-              if (viewModel.pausedBySuspectedInvalid) ...[
-                const SizedBox(height: 12),
-                _SuspectedInvalidActivityBanner(viewModel: viewModel),
-              ],
-              const SizedBox(height: 12),
 
-              if (training != TrainingType.free) ...[
-                const SizedBox(height: 12),
-                _TrainingObjectiveWidget(viewModel: viewModel),
-              ],
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _MapActionButton(
+                      icon: viewModel.playingState == PlayingState.playing
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: AppTheme.darkBackground.withAlpha(220),
+                      iconColor: AppTheme.primaryColor,
+                      borderColor: AppTheme.primaryColor,
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        viewModel.onPushPlayButton();
+                      },
+                      shape: const StarBorder(
+                        side: BorderSide(color: AppTheme.primaryColor, width: 2),
+                        points: 6,
+                        innerRadiusRatio: 0.86,
+                        rotation: 30,
+                        pointRounding: 0.15,
+                      ),
+                    ),
+                    if (viewModel.playingState == PlayingState.paused) ...[
+                      const SizedBox(width: 24),
                       _MapActionButton(
-                        icon: viewModel.playingState == PlayingState.playing
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        color: AppTheme.darkBackground.withAlpha(220),
-                        iconColor: AppTheme.primaryColor,
-                        borderColor: AppTheme.primaryColor,
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          viewModel.onPushPlayButton();
+                        icon: Icons.stop,
+                        color: Colors.redAccent.withAlpha(220),
+                        iconColor: Colors.white,
+                        borderColor: Colors.redAccent,
+                        onTap: () async {
+                          HapticFeedback.heavyImpact();
+                          final nav = Navigator.of(context);
+                          final scaf = ScaffoldMessenger.of(context);
+
+                          final result = await viewModel.onPushStopButton();
+                          debugPrint("ActivityScreen.onTap: result=$result");
+
+                          if (result != null) {
+                            if (result['activityResult'] == null) {
+                              final bool isOffline = result['isOffline'] == true;
+                              final String message = isOffline
+                                  ? locale.activitySavedLocally
+                                  : locale.errorSavingActivity;
+
+                              scaf.showSnackBar(
+                                SnackBar(
+                                  content: Text(message),
+                                  backgroundColor: isOffline ? Colors.orangeAccent : Colors.redAccent,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+
+                            nav.pushReplacementNamed(
+                              AppRouter.summary,
+                              arguments: result,
+                            );
+                          } else {
+                            scaf.showSnackBar(
+                              SnackBar(
+                                content: Text(locale.errorSavingActivity),
+                                backgroundColor: AppTheme.errorColor,
+                              ),
+                            );
+                          }
                         },
                         shape: const StarBorder(
-                          side: BorderSide(color: AppTheme.primaryColor, width: 2),
+                          side: BorderSide(color: Colors.white, width: 2),
                           points: 6,
                           innerRadiusRatio: 0.86,
                           rotation: 30,
                           pointRounding: 0.15,
                         ),
                       ),
-                      if (viewModel.playingState == PlayingState.paused) ...[
-                        const SizedBox(width: 24),
-                        _MapActionButton(
-                          icon: Icons.stop,
-                          color: Colors.redAccent.withAlpha(220),
-                          iconColor: Colors.white,
-                          borderColor: Colors.redAccent,
-                          onTap: () async {
-                            HapticFeedback.heavyImpact();
-                            final nav = Navigator.of(context);
-                            final scaf = ScaffoldMessenger.of(context);
-                            
-                            final result = await viewModel.onPushStopButton();
-                            debugPrint("ActivityScreen.onTap: result=$result");
-                            
-                            if (result != null) {
-                              if (result['activityResult'] == null) {
-                                final bool isOffline = result['isOffline'] == true;
-                                final String message = isOffline
-                                    ? locale.activitySavedLocally
-                                    : locale.errorSavingActivity;
-
-                                scaf.showSnackBar(
-                                  SnackBar(
-                                    content: Text(message),
-                                    backgroundColor: isOffline ? Colors.orangeAccent : Colors.redAccent,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                              
-                              nav.pushReplacementNamed(
-                                AppRouter.summary, 
-                                arguments: result,
-                              );
-                            } else {
-                              scaf.showSnackBar(
-                                SnackBar(
-                                  content: Text(locale.errorSavingActivity),
-                                  backgroundColor: AppTheme.errorColor,
-                                ),
-                              );
-                            }
-                          },
-                          shape: const StarBorder(
-                            side: BorderSide(color: Colors.white, width: 2),
-                            points: 6,
-                            innerRadiusRatio: 0.86,
-                            rotation: 30,
-                            pointRounding: 0.15,
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
               ),
             ],
@@ -1106,16 +1352,16 @@ class _ActivityProgressPanel extends StatelessWidget {
       },
     );
   }
+}
 
-  String _formatDuration(Duration d) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(d.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(d.inSeconds.remainder(60));
-    if (d.inHours > 0) {
-      return "${twoDigits(d.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
-    } else {
-      return "$twoDigitMinutes:$twoDigitSeconds";
-    }
+String _formatDuration(Duration d) {
+  String twoDigits(int n) => n.toString().padLeft(2, "0");
+  String twoDigitMinutes = twoDigits(d.inMinutes.remainder(60));
+  String twoDigitSeconds = twoDigits(d.inSeconds.remainder(60));
+  if (d.inHours > 0) {
+    return "${twoDigits(d.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  } else {
+    return "$twoDigitMinutes:$twoDigitSeconds";
   }
 }
 
@@ -1159,7 +1405,8 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.orangeAccent,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontFamily: 'Oswald',
+                    fontSize: 14,
                     letterSpacing: 1.0,
                     decoration: TextDecoration.none,
                   ),
@@ -1172,9 +1419,11 @@ class _SuspectedInvalidActivityBanner extends StatelessWidget {
             viewModel.selectedActivityType == ActivityType.onFoot? locale.suspectedOnFootDescription(GameConfig.limitConsecutiveInvalidUnits) : locale.suspectedOnBikeDescription(GameConfig.limitConsecutiveInvalidUnits),
             style: const TextStyle(
               color: Colors.white70,
-              fontSize: 11,
-              height: 1.3,
+              fontSize: 13,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
               decoration: TextDecoration.none,
+              fontFamily: 'Oswald',
             ),
           ),
         ],
@@ -1216,7 +1465,7 @@ class _StatDisplay extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
+                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
               ),
               if (unit.isNotEmpty) ...[
                 const SizedBox(width: 4),
@@ -1235,7 +1484,10 @@ class _StatDisplay extends StatelessWidget {
 
 class _ActivitySelectorSheet extends StatefulWidget {
   final ActivityViewModel viewModel;
-  const _ActivitySelectorSheet({required this.viewModel});
+
+  const _ActivitySelectorSheet({
+    required this.viewModel,
+  });
 
   @override
   State<_ActivitySelectorSheet> createState() => _ActivitySelectorSheetState();
@@ -1253,17 +1505,23 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
   @override
   void initState() {
     super.initState();
-    final d = widget.viewModel.selectedDistance ?? GameConfig.defaultObjectiveDistance;
-    _km = (d / 1000).floor();
+    final d = (widget.viewModel.selectedDistance != null && widget.viewModel.selectedDistance! > 0) ?
+                widget.viewModel.selectedDistance :
+                GameConfig.defaultObjectiveDistance;
+    _km = (d! / 1000).floor();
     _m = (d % 1000).toInt();
 
-    final t = widget.viewModel.selectedTime ?? GameConfig.defaultObjectiveTime;
-    _h = t.inHours;
+    final t = (widget.viewModel.selectedTime != null && widget.viewModel.selectedTime!.inSeconds > 0) ?
+                widget.viewModel.selectedTime :
+                GameConfig.defaultObjectiveTime;
+    _h = t!.inHours;
     _min = t.inMinutes.remainder(60);
     _sec = t.inSeconds.remainder(60);
 
-    final p = widget.viewModel.selectedPace ?? GameConfig.defaultObjectivePace;
-    _paceMin = p.toInt();
+    final p = (widget.viewModel.selectedPace != null && widget.viewModel.selectedPace! > 0) ?
+                widget.viewModel.selectedPace :
+                GameConfig.defaultObjectivePace;
+    _paceMin = p!.toInt();
     _paceSec = ((p - _paceMin) * 60).round();
   }
 
@@ -1294,7 +1552,7 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     }
 
     final double pace = _paceMin + (_paceSec / 60.0);
-    
+
     widget.viewModel.setActivityConfig(
         activityType: activityType,
         trainingType: training,
@@ -1311,412 +1569,385 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final locale = AppLocalizations.of(context)!;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOutCubicEmphasized,
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 16,
-        bottom: 16 + bottomInset,
-      ),
-      decoration: ShapeDecoration(
-        shape: const BeveledRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.88,
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: 16 + bottomInset,
         ),
-        color: AppTheme.darkBackground.withAlpha(240),
-      ),
-      child: ListenableBuilder(
-        listenable: widget.viewModel,
-        builder: (context, _) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(2),
+        decoration: const ShapeDecoration(
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          color: AppTheme.darkBackground,
+        ),
+        child: SafeArea(
+          child: ListenableBuilder(
+            listenable: widget.viewModel,
+            builder: (context, _) {
+              return SingleChildScrollView(
+                child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
 
-                Row (
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        locale.activity.toUpperCase(),
+                        locale.setUpActivity.toUpperCase(),
                         style: const TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            fontSize: 12,
-                            decoration: TextDecoration.none
+                          color: Colors.white,
+                          fontFamily: 'Oswald',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          _showPointsCalculationDialog(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.help_center_outlined,
-                                color: AppTheme.primaryColor,
-                                size: 20,
-                              ),
-                            ],
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.help_center_outlined, color: AppTheme.primaryColor),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              _showPointsCalculationDialog(context);
+                            },
                           ),
-                        ),
-                      ),
-                    ]
-                ),
-                const SizedBox(height: 8),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1,
-                  children: [
-                    _ChoiceChip(
-                      label: locale.onFoot,
-                      icon: Icons.hiking_sharp,
-                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onFoot,
-                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onFoot,
-                      color: AppTheme.runColor,
-                    ),
-                    _ChoiceChip(
-                      label: locale.onBike,
-                      icon: Icons.pedal_bike_sharp,
-                      isSelected: widget.viewModel.selectedActivityType == ActivityType.onBike,
-                      onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onBike,
-                      color: AppTheme.bikeColor,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                Row (
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      locale.training.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        fontSize: 12,
-                        decoration: TextDecoration.none
-                      ),
-                    ),
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          _showPointsCalculationDialog(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.help_center_outlined,
-                                color: AppTheme.primaryColor,
-                                size: 20,
-                              ),
-                            ],
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white54),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                        ),
+                        ],
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
 
-                  ]
-                ),
-                const SizedBox(height: 8),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1,
-                  children: [
-                    _ChoiceChip(
-                      label: locale.free,
-                      icon: Icons.timer_off,
-                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.free,
-                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.free,
-                      color: AppTheme.primaryColor,
-                      multiplier: "1.0",
-                    ),
-                    _ChoiceChip(
-                      label: locale.distance,
-                      icon: Icons.straighten,
-                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.distance,
-                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.distance,
-                      color: AppTheme.primaryColor,
-                      multiplier: "1.5",
-                    ),
-                    _ChoiceChip(
-                      label: locale.time,
-                      icon: Icons.timer,
-                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.time,
-                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.time,
-                      color: AppTheme.primaryColor,
-                      multiplier: "1.25",
-                    ),
-                    _ChoiceChip(
-                      label: locale.pace,
-                      icon: Icons.linear_scale,
-                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.pace,
-                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.pace,
-                      color: AppTheme.primaryColor,
-                      multiplier: "1.75",
-                    ),
-                    _ChoiceChip(
-                      label: locale.timeTrial,
-                      icon: Icons.av_timer_sharp,
-                      isSelected: widget.viewModel.selectedPreTrainingType == TrainingType.timeTrial,
-                      onSelected: () => widget.viewModel.selectedPreTrainingType = TrainingType.timeTrial,
-                      color: AppTheme.primaryColor,
-                      multiplier: "1.75",
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-                if (widget.viewModel.selectedPreTrainingType != TrainingType.free && widget.viewModel.selectedPreTrainingType != null) ...[
                   Text(
-                    locale.setObjective.toUpperCase(),
+                    locale.activity.toUpperCase(),
                     style: const TextStyle(
                       color: AppTheme.primaryColor,
+                      fontFamily: 'Oswald',
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                      letterSpacing: 1.1,
                       fontSize: 12,
-                      decoration: TextDecoration.none
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildObjectiveInputs(context),
-                  const SizedBox(height: 24),
-                ],
-
-                if (widget.viewModel.availableBoosts.isNotEmpty) ...[
-                  Text(
-                    locale.boostsInInventory.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontSize: 12,
-                      decoration: TextDecoration.none
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
+                  const SizedBox(height: 6),
+                  GridView.count(
+                    crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1,
-                    ),
-                    itemCount: widget.viewModel.availableBoosts.length,
-                    itemBuilder: (context, index) {
-                      final boost = widget.viewModel.availableBoosts[index];
-                      final isSelected = widget.viewModel.selectedBoost == boost;
-                      final int count = boost.quantity;
-                      
-                      return GestureDetector(
-                        onTap: () {
-                          if (count <= 0) return;
-                          if (isSelected) {
-                            widget.viewModel.selectedBoost = null;
-                          } else {
-                            widget.viewModel.selectedBoost = boost;
-                          }
-                        },
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              decoration: ShapeDecoration(
-                                color: isSelected 
-                                    ? AppTheme.tertiaryColor 
-                                    : count > 0 
-                                        ? Colors.white.withAlpha(20) 
-                                        : Colors.white.withAlpha(5),
-                                shape: BeveledRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(
-                                    color: isSelected ? Colors.white : AppTheme.tertiaryColor.withAlpha(100),
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(boost.icon, color: Colors.white),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    boost.getName(locale).toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: isSelected ? Colors.black : Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.none
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (count > 0)
-                              Positioned(
-                                right: 1.5,
-                                top: 1.5,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: ShapeDecoration(
-                                      color: isSelected? AppTheme.secondaryColor.withAlpha(180): AppTheme.secondaryColor.withAlpha(30),
-                                      shape:  BeveledRectangleBorder(
-                                        borderRadius: BorderRadius.only(topRight: Radius.circular(11)),
-                                        side: BorderSide(color: isSelected? AppTheme.secondaryColor.withAlpha(100) : Colors.transparent, width: 0.5)
-                                      )
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 22,
-                                    minHeight: 22,
-                                  ),
-                                  child: Text(
-                                    "$count",
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.none
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    },
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 3.8,
+                    children: [
+                      _ChoiceChip(
+                        label: locale.onFoot,
+                        icon: Icons.hiking_sharp,
+                        isSelected: widget.viewModel.selectedActivityType == ActivityType.onFoot,
+                        onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onFoot,
+                        color: Colors.red,
+                      ),
+                      _ChoiceChip(
+                        label: locale.onBike,
+                        icon: Icons.pedal_bike_sharp,
+                        isSelected: widget.viewModel.selectedActivityType == ActivityType.onBike,
+                        onSelected: () => widget.viewModel.selectedActivityType = ActivityType.onBike,
+                        color: AppTheme.tertiaryColor,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                ],
-                if (widget.viewModel.selectedBoost != null) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.tertiaryColor.withAlpha(20),
-                      borderRadius: BorderRadius.circular(0),
-                      border: Border.all(color: AppTheme.tertiaryColor.withAlpha(210)),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    locale.training.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontFamily: 'Oswald',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                      fontSize: 12,
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 3.8,
+                    children: List.generate(widget.viewModel.trainings.length, (index) {
+                      final training = widget.viewModel.trainings[index];
+                      final isSelected = widget.viewModel.selectedPreTrainingType == training.type;
+                      return _ChoiceChip(
+                        label: training.type.getLocale(locale).toUpperCase(),
+                        icon: training.type.getIcon(),
+                        isSelected: isSelected,
+                        onSelected: () => widget.viewModel.selectedPreTrainingType = training.type,
+                        color: AppTheme.primaryColor,
+                        multiplier: training.impactPoints.toString(),
+                      );
+                    }),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _TopToBottomObjectiveExpandable(
+                    show: widget.viewModel.selectedPreTrainingType != TrainingType.free &&
+                        widget.viewModel.selectedPreTrainingType != null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          widget.viewModel.selectedBoost!.getName(locale).toUpperCase(),
-                          style: const TextStyle(color: AppTheme.tertiaryColor, fontWeight: FontWeight.bold, fontSize: 12, decoration: TextDecoration.none),
+                          locale.setObjective.toUpperCase(),
+                          style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontFamily: 'Oswald',
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
+                            fontSize: 12,
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            final offsetAnimation = Tween<Offset>(
+                              begin: const Offset(0.0, -0.15),
+                              end: Offset.zero,
+                            ).animate(animation);
 
-                        Text(
-                          widget.viewModel.selectedBoost!.getDescription(locale),
-                          style: const TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.none),
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: offsetAnimation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: SizedBox(
+                            key: ValueKey(widget.viewModel.selectedPreTrainingType),
+                            width: double.infinity,
+                            child: _buildObjectiveWheelInputs(context),
+                          ),
                         ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                ],
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isValid ? _onConfirm : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppTheme.primaryColor,
-                      disabledBackgroundColor: Colors.white10,
+
+                  if (widget.viewModel.availableBoosts.isNotEmpty) ...[
+                    Text(
+                      locale.boostsInInventory.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
+                        fontSize: 12,
+                      ),
                     ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
+                    const SizedBox(height: 6),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 2.8,
+                      children: List.generate(widget.viewModel.onlyExistingInventory.length, (index) {
+                        final boostInventory = widget.viewModel.onlyExistingInventory[index];
+                        final isSelected = widget.viewModel.selectedBoost == boostInventory;
+                        return _BoostSelectChip(
+                          boostInventory: boostInventory,
+                          isSelected: isSelected,
+                          onTap: () {
+                            if (isSelected) {
+                              widget.viewModel.selectedBoost = null;
+                            } else {
+                              widget.viewModel.selectedBoost = boostInventory;
+                            }
+                          },
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  _TopToBottomObjectiveExpandable(
+                    show: widget.viewModel.selectedBoost != null,
+                    child: widget.viewModel.selectedBoost != null
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 250),
+                                switchInCurve: Curves.easeOutCubic,
+                                switchOutCurve: Curves.easeInCubic,
+                                transitionBuilder: (Widget child, Animation<double> animation) {
+                                  final offsetAnimation = Tween<Offset>(
+                                    begin: const Offset(0.0, -0.15),
+                                    end: Offset.zero,
+                                  ).animate(animation);
+
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  key: ValueKey(widget.viewModel.selectedBoost!.id),
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: ShapeDecoration(
+                                    color: AppTheme.secondaryColor.withAlpha(20),
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      side: BorderSide(color: AppTheme.secondaryColor.withAlpha(180), width: 1),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.viewModel.selectedBoost!.getNameWithEffect(locale).toUpperCase(),
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        widget.viewModel.selectedBoost!.getDescription(locale),
+                                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: AppTheme.darkBackground,
+                        disabledBackgroundColor: AppTheme.primaryColor.withAlpha(80),
+                        shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      onPressed: _isValid ? () {
+                        HapticFeedback.mediumImpact();
+                        _onConfirm();
+                      } : null,
                       child: Text(
-                        locale.confirm.toUpperCase(), 
-                        style: TextStyle(color: _isValid ? Colors.black87 : Colors.white24) 
+                        locale.confirm.toUpperCase(),
+                        style: const TextStyle(
+                          fontFamily: 'Oswald',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          letterSpacing: 1.0,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildObjectiveInputs(BuildContext context) {
-    final training = widget.viewModel.selectedPreTrainingType;
-    final locale = AppLocalizations.of(context)!;
-    
-    Widget subtitle(String text) => Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white38,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.1,
+                  const SizedBox(height: 12),
+                ],
+              ),
+            );
+          },
         ),
       ),
-    );
+    ),
+  );
+  }
+
+  Widget _buildObjectiveWheelInputs(BuildContext context) {
+    final training = widget.viewModel.selectedPreTrainingType;
+    final locale = AppLocalizations.of(context)!;
 
     if (training == TrainingType.distance) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          subtitle(locale.distance),
+          Text(
+            locale.distance.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              fontFamily: 'Oswald',
+            ),
+          ),
+          const SizedBox(height: 6),
           Row(
             children: [
               Expanded(
-                  child: _NumberPickerField(
-                      label: locale.km.toUpperCase(),
+                child: _buildWheelPickerTile(
+                  color: Colors.white,
+                  pickers: [
+                    _WheelPickerField(
                       value: _km,
                       min: 0,
-                      max: 99,
-                      onChanged: (v) => setState(() => _km = v))
+                      max: 999,
+                      onChanged: (v) => setState(() => _km = v),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Text('KM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 16),
-              Expanded(child: _NumberPickerField(
-                  label: locale.meters.toUpperCase(),
-                  value: _m,
-                  min: 0,
-                  max: 999,
-                  step: 50,
-                  onChanged: (v) => setState(() => _m = v))),
-            ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildWheelPickerTile(
+                  color: Colors.white,
+                  pickers: [
+                    _WheelPickerField(
+                      value: _m,
+                      min: 0,
+                      max: 950,
+                      step: 50,
+                      onChanged: (v) => setState(() => _m = v),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                    ),
+                  ],
+                ),
+              ),
+            ]
           ),
         ],
       );
@@ -1724,230 +1955,450 @@ class _ActivitySelectorSheetState extends State<_ActivitySelectorSheet> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          subtitle(locale.time),
+          Text(
+            locale.time.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              fontFamily: 'Oswald',
+            ),
+          ),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Expanded(child: _NumberPickerField(
-                  label: locale.hours.toUpperCase(),
-                  value: _h,
-                  min: 0,
-                  max: 23,
-                  onChanged: (v) => setState(() => _h = v))),
-              const SizedBox(width: 8),
-              Expanded(child: _NumberPickerField(
-                  label: locale.min.toUpperCase(),
-                  value: _min,
-                  min: 0,
-                  max: 59,
-                  onChanged: (v) => setState(() => _min = v))),
-              const SizedBox(width: 8),
-              Expanded(child: _NumberPickerField(
-                  label: locale.sec.toUpperCase(),
-                  value: _sec,
-                  min: 0,
-                  max: 59,
-                  step: 10,
-                  onChanged: (v) => setState(() => _sec = v))),
+              Expanded(
+                child: _buildWheelPickerTile(
+                  color: Colors.white,
+                  pickers: [
+                    _WheelPickerField(
+                      value: _h,
+                      min: 0,
+                      max: 23,
+                      onChanged: (v) => setState(() => _h = v),
+                    ),
+                    const Text(
+                      ':',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                    _WheelPickerField(
+                      value: _min,
+                      min: 0,
+                      max: 59,
+                      onChanged: (v) => setState(() => _min = v),
+                    ),
+                    const Text(
+                      ':',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                    _WheelPickerField(
+                      value: _sec,
+                      min: 0,
+                      max: 59,
+                      step: 5,
+                      onChanged: (v) => setState(() => _sec = v),
+                    ),
+                  ],
+                ),
+              ),
             ],
-          ),
+          )
         ],
       );
     } else if (training == TrainingType.pace) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          subtitle(locale.distance),
-          Row(
+      return
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _NumberPickerField(
-                  label: locale.km.toUpperCase(),
-                  value: _km,
-                  min: 0,
-                  max: 99,
-                  onChanged: (v) => setState(() => _km = v))),
-              const SizedBox(width: 16),
-              Expanded(child: _NumberPickerField(
-                  label: locale.meters.toUpperCase(),
-                  value: _m,
-                  min: 0,
-                  max: 999,
-                  step: 50,
-                  onChanged: (v) => setState(() => _m = v))),
+              Text(
+                locale.distance.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildWheelPickerTile(
+                      color: Colors.white,
+                      pickers: [
+                        _WheelPickerField(
+                          value: _km,
+                          min: 0,
+                          max: 999,
+                          onChanged: (v) => setState(() => _km = v),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Text('KM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildWheelPickerTile(
+                      color: Colors.white,
+                      pickers: [
+                        _WheelPickerField(
+                          value: _m,
+                          min: 0,
+                          max: 950,
+                          step: 50,
+                          onChanged: (v) => setState(() => _m = v),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                locale.pace.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildWheelPickerTile(
+                      color: Colors.white,
+                      pickers: [
+                        _WheelPickerField(
+                          value: _paceMin,
+                          min: 1,
+                          max: 20,
+                          onChanged: (v) => setState(() => _paceMin = v),
+                        ),
+                        const Text(
+                          ':',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            fontFamily: 'Oswald',
+                          ),
+                        ),
+                        _WheelPickerField(
+                          value: _paceSec,
+                          min: 0,
+                          max: 59,
+                          step: 5,
+                          onChanged: (v) => setState(() => _paceSec = v),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Text('MIN/KM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
             ],
-          ),
-          const SizedBox(height: 16),
-          subtitle(locale.targetPace),
-          Row(
-            children: [
-              Expanded(child: _NumberPickerField(
-                  label: locale.min.toUpperCase(),
-                  value: _paceMin,
-                  min: 2,
-                  max: 20,
-                  onChanged: (v) => setState(() => _paceMin = v))),
-              const SizedBox(width: 12),
-              Expanded(child: _NumberPickerField(
-                  label: locale.sec.toUpperCase(),
-                  value: _paceSec,
-                  min: 0,
-                  max: 59,
-                  step: 5,
-                  onChanged: (v) => setState(() => _paceSec = v))),
-            ],
-          ),
-        ],
       );
     } else if (training == TrainingType.timeTrial) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          subtitle(locale.distance),
+          Text(
+            locale.distance.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              fontFamily: 'Oswald',
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+              children: [
+                Expanded(
+                  child: _buildWheelPickerTile(
+                    color: Colors.white,
+                    pickers: [
+                      _WheelPickerField(
+                        value: _km,
+                        min: 0,
+                        max: 999,
+                        onChanged: (v) => setState(() => _km = v),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text('KM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildWheelPickerTile(
+                    color: Colors.white,
+                    pickers: [
+                      _WheelPickerField(
+                        value: _m,
+                        min: 0,
+                        max: 950,
+                        step: 50,
+                        onChanged: (v) => setState(() => _m = v),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Oswald')),
+                      ),
+                    ],
+                  ),
+                ),
+              ]
+          ),
+          const SizedBox(height: 6),
+          Text(
+            locale.time.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              fontFamily: 'Oswald',
+            ),
+          ),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Expanded(child: _NumberPickerField(
-                  label: locale.km.toUpperCase(),
-                  value: _km,
-                  min: 0,
-                  max: 99,
-                  onChanged: (v) => setState(() => _km = v))),
-              const SizedBox(width: 16),
-              Expanded(child: _NumberPickerField(
-                  label: locale.meters.toUpperCase(),
-                  value: _m,
-                  min: 0,
-                  max: 999,
-                  step: 50,
-                  onChanged: (v) => setState(() => _m = v))),
+              Expanded(
+                child: _buildWheelPickerTile(
+                  color: Colors.white,
+                  pickers: [
+                    _WheelPickerField(
+                      value: _h,
+                      min: 0,
+                      max: 23,
+                      onChanged: (v) => setState(() => _h = v),
+                    ),
+                    const Text(
+                      ':',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                    _WheelPickerField(
+                      value: _min,
+                      min: 0,
+                      max: 59,
+                      onChanged: (v) => setState(() => _min = v),
+                    ),
+                    const Text(
+                      ':',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                    _WheelPickerField(
+                      value: _sec,
+                      min: 0,
+                      max: 59,
+                      step: 5,
+                      onChanged: (v) => setState(() => _sec = v),
+                    ),
+                  ],
+                ),
+              ),
             ],
-          ),
-          const SizedBox(height: 16),
-          subtitle(locale.time),
-          Row(
-            children: [
-              Expanded(child: _NumberPickerField(
-                  label: locale.hours.toUpperCase(),
-                  value: _h,
-                  min: 0,
-                  max: 23,
-                  onChanged: (v) => setState(() => _h = v))),
-              const SizedBox(width: 12),
-              Expanded(child: _NumberPickerField(
-                  label: locale.min.toUpperCase(),
-                  value: _min,
-                  min: 0,
-                  max: 59,
-                  onChanged: (v) => setState(() => _min = v))),
-              const SizedBox(width: 12),
-              Expanded(child: _NumberPickerField(
-                  label: locale.sec.toUpperCase(),
-                  value: _sec,
-                  min: 0,
-                  max: 59,
-                  step: 10,
-                  onChanged: (v) => setState(() => _sec = v))),
-            ],
-          ),
+          )
         ],
       );
     }
+
     return const SizedBox.shrink();
   }
-}
 
-class _NumberPickerField extends StatelessWidget {
-  final String label;
-  final int value;
-  final int min;
-  final int max;
-  final int step;
-  final ValueChanged<int> onChanged;
-
-  const _NumberPickerField({
-    required this.label,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.onChanged,
-    this.step = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            label, 
-            style: const TextStyle(
-              color: Colors.white54, 
-              fontSize: 10, 
-              fontWeight: FontWeight.bold, 
-              decoration: TextDecoration.none
-            )
-          ),
+  Widget _buildWheelPickerTile({
+    String? label,
+    required Color color,
+    required List<Widget> pickers,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: ShapeDecoration(
+        color: Colors.white.withAlpha(15),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: color.withAlpha(180), width: 1),
         ),
-        const SizedBox(height: 6),
-        Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.white.withAlpha(10),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label != null)...[
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: pickers,
           ),
-          child: Row(
-            children: [
-              _PickerButton(
-                icon: Icons.remove,
-                onPressed: value > min ? () => onChanged(value - step < min ? min : value - step) : null,
-              ),
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    value.toString(),
-                    style: const TextStyle(
-                      color: Colors.white, 
-                      fontSize: 24, 
-                      fontWeight: FontWeight.bold, 
-                      fontFamily: 'Oswald', 
-                      decoration: TextDecoration.none
-                    ),
-                  ),
-                ),
-              ),
-              _PickerButton(
-                icon: Icons.add,
-                onPressed: value < max ? () => onChanged(value + step > max ? max : value + step) : null,
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _PickerButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-  const _PickerButton({required this.icon, this.onPressed});
+class _TopToBottomObjectiveExpandable extends StatefulWidget {
+  final bool show;
+  final Widget child;
+
+  const _TopToBottomObjectiveExpandable({
+    required this.show,
+    required this.child,
+  });
+
+  @override
+  State<_TopToBottomObjectiveExpandable> createState() => _TopToBottomObjectiveExpandableState();
+}
+
+class _TopToBottomObjectiveExpandableState extends State<_TopToBottomObjectiveExpandable>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      value: widget.show ? 1.0 : 0.0,
+    );
+    _anim = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOutCubicEmphasized,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_TopToBottomObjectiveExpandable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.show != oldWidget.show) {
+      if (widget.show) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 28,
-        height: double.infinity,
-        alignment: Alignment.center,
-        child: Icon(
-          icon, 
-          size: 16, 
-          color: onPressed != null ? AppTheme.primaryColor : Colors.white10
+    return SizeTransition(
+      sizeFactor: _anim,
+      axis: Axis.vertical,
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        width: double.infinity,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _WheelPickerField extends StatelessWidget {
+  final int value;
+  final int min;
+  final int max;
+  final int step;
+  final double? width;
+  final ValueChanged<int> onChanged;
+
+  const _WheelPickerField({
+    required this.value,
+    required this.min,
+    required this.max,
+    this.step = 1,
+    this.width = 44,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final count = ((max - min) ~/ step) + 1;
+    final initialIndex = ((value.clamp(min, max) - min) ~/ step).clamp(0, count - 1);
+
+    return SizedBox(
+      height: 60,
+      width: width,
+      child: ListWheelScrollView.useDelegate(
+        offAxisFraction: 0.0,
+        dragStartBehavior: DragStartBehavior.down,
+        itemExtent: 26,
+        perspective: 0.004,
+        diameterRatio: 1.5,
+        physics: const FixedExtentScrollPhysics(),
+        controller: FixedExtentScrollController(initialItem: initialIndex),
+        onSelectedItemChanged: (index) {
+          HapticFeedback.vibrate();
+          final val = min + (index * step);
+          onChanged(val.clamp(min, max));
+        },
+        childDelegate: ListWheelChildBuilderDelegate(
+          childCount: count,
+          builder: (context, index) {
+            final itemValue = min + (index * step);
+            final isSelected = itemValue == value;
+            return Center(
+              child: Text(
+                itemValue.toString().padLeft(2, '0'),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white38,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: isSelected ? 24 : 16,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -1979,110 +2430,188 @@ class _ChoiceChip extends StatelessWidget {
         onSelected();
       },
       behavior: HitTestBehavior.opaque,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            alignment: Alignment.center,
-            decoration: ShapeDecoration(
-              color: isSelected ? color : color.withAlpha(20),
-              shape: BeveledRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: isSelected ? Colors.white : color.withAlpha(100),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? AppTheme.darkBackground : Colors.white,
-                  size: 22,
-                ),
-                const SizedBox(height: 6),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: isSelected ? AppTheme.darkBackground : Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: ShapeDecoration(
+          color: isSelected
+              ? color.withAlpha(50)
+              : color.withAlpha(20),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isSelected
+                  ? Colors.white
+                  : color.withAlpha(120),
+              width: 1,
             ),
           ),
-          if (multiplier != '')
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: ShapeDecoration(
-                  color: isSelected
-                      ? AppTheme.secondaryColor
-                      : AppTheme.darkBackground.withAlpha(230),
-                  shape: BeveledRectangleBorder(
-                    borderRadius: const BorderRadius.only(
-                      bottomRight: Radius.circular(11),
-                    ),
-                    side: BorderSide(
-                      color: isSelected
-                          ? Colors.white
-                          : AppTheme.primaryColor.withAlpha(120),
-                      width: 0.8,
-                    ),
-                  ),
-                ),
-                child: Text(
-                  "x$multiplier",
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppTheme.primaryColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Oswald',
-                    decoration: TextDecoration.none,
-                  ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label.toUpperCase(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.6,
                 ),
               ),
             ),
-        ],
+            if (multiplier.isNotEmpty) ...[
+              const SizedBox(width: 4),
+              Text(
+                "x$multiplier",
+                style: const TextStyle(
+                  color: AppTheme.secondaryColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+            ],
+            if (isSelected) ...[
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.check_circle_sharp,
+                color: AppTheme.secondaryColor,
+                size: 16,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _MultiplierItem extends StatelessWidget {
-  final String label;
-  final double multiplier;
-  final Color color;
+class _BoostSelectChip extends StatelessWidget {
+  final BoostInventory boostInventory;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const _MultiplierItem({required this.label, required this.multiplier, required this.color});
+  const _BoostSelectChip({
+    required this.boostInventory,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+    final locale = AppLocalizations.of(context)!;
+    final int amount = boostInventory.quantity;
+    final mainColor = AppTheme.tertiaryColor;
+
+    final iconData = boostInventory.icon;
+    final expandedBoostName = boostInventory.getName(locale).toUpperCase();
+    final effectText = boostInventory.getEffectFormatted();
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        if (amount <= 0) return;
+        onTap();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubicEmphasized,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: ShapeDecoration(
+          color: isSelected
+              ? mainColor.withAlpha(50)
+              : (amount > 0 ? mainColor.withAlpha(25) : Colors.white.withAlpha(5)),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isSelected
+                  ? Colors.white70
+                  : (amount > 0 ? mainColor.withAlpha(140) : Colors.white12),
+              width: 1,
+            ),
+          ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          "x${multiplier.toStringAsFixed(2)}",
-          style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Oswald', decoration: TextDecoration.none),
+        child: Row(
+          children: [
+            Icon(
+              iconData,
+              color: isSelected ? Colors.white : (amount > 0 ? Colors.white70 : Colors.white24),
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    expandedBoostName,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : (amount > 0 ? Colors.white : Colors.white38),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  if (effectText.isNotEmpty)
+                    Text(
+                      effectText,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: isSelected ? AppTheme.secondaryColor : Colors.white54,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+              decoration: ShapeDecoration(
+                color: isSelected
+                    ? AppTheme.secondaryColor.withAlpha(220)
+                    : (amount > 0 ? AppTheme.secondaryColor.withAlpha(180) : Colors.white12),
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              child: Text(
+                "x$amount",
+                style: TextStyle(
+                  color: amount > 0 ? AppTheme.darkBackground : Colors.white38,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.check_circle_sharp,
+                color: AppTheme.secondaryColor,
+                size: 16,
+              ),
+            ],
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -2119,8 +2648,8 @@ class _MapActionButton extends StatelessWidget {
           customBorder: shape,
           onTap: onTap,
           child: SizedBox(
-            width: 72,
-            height: 72,
+            width: 64,
+            height: 64,
             child: Center(
               child: Icon(
                 icon,
@@ -2197,7 +2726,7 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
       decoration: ShapeDecoration(
         color: AppTheme.darkBackground.withValues(alpha: 0.85),
         shape: BeveledRectangleBorder(
-          side: BorderSide(color: color.withValues(alpha: 0.8), width: 1.5),
+          side: BorderSide(color: color.withValues(alpha: 0.8), width: 1.2),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
       ),
@@ -2210,16 +2739,6 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                locale.realTimeHar.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                  decoration: TextDecoration.none,
-                ),
-              ),
               Text(
                 sensorActivity.getLocale(locale).toUpperCase(),
                 style: TextStyle(
@@ -2255,7 +2774,7 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              shape: BoxShape.rectangle,
               color: sensorActivity == HarActivity.unknown ? Colors.amber : Colors.greenAccent,
             ),
           ),
@@ -2340,7 +2859,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                     child: Text(
                       locale.pointsCalculationTitle.toUpperCase(),
                       style: const TextStyle(
-                        color: AppTheme.tertiaryColor,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                         letterSpacing: 1.0,
@@ -2564,7 +3083,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                   ),
                   child: Text(
                     locale.ok.toUpperCase(),
-                    style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -2591,7 +3110,6 @@ class _ActivityPointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       decoration: ShapeDecoration(
@@ -2632,6 +3150,176 @@ class _ActivityPointCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+Future<bool> _showLeaveExcursionDialog(BuildContext context) async {
+  final result = await showGeneralDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _LeaveExcursionDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+  return result ?? false;
+}
+
+class _LeaveExcursionDialog extends StatelessWidget {
+  const _LeaveExcursionDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final String titleText = locale.leaveExcursionTitle;
+    final String descText = locale.leaveExcursionDescription;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+              color: Colors.redAccent,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.redAccent,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    titleText.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1.0,
+                      fontFamily: 'Oswald',
+                      decoration: TextDecoration.none,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              descText,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Colors.white38, width: 1),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text(
+                      locale.cancel.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(
+                      locale.leave.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -4,7 +4,11 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 
-void showTerritorySummaryBottomSheet(BuildContext context, Territory territory) {
+void showTerritorySummaryBottomSheet(
+  BuildContext context,
+  Territory territory, {
+  bool showVisitColonyButton = true,
+}) {
   final team = territory.team;
   if (team == null) return;
   final teamColor = Color(team.color);
@@ -129,42 +133,44 @@ void showTerritorySummaryBottomSheet(BuildContext context, Territory territory) 
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.pushNamed(
-                      context,
-                      AppRouter.colonyDetails,
-                      arguments: {'teamId': team.id},
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: teamColor,
-                    foregroundColor: Colors.black,
-                    shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              if (showVisitColonyButton) ...[
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.pushNamed(
+                        context,
+                        AppRouter.colonyDetails,
+                        arguments: {'teamId': team.id},
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: teamColor,
+                      foregroundColor: Colors.black,
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.group, size: 20, color: Colors.black),
+                        const SizedBox(width: 8),
+                        Text(
+                          modalLocale.visitColony,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.group, size: 20, color: Colors.black),
-                      const SizedBox(width: 8),
-                      Text(
-                        modalLocale.visitColony,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

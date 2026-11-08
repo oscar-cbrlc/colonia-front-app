@@ -176,6 +176,12 @@ class SessionRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  void cancelSession() {
+    _playingState = PlayingState.stopped;
+    _resetSessionData();
+    notifyListeners();
+  }
+
   Future<({TrackingSession session, ActivityResult? activityResult, bool isOffline, String? error})?> stopAndSaveSession() async {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
@@ -209,8 +215,8 @@ class SessionRepository extends ChangeNotifier {
       }).toList();
 
       final impact = PendingActivityImpact(
-        totalDistance: _distanceWalked+_distanceRun+_secondsBike,
-        totalTime: _secondsWalk+_secondsRun+_secondsBike,
+        totalDistance: _distanceWalked + _distanceRun + _distanceBike,
+        totalTime: _secondsWalk + _secondsRun + _secondsBike,
         timestamp: DateTime.now().toIso8601String(),
         territories: territoriesJson,
         boostId: _trainingConfig?.boost?.id,

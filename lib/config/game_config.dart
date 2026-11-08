@@ -24,8 +24,8 @@ abstract class GameConfig {
   static const pointSpeedMod = 0.5;
 
 
-  static const defaultObjectiveDistance = 1000;
-  static const defaultObjectiveTime = Duration(hours: 1);
+  static const defaultObjectiveDistance = 10000;
+  static const defaultObjectiveTime = Duration(hours: 1, minutes: 30);
   static const defaultObjectivePace = 8.0;
 
   static int limitConsecutiveInvalidUnits = 4;
