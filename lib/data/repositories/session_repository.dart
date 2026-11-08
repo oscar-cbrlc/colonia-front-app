@@ -176,6 +176,12 @@ class SessionRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  void cancelSession() {
+    _playingState = PlayingState.stopped;
+    _resetSessionData();
+    notifyListeners();
+  }
+
   Future<({TrackingSession session, ActivityResult? activityResult, bool isOffline, String? error})?> stopAndSaveSession() async {
     if (_playingState == PlayingState.stopped) return null;
     _playingState = PlayingState.stopped;
