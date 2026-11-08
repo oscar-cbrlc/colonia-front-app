@@ -367,6 +367,15 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  void cancelActivity() {
+    _sensorRepository?.stopReading();
+    _sessionRepository.cancelSession();
+    _selectedBoost = null;
+    _selectedPreTrainingType = TrainingType.free;
+    _selectedActivityType = ActivityType.onFoot;
+    notifyListeners();
+  }
+
   bool _isSaving = false;
   bool get isSaving => _isSaving;
 

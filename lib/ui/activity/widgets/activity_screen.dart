@@ -87,81 +87,99 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    return ListenableBuilder(
-      listenable: widget.viewModel,
-      builder: (context, _) {
-        return Stack(
-          children: [
-            mapbox.MapWidget(
-              key: const ValueKey("activity_screen_mapbox"),
-              styleUri: mapbox.MapboxStyles.STANDARD,
-              onMapCreated: widget.viewModel.onMapCreated,
-              onStyleLoadedListener: (data) {
-                widget.viewModel.onStyleLoaded();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (widget.viewModel.playingState != PlayingState.stopped) {
+          final shouldLeave = await _showLeaveExcursionDialog(context);
+          if (shouldLeave && context.mounted) {
+            widget.viewModel.cancelActivity();
+            Navigator.of(context).pop();
+          }
+        } else {
+          widget.viewModel.cancelActivity();
+          Navigator.of(context).pop();
+        }
+      },
+      child: ListenableBuilder(
+        listenable: widget.viewModel,
+        builder: (context, _) {
+          return Stack(
+            children: [
+              mapbox.MapWidget(
+                key: const ValueKey("activity_screen_mapbox"),
+                styleUri: mapbox.MapboxStyles.STANDARD,
+                onMapCreated: widget.viewModel.onMapCreated,
+                onStyleLoadedListener: (data) {
+                  widget.viewModel.onStyleLoaded();
 
-                final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
-                  if (widget.viewModel.playingState != PlayingState.stopped) return;
+                  final tapInteraction = mapbox.TapInteraction.onMap((gestureContext) {
+                    if (widget.viewModel.playingState != PlayingState.stopped) return;
 
-                  final lat = gestureContext.point.coordinates.lat.toDouble();
-                  final lon = gestureContext.point.coordinates.lng.toDouble();
+                    final lat = gestureContext.point.coordinates.lat.toDouble();
+                    final lon = gestureContext.point.coordinates.lng.toDouble();
 
-                  final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
-                  if (territory != null) {
-                    showTerritorySummaryBottomSheet(context, territory);
-                  }
-                });
+                    final territory = widget.viewModel.getClaimedTerritoryAt(lat, lon);
+                    if (territory != null) {
+                      showTerritorySummaryBottomSheet(context, territory, showVisitColonyButton: false);
+                    }
+                  });
 
-                widget.viewModel.mapboxMap?.addInteraction(
-                  tapInteraction,
-                  interactionID: 'hexagon-click',
-                );
-              },
-              onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-              viewport: widget.viewModel.viewport ??
-                  (widget.viewModel.userPosition != null
-                      ? mapbox.CameraViewportState(
-                    center: widget.viewModel.userPosition!,
-                    zoom: 17.0,
-                  )
-                      : null),
-            ),
-
-            if (widget.viewModel.isSaving)
-              Container(
-                color: Colors.black.withAlpha(220),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: AppTheme.secondaryColor),
-                      SizedBox(height: 16),
-                      Text(
-                        locale.savingActivity,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
-                      ),
-                    ],
-                  ),
-                ),
+                  widget.viewModel.mapboxMap?.addInteraction(
+                    tapInteraction,
+                    interactionID: 'hexagon-click',
+                  );
+                },
+                onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
+                viewport: widget.viewModel.viewport ??
+                    (widget.viewModel.userPosition != null
+                        ? mapbox.CameraViewportState(
+                      center: widget.viewModel.userPosition!,
+                      zoom: 17.0,
+                    )
+                        : null),
               ),
 
-            if (widget.viewModel.playingState == PlayingState.stopped)
-              Align(
-                alignment: Alignment.topLeft,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      behavior: HitTestBehavior.opaque,
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppTheme.primaryColor,
-                        size: 32.0,
+              if (widget.viewModel.isSaving)
+                Container(
+                  color: Colors.black.withAlpha(220),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppTheme.secondaryColor),
+                        SizedBox(height: 16),
+                        Text(
+                          locale.savingActivity,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (widget.viewModel.playingState == PlayingState.stopped)
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          widget.viewModel.cancelActivity();
+                          Navigator.of(context).pop();
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: AppTheme.primaryColor,
+                          size: 32.0,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
             Align(
               alignment: Alignment.centerRight,
@@ -250,10 +268,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ],
                   ],
                 ),
-              )
-          ],
-        );
-      },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -3131,6 +3150,176 @@ class _ActivityPointCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+Future<bool> _showLeaveExcursionDialog(BuildContext context) async {
+  final result = await showGeneralDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _LeaveExcursionDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+  return result ?? false;
+}
+
+class _LeaveExcursionDialog extends StatelessWidget {
+  const _LeaveExcursionDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final String titleText = locale.leaveExcursionTitle;
+    final String descText = locale.leaveExcursionDescription;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+              color: Colors.redAccent,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.redAccent,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    titleText.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1.0,
+                      fontFamily: 'Oswald',
+                      decoration: TextDecoration.none,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              descText,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Colors.white38, width: 1),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text(
+                      locale.cancel.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(
+                      locale.leave.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
