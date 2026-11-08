@@ -421,6 +421,16 @@
     "memberPromotedToMod": "Member promoted to moderator",
     "@memberPromotedToMod": {},
 
+    "promoteToModConfirm": "Are you sure you want to promote {username} to Moderator?",
+    "@promoteToModConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
     "promoteToLeaderConfirm": "Are you sure you want to promote {username} to Leader? You will lose Leader privileges.",
     "@promoteToLeaderConfirm": {
         "placeholders": {
@@ -436,6 +446,16 @@
 
     "memberDemotedToMember": "Member demoted to member",
     "@memberDemotedToMember": {},
+
+    "demoteToMemberConfirm": "Are you sure you want to demote {username} to Member?",
+    "@demoteToMemberConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
 
     "kickMemberConfirm": "Are you sure you want to exile {username} from the colony?",
     "@kickMemberConfirm": {

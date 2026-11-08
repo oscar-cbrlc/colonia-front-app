@@ -415,6 +415,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberPromotedToMod => 'Member promoted to moderator';
 
   @override
+  String promoteToModConfirm(String username) {
+    return 'Are you sure you want to promote $username to Moderator?';
+  }
+
+  @override
   String promoteToLeaderConfirm(String username) {
     return 'Are you sure you want to promote $username to Leader? You will lose Leader privileges.';
   }
@@ -424,6 +429,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberDemotedToMember => 'Member demoted to member';
+
+  @override
+  String demoteToMemberConfirm(String username) {
+    return 'Are you sure you want to demote $username to Member?';
+  }
 
   @override
   String kickMemberConfirm(String username) {

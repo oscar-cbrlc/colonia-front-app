@@ -421,6 +421,16 @@
     "memberPromotedToMod": "Miembro ascendido a moderador",
     "@memberPromotedToMod": {},
 
+    "promoteToModConfirm": "¿Estás seguro de que quieres ascender a {username} a Moderador?",
+    "@promoteToModConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
+
     "promoteToLeaderConfirm": "¿Estás seguro de que quieres ascender a {username} a Líder? Perderás tus privilegios de Líder.",
     "@promoteToLeaderConfirm": {
         "placeholders": {
@@ -436,6 +446,16 @@
 
     "memberDemotedToMember": "Miembro descendido a miembro",
     "@memberDemotedToMember": {},
+
+    "demoteToMemberConfirm": "¿Estás seguro de que quieres descender a {username} a Miembro?",
+    "@demoteToMemberConfirm": {
+        "placeholders": {
+            "username": {
+                "type": "String",
+                "example": "Juan"
+            }
+        }
+    },
 
     "kickMemberConfirm": "¿Estás seguro de que quieres exiliar a {username} de la colonia?",
     "@kickMemberConfirm": {

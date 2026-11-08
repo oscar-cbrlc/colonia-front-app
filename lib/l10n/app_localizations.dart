@@ -890,6 +890,12 @@ abstract class AppLocalizations {
   /// **'Miembro ascendido a moderador'**
   String get memberPromotedToMod;
 
+  /// No description provided for @promoteToModConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres ascender a {username} a Moderador?'**
+  String promoteToModConfirm(String username);
+
   /// No description provided for @promoteToLeaderConfirm.
   ///
   /// In es, this message translates to:
@@ -907,6 +913,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Miembro descendido a miembro'**
   String get memberDemotedToMember;
+
+  /// No description provided for @demoteToMemberConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que quieres descender a {username} a Miembro?'**
+  String demoteToMemberConfirm(String username);
 
   /// No description provided for @kickMemberConfirm.
   ///
