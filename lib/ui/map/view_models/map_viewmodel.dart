@@ -243,11 +243,11 @@ class MapViewModel extends ChangeNotifier {
     if (pos == null) return;
     
     if (_mapboxMap != null) {
-      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 15.0, pitch: 0.0));
+      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 16.0, pitch: 0.0));
     }
 
     _viewport = FollowPuckViewportState(
-      zoom: 15.0, 
+      zoom: 16.0,
       bearing: FollowPuckViewportStateBearingHeading(), 
       pitch: 0.0
     );
