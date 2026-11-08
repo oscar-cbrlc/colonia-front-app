@@ -20,7 +20,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
-import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
@@ -104,7 +103,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   String get formattedCurrentPace => formatPace(currentPace);
   String get formattedAveragePace => formatPace(averagePace);
   String get formattedSelectedPace => selectedPace != null ? formatPace(selectedPace!) : "--";
-
+  String get formattedSelectedDistance => selectedDistanceMeters.toStringAsFixed(0);
   TrainingConfig? get trainingConfig => _sessionRepository.trainingConfig;
   TrainingType? get selectedTrainingType => trainingConfig?.training.type;
   String? get selectedTrainingName => trainingConfig?.training.name;
@@ -118,6 +117,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   List<Training> get trainings => _trainingRepository.trainings;
   List<BoostInventory> get availableBoosts => _boostRepository.availableBoostsInventory;
+  List<BoostInventory> get onlyExistingInventory => availableBoosts.where((b) => b.quantity > 0).toList();
   bool get readyToStart => trainingConfig != null;
 
   double get currentMultiplier {
@@ -317,10 +317,15 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (pos == null) return;
     
     if (_mapboxMap != null) {
-      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 17.0, pitch: 45.0));
+      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 18.0, pitch: 60.0));
     }
 
-    _viewport = FollowPuckViewportState(zoom: 17.0, bearing: FollowPuckViewportStateBearingHeading(), pitch: 45.0);
+    _viewport = FollowPuckViewportState(
+        zoom: 18.0,
+        bearing: FollowPuckViewportStateBearingHeading(),
+        pitch: 60.0,
+        padding: MbxEdgeInsets(top: -110, left: 0, bottom: 0, right: 0),
+    );
     notifyListeners();
   }
 
