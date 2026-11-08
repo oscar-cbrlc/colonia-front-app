@@ -123,7 +123,7 @@ class _NotificationsSheetState extends State<NotificationsSheet> {
                 splashFactory: NoSplash.splashFactory,
                 unselectedLabelStyle: const TextStyle(
                   fontFamily: 'Oswald',
-                  fontSize: 14,
+                  fontSize: 12,
                   letterSpacing: 1.1,
                 ),
                 tabs: [
@@ -283,8 +283,8 @@ class _NotificationCardState extends State<_NotificationCard> {
         return Icons.person_remove_outlined;
       case 'team_kick':
         return Icons.no_accounts_outlined;
-      case 'global':
-        return Icons.public;
+      case 'global_notification':
+        return Icons.calendar_today;
       default:
         return Icons.notifications_sharp;
     }
