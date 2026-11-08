@@ -857,12 +857,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String suspectedOnFootDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on foot to auto-resume, or tap Resume.';
+    return 'Movimiento sospechoso por más de $limit unidades consecutivas. Continúa a pie para resumir o presiona Resumir.';
   }
 
   @override
   String suspectedOnBikeDescription(int limit) {
-    return 'Motion detected as vehicle or unknown for $limit consecutive units. Excursion paused automatically. Resume on bike to auto-resume, or tap Resume.';
+    return 'Movimiento sospechoso por más de $limit unidades consecutivas. Continúa en bicicleta para resumir o presiona Resumir.';
   }
 
   @override
