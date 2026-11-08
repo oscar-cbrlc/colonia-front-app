@@ -125,7 +125,7 @@ class _NoTeamView extends StatelessWidget {
                     foregroundColor: AppTheme.primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(locale.joinTeam.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(locale.joinATeam.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
               if (sentRequestsCount > 0) ...[
@@ -368,35 +368,43 @@ class _TeamDetailsView extends StatelessWidget {
               if (targetIsMember)
                 ListTile(
                   leading: const Icon(Icons.security, color: Colors.blue),
-                  title: Text(locale.promoteToModerator, style: TextStyle(color: Colors.white)),
+                  title: Text(locale.promoteToModerator, style: const TextStyle(color: Colors.white)),
                   onTap: () async {
-                    Navigator.pop(context);
-                    final success = await viewModel.promoteMember(member.userId);
-                    if (success && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberPromotedToMod)));
+                    final String msg = locale.promoteToModConfirm(member.userName);
+
+                    final confirm = await showCustomTeamDialog(
+                      context: context,
+                      title: locale.promoteToModerator,
+                      message: msg,
+                      icon: Icons.security_rounded,
+                      color: Colors.blue,
+                      confirmLabel: locale.promote,
+                      confirmColor: Colors.blue,
+                      cancelLabel: locale.cancel,
+                    );
+                    if (confirm == true && context.mounted) {
+                      Navigator.pop(context);
+                      final success = await viewModel.promoteMember(member.userId);
+                      if (success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberPromotedToMod)));
+                      }
                     }
                   },
                 ),
               if (targetIsModerator)
                 ListTile(
-                  leading: const Icon(Icons.star, color: Colors.amber),
-                  title: Text(locale.promoteToLeader, style: const TextStyle(color: Colors.white)),
+                  leading: const Icon(Icons.star, color: AppTheme.secondaryColor),
+                  title: Text(locale.promoteToLeader, style: const TextStyle(color: AppTheme.secondaryColor)),
                   onTap: () async {
-                    final confirm = await showDialog<bool>(
+                    final confirm = await showCustomTeamDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            side: BorderSide(color: Colors.white.withAlpha(30))
-                        ),
-                        backgroundColor: AppTheme.darkBackground,
-                        title: Text(locale.transferLeadership, style: const TextStyle(color: Colors.white)),
-                        content: Text(locale.promoteToLeaderConfirm(member.userName), style: const TextStyle(color: Colors.white)),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase(), style: TextStyle(color: AppTheme.secondaryColor.withAlpha(80)))),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.promote.toUpperCase(), style: const TextStyle(color: Colors.amber))),
-                        ],
-                      ),
+                      title: locale.transferLeadership,
+                      message: locale.promoteToLeaderConfirm(member.userName),
+                      icon: Icons.star_rounded,
+                      color: AppTheme.secondaryColor,
+                      confirmLabel: locale.promote,
+                      confirmColor: AppTheme.secondaryColor,
+                      cancelLabel: locale.cancel,
                     );
                     if (confirm == true && context.mounted) {
                       Navigator.pop(context);
@@ -414,10 +422,24 @@ class _TeamDetailsView extends StatelessWidget {
                 leading: const Icon(Icons.keyboard_arrow_down, color: Colors.orange),
                 title: Text(locale.demoteToMember, style: const TextStyle(color: Colors.white)),
                 onTap: () async {
-                  Navigator.pop(context);
-                  final success = await viewModel.demoteMember(member.userId);
-                  if (success && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberDemotedToMember)));
+                  final String msg = locale.demoteToMemberConfirm(member.userName);
+
+                  final confirm = await showCustomTeamDialog(
+                    context: context,
+                    title: locale.demoteToMember,
+                    message: msg,
+                    icon: Icons.arrow_downward_rounded,
+                    color: Colors.orange,
+                    confirmLabel: locale.demote,
+                    confirmColor: Colors.orange,
+                    cancelLabel: locale.cancel,
+                  );
+                  if (confirm == true && context.mounted) {
+                    Navigator.pop(context);
+                    final success = await viewModel.demoteMember(member.userId);
+                    if (success && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale.memberDemotedToMember)));
+                    }
                   }
                 },
               ),
@@ -427,17 +449,14 @@ class _TeamDetailsView extends StatelessWidget {
                 leading: const Icon(Icons.person_remove, color: Colors.redAccent),
                 title: Text(locale.kickMember, style: const TextStyle(color: Colors.redAccent)),
                 onTap: () async {
-                  final confirm = await showDialog<bool>(
+                  final confirm = await showCustomTeamDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: AppTheme.darkBackground,
-                      title: Text(locale.kickMember, style: const TextStyle(color: Colors.white)),
-                      content: Text(locale.kickMemberConfirm(member.userName)),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.kick.toUpperCase(), style: const TextStyle(color: Colors.redAccent))),
-                      ],
-                    ),
+                    title: locale.kickMember,
+                    message: locale.kickMemberConfirm(member.userName),
+                    icon: Icons.person_remove_rounded,
+                    isDanger: true,
+                    confirmLabel: locale.kick,
+                    cancelLabel: locale.cancel,
                   );
                   if (confirm == true && context.mounted) {
                     Navigator.pop(context);
@@ -469,17 +488,14 @@ class _TeamDetailsView extends StatelessWidget {
       }
     }
 
-    final confirm = await showDialog<bool>(
+    final confirm = await showCustomTeamDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.darkBackground,
-        title: Text(locale.leaveColonyTitle, style: const TextStyle(color: Colors.white)),
-        content: Text(locale.leaveColonyConfirm, style: const TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel.toUpperCase())),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.leave.toUpperCase(), style: const TextStyle(color: Colors.redAccent))),
-        ],
-      ),
+      title: locale.leaveColonyTitle,
+      message: locale.leaveColonyConfirm,
+      icon: Icons.exit_to_app_rounded,
+      isDanger: true,
+      confirmLabel: locale.leave,
+      cancelLabel: locale.cancel,
     );
 
     if (confirm == true) {
@@ -493,15 +509,219 @@ class _TeamDetailsView extends StatelessWidget {
 
   void _showErrorDialog(BuildContext context, String message) {
     final locale = AppLocalizations.of(context)!;
-    showDialog(
+    showCustomTeamDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.darkBackground,
-        title: Text(locale.actionRequired, style: const TextStyle(color: Colors.white)),
-        content: Text(message, style: const TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(locale.ok.toUpperCase())),
-        ],
+      title: locale.actionRequired,
+      message: message,
+      icon: Icons.warning_amber_rounded,
+      color: Colors.orangeAccent,
+      confirmLabel: locale.ok,
+    );
+  }
+}
+
+Future<bool?> showCustomTeamDialog({
+  required BuildContext context,
+  required String title,
+  required String message,
+  IconData icon = Icons.info_outline,
+  Color color = AppTheme.primaryColor,
+  String? confirmLabel,
+  Color confirmColor = AppTheme.primaryColor,
+  String? cancelLabel,
+  bool isDanger = false,
+}) {
+  return showGeneralDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return _CustomTeamDialog(
+        title: title,
+        message: message,
+        icon: icon,
+        color: color,
+        confirmLabel: confirmLabel,
+        confirmColor: confirmColor,
+        cancelLabel: cancelLabel,
+        isDanger: isDanger,
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+}
+
+class _CustomTeamDialog extends StatelessWidget {
+  final String title;
+  final String message;
+  final IconData icon;
+  final Color color;
+  final String? confirmLabel;
+  final Color confirmColor;
+  final String? cancelLabel;
+  final bool isDanger;
+
+  const _CustomTeamDialog({
+    required this.title,
+    required this.message,
+    required this.icon,
+    required this.color,
+    this.confirmLabel,
+    this.confirmColor = AppTheme.primaryColor,
+    this.cancelLabel,
+    this.isDanger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final primaryColor = isDanger ? Colors.redAccent : color;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: primaryColor,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  color: primaryColor,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title.toUpperCase(),
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1.0,
+                      fontFamily: 'Oswald',
+                      decoration: TextDecoration.none,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                if (cancelLabel != null) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Colors.white38, width: 1),
+                        shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(
+                        cancelLabel!.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Oswald',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: isDanger ? Colors.redAccent : confirmColor,
+                      foregroundColor: isDanger ? Colors.white : AppTheme.darkBackground,
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(
+                      (confirmLabel ?? locale.ok).toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -576,31 +796,25 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
   void _onDelete() async {
     final locale = AppLocalizations.of(context)!;
     if (widget.viewModel.teamMembers.length > 1) {
-      showDialog(
+      showCustomTeamDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: AppTheme.darkBackground,
-          title: Text(locale.cannotDelete, style: const TextStyle(color: Colors.white)),
-          content: Text(locale.cannotDeleteActiveMembers, style: const TextStyle(color: Colors.white70)),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text(locale.ok)),
-          ],
-        ),
+        title: locale.cannotDelete,
+        message: locale.cannotDeleteActiveMembers,
+        icon: Icons.warning_amber_rounded,
+        color: Colors.orangeAccent,
+        confirmLabel: locale.ok,
       );
       return;
     }
 
-    final confirm = await showDialog<bool>(
+    final confirm = await showCustomTeamDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.darkBackground,
-        title: Text(locale.deleteColony, style: const TextStyle(color: Colors.white)),
-        content: Text(locale.deleteColonyConfirm, style: const TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(locale.cancel)),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(locale.delete, style: const TextStyle(color: Colors.redAccent))),
-        ],
-      ),
+      title: locale.deleteColony,
+      message: locale.deleteColonyConfirm,
+      icon: Icons.delete_forever_rounded,
+      isDanger: true,
+      confirmLabel: locale.delete,
+      cancelLabel: locale.cancel,
     );
 
     if (confirm == true) {
