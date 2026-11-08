@@ -169,7 +169,7 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
               const SizedBox(height: 12),
 
               Text(
-                ((locale as dynamic).eventScheduleLabel as String?) ?? 'HORARIO DEL EVENTO',
+                locale.eventScheduleLabel,
                 style: const TextStyle(
                   color: AppTheme.primaryColor,
                   fontWeight: FontWeight.bold,
@@ -183,7 +183,7 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
                 children: [
                   Expanded(
                     child: _buildTimePickerTile(
-                      label: ((locale as dynamic).startTimeLabel as String?) ?? 'HORA INICIO',
+                      label: locale.startTimeLabel,
                       hour: _startHour,
                       minute: _startMinute,
                       color: AppTheme.tertiaryColor,
@@ -199,7 +199,7 @@ class _DateTimeRangePickerSheetState extends State<DateTimeRangePickerSheet> {
 
                   Expanded(
                     child: _buildTimePickerTile(
-                      label: ((locale as dynamic).endTimeLabel as String?) ?? 'HORA FIN',
+                      label: locale.endTimeLabel,
                       hour: _endHour,
                       minute: _endMinute,
                       color: AppTheme.secondaryColor,
