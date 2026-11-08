@@ -29,10 +29,17 @@ abstract class BoostInventory with _$BoostInventory {
 
   IconData get icon => _boostTypeIcons[type] ?? Icons.bolt;
 
-  String getName(AppLocalizations locale) {
+  String getNameWithEffect(AppLocalizations locale) {
     if (type == BoostType.score.name) return '${locale.boostMultiplierName} x$effect';
     if (type == BoostType.impact_area.name) return '${locale.boostRadioName} ${(effect*100).round()}%';
     if (type == BoostType.impact_distance.name) return '${locale.boostDistanceName} ${(effect*100).round()}%';
+    return locale.errorUnknown;
+  }
+
+  String getName(AppLocalizations locale) {
+    if (type == BoostType.score.name) return locale.boostMultiplierName;
+    if (type == BoostType.impact_area.name) return locale.boostRadioName;
+    if (type == BoostType.impact_distance.name) return locale.boostDistanceName;
     return locale.errorUnknown;
   }
 
@@ -51,7 +58,7 @@ abstract class BoostInventory with _$BoostInventory {
 
   String getEffectFormatted() {
     if (type == BoostType.score.name) {
-      return effect.toStringAsFixed(2);
+      return 'x${effect.toStringAsFixed(2)}';
     }
     return '${(effect*100).round()}%';
   }
