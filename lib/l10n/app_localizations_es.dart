@@ -869,6 +869,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get autoResumed => 'Movimiento válido detectado. Excursión reanudada.';
 
   @override
+  String get leaveExcursionTitle => '¿ABANDONAR EXCURSIÓN?';
+
+  @override
+  String get leaveExcursionDescription =>
+      '¿Estás seguro de que deseas salir? El progreso de tu excursión actual y los impactos no aplicados se perderán.';
+
+  @override
   String get byLabel => 'por:';
 
   @override

@@ -864,6 +864,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoResumed => 'Valid motion detected. Excursion resumed.';
 
   @override
+  String get leaveExcursionTitle => 'ABANDON EXCURSION?';
+
+  @override
+  String get leaveExcursionDescription =>
+      'Are you sure you want to leave? Your current excursion progress and unapplied territory impacts will be lost.';
+
+  @override
   String get byLabel => 'by:';
 
   @override

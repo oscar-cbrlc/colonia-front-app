@@ -946,6 +946,12 @@
     "autoResumed": "Valid motion detected. Excursion resumed.",
     "@autoResumed": {},
 
+    "leaveExcursionTitle": "ABANDON EXCURSION?",
+    "@leaveExcursionTitle": {},
+
+    "leaveExcursionDescription": "Are you sure you want to leave? Your excursion progress and territory impacts will be lost.",
+    "@leaveExcursionDescription": {},
+
     "byLabel": "by:",
     "@byLabel": {},
 

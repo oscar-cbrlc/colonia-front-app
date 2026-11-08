@@ -947,6 +947,12 @@
     "autoResumed": "Movimiento válido detectado. Excursión reanudada.",
     "@autoResumed": {},
 
+    "leaveExcursionTitle": "¿ABANDONAR EXCURSIÓN?",
+    "@leaveExcursionTitle": {},
+
+    "leaveExcursionDescription": "¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.",
+    "@leaveExcursionDescription": {},
+
     "byLabel": "por:",
     "@byLabel": {},
 

@@ -1700,6 +1700,18 @@ abstract class AppLocalizations {
   /// **'Movimiento válido detectado. Excursión reanudada.'**
   String get autoResumed;
 
+  /// No description provided for @leaveExcursionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿ABANDONAR EXCURSIÓN?'**
+  String get leaveExcursionTitle;
+
+  /// No description provided for @leaveExcursionDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas salir? El progreso de tu excursión actual y los impactos no aplicados se perderán.'**
+  String get leaveExcursionDescription;
+
   /// No description provided for @byLabel.
   ///
   /// In es, this message translates to:
