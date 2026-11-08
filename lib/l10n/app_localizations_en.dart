@@ -214,7 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sec => 'sec';
 
   @override
-  String get targetPace => 'Target pace (min/km)';
+  String get targetPace => 'Target pace';
 
   @override
   String get confirm => 'Confirm';
@@ -1049,6 +1049,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventDetailsTitle => 'EVENT DETAILS';
+
+  @override
+  String get excursionDetailsTitle => 'EXCURSION DETAILS';
+
+  @override
+  String get editSelection => 'EDIT SELECTION';
+
+  @override
+  String get noBoost => 'NO BOOST';
 
   @override
   String get eventNameHint => 'City\'s half marathon';

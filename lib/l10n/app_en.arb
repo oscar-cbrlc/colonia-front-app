@@ -205,7 +205,7 @@
     "sec": "sec",
     "@sec": {},
 
-    "targetPace": "Target pace (min/km)",
+    "targetPace": "Target pace",
     "@targetPace": {},
 
     "confirm": "Confirm",
@@ -1171,6 +1171,15 @@
 
     "eventDetailsTitle": "EVENT DETAILS",
     "@eventDetailsTitle": {},
+
+    "excursionDetailsTitle": "EXCURSION DETAILS",
+    "@excursionDetailsTitle": {},
+
+    "editSelection": "EDIT SELECTION",
+    "@editSelection": {},
+
+    "noBoost": "NO BOOST",
+    "@noBoost": {},
 
     "eventNameHint": "City's half marathon",
     "@eventNameHint": {},

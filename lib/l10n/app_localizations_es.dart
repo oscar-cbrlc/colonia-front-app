@@ -218,7 +218,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sec => 'seg';
 
   @override
-  String get targetPace => 'Ritmo objetivo (min/km)';
+  String get targetPace => 'Ritmo objetivo';
 
   @override
   String get confirm => 'Confirmar';
@@ -1055,6 +1055,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get eventDetailsTitle => 'DETALLES DEL EVENTO';
+
+  @override
+  String get excursionDetailsTitle => 'DETALLES DE LA EXCURSIÓN';
+
+  @override
+  String get editSelection => 'EDITAR SELECCIÓN';
+
+  @override
+  String get noBoost => 'SIN BOOST';
 
   @override
   String get eventNameHint => 'Medio maratón de la ciudad';

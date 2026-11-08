@@ -205,7 +205,7 @@
     "sec": "seg",
     "@sec": {},
 
-    "targetPace": "Ritmo objetivo (min/km)",
+    "targetPace": "Ritmo objetivo",
     "@targetPace": {},
 
     "confirm": "Confirmar",
@@ -1173,6 +1173,15 @@
 
     "eventDetailsTitle": "DETALLES DEL EVENTO",
     "@eventDetailsTitle": {},
+
+    "excursionDetailsTitle": "DETALLES DE LA EXCURSIÓN",
+    "@excursionDetailsTitle": {},
+
+    "editSelection": "EDITAR SELECCIÓN",
+    "@editSelection": {},
+
+    "noBoost": "SIN BOOST",
+    "@noBoost": {},
 
     "eventNameHint": "Medio maratón de la ciudad",
     "@eventNameHint": {},

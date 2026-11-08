@@ -509,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @targetPace.
   ///
   /// In es, this message translates to:
-  /// **'Ritmo objetivo (min/km)'**
+  /// **'Ritmo objetivo'**
   String get targetPace;
 
   /// No description provided for @confirm.
@@ -2041,6 +2041,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'DETALLES DEL EVENTO'**
   String get eventDetailsTitle;
+
+  /// No description provided for @excursionDetailsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'DETALLES DE LA EXCURSIÓN'**
+  String get excursionDetailsTitle;
+
+  /// No description provided for @editSelection.
+  ///
+  /// In es, this message translates to:
+  /// **'EDITAR SELECCIÓN'**
+  String get editSelection;
+
+  /// No description provided for @noBoost.
+  ///
+  /// In es, this message translates to:
+  /// **'SIN BOOST'**
+  String get noBoost;
 
   /// No description provided for @eventNameHint.
   ///
