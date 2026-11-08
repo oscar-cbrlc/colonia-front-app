@@ -268,7 +268,10 @@
     "createTeam": "Crear una Colonia",
     "@createTeam": {},
 
-    "joinTeam": "Unirse a una Colonia",
+    "joinATeam": "Unirse a una Colonia",
+    "@joinATeam": {},
+
+    "joinTeam": "Unirse a Colonia",
     "@joinTeam": {},
 
     "description": "Descripción",
@@ -1491,5 +1494,11 @@
     "@noPersonalNotifications": {},
 
     "deleteNotification": "Eliminar notificación",
-    "@deleteNotification": {}
+    "@deleteNotification": {},
+
+    "blockedToExcursionTitle": "HORMIGA SOLITARIA",
+    "@blockedToExcursionTitle": {},
+
+    "blockedToExcursionText": "Debes ser parte de una Colonia para empezar una excursión",
+    "@blockedToExcursionText": {}
 }

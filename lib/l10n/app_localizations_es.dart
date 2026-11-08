@@ -281,7 +281,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createTeam => 'Crear una Colonia';
 
   @override
-  String get joinTeam => 'Unirse a una Colonia';
+  String get joinATeam => 'Unirse a una Colonia';
+
+  @override
+  String get joinTeam => 'Unirse a Colonia';
 
   @override
   String get description => 'Descripción';
@@ -873,7 +876,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get leaveExcursionDescription =>
-      '¿Estás seguro de que deseas salir? El progreso de tu excursión actual y los impactos no aplicados se perderán.';
+      '¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.';
 
   @override
   String get byLabel => 'por:';
@@ -1351,4 +1354,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Eliminar notificación';
+
+  @override
+  String get blockedToExcursionTitle => 'HORMIGA SOLITARIA';
+
+  @override
+  String get blockedToExcursionText =>
+      'Debes ser parte de una Colonia para empezar una excursión';
 }

@@ -268,7 +268,10 @@
     "createTeam": "Create a Colony",
     "@createTeam": {},
 
-    "joinTeam": "Join a Colony",
+    "joinATeam": "Join a Colony",
+    "@joinATeam": {},
+
+    "joinTeam": "Join Colony",
     "@joinTeam": {},
 
     "description": "Description",
@@ -1489,5 +1492,11 @@
     "@noPersonalNotifications": {},
 
     "deleteNotification": "Delete notification",
-    "@deleteNotification": {}
+    "@deleteNotification": {},
+
+    "blockedToExcursionTitle": "LONELY ANT",
+    "@blockedToExcursionTitle": {},
+
+    "blockedToExcursionText": "You must be part of a Colony to start an excursion",
+    "@blockedToExcursionText": {}
 }

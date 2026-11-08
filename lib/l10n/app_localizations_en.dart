@@ -277,7 +277,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createTeam => 'Create a Colony';
 
   @override
-  String get joinTeam => 'Join a Colony';
+  String get joinATeam => 'Join a Colony';
+
+  @override
+  String get joinTeam => 'Join Colony';
 
   @override
   String get description => 'Description';
@@ -868,7 +871,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leaveExcursionDescription =>
-      'Are you sure you want to leave? Your current excursion progress and unapplied territory impacts will be lost.';
+      'Are you sure you want to leave? Your excursion progress and territory impacts will be lost.';
 
   @override
   String get byLabel => 'by:';
@@ -1342,4 +1345,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Delete notification';
+
+  @override
+  String get blockedToExcursionTitle => 'LONELY ANT';
+
+  @override
+  String get blockedToExcursionText =>
+      'You must be part of a Colony to start an excursion';
 }

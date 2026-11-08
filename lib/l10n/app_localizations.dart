@@ -632,10 +632,16 @@ abstract class AppLocalizations {
   /// **'Crear una Colonia'**
   String get createTeam;
 
-  /// No description provided for @joinTeam.
+  /// No description provided for @joinATeam.
   ///
   /// In es, this message translates to:
   /// **'Unirse a una Colonia'**
+  String get joinATeam;
+
+  /// No description provided for @joinTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirse a Colonia'**
   String get joinTeam;
 
   /// No description provided for @description.
@@ -1709,7 +1715,7 @@ abstract class AppLocalizations {
   /// No description provided for @leaveExcursionDescription.
   ///
   /// In es, this message translates to:
-  /// **'¿Estás seguro de que deseas salir? El progreso de tu excursión actual y los impactos no aplicados se perderán.'**
+  /// **'¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.'**
   String get leaveExcursionDescription;
 
   /// No description provided for @byLabel.
@@ -2599,6 +2605,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar notificación'**
   String get deleteNotification;
+
+  /// No description provided for @blockedToExcursionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'HORMIGA SOLITARIA'**
+  String get blockedToExcursionTitle;
+
+  /// No description provided for @blockedToExcursionText.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes ser parte de una Colonia para empezar una excursión'**
+  String get blockedToExcursionText;
 }
 
 class _AppLocalizationsDelegate
