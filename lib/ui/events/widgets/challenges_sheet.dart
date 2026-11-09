@@ -227,41 +227,54 @@ class ChallengeListItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    decoration: ShapeDecoration(
-                      color: AppTheme.secondaryColor.withAlpha(25),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        side: BorderSide(color: AppTheme.secondaryColor.withAlpha(120), width: 1),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      decoration: ShapeDecoration(
+                        color: AppTheme.secondaryColor.withAlpha(25),
+                        shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          side: BorderSide(color: AppTheme.secondaryColor.withAlpha(120), width: 1),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(challenge.objectiveIcon, color: Colors.white70, size: 18)
+                        ],
                       ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(challenge.objectiveIcon, color: Colors.white70, size: 18)
-                      ]
-                    )
-                  ),
-                  const SizedBox(width: 10),
-                  RichText(
-                      text: TextSpan(
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: RichText(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        text: TextSpan(
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                           ),
-                          children: <TextSpan> [
+                          children: <TextSpan>[
                             TextSpan(text: "${descriptionParts['action']} "),
-                            TextSpan(text: "${descriptionParts['value']} ", style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.secondaryColor)),
+                            TextSpan(
+                              text: "${descriptionParts['value']} ",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.secondaryColor,
+                              ),
+                            ),
                             TextSpan(text: descriptionParts['unit']),
-                          ]
-                      )
-                  ),
-                ]
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: ShapeDecoration(
@@ -294,7 +307,7 @@ class ChallengeListItem extends StatelessWidget {
                   ],
                 ),
               ),
-            ]
+            ],
           ),
           const SizedBox(height: 12),
           _ChallengeProgressBar(
