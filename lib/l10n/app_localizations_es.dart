@@ -889,6 +889,13 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.';
 
   @override
+  String get objectiveNotCompletedTitle => 'OBJETIVO INCOMPLETO';
+
+  @override
+  String get objectiveNotCompletedDescription =>
+      'Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?';
+
+  @override
   String get byLabel => 'por:';
 
   @override

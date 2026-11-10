@@ -975,6 +975,12 @@
     "leaveExcursionDescription": "Are you sure you want to leave? Your excursion progress and territory impacts will be lost.",
     "@leaveExcursionDescription": {},
 
+    "objectiveNotCompletedTitle": "OBJECTIVE INCOMPLETE",
+    "@objectiveNotCompletedTitle": {},
+
+    "objectiveNotCompletedDescription": "You have not yet completed the objective of this excursion. Are you sure you want to finish?",
+    "@objectiveNotCompletedDescription": {},
+
     "byLabel": "by:",
     "@byLabel": {},
 

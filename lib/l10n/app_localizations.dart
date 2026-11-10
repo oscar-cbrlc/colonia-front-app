@@ -1730,6 +1730,18 @@ abstract class AppLocalizations {
   /// **'¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.'**
   String get leaveExcursionDescription;
 
+  /// No description provided for @objectiveNotCompletedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'OBJETIVO INCOMPLETO'**
+  String get objectiveNotCompletedTitle;
+
+  /// No description provided for @objectiveNotCompletedDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?'**
+  String get objectiveNotCompletedDescription;
+
   /// No description provided for @byLabel.
   ///
   /// In es, this message translates to:

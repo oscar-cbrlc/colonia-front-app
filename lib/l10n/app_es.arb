@@ -976,6 +976,12 @@
     "leaveExcursionDescription": "¿Estás seguro de que deseas salir? El progreso de tu excursión y los impactos se perderán.",
     "@leaveExcursionDescription": {},
 
+    "objectiveNotCompletedTitle": "OBJETIVO INCOMPLETO",
+    "@objectiveNotCompletedTitle": {},
+
+    "objectiveNotCompletedDescription": "Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?",
+    "@objectiveNotCompletedDescription": {},
+
     "byLabel": "por:",
     "@byLabel": {},
 
