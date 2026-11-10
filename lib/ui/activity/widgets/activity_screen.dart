@@ -1302,6 +1302,15 @@ class _ActivityProgressPanelState extends State<_ActivityProgressPanel> {
                           final nav = Navigator.of(context);
                           final scaf = ScaffoldMessenger.of(context);
 
+                          final selectedType = viewModel.selectedTrainingType ?? TrainingType.free;
+                          final isNotFree = selectedType != TrainingType.free;
+                          final isObjectiveNotMet = !viewModel.isObjectiveCompleted;
+
+                          if (isNotFree && isObjectiveNotMet) {
+                            final shouldFinish = await _showObjectiveIncompleteDialog(context);
+                            if (!shouldFinish) return;
+                          }
+
                           final result = await viewModel.onPushStopButton();
                           debugPrint("ActivityScreen.onTap: result=$result");
 
@@ -3307,6 +3316,178 @@ class _LeaveExcursionDialog extends StatelessWidget {
                     },
                     child: Text(
                       locale.leave.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<bool> _showObjectiveIncompleteDialog(BuildContext context) async {
+  final result = await showGeneralDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black.withAlpha(180),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _ObjectiveIncompleteDialog();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: curvedAnimation,
+        builder: (context, innerChild) {
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+            child: FadeTransition(
+              opacity: animation,
+              child: innerChild,
+            ),
+          );
+        },
+        child: child,
+      );
+    },
+  );
+  return result ?? false;
+}
+
+class _ObjectiveIncompleteDialog extends StatelessWidget {
+  const _ObjectiveIncompleteDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final String titleText = ((locale as dynamic).objectiveNotCompletedTitle as String?) ??
+        locale.setObjective.toUpperCase();
+    final String descText = ((locale as dynamic).objectiveNotCompletedDescription as String?) ??
+        "Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?";
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(18),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(245),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+              color: AppTheme.primaryColor,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppTheme.primaryColor,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    titleText.toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1.0,
+                      fontFamily: 'Oswald',
+                      decoration: TextDecoration.none,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              descText,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Colors.white38, width: 1),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text(
+                      locale.cancel.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: AppTheme.darkBackground,
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(
+                      locale.finish.toUpperCase(),
                       style: const TextStyle(
                         fontFamily: 'Oswald',
                         fontWeight: FontWeight.bold,

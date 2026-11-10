@@ -4,6 +4,7 @@ import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,9 @@ class ActivitySummaryViewModel extends ChangeNotifier {
   final ActivityResult? activityResult;
   final ActivityType activityType;
   final TrainingType trainingType;
+  final double? targetDistance;
+  final Duration? targetDuration;
+  final double? targetPace;
   MapboxMap? _mapboxMap;
   bool _isMapReady = true;
   ViewportState? _viewport;
@@ -25,6 +29,9 @@ class ActivitySummaryViewModel extends ChangeNotifier {
     required this.activityType,
     TrainingType? trainingType,
     String? trainingName,
+    this.targetDistance,
+    this.targetDuration,
+    this.targetPace,
   }) : trainingType = trainingType ??
             (trainingName != null
                 ? TrainingType.values.firstWhere(
@@ -36,6 +43,49 @@ class ActivitySummaryViewModel extends ChangeNotifier {
   }
 
   String get trainingName => trainingType.name;
+
+  String formatObjectiveTarget(AppLocalizations locale) {
+    switch (trainingType) {
+      case TrainingType.free:
+        return "";
+      case TrainingType.distance:
+        if (targetDistance == null || targetDistance! <= 0) return "";
+        return "${(targetDistance! / 1000).toStringAsFixed(1)} ${locale.km.toUpperCase()}";
+      case TrainingType.time:
+        if (targetDuration == null || targetDuration == Duration.zero) return "";
+        final t = targetDuration!;
+        if (t.inHours > 0) return "${t.inHours}H ${t.inMinutes.remainder(60)}MIN";
+        return "${t.inMinutes} MIN";
+      case TrainingType.pace:
+        final dStr = (targetDistance != null && targetDistance! > 0)
+            ? "${(targetDistance! / 1000).toStringAsFixed(1)} ${locale.km.toUpperCase()}"
+            : "";
+        final pStr = targetPace != null ? _formatPaceValue(targetPace!) : "";
+        if (dStr.isNotEmpty && pStr.isNotEmpty) return "$dStr @ $pStr MIN/KM";
+        if (pStr.isNotEmpty) return "$pStr MIN/KM";
+        return dStr;
+      case TrainingType.timeTrial:
+        final dStr = (targetDistance != null && targetDistance! > 0)
+            ? "${(targetDistance! / 1000).toStringAsFixed(1)} ${locale.km.toUpperCase()}"
+            : "";
+        final tStr = (targetDuration != null && targetDuration != Duration.zero)
+            ? "${targetDuration!.inMinutes} MIN"
+            : "";
+        if (dStr.isNotEmpty && tStr.isNotEmpty) return "$dStr IN $tStr";
+        return "$dStr $tStr".trim();
+    }
+  }
+
+  String _formatPaceValue(double pace) {
+    if (pace <= 0 || pace.isNaN || pace.isInfinite) return "--";
+    int minutes = pace.toInt();
+    int seconds = ((pace - minutes) * 60).round();
+    if (seconds >= 60) {
+      minutes += 1;
+      seconds = 0;
+    }
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
+  }
 
   bool _showStats = true;
 

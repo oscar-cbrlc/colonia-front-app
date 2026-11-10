@@ -11,6 +11,7 @@ import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/data/repositories/training_repository.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
+import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
@@ -147,8 +148,12 @@ class AppRouter {
         final activityResult = args?['activityResult'] as ActivityResult?;
         final activityType = args?['activityType'] as ActivityType?;
         final trainingName = args?['trainingName'] as String?;
+        final trainingType = args?['trainingType'] as TrainingType?;
+        final targetDistance = (args?['targetDistance'] as num?)?.toDouble();
+        final targetDuration = args?['targetDuration'] as Duration?;
+        final targetPace = (args?['targetPace'] as num?)?.toDouble();
 
-        if (session != null && activityType != null && trainingName != null) {
+        if (session != null && activityType != null && (trainingType != null || trainingName != null)) {
           return MaterialPageRoute(
             settings: settings,
             builder: (context) => ChangeNotifierProvider<ActivitySummaryViewModel>(
@@ -156,7 +161,11 @@ class AppRouter {
                 session: session,
                 activityResult: activityResult,
                 activityType: activityType,
+                trainingType: trainingType,
                 trainingName: trainingName,
+                targetDistance: targetDistance,
+                targetDuration: targetDuration,
+                targetPace: targetPace,
               ),
               child: Consumer<ActivitySummaryViewModel>(
                 builder: (context, viewModel, _) => ActivitySummaryScreen(viewModel: viewModel),

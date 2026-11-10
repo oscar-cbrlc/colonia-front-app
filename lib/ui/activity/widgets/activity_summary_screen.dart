@@ -132,7 +132,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
                     _buildHeader(context),
                     if (widget.viewModel.showStats) ...[
                       const SizedBox(height: 4),
-                      _buildMissionStatus(context),
+                      //_buildMissionStatus(context),
                       const SizedBox(height: 8),
                       Expanded(
                         child: Align(
@@ -169,13 +169,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
       ActivityType.onBike => Icons.pedal_bike_sharp,
     };
 
-    final IconData trainingIcon = switch (trainingType) {
-      TrainingType.distance => Icons.straighten,
-      TrainingType.time => Icons.timer,
-      TrainingType.pace => Icons.linear_scale,
-      TrainingType.timeTrial => Icons.av_timer_sharp,
-      TrainingType.free => Icons.timer_off,
-    };
+    final IconData trainingIcon = trainingType.getIcon();
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -185,13 +179,13 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
           Row(
             children: [
               Icon(
-                trainingIcon, color: AppTheme.primaryColor.withAlpha(200), size: 14,
+                trainingIcon, color: AppTheme.secondaryColor.withAlpha(200), size: 14,
               ),
               const SizedBox(width: 6),
               Text(
                 trainingType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
-                  color: AppTheme.primaryColor.withAlpha(200),
+                  color: AppTheme.secondaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                   fontSize: 14,
@@ -199,13 +193,13 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
               const SizedBox(width: 12),
               Icon(
-                activityIcon, color: AppTheme.primaryColor.withAlpha(200), size: 14,
+                activityIcon, color: AppTheme.secondaryColor.withAlpha(200), size: 14,
               ),
               const SizedBox(width: 6),
               Text(
                 activityType.getLocale(locale).toUpperCase(),
                 style: TextStyle(
-                  color: AppTheme.primaryColor.withAlpha(200),
+                  color: AppTheme.secondaryColor.withAlpha(200),
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                   fontSize: 14,
@@ -220,7 +214,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               Text(
                 locale.results.toUpperCase(),
                 style: TextStyle(
-                  color: widget.viewModel.session.isSuccess ? AppTheme.secondaryColor : Colors.white54,
+                  color: Colors.white70,
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
                   fontFamily: 'Oswald',
@@ -353,7 +347,24 @@ class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
     final bool hasWalk = session.secondsWalk > 0 || session.distanceWalk > 0;
     final bool hasRun = session.secondsRun > 0 || session.distanceRun > 0;
     final bool hasBike = session.secondsBike > 0 || session.distanceBike > 0;
-    final bool hasInactive = session.secondsInactive > 0 || session.distanceInactive > 0;
+
+    final trainingIcon = switch (vm.trainingType) {
+      TrainingType.distance => Icons.straighten,
+      TrainingType.time => Icons.timer,
+      TrainingType.pace => Icons.linear_scale,
+      TrainingType.timeTrial => Icons.av_timer_sharp,
+      TrainingType.free => Icons.timer_off,
+    };
+
+    final targetSummary = vm.formatObjectiveTarget(locale);
+    final bool isSuccess = session.isSuccess;
+    final Color statusColor = isSuccess ? AppTheme.successColor : AppTheme.errorColor;
+    final String statusText = isSuccess
+        ? (vm.trainingType == TrainingType.free
+            ? locale.completed.toUpperCase()
+            : locale.failed.toUpperCase())
+        : locale.failed.toUpperCase();
+    final IconData statusIcon = isSuccess ? Icons.check_circle_outline : Icons.cancel_outlined;
 
     return Material(
       color: Colors.transparent,
@@ -415,19 +426,114 @@ class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
                               ),
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  locale.validSummary.toUpperCase(),
-                                  style: const TextStyle(
-                                    color: AppTheme.primaryColor,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
-                                    decoration: TextDecoration.none,
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  decoration: ShapeDecoration(
+                                    color: isSuccess
+                                        ? AppTheme.successColor.withAlpha(20)
+                                        : (vm.trainingType == TrainingType.free
+                                            ? AppTheme.primaryColor.withAlpha(20)
+                                            : AppTheme.errorColor.withAlpha(20)),
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side: BorderSide(
+                                        color: isSuccess
+                                            ? AppTheme.successColor.withAlpha(120)
+                                            : (vm.trainingType == TrainingType.free
+                                                ? AppTheme.primaryColor.withAlpha(120)
+                                                : AppTheme.errorColor.withAlpha(120)),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              trainingIcon,
+                                              color: AppTheme.primaryColor,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "${locale.setObjective.toUpperCase()}: ${vm.trainingType.getLocale(locale).toUpperCase()}",
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      color: AppTheme.primaryColor,
+                                                      fontSize: 11,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: 'Oswald',
+                                                      letterSpacing: 0.8,
+                                                    ),
+                                                  ),
+                                                  if (targetSummary.isNotEmpty) ...[
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      targetSummary,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontFamily: 'Oswald',
+                                                        letterSpacing: 0.5,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: ShapeDecoration(
+                                          color: statusColor.withAlpha(40),
+                                          shape: BeveledRectangleBorder(
+                                            borderRadius: BorderRadius.circular(4),
+                                            side: BorderSide(color: statusColor, width: 1),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              statusIcon,
+                                              color: statusColor,
+                                              size: 13,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              statusText,
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 11,
+                                                letterSpacing: 0.8,
+                                                fontFamily: 'Oswald',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 12),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
@@ -494,7 +600,7 @@ class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
                                   ),
                                 ],
 
-                                if (hasInactive) ...[
+                                /*if (hasInactive) ...[
                                   const Padding(
                                     padding: EdgeInsets.symmetric(vertical: 10),
                                     child: Divider(color: Colors.white12, height: 1),
@@ -512,7 +618,7 @@ class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
                                       ),
                                     ],
                                   ),
-                                ],
+                                ],*/
 
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 10),
@@ -530,13 +636,13 @@ class _SummaryExpandableCardState extends State<_SummaryExpandableCard> {
                                         color: AppTheme.secondaryColor,
                                       ),
                                     ),
-                                    Expanded(
+                                    /*Expanded(
                                       child: _SummaryStat(
                                         label: locale.totalDuration.toUpperCase(),
                                         value: vm.formattedTotalSessionTime,
                                         unit: "",
                                       ),
-                                    ),
+                                    ),*/
                                   ],
                                 ),
 
@@ -638,7 +744,7 @@ class _SummaryStat extends StatelessWidget {
                 value,
                 style: TextStyle(
                   color: color ?? Colors.white,
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Oswald',
                 ),

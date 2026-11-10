@@ -113,6 +113,41 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   double get selectedDistanceMeters => selectedDistance ?? 0.0;
   BoostInventory? get equippedBoost => trainingConfig?.boost ?? _selectedBoost;
 
+  bool get isObjectiveCompleted {
+    final tType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
+    if (tType == TrainingType.free) return true;
+
+    if (tType == TrainingType.distance) {
+      final targetDist = selectedDistanceMeters;
+      return targetDist > 0 && _trackingRepository.totalMetersTracked >= targetDist;
+    }
+
+    if (tType == TrainingType.time) {
+      final targetTime = selectedTime;
+      return targetTime != null && targetTime != Duration.zero && _trackingRepository.totalSecondsElapsed >= targetTime.inSeconds;
+    }
+
+    if (tType == TrainingType.pace) {
+      if (_trackingRepository.totalMetersTracked < 50) return false;
+      final targetPaceVal = selectedPace;
+      if (targetPaceVal == null || targetPaceVal <= 0) return false;
+      final actualPace = (_trackingRepository.totalSecondsElapsed / 60) / (_trackingRepository.totalMetersTracked / 1000);
+      return actualPace >= (targetPaceVal * (1.0 - GameConfig.validPaceRange)) &&
+             actualPace <= (targetPaceVal * (1.0 + GameConfig.validPaceRange));
+    }
+
+    if (tType == TrainingType.timeTrial) {
+      final targetDist = selectedDistanceMeters;
+      final targetTime = selectedTime;
+      return targetDist > 0 &&
+             _trackingRepository.totalMetersTracked >= targetDist &&
+             targetTime != null &&
+             _trackingRepository.totalSecondsElapsed <= targetTime.inSeconds;
+    }
+
+    return true;
+  }
+
   SessionRepository get sessionRepository => _sessionRepository;
 
   List<Training> get trainings => _trainingRepository.trainings;
@@ -385,6 +420,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
     try {
       final trainingType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
+      final targetDistance = selectedDistance;
+      final targetDuration = selectedTime;
+      final targetPace = selectedPace;
 
       final result = await _sessionRepository.stopAndSaveSession();
       if (result == null) {
@@ -398,6 +436,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
         'activityType': _selectedActivityType,
         'trainingType': trainingType,
         'trainingName': trainingType.name,
+        'targetDistance': targetDistance,
+        'targetDuration': targetDuration,
+        'targetPace': targetPace,
         'isOffline': result.isOffline,
         'error': result.error,
       };
