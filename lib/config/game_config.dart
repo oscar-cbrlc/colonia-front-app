@@ -1,3 +1,5 @@
+import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
+
 abstract class GameConfig {
   static const int h3Resolution = 10;
 
@@ -28,7 +30,14 @@ abstract class GameConfig {
   static const defaultObjectiveTime = Duration(hours: 1, minutes: 30);
   static const defaultObjectivePace = 8.0;
 
-  static int limitConsecutiveInvalidUnits = 4;
+  static int limitConsecutiveInvalidUnits = 5;
+
+  static const harActivityKmHRange = <HarActivity, ({double min, double max})>{
+    HarActivity.walk: (min: 0.0, max: 6.0),
+    HarActivity.run: (min: 6.0, max: 20.0),
+    HarActivity.bike: (min: 13.0, max: 35.0),
+    HarActivity.vehicle: (min: 50.0, max: double.infinity),
+  };
 
 
   static const String baseModelPath = 'assets/avatar/base_model/AntAtri.glb';

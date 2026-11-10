@@ -1,15 +1,9 @@
 import 'dart:math';
+import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/models/sensor_reading.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 import 'package:flutter/foundation.dart';
-
-final harActivityKmHRange = <HarActivity, ({double min, double max})>{
-  HarActivity.walk: (min: 0.0, max: 6.0),
-  HarActivity.run: (min: 6.0, max: 20.0),
-  HarActivity.bike: (min: 13.0, max: 35.0),
-  HarActivity.vehicle: (min: 35.0, max: double.infinity),
-};
 
 class HarActivityResolver {
   HarActivity resolve({
@@ -104,7 +98,7 @@ class HarActivityResolver {
   }
 
   bool inSpeedRange(HarActivity activity, double speedKmH) {
-    final range = harActivityKmHRange[activity];
+    final range = GameConfig.harActivityKmHRange[activity];
     if (range == null) return false;
     return speedKmH >= range.min && speedKmH <= range.max;
   }
