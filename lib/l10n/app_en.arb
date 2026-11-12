@@ -1524,5 +1524,50 @@
     "@blockedToExcursionTitle": {},
 
     "blockedToExcursionText": "You must be part of a Colony to start an excursion",
-    "@blockedToExcursionText": {}
+    "@blockedToExcursionText": {},
+
+    "item": "item",
+    "@item": {},
+
+    "items": "items",
+    "@items": {},
+
+    "bundle": "Bundle",
+    "@bundle": {},
+
+    "bundles": "Bundles",
+    "@bundles": {},
+
+    "owned": "OWNED",
+    "@owned": {},
+
+    "buy": "BUY",
+    "@buy": {},
+
+    "confirmPurchase": "CONFIRM PURCHASE",
+    "@confirmPurchase": {},
+
+    "confirmPurchaseMessage": "Are you sure you want to buy \"{name}\" for {price} coins?",
+    "@confirmPurchaseMessage": {
+      "placeholders": {
+        "name": { "type": "String" },
+        "price": { "type": "int" }
+      }
+    },
+
+    "noItemOffers": "No item offers available",
+    "@noItemOffers": {},
+
+    "noBundleOffers": "No bundle offers available",
+    "@noBundleOffers": {},
+
+    "successfullyPurchased": "Successfully purchased {name}!",
+    "@successfullyPurchased": {
+      "placeholders": {
+        "name": { "type": "String" }
+      }
+    },
+
+    "purchaseFailed": "Purchase failed",
+    "@purchaseFailed": {}
 }

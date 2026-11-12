@@ -1369,4 +1369,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get blockedToExcursionText =>
       'You must be part of a Colony to start an excursion';
+
+  @override
+  String get item => 'item';
+
+  @override
+  String get items => 'items';
+
+  @override
+  String get bundle => 'Bundle';
+
+  @override
+  String get bundles => 'Bundles';
+
+  @override
+  String get owned => 'OWNED';
+
+  @override
+  String get buy => 'BUY';
+
+  @override
+  String get confirmPurchase => 'CONFIRM PURCHASE';
+
+  @override
+  String confirmPurchaseMessage(String name, int price) {
+    return 'Are you sure you want to buy \"$name\" for $price coins?';
+  }
+
+  @override
+  String get noItemOffers => 'No item offers available';
+
+  @override
+  String get noBundleOffers => 'No bundle offers available';
+
+  @override
+  String successfullyPurchased(String name) {
+    return 'Successfully purchased $name!';
+  }
+
+  @override
+  String get purchaseFailed => 'Purchase failed';
 }

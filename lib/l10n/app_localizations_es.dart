@@ -1378,4 +1378,44 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get blockedToExcursionText =>
       'Debes ser parte de una Colonia para empezar una excursión';
+
+  @override
+  String get item => 'Ítem';
+
+  @override
+  String get items => 'Ítems';
+
+  @override
+  String get bundle => 'Paquete';
+
+  @override
+  String get bundles => 'Paquetes';
+
+  @override
+  String get owned => 'EN PROPIEDAD';
+
+  @override
+  String get buy => 'COMPRAR';
+
+  @override
+  String get confirmPurchase => 'CONFIRMAR COMPRA';
+
+  @override
+  String confirmPurchaseMessage(String name, int price) {
+    return '¿Estás seguro de que deseas comprar \"$name\" por $price monedas?';
+  }
+
+  @override
+  String get noItemOffers => 'No hay ofertas de ítems disponibles';
+
+  @override
+  String get noBundleOffers => 'No hay ofertas de paquetes disponibles';
+
+  @override
+  String successfullyPurchased(String name) {
+    return '¡Compra exitosa de $name!';
+  }
+
+  @override
+  String get purchaseFailed => 'Error al comprar';
 }

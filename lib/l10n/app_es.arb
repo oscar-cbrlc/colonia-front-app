@@ -1526,5 +1526,50 @@
     "@blockedToExcursionTitle": {},
 
     "blockedToExcursionText": "Debes ser parte de una Colonia para empezar una excursión",
-    "@blockedToExcursionText": {}
+    "@blockedToExcursionText": {},
+
+    "item": "Ítem",
+    "@item": {},
+
+    "items": "Ítems",
+    "@items": {},
+
+    "bundle": "Paquete",
+    "@bundle": {},
+
+    "bundles": "Paquetes",
+    "@bundles": {},
+
+    "owned": "EN PROPIEDAD",
+    "@owned": {},
+
+    "buy": "COMPRAR",
+    "@buy": {},
+
+    "confirmPurchase": "CONFIRMAR COMPRA",
+    "@confirmPurchase": {},
+
+    "confirmPurchaseMessage": "¿Estás seguro de que deseas comprar \"{name}\" por {price} monedas?",
+    "@confirmPurchaseMessage": {
+      "placeholders": {
+        "name": { "type": "String" },
+        "price": { "type": "int" }
+      }
+    },
+
+    "noItemOffers": "No hay ofertas de ítems disponibles",
+    "@noItemOffers": {},
+
+    "noBundleOffers": "No hay ofertas de paquetes disponibles",
+    "@noBundleOffers": {},
+
+    "successfullyPurchased": "¡Compra exitosa de {name}!",
+    "@successfullyPurchased": {
+      "placeholders": {
+        "name": { "type": "String" }
+      }
+    },
+
+    "purchaseFailed": "Error al comprar",
+    "@purchaseFailed": {}
 }

@@ -2641,6 +2641,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Debes ser parte de una Colonia para empezar una excursión'**
   String get blockedToExcursionText;
+
+  /// No description provided for @item.
+  ///
+  /// In es, this message translates to:
+  /// **'Ítem'**
+  String get item;
+
+  /// No description provided for @items.
+  ///
+  /// In es, this message translates to:
+  /// **'Ítems'**
+  String get items;
+
+  /// No description provided for @bundle.
+  ///
+  /// In es, this message translates to:
+  /// **'Paquete'**
+  String get bundle;
+
+  /// No description provided for @bundles.
+  ///
+  /// In es, this message translates to:
+  /// **'Paquetes'**
+  String get bundles;
+
+  /// No description provided for @owned.
+  ///
+  /// In es, this message translates to:
+  /// **'EN PROPIEDAD'**
+  String get owned;
+
+  /// No description provided for @buy.
+  ///
+  /// In es, this message translates to:
+  /// **'COMPRAR'**
+  String get buy;
+
+  /// No description provided for @confirmPurchase.
+  ///
+  /// In es, this message translates to:
+  /// **'CONFIRMAR COMPRA'**
+  String get confirmPurchase;
+
+  /// No description provided for @confirmPurchaseMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás seguro de que deseas comprar \"{name}\" por {price} monedas?'**
+  String confirmPurchaseMessage(String name, int price);
+
+  /// No description provided for @noItemOffers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay ofertas de ítems disponibles'**
+  String get noItemOffers;
+
+  /// No description provided for @noBundleOffers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay ofertas de paquetes disponibles'**
+  String get noBundleOffers;
+
+  /// No description provided for @successfullyPurchased.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Compra exitosa de {name}!'**
+  String successfullyPurchased(String name);
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al comprar'**
+  String get purchaseFailed;
 }
 
 class _AppLocalizationsDelegate
