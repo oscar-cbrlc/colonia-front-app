@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/shop_offers_sheet.dart';
 
 
 class UserProfileScreen extends StatelessWidget {
@@ -47,7 +48,7 @@ class UserProfileScreen extends StatelessWidget {
                     _TopHeaderBarCurrentUser(
                       viewModel: vm,
                       onShopPressed: () {
-                        // TODO: Navigate to Item Shop screen
+                        showShopOffersSheet(context);
                       },
                       onCoinsPressed: () {
                         // TODO: Navigate to Coin Shop screen / Buy Coins modal
