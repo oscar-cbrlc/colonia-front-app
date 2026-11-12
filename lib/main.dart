@@ -27,6 +27,8 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/services/api/avatar_service.dart';
+import 'package:colonia_front_app/data/services/api/store_service.dart';
+import 'package:colonia_front_app/data/repositories/shop_repository.dart';
 
 import 'package:colonia_front_app/data/services/api/team_service.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
@@ -114,6 +116,16 @@ void main() async {
           create: (context) => ChallengeRepository(context.read<ChallengeService>()),
           update: (_, challengeService, previous) =>
               previous ?? ChallengeRepository(challengeService),
+        ),
+
+        ProxyProvider<ApiClient, StoreService>(
+          update: (_, apiClient, previous) => previous ?? StoreService(apiClient),
+        ),
+
+        ChangeNotifierProxyProvider<StoreService, ShopRepository>(
+          create: (context) => ShopRepository(context.read<StoreService>()),
+          update: (_, storeService, previous) =>
+              previous ?? ShopRepository(storeService),
         ),
 
         ProxyProvider<ApiClient, NotificationApiService>(
