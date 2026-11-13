@@ -284,7 +284,7 @@ class _NotificationCardState extends State<_NotificationCard> {
       case 'team_kick':
         return Icons.no_accounts_outlined;
       case 'global_notification':
-        return Icons.calendar_today;
+        return Icons.event_sharp;
       default:
         return Icons.notifications_sharp;
     }
