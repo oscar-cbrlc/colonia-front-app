@@ -202,10 +202,13 @@ void main() async {
           previous ?? TrainingRepository(trainingService: trainingService),
         ),
 
-        ChangeNotifierProxyProvider<TerritoryService, TerritoryRepository>(
-          create: (context) => TerritoryRepository(context.read<TerritoryService>()),
-          update: (_, territoryService, previous) =>
-              previous ?? TerritoryRepository(territoryService),
+        ChangeNotifierProxyProvider2<LocalStorageService, TerritoryService, TerritoryRepository>(
+          create: (context) => TerritoryRepository(
+            context.read<TerritoryService>(),
+            context.read<LocalStorageService>(),
+          ),
+          update: (_, localStorageService, territoryService, previous) =>
+              previous ?? TerritoryRepository(territoryService, localStorageService),
         ),
 
         ChangeNotifierProxyProvider<TeamService, TeamRepository>(

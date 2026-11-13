@@ -5,19 +5,44 @@ import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/data/services/api/territory_service.dart';
+import 'package:colonia_front_app/data/services/local_storage_service.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 
 class TerritoryRepository extends ChangeNotifier {
   final TerritoryService _territoryService;
+  final LocalStorageService? _localStorageService;
 
   Map<String, Territory> _territories = {};
 
-  TerritoryRepository(this._territoryService);
+  TerritoryRepository(
+    this._territoryService, [
+    this._localStorageService,
+  ]) {
+    loadCachedTerritories();
+  }
 
   List<Territory> get territories => _territories.values.toList();
 
+  Future<void> loadCachedTerritories() async {
+    if (_localStorageService == null) return;
+    try {
+      final cached = await _localStorageService!.getMapTerritories();
+      if (cached.isNotEmpty) {
+        _territories = {
+          for (var t in cached) t.id: t
+        };
+        debugPrint('TerritoryRepository: Loaded ${cached.length} territories from local storage');
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('TerritoryRepository: Error loading cached territories: $e');
+    }
+  }
 
   Future<void> fetchAllTerritories() async {
+    if (_territories.isEmpty) {
+      await loadCachedTerritories();
+    }
     try {
       final response = await _territoryService.getAllTerritories();
       if (response.statusCode == 200) {
@@ -26,9 +51,15 @@ class TerritoryRepository extends ChangeNotifier {
           for (var json in data) json['territory_id'] as String: Territory.fromJson(json)
         };
         notifyListeners();
+        if (_localStorageService != null) {
+          await _localStorageService!.saveMapTerritories(_territories.values.toList());
+        }
       }
     } catch (e) {
       debugPrint('TerritoryRepository: Error fetching all territories: $e');
+      if (_territories.isEmpty) {
+        await loadCachedTerritories();
+      }
     }
   }
 
@@ -40,6 +71,9 @@ class TerritoryRepository extends ChangeNotifier {
         final territory = Territory.fromJson(data);
         _territories[territory.id] = territory;
         notifyListeners();
+        if (_localStorageService != null) {
+          await _localStorageService!.saveMapTerritories(_territories.values.toList());
+        }
         return territory;
       }
     } catch (e) {
@@ -83,6 +117,9 @@ class TerritoryRepository extends ChangeNotifier {
           _territories[territory.id] = territory;
         }
         notifyListeners();
+        if (_localStorageService != null) {
+          await _localStorageService!.saveMapTerritories(_territories.values.toList());
+        }
 
         return (result: result, isOffline: false, error: null);
       } else {
@@ -107,7 +144,6 @@ class TerritoryRepository extends ChangeNotifier {
       healthPoints: GameConfig.baseTerritoryHealth,
     );
   }
-
 
   void clearCache() {
     _territories.clear();

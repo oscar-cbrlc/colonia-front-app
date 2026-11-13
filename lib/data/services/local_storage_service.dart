@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,6 +24,7 @@ class LocalStorageService {
   static const String _availableBoostsKey = 'colonia_available_boosts_data';
   static const String _avatarItemsKey = 'colonia_avatar_items_data';
   static const String _avatarModelKey = 'colonia_avatar_model_data';
+  static const String _mapTerritoriesKey = 'colonia_map_territories_data';
 
   static const String _mergedModelFileName = 'user_avatar_puck.glb';
 
@@ -173,5 +175,30 @@ class LocalStorageService {
       return 'file://${customPuckFile.path}';
     }
     return 'asset://${GameConfig.baseModelPath}';
+  }
+
+  Future<List<Territory>> getMapTerritories() async {
+    try {
+      final data = await _secureStorage.read(key: _mapTerritoriesKey);
+      if (data == null || data.isEmpty) return [];
+      final List<dynamic> decoded = jsonDecode(data);
+      return decoded
+          .map((e) => Territory.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('LocalStorageService: Error reading map territories: $e');
+      return [];
+    }
+  }
+
+  Future<void> saveMapTerritories(List<Territory> territories) async {
+    try {
+      await _secureStorage.write(
+        key: _mapTerritoriesKey,
+        value: jsonEncode(territories.map((t) => t.toJson()).toList()),
+      );
+    } catch (e) {
+      debugPrint('LocalStorageService: Error saving map territories: $e');
+    }
   }
 }
