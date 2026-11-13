@@ -9,7 +9,7 @@ class TeamChatRepository extends ChangeNotifier {
   List<TeamChatMessage> _messages = [];
   bool _isLoading = false;
 
-  //List<TeamChatMessage> get messages => _messages;
+  List<TeamChatMessage> get messages => List.unmodifiable(_messages);
   bool get isLoading => _isLoading;
 
   List<TeamChatMessage> get messagesReversed => _messages.reversed.toList();
