@@ -1874,6 +1874,12 @@ abstract class AppLocalizations {
   /// **'Retos semanales'**
   String get weekChallenges;
 
+  /// No description provided for @challengesProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso de Retos'**
+  String get challengesProgress;
+
   /// No description provided for @complete.
   ///
   /// In es, this message translates to:

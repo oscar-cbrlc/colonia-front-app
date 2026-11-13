@@ -967,6 +967,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weekChallenges => 'Challenges of the week';
 
   @override
+  String get challengesProgress => 'Challenges Progress';
+
+  @override
   String get complete => 'Complete';
 
   @override

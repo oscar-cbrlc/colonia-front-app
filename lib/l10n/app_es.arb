@@ -1092,6 +1092,9 @@
     "weekChallenges": "Retos semanales",
     "@weekChallenges": {},
 
+    "challengesProgress": "Progreso de Retos",
+    "@challengesProgress": {},
+
     "complete": "Completa",
     "@complete": {},
 

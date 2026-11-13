@@ -972,6 +972,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weekChallenges => 'Retos semanales';
 
   @override
+  String get challengesProgress => 'Progreso de Retos';
+
+  @override
   String get complete => 'Completa';
 
   @override
