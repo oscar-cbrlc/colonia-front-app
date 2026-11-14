@@ -18,7 +18,7 @@ class UserProfileViewModel extends ChangeNotifier {
 
   UserProfileViewModel(this._user, this._avatarItemRepository)
   {
-    checkAndDownloadAvatarModels();
+    loadDownloadedItemModels();
   }
 
   User get user => _user;
@@ -114,12 +114,13 @@ class UserProfileViewModel extends ChangeNotifier {
       },
     );
 
-    _downloadedItemModels = await _avatarItemRepository.getStoredItemModels();
+    await loadDownloadedItemModels();
+    
     _isDownloadingModels = false;
     notifyListeners();
   }
 
-  Future<bool> updateAccountInfo({required String newUsername, String? newPassword}) async {
+  Future<bool> updateAccountInfo({required String newUsername}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -134,6 +135,31 @@ class UserProfileViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       debugPrint('UserProfileViewModel: Failed to update account info: $e');
+      _errorMessage = null;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateUserThumbnail(String thumbnailUrl) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final currentAvatar = _user.avatar ?? const UserAvatar(color: 0xFFFFFF);
+      final updatedAvatar = currentAvatar.copyWith(thumbnailUrl: thumbnailUrl);
+      final updatedUser = _user.copyWith(avatar: updatedAvatar);
+
+      await AuthRepository.instance.updateCurrentUser(updatedUser);
+      _user = updatedUser;
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('UserProfileViewModel: Failed to update user thumbnail: $e');
       _errorMessage = null;
       _isLoading = false;
       notifyListeners();
@@ -158,6 +184,8 @@ class UserProfileViewModel extends ChangeNotifier {
       final updatedUser = _user.copyWith(avatar: updatedAvatar);
       await AuthRepository.instance.updateCurrentUser(updatedUser);
       _user = updatedUser;
+
+      await saveMergedModelLocally(baseColor: updatedAvatar.color != null ? Color(updatedAvatar.color!) : null);
 
       _isLoading = false;
       notifyListeners();

@@ -167,32 +167,20 @@ class UserProfileScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
-                          foregroundColor: Colors.redAccent,
-                          side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                          backgroundColor: AppTheme.darkBackground,
+                          foregroundColor: Colors.white70,
+                          side: const BorderSide(color: Colors.white38, width: 1.0),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: const BeveledRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(12)),
                           ),
                         ),
-                        icon: const Icon(Icons.logout),
+                        icon: const Icon(Icons.settings),
                         label: Text(
-                          AppLocalizations.of(context)!.logout,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          locale.settings.toUpperCase(),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Oswald'),
                         ),
-                        onPressed: () async {
-                          context.read<TeamRepository>().clear();
-                          context.read<TerritoryRepository>().clearCache();
-                          context.read<TrackingRepository>().clear();
-
-                          await authRepo.logout();
-                          if (context.mounted) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                              AppRouter.welcome,
-                              (route) => false,
-                            );
-                          }
-                        },
+                        onPressed: () => _showSettingsBottomSheet(context, vm, authRepo),
                       ),
                     ),
                 ],
@@ -204,11 +192,152 @@ class UserProfileScreen extends StatelessWidget {
     );
   }
 
+  void _showSettingsBottomSheet(BuildContext context, UserProfileViewModel vm, AuthRepository authRepo) {
+    final locale = AppLocalizations.of(context)!;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.darkBackground,
+      shape: const BeveledRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  locale.settings.toUpperCase(),
+                  style: const TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    fontSize: 20,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white54),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.secondaryColor.withAlpha(20),
+                  foregroundColor: AppTheme.secondaryColor,
+                  side: const BorderSide(color: AppTheme.secondaryColor, width: 1.0),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: const BeveledRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+                icon: const Icon(Icons.download),
+                label: Text(
+                  locale.downloadModels,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _showDownloadModelsDialog(context, vm);
+                },
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent.withAlpha(40),
+                  foregroundColor: Colors.redAccent,
+                  side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: const BeveledRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+                icon: const Icon(Icons.logout),
+                label: Text(
+                  locale.logout,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () async {
+                  context.read<TeamRepository>().clear();
+                  context.read<TerritoryRepository>().clearCache();
+                  context.read<TrackingRepository>().clear();
+
+                  await vm.avatarItemRepository.clearModelsCache();
+                  await authRepo.logout();
+                  
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRouter.welcome,
+                      (route) => false,
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDownloadModelsDialog(BuildContext context, UserProfileViewModel vm) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withAlpha(180),
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return _DownloadModelsDialogProfile(viewModel: vm);
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+        return AnimatedBuilder(
+          animation: curvedAnimation,
+          builder: (context, innerChild) {
+            return Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+              child: FadeTransition(
+                opacity: animation,
+                child: innerChild,
+              ),
+            );
+          },
+          child: child,
+        );
+      },
+    );
+  }
+
   void _showEditAccountBottomSheet(BuildContext context, UserProfileViewModel vm) {
     final usernameController = TextEditingController(text: vm.user.username);
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-    final locale = AppLocalizations.of(context);
+    final locale = AppLocalizations.of(context)!;
     String? errorMessage;
     bool isSaving = false;
 
@@ -221,131 +350,115 @@ class UserProfileScreen extends StatelessWidget {
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      locale!.editAccountInfo.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Oswald',
-                        fontSize: 20,
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        locale.editAccountInfo.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          fontSize: 20,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white54),
-                      onPressed: isSaving ? null : () => Navigator.pop(ctx),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                /// TODO: set profile image
-                const SizedBox(height: 24),
-                _InputField(
-                  controller: usernameController,
-                  label: locale.usernameLabel.toUpperCase(),
-                  hint: locale.usernameHint,
-                ),
-                const SizedBox(height: 16),
-                _InputField(
-                  controller: newPasswordController,
-                  label: locale.password.toUpperCase(),
-                  hint: locale.passwordHint,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 16),
-                _InputField(
-                  controller: confirmPasswordController,
-                  label: locale.confirmPassword.toUpperCase(),
-                  hint: locale.passwordHint,
-                  obscureText: true,
-                ),
-                if (errorMessage != null) ...[
-                  const SizedBox(height: 12),
-                  Text(errorMessage!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
-                ],
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white54),
+                        onPressed: isSaving ? null : () => Navigator.pop(ctx),
                       ),
-                    ),
-                    onPressed: isSaving
-                        ? null
-                        : () async {
-                            final newUsername = usernameController.text.trim();
-                            final newPassword = newPasswordController.text;
-                            final confirmPassword = confirmPasswordController.text;
-
-                            if (newUsername.isEmpty) {
-                              setState(() => errorMessage = locale.usernameCannotBeEmpty);
-                              return;
-                            }
-
-                            if (newPassword.isNotEmpty && newPassword != confirmPassword) {
-                              setState(() => errorMessage = locale.passwordsDoNotMatch);
-                              return;
-                            }
-
-                            setState(() {
-                              isSaving = true;
-                              errorMessage = null;
-                            });
-
-                            final success = await vm.updateAccountInfo(
-                              newUsername: newUsername,
-                              newPassword: newPassword.isNotEmpty ? newPassword : null,
-                            );
-
-                            if (context.mounted) {
-                              final locale = AppLocalizations.of(context)!;
-                              Navigator.pop(ctx);
-
-                              if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(locale.profileUpdatedSuccessfully),
-                                    backgroundColor: AppTheme.successColor,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(locale.networkErrorUpdateProfile),
-                                    backgroundColor: AppTheme.errorColor,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                    child: isSaving
-                        ? const AppLoadingIndicator(
-                            size: 20.0,
-                            color: AppTheme.fontPrimaryColor,
-                          )
-                        : Text(locale.saveChanges.toUpperCase(), style: TextStyle(color: AppTheme.fontPrimaryColor, fontWeight: FontWeight.bold)),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  _InputField(
+                    controller: usernameController,
+                    label: locale.usernameLabel.toUpperCase(),
+                    hint: locale.usernameHint,
+                  ),
+                  if (errorMessage != null) ...[
+                    const SizedBox(height: 12),
+                    Text(errorMessage!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                      ),
+                      onPressed: isSaving
+                          ? null
+                          : () async {
+                              final newUsername = usernameController.text.trim();
+
+                              if (newUsername.isEmpty) {
+                                setState(() => errorMessage = locale.usernameCannotBeEmpty);
+                                return;
+                              }
+
+                              setState(() {
+                                isSaving = true;
+                                errorMessage = null;
+                              });
+
+                              final success = await vm.updateAccountInfo(
+                                newUsername: newUsername,
+                              );
+
+                              if (context.mounted) {
+                                final locale = AppLocalizations.of(context)!;
+                                Navigator.pop(ctx);
+
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(locale.profileUpdatedSuccessfully),
+                                      backgroundColor: AppTheme.successColor,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(locale.networkErrorUpdateProfile),
+                                      backgroundColor: AppTheme.errorColor,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      child: isSaving
+                          ? const AppLoadingIndicator(
+                              size: 20.0,
+                              color: AppTheme.fontPrimaryColor,
+                            )
+                          : Text(
+                              locale.saveChanges.toUpperCase(),
+                              style: TextStyle(
+                                color: AppTheme.fontPrimaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -828,6 +941,8 @@ class _AvatarSection extends StatefulWidget {
 }
 
 class _AvatarSectionState extends State<_AvatarSection> {
+  bool _isModelLoaded = false;
+
   Color? get _avatarColor {
     final colorInt = widget.viewModel.user.avatar?.color;
     return colorInt != null ? Color(colorInt) : null;
@@ -855,6 +970,9 @@ class _AvatarSectionState extends State<_AvatarSection> {
     final user = widget.viewModel.user;
     final modelPath = widget.viewModel.baseModelPath;
     final baseAvatarContainerColor = Colors.white;
+
+    final bool hasDownloadedModels = widget.viewModel.downloadedItemModels.isNotEmpty;
+    final bool canInteract = _isModelLoaded && !widget.viewModel.isDownloadingModels && hasDownloadedModels;
 
     return Column(
       children: [
@@ -886,9 +1004,18 @@ class _AvatarSectionState extends State<_AvatarSection> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: ThreeJsAvatarView(
+                  key: ValueKey(user.avatar.hashCode),
                   baseGlbPath: modelPath,
                   equippedGlbPaths: _equippedGlbPaths,
                   avatarColor: _avatarColor,
+                  pixelRatio: 0.75,
+                  onLoadingStateChanged: (isLoading) {
+                    if (mounted && _isModelLoaded != !isLoading) {
+                      setState(() {
+                        _isModelLoaded = !isLoading;
+                      });
+                    }
+                  },
                 ),
               ),
             ),
@@ -897,74 +1024,25 @@ class _AvatarSectionState extends State<_AvatarSection> {
                 bottom: 8,
                 right: 8,
                 child: GestureDetector(
-                  onTap: widget.onEditAvatarPressed,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const ShapeDecoration(
-                      color: AppTheme.primaryColor,
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                  onTap: canInteract ? widget.onEditAvatarPressed : null,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: canInteract ? 1.0 : 0.4,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: ShapeDecoration(
+                        color: canInteract ? AppTheme.primaryColor : Colors.grey,
+                        shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
                       ),
+                      child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                     ),
-                    child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
                   ),
                 ),
               ),
           ],
         ),
-        if (widget.viewModel.isDownloadingModels) ...[
-          const SizedBox(height: 8),
-          Container(
-            width: 220,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: ShapeDecoration(
-              color: AppTheme.darkBackground,
-              shape: BeveledRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: AppTheme.primaryColor.withAlpha(150),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      ((AppLocalizations.of(context) as dynamic).downloadingModel as String?) ?? 'Descargando modelos 3D...',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${(widget.viewModel.downloadProgress * 100).toInt()}%',
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Oswald',
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: widget.viewModel.downloadProgress,
-                    backgroundColor: Colors.white12,
-                    color: AppTheme.primaryColor,
-                    minHeight: 4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
         const SizedBox(height: 12),
 
         Row(
@@ -982,7 +1060,11 @@ class _AvatarSectionState extends State<_AvatarSection> {
                 customBorder: const CircleBorder(),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Icon(Icons.edit, color: AppTheme.primaryColor.withValues(alpha: 0.9), size: 18),
+                  child: Icon(
+                    Icons.edit,
+                    color: AppTheme.primaryColor.withValues(alpha: 0.9),
+                    size: 18,
+                  ),
                 ),
               ),
             ]
@@ -1193,6 +1275,140 @@ class _InputField extends StatelessWidget {
     );
   }
 }
+
+class _DownloadModelsDialogProfile extends StatefulWidget {
+  final UserProfileViewModel viewModel;
+  const _DownloadModelsDialogProfile({required this.viewModel});
+
+  @override
+  State<_DownloadModelsDialogProfile> createState() => _DownloadModelsDialogProfileState();
+}
+
+class _DownloadModelsDialogProfileState extends State<_DownloadModelsDialogProfile> {
+  bool _isDownloading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final color = AppTheme.primaryColor;
+
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final progress = widget.viewModel.downloadProgress;
+        final isDownloading = widget.viewModel.isDownloadingModels;
+        
+        if (progress >= 1.0 && _isDownloading && !isDownloading) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+        }
+
+        return PopScope(
+          canPop: !_isDownloading,
+          child: Dialog(
+            backgroundColor: AppTheme.darkBackground,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 40.0),
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: AppTheme.tertiaryColor,
+                width: 1.5,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    (_isDownloading ? locale.downloadingModelsTitle : locale.downloadModelsTitle).toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontFamily: 'Oswald',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  if (!_isDownloading)
+                    Text(
+                      locale.downloadModelsMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                    )
+                  else ...[
+                    Text(
+                      locale.downloadModelsProgress((progress * 100).toInt().toString()),
+                      style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.white12,
+                        color: color,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (!_isDownloading) ...[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            "Cancel".toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontFamily: 'Oswald',
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: AppTheme.darkBackground,
+                            shape: const BeveledRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                          onPressed: () {
+                            setState(() => _isDownloading = true);
+                            widget.viewModel.checkAndDownloadAvatarModels();
+                          },
+                          child: Text(
+                            locale.download.toUpperCase(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Oswald',
+                              letterSpacing: 1.0,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 
 class _AchievementsSection extends StatelessWidget {
   final UserProfileViewModel viewModel;
