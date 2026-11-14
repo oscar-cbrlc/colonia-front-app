@@ -1412,4 +1412,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseFailed => 'Purchase failed';
+
+  @override
+  String get offline => 'Offline';
+
+  @override
+  String get reconnect => 'Reconnect';
+
+  @override
+  String get stillOffline => 'Still offline. Check your internet connection.';
+
+  @override
+  String get eventsUnavailableOffline => 'Events are unavailable offline.';
+
+  @override
+  String get challengesUnavailableOffline =>
+      'Challenges are unavailable offline.';
+
+  @override
+  String get loadingMap => 'LOADING MAP...';
 }

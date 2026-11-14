@@ -1421,4 +1421,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get purchaseFailed => 'Error al comprar';
+
+  @override
+  String get offline => 'Sin conexión';
+
+  @override
+  String get reconnect => 'Reconectar';
+
+  @override
+  String get stillOffline =>
+      'Sigues sin conexión. Comprueba tu conexión a internet.';
+
+  @override
+  String get eventsUnavailableOffline =>
+      'Los eventos no están disponibles sin conexión.';
+
+  @override
+  String get challengesUnavailableOffline =>
+      'Los retos no están disponibles sin conexión.';
+
+  @override
+  String get loadingMap => 'CARGANDO MAPA...';
 }

@@ -2719,6 +2719,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al comprar'**
   String get purchaseFailed;
+
+  /// No description provided for @offline.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión'**
+  String get offline;
+
+  /// No description provided for @reconnect.
+  ///
+  /// In es, this message translates to:
+  /// **'Reconectar'**
+  String get reconnect;
+
+  /// No description provided for @stillOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Sigues sin conexión. Comprueba tu conexión a internet.'**
+  String get stillOffline;
+
+  /// No description provided for @eventsUnavailableOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Los eventos no están disponibles sin conexión.'**
+  String get eventsUnavailableOffline;
+
+  /// No description provided for @challengesUnavailableOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Los retos no están disponibles sin conexión.'**
+  String get challengesUnavailableOffline;
+
+  /// No description provided for @loadingMap.
+  ///
+  /// In es, this message translates to:
+  /// **'CARGANDO MAPA...'**
+  String get loadingMap;
 }
 
 class _AppLocalizationsDelegate

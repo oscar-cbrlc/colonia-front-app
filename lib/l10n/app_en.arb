@@ -1572,5 +1572,23 @@
     },
 
     "purchaseFailed": "Purchase failed",
-    "@purchaseFailed": {}
+    "@purchaseFailed": {},
+
+    "offline": "Offline",
+    "@offline": {},
+
+    "reconnect": "Reconnect",
+    "@reconnect": {},
+
+    "stillOffline": "Still offline. Check your internet connection.",
+    "@stillOffline": {},
+
+    "eventsUnavailableOffline": "Events are unavailable offline.",
+    "@eventsUnavailableOffline": {},
+
+    "challengesUnavailableOffline": "Challenges are unavailable offline.",
+    "@challengesUnavailableOffline": {},
+
+    "loadingMap": "LOADING MAP...",
+    "@loadingMap": {}
 }

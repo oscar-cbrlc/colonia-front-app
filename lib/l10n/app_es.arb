@@ -1574,5 +1574,23 @@
     },
 
     "purchaseFailed": "Error al comprar",
-    "@purchaseFailed": {}
+    "@purchaseFailed": {},
+
+    "offline": "Sin conexión",
+    "@offline": {},
+
+    "reconnect": "Reconectar",
+    "@reconnect": {},
+
+    "stillOffline": "Sigues sin conexión. Comprueba tu conexión a internet.",
+    "@stillOffline": {},
+
+    "eventsUnavailableOffline": "Los eventos no están disponibles sin conexión.",
+    "@eventsUnavailableOffline": {},
+
+    "challengesUnavailableOffline": "Los retos no están disponibles sin conexión.",
+    "@challengesUnavailableOffline": {},
+
+    "loadingMap": "CARGANDO MAPA...",
+    "@loadingMap": {}
 }
