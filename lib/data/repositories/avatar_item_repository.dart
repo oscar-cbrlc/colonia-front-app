@@ -229,4 +229,20 @@ class AvatarItemRepository extends ChangeNotifier {
   Future<void> saveMergedModelLocally(List<String> equippedModelPaths, {Color? baseColor}) async {
     await _localStorageService.saveMergedModelLocally(equippedModelPaths, baseColor: baseColor);
   }
+
+  Future<void> clearModelsCache() async {
+    await _localStorageService.saveAvatarItemModels([]);
+    
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final files = dir.listSync();
+      for (final file in files) {
+        if (file is File && file.path.endsWith('.glb')) {
+          await file.delete();
+        }
+      }
+    } catch (e) {
+      debugPrint('AvatarItemRepository: Error clearing model cache files: $e');
+    }
+  }
 }

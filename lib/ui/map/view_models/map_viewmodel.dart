@@ -2,17 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math' as math;
 
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
 
 import 'package:colonia_front_app/data/repositories/boost_repository.dart';
 import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
@@ -109,6 +112,52 @@ class MapViewModel extends ChangeNotifier {
   void clearSyncMessage() {
     _didSync = false;
     notifyListeners();
+  }
+
+  Future<void> checkModelsDownload(BuildContext context) async {
+    final hasModels = await _sessionRepository.localStorageService.hasAvatarModels();
+    
+    if (!hasModels) {
+      if (context.mounted) {
+        _promptDownloadModels(context);
+      }
+    }
+  }
+
+  void _promptDownloadModels(BuildContext context) {
+    if (!context.mounted) return;
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withAlpha(180),
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return _DownloadModelsDialog(viewModel: this);
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
+
+        return AnimatedBuilder(
+          animation: curvedAnimation,
+          builder: (context, innerChild) {
+            return Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
+              child: FadeTransition(
+                opacity: animation,
+                child: innerChild,
+              ),
+            );
+          },
+          child: child,
+        );
+      },
+    );
   }
 
   Future<void> checkPendingActivities() async {
@@ -396,6 +445,31 @@ class MapViewModel extends ChangeNotifier {
     await _updateH3Grid();
   }
 
+  bool _isDownloadingModels = false;
+  double _downloadProgress = 0.0;
+  bool get isDownloadingModels => _isDownloadingModels;
+  double get downloadProgress => _downloadProgress;
+
+  Future<void> downloadAvatarModels(BuildContext context, AvatarItemRepository avatarItemRepository) async {
+    _isDownloadingModels = true;
+    _downloadProgress = 0.0;
+    notifyListeners();
+
+    try {
+      await avatarItemRepository.checkAndDownloadModels(
+        onProgress: (progress) {
+          _downloadProgress = progress;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      debugPrint("MapViewModel: Error downloading avatar models: $e");
+    } finally {
+      _isDownloadingModels = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> _updateH3Grid() async {
     final style = _mapboxMap?.style;
     final map = _mapboxMap;
@@ -561,5 +635,139 @@ class MapViewModel extends ChangeNotifier {
     _territoryRepository.removeListener(_onTerritoriesChanged);
     _challengeRepository.removeListener(notifyListeners);
     super.dispose();
+  }
+}
+
+class _DownloadModelsDialog extends StatefulWidget {
+  final MapViewModel viewModel;
+  const _DownloadModelsDialog({required this.viewModel});
+
+  @override
+  State<_DownloadModelsDialog> createState() => _DownloadModelsDialogState();
+}
+
+class _DownloadModelsDialogState extends State<_DownloadModelsDialog> {
+  bool _isDownloading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final color = AppTheme.primaryColor;
+
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final progress = widget.viewModel.downloadProgress;
+        final isDownloading = widget.viewModel.isDownloadingModels;
+        
+        if (progress >= 1.0 && _isDownloading && !isDownloading) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+        }
+
+        return PopScope(
+          canPop: !_isDownloading,
+          child: Dialog(
+            backgroundColor: AppTheme.darkBackground,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 40.0),
+            shape: BeveledRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: AppTheme.tertiaryColor,
+                width: 1.5,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    (_isDownloading ? locale.downloadingModelsTitle : locale.downloadModelsTitle).toUpperCase(),
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontFamily: 'Oswald',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  if (!_isDownloading)
+                    Text(
+                      locale.downloadModelsMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                    )
+                  else ...[
+                    Text(
+                      locale.downloadModelsProgress((progress * 100).toInt().toString()),
+                      style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.white12,
+                        color: color,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (!_isDownloading) ...[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            "Cancel".toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontFamily: 'Oswald',
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: AppTheme.darkBackground,
+                            shape: const BeveledRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                          onPressed: () {
+                            setState(() => _isDownloading = true);
+                            final avatarRepo = Provider.of<AvatarItemRepository>(context, listen: false);
+                            widget.viewModel.downloadAvatarModels(context, avatarRepo);
+                          },
+                          child: Text(
+                            locale.download.toUpperCase(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Oswald',
+                              letterSpacing: 1.0,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

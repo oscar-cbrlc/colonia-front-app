@@ -228,4 +228,8 @@ class LocalStorageService {
       debugPrint('LocalStorageService: Error saving notifications: $e');
     }
   }
+  Future<bool> hasAvatarModels() async {
+    final models = await getAvatarItemModels();
+    return models.isNotEmpty;
+  }
 }

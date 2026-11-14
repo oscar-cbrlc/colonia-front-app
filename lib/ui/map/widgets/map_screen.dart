@@ -109,6 +109,10 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                     borderColor: AppTheme.primaryColor,
                     onTap: () {
                       HapticFeedback.lightImpact();
+                      final currentUser = AuthRepository.instance.currentUser;
+                      if (currentUser != null) {
+                        Navigator.pushNamed(context, AppRouter.profile, arguments: {'user': currentUser});
+                      }
                     },
                     shape: const StarBorder(
                       side: BorderSide(color: AppTheme.primaryColor, width: 2),
@@ -116,15 +120,15 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                       innerRadiusRatio: 0.86,
                       rotation: 30,
                       pointRounding: 0.15,
-                    )
-                  )
-              ),
-            ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    )
-  );
+    );
 
   Widget get _activityGroup => Visibility(
       visible: true,
@@ -276,6 +280,12 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
     widget.viewModel.checkPendingActivities();
+    
+    Future.microtask(() {
+      if (mounted) {
+        widget.viewModel.checkModelsDownload(context);
+      }
+    });
   }
 
   @override
