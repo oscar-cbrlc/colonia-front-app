@@ -6,6 +6,7 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/summary_results_widget.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
@@ -85,11 +86,8 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> with Sing
               ),
 
               if (!widget.viewModel.isMapReady)
-                Positioned.fill(
-                  child: Container(
-                    color: AppTheme.darkBackground,
-                    child: const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
-                  ),
+                const Positioned.fill(
+                  child: LoadingWidget(),
                 ),
 
               /*Positioned.fill(

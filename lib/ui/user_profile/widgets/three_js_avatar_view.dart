@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:three_js/three_js.dart' as three;
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 
 class ThreeJsAvatarView extends StatefulWidget {
   final String baseGlbPath;
@@ -33,6 +35,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
   int _loadVersion = 0;
   bool _isLoading = true;
   bool _isCameraFramed = false;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -53,10 +56,10 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
         _threeJS.scene.add(_avatarGroup);
         _threeJS.scene.add(three.AmbientLight(0xffffff, 1));
-        final directionalLightFront= three.DirectionalLight(0xffffff, 0.5);
-        final directionalLightBack= three.DirectionalLight(0xffffff, 0.5);
-        final directionalLightTop= three.DirectionalLight(0xffffff, 0.5);
-        final directionalLightBottom= three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightFront = three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightBack = three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightTop = three.DirectionalLight(0xffffff, 0.5);
+        final directionalLightBottom = three.DirectionalLight(0xffffff, 0.5);
         directionalLightFront.position.setValues(0, 0, 1);
         directionalLightBack.position.setValues(0, 0, -1);
         directionalLightTop.position.setValues(0, 1, 0);
@@ -88,6 +91,41 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _clearAndDisposeAvatarGroup();
+    _orbitControls?.dispose();
+    super.dispose();
+  }
+
+  void _clearAndDisposeAvatarGroup() {
+    while (_avatarGroup.children.isNotEmpty) {
+      final child = _avatarGroup.children.first;
+      _disposeObject(child);
+      _avatarGroup.remove(child);
+    }
+  }
+
+  void _disposeObject(three.Object3D obj) {
+    obj.traverse((child) {
+      if (child is three.Mesh) {
+        if (child.geometry != null) {
+          try {
+            child.geometry!.dispose();
+          } catch (_) {}
+        }
+        if (child.material != null) {
+          try {
+            if (child.material is three.Material) {
+              (child.material as three.Material).dispose();
+            }
+          } catch (_) {}
+        }
+      }
+    });
   }
 
   void _fitCameraToGroup() {
@@ -146,7 +184,12 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     if (!listEquals(oldWidget.equippedGlbPaths, widget.equippedGlbPaths) ||
         oldWidget.baseGlbPath != widget.baseGlbPath ||
         oldWidget.avatarColor != widget.avatarColor) {
-      _reloadAllModels();
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 150), () {
+        if (mounted) {
+          _reloadAllModels();
+        }
+      });
     }
   }
 
@@ -175,9 +218,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
     if (version != _loadVersion) return;
 
-    while (_avatarGroup.children.isNotEmpty) {
-      _avatarGroup.remove(_avatarGroup.children.first);
-    }
+    _clearAndDisposeAvatarGroup();
     for (final obj in loadedObjects) {
       _avatarGroup.add(obj);
     }
@@ -216,14 +257,24 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
       clonedObj.traverse((child) {
         if (child is three.Mesh) {
-          if (isBase && widget.avatarColor != null && child.material != null) {
-            child.material = child.material!.clone();
+          if (child.material != null) {
+            final mat = child.material!;
+            mat.transparent = false;
+            mat.depthWrite = true;
+            mat.depthTest = true;
 
-            if (child.material is three.MeshStandardMaterial) {
-              final stdMat = child.material as three.MeshStandardMaterial;
-              final c = widget.avatarColor!;
-              stdMat.color = three.Color(c.r, c.g, c.b);
-              stdMat.needsUpdate = true;
+            if (isBase && widget.avatarColor != null) {
+              final clonedMat = mat.clone();
+              clonedMat.transparent = false;
+              clonedMat.depthWrite = true;
+              clonedMat.depthTest = true;
+
+              if (clonedMat is three.MeshStandardMaterial) {
+                final c = widget.avatarColor!;
+                clonedMat.color = three.Color(c.r, c.g, c.b);
+                clonedMat.needsUpdate = true;
+              }
+              child.material = clonedMat;
             }
           }
         }
@@ -257,7 +308,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
       }
 
       if (bytes != null) {
-        bytes = _sanitizeGlbBytesForThreeJs(bytes);
+        bytes = await compute(_sanitizeGlbBytesTask, bytes);
         _modelByteCache[path] = bytes;
       }
       return bytes;
@@ -265,123 +316,6 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
       debugPrint("Error fetching bytes for 3D model ($path): $e\n$stackTrace");
       return null;
     }
-  }
-
-  Uint8List _sanitizeGlbBytesForThreeJs(Uint8List bytes) {
-    if (bytes.length < 20) return bytes;
-
-    final magic = utf8.decode(bytes.sublist(0, 4));
-    if (magic != 'glTF') return bytes;
-
-    final byteData = bytes.buffer.asByteData(bytes.offsetInBytes, bytes.lengthInBytes);
-    final jsonChunkLength = byteData.getUint32(12, Endian.little);
-    final jsonChunkType = utf8.decode(bytes.sublist(16, 20));
-    if (jsonChunkType != 'JSON') return bytes;
-
-    final jsonStart = 20;
-    final jsonEnd = jsonStart + jsonChunkLength;
-    if (jsonEnd > bytes.length) return bytes;
-
-    try {
-      final jsonBytes = bytes.sublist(jsonStart, jsonEnd);
-      var jsonMap = jsonDecode(utf8.decode(jsonBytes)) as Map<String, dynamic>;
-
-      jsonMap = _sanitizeGltfNode(jsonMap) as Map<String, dynamic>;
-
-      final finalJsonString = jsonEncode(jsonMap);
-      var finalJsonBytes = Uint8List.fromList(utf8.encode(finalJsonString));
-
-      final remainder = finalJsonBytes.length % 4;
-      if (remainder != 0) {
-        final padCount = 4 - remainder;
-        final padded = Uint8List(finalJsonBytes.length + padCount);
-        padded.setAll(0, finalJsonBytes);
-        for (var p = finalJsonBytes.length; p < padded.length; p++) {
-          padded[p] = 0x20;
-        }
-        finalJsonBytes = padded;
-      }
-
-      final binBytes = bytes.sublist(jsonEnd);
-      final totalLength = 12 + 8 + finalJsonBytes.length + binBytes.length;
-
-      final outputBytes = Uint8List(totalLength);
-      final outputByteData = outputBytes.buffer.asByteData();
-
-      outputBytes.setAll(0, utf8.encode('glTF'));
-      outputByteData.setUint32(4, 2, Endian.little);
-      outputByteData.setUint32(8, totalLength, Endian.little);
-
-      outputByteData.setUint32(12, finalJsonBytes.length, Endian.little);
-      outputBytes.setAll(16, utf8.encode('JSON'));
-      outputBytes.setAll(20, finalJsonBytes);
-
-      outputBytes.setAll(20 + finalJsonBytes.length, binBytes);
-      return outputBytes;
-    } catch (e) {
-      debugPrint("sanitizeGlbBytesForThreeJs error: $e");
-    }
-
-    return bytes;
-  }
-
-  dynamic _sanitizeGltfNode(dynamic obj, [String? keyContext]) {
-    const floatFactorKeys = {
-      'offset',
-      'scale',
-      'rotation',
-      'translation',
-      'matrix',
-      'weights',
-      'roughnessFactor',
-      'metallicFactor',
-      'clearcoatFactor',
-      'clearcoatRoughnessFactor',
-      'ior',
-      'transmissionFactor',
-      'thickness',
-      'specularFactor',
-      'alphaCutoff',
-      'roughness',
-      'metalness',
-      'clearcoat',
-      'clearcoatRoughness',
-      'intensity',
-      'range',
-      'innerConeAngle',
-      'outerConeAngle',
-    };
-
-    const floatArrayKeys = {
-      'offset',
-      'scale',
-      'translation',
-      'matrix',
-      'weights',
-      'baseColorFactor',
-      'emissiveFactor',
-      'specularColorFactor',
-      'sheenColorFactor',
-    };
-
-    if (obj is Map) {
-      final result = <String, dynamic>{};
-      obj.forEach((key, value) {
-        result[key as String] = _sanitizeGltfNode(value, key);
-      });
-      return result;
-    } else if (obj is List) {
-      if (floatArrayKeys.contains(keyContext)) {
-        return obj.map((item) => item is int ? item.toDouble() : _sanitizeGltfNode(item, keyContext)).toList();
-      }
-      return obj.map((item) => _sanitizeGltfNode(item, keyContext)).toList();
-    } else if (obj is int) {
-      if (floatFactorKeys.contains(keyContext)) {
-        return obj.toDouble();
-      }
-      return obj;
-    }
-    return obj;
   }
 
   @override
@@ -393,19 +327,136 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
           Container(
             color: Colors.black38,
             child: const Center(
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CircularProgressIndicator(
-                  color: AppTheme.primaryColor,
-                  strokeWidth: 3,
-                ),
+              child: AppLoadingIndicator(
+                size: 32.0,
+                color: AppTheme.primaryColor,
               ),
             ),
           ),
       ],
     );
   }
+}
+
+Uint8List _sanitizeGlbBytesTask(Uint8List bytes) {
+  return _sanitizeGlbBytesForThreeJsStatic(bytes);
+}
+
+Uint8List _sanitizeGlbBytesForThreeJsStatic(Uint8List bytes) {
+  if (bytes.length < 20) return bytes;
+
+  final magic = utf8.decode(bytes.sublist(0, 4));
+  if (magic != 'glTF') return bytes;
+
+  final byteData = bytes.buffer.asByteData(bytes.offsetInBytes, bytes.lengthInBytes);
+  final jsonChunkLength = byteData.getUint32(12, Endian.little);
+  final jsonChunkType = utf8.decode(bytes.sublist(16, 20));
+  if (jsonChunkType != 'JSON') return bytes;
+
+  final jsonStart = 20;
+  final jsonEnd = jsonStart + jsonChunkLength;
+  if (jsonEnd > bytes.length) return bytes;
+
+  try {
+    final jsonBytes = bytes.sublist(jsonStart, jsonEnd);
+    var jsonMap = jsonDecode(utf8.decode(jsonBytes)) as Map<String, dynamic>;
+
+    jsonMap = _sanitizeGltfNodeStatic(jsonMap) as Map<String, dynamic>;
+
+    final finalJsonString = jsonEncode(jsonMap);
+    var finalJsonBytes = Uint8List.fromList(utf8.encode(finalJsonString));
+
+    final remainder = finalJsonBytes.length % 4;
+    if (remainder != 0) {
+      final padCount = 4 - remainder;
+      final padded = Uint8List(finalJsonBytes.length + padCount);
+      padded.setAll(0, finalJsonBytes);
+      for (var p = finalJsonBytes.length; p < padded.length; p++) {
+        padded[p] = 0x20;
+      }
+      finalJsonBytes = padded;
+    }
+
+    final binBytes = bytes.sublist(jsonEnd);
+    final totalLength = 12 + 8 + finalJsonBytes.length + binBytes.length;
+
+    final outputBytes = Uint8List(totalLength);
+    final outputByteData = outputBytes.buffer.asByteData();
+
+    outputBytes.setAll(0, utf8.encode('glTF'));
+    outputByteData.setUint32(4, 2, Endian.little);
+    outputByteData.setUint32(8, totalLength, Endian.little);
+
+    outputByteData.setUint32(12, finalJsonBytes.length, Endian.little);
+    outputBytes.setAll(16, utf8.encode('JSON'));
+    outputBytes.setAll(20, finalJsonBytes);
+
+    outputBytes.setAll(20 + finalJsonBytes.length, binBytes);
+    return outputBytes;
+  } catch (e) {
+    debugPrint("sanitizeGlbBytesForThreeJs error: $e");
+  }
+
+  return bytes;
+}
+
+dynamic _sanitizeGltfNodeStatic(dynamic obj, [String? keyContext]) {
+  const floatFactorKeys = {
+    'offset',
+    'scale',
+    'rotation',
+    'translation',
+    'matrix',
+    'weights',
+    'roughnessFactor',
+    'metallicFactor',
+    'clearcoatFactor',
+    'clearcoatRoughnessFactor',
+    'ior',
+    'transmissionFactor',
+    'thickness',
+    'specularFactor',
+    'alphaCutoff',
+    'roughness',
+    'metalness',
+    'clearcoat',
+    'clearcoatRoughness',
+    'intensity',
+    'range',
+    'innerConeAngle',
+    'outerConeAngle',
+  };
+
+  const floatArrayKeys = {
+    'offset',
+    'scale',
+    'translation',
+    'matrix',
+    'weights',
+    'baseColorFactor',
+    'emissiveFactor',
+    'specularColorFactor',
+    'sheenColorFactor',
+  };
+
+  if (obj is Map) {
+    final result = <String, dynamic>{};
+    obj.forEach((key, value) {
+      result[key as String] = _sanitizeGltfNodeStatic(value, key);
+    });
+    return result;
+  } else if (obj is List) {
+    if (floatArrayKeys.contains(keyContext)) {
+      return obj.map((item) => item is int ? item.toDouble() : _sanitizeGltfNodeStatic(item, keyContext)).toList();
+    }
+    return obj.map((item) => _sanitizeGltfNodeStatic(item, keyContext)).toList();
+  } else if (obj is int) {
+    if (floatFactorKeys.contains(keyContext)) {
+      return obj.toDouble();
+    }
+    return obj;
+  }
+  return obj;
 }
 
 class HueSlider extends StatelessWidget {
