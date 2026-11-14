@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:colonia_front_app/domain/models/boost.dart';
 import 'package:colonia_front_app/domain/models/session/pending_activity_impact.dart';
 import 'package:colonia_front_app/domain/models/boost_inventory.dart';
+import 'package:colonia_front_app/domain/models/notification.dart' as model;
 import 'package:colonia_front_app/domain/models/territory.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,7 @@ class LocalStorageService {
   static const String _avatarItemsKey = 'colonia_avatar_items_data';
   static const String _avatarModelKey = 'colonia_avatar_model_data';
   static const String _mapTerritoriesKey = 'colonia_map_territories_data';
+  static const String _notificationsKey = 'colonia_notifications_data';
 
   static const String _mergedModelFileName = 'user_avatar_puck.glb';
 
@@ -199,6 +201,31 @@ class LocalStorageService {
       );
     } catch (e) {
       debugPrint('LocalStorageService: Error saving map territories: $e');
+    }
+  }
+
+  Future<List<model.Notification>> getNotifications() async {
+    try {
+      final data = await _secureStorage.read(key: _notificationsKey);
+      if (data == null || data.isEmpty) return [];
+      final List<dynamic> decoded = jsonDecode(data);
+      return decoded
+          .map((e) => model.Notification.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('LocalStorageService: Error reading notifications: $e');
+      return [];
+    }
+  }
+
+  Future<void> saveNotifications(List<model.Notification> notifications) async {
+    try {
+      await _secureStorage.write(
+        key: _notificationsKey,
+        value: jsonEncode(notifications.map((n) => n.toJson()).toList()),
+      );
+    } catch (e) {
+      debugPrint('LocalStorageService: Error saving notifications: $e');
     }
   }
 }
