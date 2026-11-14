@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'team.freezed.dart';
@@ -38,6 +39,7 @@ abstract class TeamMemberSummary with _$TeamMemberSummary {
     @JsonKey(name: 'user_name') required String userName,
     @JsonKey(name: 'user_thumbnail') String? userThumbnail,
     @JsonKey(name: 'team_role') required String role,
+    @JsonKey(name: 'avatar') UserAvatar? avatar,
   }) = _TeamMemberSummary;
 
   factory TeamMemberSummary.fromJson(Map<String, dynamic> json) =>

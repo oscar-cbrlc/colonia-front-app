@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:colonia_front_app/config/game_config.dart';
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
+import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
+import 'package:colonia_front_app/ui/user_profile/widgets/three_js_avatar_view.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/team_request.dart';
@@ -40,6 +45,36 @@ class MemberCard extends StatelessWidget {
     final isLeader = member.role == TeamRole.leader.name;
     final themeColor = color != null ? Color(color!) : AppTheme.primaryColor;
 
+    final currentUser = AuthRepository.instance.currentUser;
+    final isCurrentUser = currentUser != null && currentUser.id == member.userId;
+    final avatar = isCurrentUser ? currentUser.avatar : member.avatar;
+
+    final Color memberAvatarColor = avatar?.color != null
+        ? Color(avatar!.color!)
+        : themeColor;
+
+    final avatarItemRepo = Provider.of<AvatarItemRepository>(context, listen: false);
+
+    Future<List<String>> fetchMemberEquippedPaths() async {
+      if (isCurrentUser) {
+        return await avatarItemRepo.getEquippedModelPaths();
+      }
+      if (avatar == null) return const <String>[];
+
+      final storedModels = await avatarItemRepo.getStoredItemModels();
+      final paths = <String>[];
+      final selectedIds = [avatar.head, avatar.neck, avatar.body, avatar.footwear];
+      for (final id in selectedIds) {
+        if (id != null) {
+          final model = storedModels.where((m) => m.id == id).firstOrNull;
+          if (model != null && model.filePath.isNotEmpty) {
+            paths.add(model.filePath);
+          }
+        }
+      }
+      return paths;
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -57,12 +92,34 @@ class MemberCard extends StatelessWidget {
             Stack(
               alignment: Alignment.topRight,
               children: [
-                CircleAvatar(
-                  radius: avatarSize,
-                  backgroundColor: isLeader ? Colors.amber.withAlpha(50) : Colors.white10,
-                  child: member.userThumbnail != null && member.userThumbnail!.isNotEmpty
-                    ? ClipOval(child: Image.network(member.userThumbnail!))
-                    : Text(member.userName[0].toUpperCase(), style: TextStyle(color: Colors.white, fontSize: isLarge ? 32 : 24)),
+                Container(
+                  width: avatarSize * 2,
+                  height: avatarSize * 2,
+                  decoration: ShapeDecoration(
+                    color: isLeader ? Colors.amber.withAlpha(20) : Colors.black26,
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: isLeader ? Colors.amber : themeColor.withAlpha(100),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: FutureBuilder<List<String>>(
+                      future: fetchMemberEquippedPaths(),
+                      builder: (context, snapshot) {
+                        return ThreeJsAvatarView(
+                          baseGlbPath: GameConfig.baseModelPath,
+                          equippedGlbPaths: snapshot.data ?? const <String>[],
+                          avatarColor: memberAvatarColor,
+                          interactive: false,
+                          pixelRatio: 0.5,
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 if (isLeader)
                   const Icon(Icons.star, color: Colors.amber, size: 20),
@@ -71,7 +128,7 @@ class MemberCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               member.userName,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isLarge ? 16 : 12),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isLarge ? 14 : 13),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
