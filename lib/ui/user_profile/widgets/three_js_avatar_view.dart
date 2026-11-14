@@ -13,12 +13,20 @@ class ThreeJsAvatarView extends StatefulWidget {
   final String baseGlbPath;
   final List<String> equippedGlbPaths;
   final Color? avatarColor;
+  final double pixelRatio;
+  final bool interactive;
+  final ValueChanged<bool>? onLoadingStateChanged;
+  final VoidCallback? onModelLoaded;
 
   const ThreeJsAvatarView({
     super.key,
     required this.baseGlbPath,
     required this.equippedGlbPaths,
     this.avatarColor,
+    this.pixelRatio = 0.6,
+    this.interactive = true,
+    this.onLoadingStateChanged,
+    this.onModelLoaded,
   });
 
   @override
@@ -71,13 +79,17 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
 
         _threeJS.renderer?.setClearColor(three.Color(0x000000), 0);
+        _threeJS.renderer?.setPixelRatio(widget.pixelRatio);
       },
       onSetupComplete: () async {
-        _orbitControls = three.OrbitControls(
-          _threeJS.camera,
-          _threeJS.globalKey,
-        );
-        _orbitControls!.enablePan = false;
+        _threeJS.renderer?.setPixelRatio(widget.pixelRatio);
+        if (widget.interactive) {
+          _orbitControls = three.OrbitControls(
+            _threeJS.camera,
+            _threeJS.globalKey,
+          );
+          _orbitControls!.enablePan = false;
+        }
 
         await _reloadAllModels();
 
@@ -172,6 +184,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     if (_orbitControls != null) {
       _orbitControls!.target.setFrom(center);
       _orbitControls!.enablePan = false;
+      _orbitControls!.enabled = !_isLoading && widget.interactive;
       _orbitControls!.minDistance = distance * 0.6;
       _orbitControls!.maxDistance = distance * 1.6;
       _orbitControls!.update();
@@ -201,7 +214,10 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
     if (isUncached && !_isLoading) {
       _isLoading = true;
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+        widget.onLoadingStateChanged?.call(true);
+      }
     }
 
     final loadedObjects = <three.Object3D>[];
@@ -229,8 +245,27 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     }
 
     _isLoading = false;
+    if (_orbitControls != null) {
+      _orbitControls!.enabled = widget.interactive;
+    }
+    
     if (mounted) {
       setState(() {});
+      widget.onLoadingStateChanged?.call(false);
+      widget.onModelLoaded?.call();
+    }
+  }
+
+  void _makeMaterialOpaque(three.Material mat, {bool isBase = false, Color? color}) {
+    mat.transparent = false;
+    mat.opacity = 1.0;
+    mat.depthWrite = true;
+    mat.depthTest = true;
+    mat.alphaTest = 0.05;
+
+    if (isBase && color != null && mat is three.MeshStandardMaterial) {
+      mat.color = three.Color(color.r, color.g, color.b);
+      mat.needsUpdate = true;
     }
   }
 
@@ -257,25 +292,11 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
       clonedObj.traverse((child) {
         if (child is three.Mesh) {
-          if (child.material != null) {
-            final mat = child.material!;
-            mat.transparent = false;
-            mat.depthWrite = true;
-            mat.depthTest = true;
-
-            if (isBase && widget.avatarColor != null) {
-              final clonedMat = mat.clone();
-              clonedMat.transparent = false;
-              clonedMat.depthWrite = true;
-              clonedMat.depthTest = true;
-
-              if (clonedMat is three.MeshStandardMaterial) {
-                final c = widget.avatarColor!;
-                clonedMat.color = three.Color(c.r, c.g, c.b);
-                clonedMat.needsUpdate = true;
-              }
-              child.material = clonedMat;
-            }
+          final mat = child.material;
+          if (mat != null) {
+            final clonedMat = mat.clone();
+            _makeMaterialOpaque(clonedMat, isBase: isBase, color: widget.avatarColor);
+            child.material = clonedMat;
           }
         }
       });
