@@ -1,5 +1,6 @@
 import 'package:colonia_front_app/data/models/firebase_auth_result.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
+import 'package:colonia_front_app/utils/icon_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -7,6 +8,8 @@ import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+
 
 class WelcomeScreen extends StatefulWidget {
   final WelcomeViewModel viewModel;
@@ -166,19 +169,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     children: [
                                       Opacity(
                                         opacity: _isTermsAccepted ? 1.0 : 0.5,
-                                        child: SvgPicture.asset(
-                                          'assets/icons/google.svg',
-                                          width: 22,
-                                          height: 22,
-                                        ),
+                                        child: buildIconWidget(iconoir.Google(color: Colors.black87, height: 32, width: 32,), size: 48.0, color: Colors.black87)
                                       ),
-                                      const SizedBox(width: 12),
+                                      const SizedBox(width: 6),
                                       Text(
                                         locale.continueWithGoogle.toUpperCase(),
                                         style: TextStyle(
-                                          fontSize: 14.0,
+                                          fontSize: 16.0,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
+                                          //fontFamily: 'Oswald',
                                           color: _isTermsAccepted
                                               ? AppTheme.darkBackground
                                               : AppTheme.darkBackground.withAlpha(120),
@@ -236,36 +235,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               ),
                               const SizedBox(width: 4.0),
                               Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _isTermsAccepted = !_isTermsAccepted;
-                                    });
-                                  },
-                                  child: RichText(
-                                    textAlign: TextAlign.left,
-                                    text: TextSpan(
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 13.0,
-                                        height: 1.4,
-                                      ),
-                                      children: [
-                                        TextSpan(text: locale.selectingThisBoxConfirms),
-                                        TextSpan(
-                                          text: locale.privacyNotice,
-                                          style: const TextStyle(
-                                            decoration: TextDecoration.underline,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.secondaryColor,
-                                          ),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              // TODO: Navigate to Privacy Policy
-                                            },
-                                        ),
-                                      ],
+                                child: RichText(
+                                  textAlign: TextAlign.left,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13.0,
+                                      height: 1.4,
                                     ),
+                                    children: [
+                                      TextSpan(text: locale.selectingThisBoxConfirms),
+                                      TextSpan(
+                                        text: locale.privacyNotice,
+                                        style: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.secondaryColor,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            // TODO: Navigate to Privacy Policy
+                                          },
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
