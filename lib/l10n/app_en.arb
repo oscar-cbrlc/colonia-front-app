@@ -3,6 +3,8 @@
 
     "coloniaTitle": "Colonia",
     "@coloniaTitle": {},
+
+    "startYourExcursion": "Start your excursion",
   
     "loginOrSignUp": "Login or sign up",
     "@loginOrSignUp": {},
@@ -10,12 +12,24 @@
     "continueWithEmail": "Continue with Email",
     "@continueWithEmail": {},
 
+    "continueWithGoogle": "Continue with Google",
+    "@continueWithGoogle": {},
+
+    "continueWithApple": "Continue with Apple",
+    "@continueWithApple": {},
+
     "selectYourAuthPref": "Select your preferred method to continue setting up your account",
     "@selectYourAuthPref": {},
 
     "ifCreatingNewAccount": "If you are creating a new account, ",
     "@ifCreatingNewAccount": {},
-    
+
+    "selectingThisBoxConfirms": "Selecting this box confirms you have read and consent to the ",
+    "@selectingThisBoxConfirms": {},
+
+    "privacyNotice" : "Privacy Notice",
+    "@privacyNotice": {},
+
     "termsAndConditions": "Terms & Conditions",
     "@termsAndConditions": {},
 

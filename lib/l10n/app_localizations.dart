@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Colonia'**
   String get coloniaTitle;
 
+  /// No description provided for @startYourExcursion.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza tu excursión'**
+  String get startYourExcursion;
+
   /// No description provided for @loginOrSignUp.
   ///
   /// In es, this message translates to:
@@ -116,6 +122,18 @@ abstract class AppLocalizations {
   /// **'Continuar con Email'**
   String get continueWithEmail;
 
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar con Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithApple.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar con Apple'**
+  String get continueWithApple;
+
   /// No description provided for @selectYourAuthPref.
   ///
   /// In es, this message translates to:
@@ -127,6 +145,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Si estás creando una nueva cuenta, '**
   String get ifCreatingNewAccount;
+
+  /// No description provided for @selectingThisBoxConfirms.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar esta caja confirma que haz leído y consentido el '**
+  String get selectingThisBoxConfirms;
+
+  /// No description provided for @privacyNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Aviso de Privacidad'**
+  String get privacyNotice;
 
   /// No description provided for @termsAndConditions.
   ///

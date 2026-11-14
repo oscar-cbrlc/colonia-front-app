@@ -12,10 +12,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coloniaTitle => 'Colonia';
 
   @override
+  String get startYourExcursion => 'Start your excursion';
+
+  @override
   String get loginOrSignUp => 'Login or sign up';
 
   @override
   String get continueWithEmail => 'Continue with Email';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
 
   @override
   String get selectYourAuthPref =>
@@ -23,6 +32,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ifCreatingNewAccount => 'If you are creating a new account, ';
+
+  @override
+  String get selectingThisBoxConfirms =>
+      'Selecting this box confirms you have read and consent to the ';
+
+  @override
+  String get privacyNotice => 'Privacy Notice';
 
   @override
   String get termsAndConditions => 'Terms & Conditions';

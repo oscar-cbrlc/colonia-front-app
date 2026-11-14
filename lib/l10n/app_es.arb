@@ -4,18 +4,32 @@
     "coloniaTitle": "Colonia",
     "@coloniaTitle": {},
 
+    "startYourExcursion": "Empieza tu excursión",
+
     "loginOrSignUp": "Iniciar sesión o registrarse",
     "@loginOrSignUp": {},
 
     "continueWithEmail": "Continuar con Email",
     "@continueWithEmail": {},
 
+    "continueWithGoogle": "Continuar con Google",
+    "@continueWithGoogle": {},
+
+    "continueWithApple": "Continuar con Apple",
+    "@continueWithApple": {},
+
     "selectYourAuthPref": "Selecciona tu método de preferencia para iniciar tu cuenta",
     "@selectYourAuthPref": {},
 
     "ifCreatingNewAccount": "Si estás creando una nueva cuenta, ",
     "@ifCreatingNewAccount": {},
-    
+
+    "selectingThisBoxConfirms": "Seleccionar esta caja confirma que haz leído y consentido el ",
+    "@selectingThisBoxConfirms": {},
+
+    "privacyNotice" : "Aviso de Privacidad",
+    "@privacyNotice": {},
+
     "termsAndConditions": "Términos y Condiciones",
     "@termsAndConditions": {},
 
