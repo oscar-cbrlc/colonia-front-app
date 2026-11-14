@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import '../../../domain/models/team.dart';
 import '../../../l10n/app_localizations.dart';
 import 'team_shared_widgets.dart';
@@ -54,7 +55,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppTheme.darkBackground,
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        body: LoadingWidget(),
       );
     }
 

@@ -13,6 +13,7 @@ import 'package:colonia_front_app/domain/models/activity_result.dart';
 import 'package:colonia_front_app/domain/models/enums/activity_type.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_summary_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dart';
 import 'package:colonia_front_app/ui/activity/widgets/activity_screen.dart';
@@ -330,9 +331,7 @@ class AppRouter {
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
+        body: const LoadingWidget(),
       );
     }
 

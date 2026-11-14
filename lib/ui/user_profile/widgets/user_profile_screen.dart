@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/shop_offers_sheet.dart';
@@ -337,13 +338,9 @@ class UserProfileScreen extends StatelessWidget {
                             }
                           },
                     child: isSaving
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: AppTheme.fontPrimaryColor,
-                            ),
+                        ? const AppLoadingIndicator(
+                            size: 20.0,
+                            color: AppTheme.fontPrimaryColor,
                           )
                         : Text(locale.saveChanges.toUpperCase(), style: TextStyle(color: AppTheme.fontPrimaryColor, fontWeight: FontWeight.bold)),
                   ),
@@ -706,13 +703,9 @@ class _EditAvatarBottomSheetState extends State<_EditAvatarBottomSheet> {
                             }
                           : null,
                       child: _isSaving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppTheme.darkBackground,
-                              ),
+                          ? const AppLoadingIndicator(
+                              size: 20.0,
+                              color: AppTheme.darkBackground,
                             )
                           : Text(
                               locale.saveChanges.toUpperCase(),

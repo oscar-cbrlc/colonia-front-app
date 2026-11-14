@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/team_request.dart';
@@ -619,10 +620,9 @@ class _RequestListSheetState extends State<RequestListSheet> {
                               onPressed: () => widget.onCancel(req),
                             ),
                         ] else
-                          const SizedBox(
-                            width: 32,
-                            height: 32,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryColor),
+                          const AppLoadingIndicator(
+                            size: 24.0,
+                            color: AppTheme.primaryColor,
                           ),
                       ],
                     ),

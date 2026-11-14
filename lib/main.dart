@@ -11,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/api/auth_service.dart';
@@ -352,9 +353,7 @@ class _ColoniaAppState extends State<ColoniaApp> {
     if (_isInitializing) {
       return Container(
         color: AppTheme.darkBackground,
-        child: const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
+        child: const LoadingWidget(),
       );
     }
 

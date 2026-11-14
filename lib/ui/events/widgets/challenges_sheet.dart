@@ -7,6 +7,7 @@ import 'package:colonia_front_app/domain/models/boost_inventory.dart';
 import 'package:colonia_front_app/domain/models/started_challenge.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:colonia_front_app/utils/time_converter.dart';
 
@@ -100,7 +101,7 @@ class _ActiveChallengesSheetState extends State<ActiveChallengesSheet> {
               const SizedBox(height: 20),
               Expanded(
                 child: isLoading && activeChallenges.isEmpty
-                    ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                    ? const LoadingWidget()
                     : activeChallenges.isEmpty
                         ? const Center(
                             child: Text(

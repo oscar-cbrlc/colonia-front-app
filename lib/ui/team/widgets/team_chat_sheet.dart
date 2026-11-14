@@ -5,6 +5,7 @@ import 'package:colonia_front_app/domain/models/enums/team_role.dart';
 import 'package:colonia_front_app/domain/models/team_chat_message.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
 
 void showTeamChatSheet(BuildContext context, TeamViewModel viewModel) {
@@ -213,7 +214,7 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
               ),
               Expanded(
                 child: teamVm.isChatLoading && teamVm.chatMessages.isEmpty
-                    ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                    ? const LoadingWidget()
                     : teamVm.chatMessages.isEmpty
                         ? Center(child: Text(locale.noMessagesYet, style: const TextStyle(color: Colors.white38)))
                         : NotificationListener<ScrollNotification>(

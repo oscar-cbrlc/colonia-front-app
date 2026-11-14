@@ -9,6 +9,7 @@ import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/shop_offer.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/utils/icon_helper.dart';
@@ -222,9 +223,7 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
             const SizedBox(height: 12),
             Expanded(
               child: shopRepository.isLoading && offers.isEmpty
-                  ? const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primaryColor),
-                    )
+                  ? const LoadingWidget()
                   : RefreshIndicator(
                       onRefresh: () async {
                         await context.read<ShopRepository>().fetchOffers();

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/enums/team_role.dart';
@@ -21,7 +22,7 @@ class TeamScreen extends StatelessWidget {
       listenable: viewModel,
       builder: (context, _) {
         if (viewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+          return const LoadingWidget();
         }
 
         if (viewModel.currentTeam == null) {
@@ -1193,7 +1194,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
           const SizedBox(height: 20),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor))
+                ? const LoadingWidget()
                 : displayTeams.isEmpty
                     ? Center(child: Text(locale.noColoniesFound, style: const TextStyle(color: Colors.white54)))
                     : ListView.builder(

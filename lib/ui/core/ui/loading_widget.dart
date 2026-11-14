@@ -11,7 +11,7 @@ class LoadingWidget extends StatelessWidget {
       color: Colors.transparent,
       child: Center(
         child: const SizedBox(
-          width: 48,
+            width: 48,
             height: 48,
             child: AppLoadingIndicator(
               color: AppTheme.primaryColor,

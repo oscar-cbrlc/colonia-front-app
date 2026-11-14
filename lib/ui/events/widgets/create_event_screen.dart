@@ -9,6 +9,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/ui/events/view_models/create_event_viewmodel.dart';
 import 'package:colonia_front_app/ui/events/widgets/date_time_range_picker_sheet.dart';
 import 'package:colonia_front_app/utils/h3_helper.dart';
@@ -319,13 +320,9 @@ class _ExpandableEventSummaryState extends State<_ExpandableEventSummary> {
                       }
                     : null,
                 icon: vm.isSaving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppTheme.darkBackground,
-                        ),
+                    ? const AppLoadingIndicator(
+                        size: 18.0,
+                        color: AppTheme.darkBackground,
                       )
                     : const Icon(Icons.post_add_sharp, size: 20),
                 label: Text(

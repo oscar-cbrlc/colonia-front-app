@@ -1,6 +1,7 @@
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/login_password_viewmodel.dart';
 
@@ -113,14 +114,10 @@ class _LoginPasswordScreen extends State<LoginPasswordScreen> {
                           ? null
                           : () => _handleLogin(viewModel),
                       child: viewModel.isLoading
-                          ? const SizedBox(
-                        width: 24.0,
-                        height: 24.0,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
+                          ? const AppLoadingIndicator(
+                              size: 24.0,
+                              color: Colors.white,
+                            )
                           : Text(
                         locale.loginTitle,
                         style: const TextStyle(

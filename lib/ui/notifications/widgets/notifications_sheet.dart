@@ -5,6 +5,7 @@ import 'package:colonia_front_app/data/repositories/notification_repository.dart
 import 'package:colonia_front_app/domain/models/notification.dart' as domain;
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 
 void showNotificationsSheet(BuildContext context) {
   showModalBottomSheet(
@@ -200,9 +201,7 @@ class _NotificationListState extends State<_NotificationList> {
   @override
   Widget build(BuildContext context) {
     if (widget.isLoading && widget.notifications.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppTheme.primaryColor),
-      );
+      return const LoadingWidget();
     }
 
     if (widget.notifications.isEmpty) {

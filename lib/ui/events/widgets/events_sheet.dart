@@ -6,6 +6,7 @@ import 'package:colonia_front_app/data/repositories/challenge_repository.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/events/widgets/challenges_sheet.dart';
 
 enum EventState {
@@ -149,11 +150,7 @@ class _EventsSheetState extends State<EventsSheet> {
             const SizedBox(height: 24),
             Expanded(
               child: isLoading && events.isEmpty
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.tertiaryColor,
-                      ),
-                    )
+                  ? const LoadingWidget()
                   : events.isEmpty
                       ? Center(
                           child: Column(
