@@ -132,10 +132,13 @@ void main() async {
           update: (_, apiClient, previous) => previous ?? NotificationApiService(apiClient),
         ),
 
-        ChangeNotifierProxyProvider<NotificationApiService, NotificationRepository>(
-          create: (context) => NotificationRepository(context.read<NotificationApiService>()),
-          update: (_, notificationApiService, previous) =>
-              previous ?? NotificationRepository(notificationApiService),
+        ChangeNotifierProxyProvider2<LocalStorageService, NotificationApiService, NotificationRepository>(
+          create: (context) => NotificationRepository(
+            context.read<NotificationApiService>(),
+            context.read<LocalStorageService>(),
+          ),
+          update: (_, localStorageService, notificationApiService, previous) =>
+              previous ?? NotificationRepository(notificationApiService, localStorageService),
         ),
 
         ChangeNotifierProxyProvider2<LocalStorageService, BoostService, BoostRepository>(
