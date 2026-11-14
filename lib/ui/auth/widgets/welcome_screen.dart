@@ -1,6 +1,5 @@
 import 'package:colonia_front_app/data/models/firebase_auth_result.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
-import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
@@ -8,7 +7,6 @@ import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 
 class WelcomeScreen extends StatefulWidget {
   final WelcomeViewModel viewModel;
@@ -23,6 +21,8 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  bool _isTermsAccepted = false;
+
   @override
   void initState() {
     super.initState();
@@ -57,18 +57,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _handleSocialAuthNavigation(FirebaseAuthResult result) {
-    if (result.isNewUser) {
-      Navigator.of(context).pushNamed(
-        AppRouter.createUsername,
-        arguments: {
-          'email': result.email,
-          'password': '',
-          'isSocialAuth': true,
-        },
-      );
-    } else {
-
-      // TODO: LOGIN
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed(AppRouter.map);
     }
   }
 
@@ -80,158 +70,216 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // top: logo
-            Expanded(
-              flex: 4,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2523),
-                        borderRadius: BorderRadius.circular(24.0),
-                        border: Border.all(
-                          color: const Color(0xFF3B3331),
-                          width: 1.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 240,
+                        height: 240,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            'assets/icons/app_icon.svg',
+                            width: 320,
+                            height: 320,
+                          ),
                         ),
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          color: Color(0xFF8B807D),
-                          size: 72.0,
+                      const SizedBox(height: 20.0),
+                      Text(
+                        locale.coloniaTitle.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 42.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          letterSpacing: 2.5,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ),
 
-            // bottom section
-            Expanded(
-              flex: 5,
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppTheme.lightBackground,
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(
+                  color: Colors.white12,
+                  height: 1,
+                  thickness: 1,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              ),
+
+              Expanded(
+                flex: 5,
                 child: ListenableBuilder(
                   listenable: viewModel,
                   builder: (context, _) {
                     return Column(
                       children: [
-                        const SizedBox(height: 8.0),
+                        const SizedBox(height: 16.0),
                         Text(
-                          locale.loginOrSignUp,
-                          style: TextTheme.of(context).titleMedium,
+                          locale.startYourExcursion.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Oswald',
+                            letterSpacing: 1.1,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 12.0),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            locale.selectYourAuthPref,
-                            style: TextTheme.of(context).bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const Spacer(),
+                        const SizedBox(height: 32.0),
 
-                        // Email Button
                         SizedBox(
                           width: double.infinity,
-                          height: 56.0,
+                          height: 54.0,
                           child: ElevatedButton(
-                            onPressed: viewModel.isLoading 
-                              ? null 
-                              : () => navigateToEmailScreen(context),
-                            child: Text(locale.continueWithEmail),
-                          )
-                        ),
-                        const SizedBox(height: 12.0),
-
-                        // google and apple buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: viewModel.isLoading 
-                                  ? null 
-                                  : () => viewModel.loginWithGoogle(),
-                                child: viewModel.isLoading 
-                                  ? const AppLoadingIndicator(size: 24.0)
-                                  : SvgPicture.asset('assets/icons/google.svg', width: 24, height: 24),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryColor,
+                              foregroundColor: AppTheme.darkBackground,
+                              disabledBackgroundColor: AppTheme.primaryColor.withAlpha(80),
+                              disabledForegroundColor: AppTheme.darkBackground.withAlpha(100),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              shape: const BeveledRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: viewModel.isLoading 
-                                  ? null 
-                                  : () => viewModel.loginWithApple(),
-                                child: viewModel.isLoading 
-                                  ? const AppLoadingIndicator(size: 24.0)
-                                  : SvgPicture.asset('assets/icons/apple.svg', width: 24, height: 24),
-                              ),
-                            ),
-                          ],
+                            onPressed: (viewModel.isLoading || !_isTermsAccepted)
+                                ? null
+                                : () => viewModel.loginWithGoogle(),
+                            child: viewModel.isLoading
+                                ? const AppLoadingIndicator(
+                                    size: 24.0,
+                                    color: AppTheme.darkBackground,
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Opacity(
+                                        opacity: _isTermsAccepted ? 1.0 : 0.5,
+                                        child: SvgPicture.asset(
+                                          'assets/icons/google.svg',
+                                          width: 22,
+                                          height: 22,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        locale.continueWithGoogle.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Oswald',
+                                          color: _isTermsAccepted
+                                              ? AppTheme.darkBackground
+                                              : AppTheme.darkBackground.withAlpha(120),
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
                         ),
-                        const Spacer(),
 
-                        // bottom bottom
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              style: TextTheme.of(context).bodySmall,
-                              children: [
-                                TextSpan(text: locale.ifCreatingNewAccount),
-                                TextSpan(
-                                  text: locale.termsAndConditions,
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.fontUnderlineColor
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      // TODO: Navigate to Terms
-                                    },
-                                ),
-                                TextSpan(text: ' ${locale.and} '),
-                                TextSpan(
-                                  text: locale.privacyPolicy,
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.fontUnderlineColor
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      // TODO: Navigate to Privacy Policy
-                                    },
-                                ),
-                                TextSpan(text: ' ${locale.willApply}'),
-                              ],
+                        Visibility(
+                          visible: false,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 54.0,
+                              child: OutlinedButton(
+                                onPressed: (viewModel.isLoading || !_isTermsAccepted)
+                                    ? null
+                                    : () => viewModel.loginWithApple(),
+                                child: viewModel.isLoading
+                                    ? const AppLoadingIndicator(size: 24.0)
+                                    : SvgPicture.asset('assets/icons/apple.svg', width: 24, height: 24),
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16.0),
+                        const SizedBox(height: 20.0),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: Colors.white54,
+                                ),
+                                child: Checkbox(
+                                  value: _isTermsAccepted,
+                                  activeColor: AppTheme.primaryColor,
+                                  checkColor: AppTheme.darkBackground,
+                                  side: const BorderSide(color: Colors.white54, width: 1),
+                                  shape: const BeveledRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                                  ),
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _isTermsAccepted = value ?? false;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 4.0),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _isTermsAccepted = !_isTermsAccepted;
+                                    });
+                                  },
+                                  child: RichText(
+                                    textAlign: TextAlign.left,
+                                    text: TextSpan(
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 13.0,
+                                        height: 1.4,
+                                      ),
+                                      children: [
+                                        TextSpan(text: locale.selectingThisBoxConfirms),
+                                        TextSpan(
+                                          text: locale.privacyNotice,
+                                          style: const TextStyle(
+                                            decoration: TextDecoration.underline,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.secondaryColor,
+                                          ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              // TODO: Navigate to Privacy Policy
+                                            },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
                       ],
                     );
-                  }
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

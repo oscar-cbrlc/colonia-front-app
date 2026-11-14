@@ -23,6 +23,9 @@ class ApiClient {
 
     final bool isPublicEndpoint = endpoint.contains('/session/login') ||
                                  endpoint.contains('/session/refresh') ||
+                                 endpoint.contains('/auth/firebase') ||
+                                 endpoint.contains('/session/firebase') ||
+                                 (extraHeaders != null && extraHeaders.containsKey('Authorization')) ||
                                  (endpoint == '/users/' && extraHeaders?.containsKey('X-Action-Register') == true);
 
     if (_authRepository != null && !isPublicEndpoint) {

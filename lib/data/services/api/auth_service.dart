@@ -71,15 +71,43 @@ class AuthService {
     );
   }
 
-  Future<http.Response> firebaseAuth({
+  Future<http.Response> sessionLoginFirebase({
     required String idToken,
   }) async {
     return await _apiClient.post(
-      '/auth/firebase',
+      '/session/login',
       headers: {
         'Authorization': 'Bearer $idToken',
       },
     );
+  }
+
+  Future<http.Response> registerFirebase({
+    required String idToken,
+  }) async {
+    return await _apiClient.post(
+      '/users/',
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+  }
+
+  Future<http.Response> firebaseAuth({
+    required String idToken,
+  }) async {
+    final headers = {'Authorization': 'Bearer $idToken'};
+    var response = await _apiClient.post('/session/login', headers: headers);
+    if (response.statusCode == 404) {
+      response = await _apiClient.post('/users/', headers: headers);
+    }
+    if (response.statusCode == 404) {
+      response = await _apiClient.post('/auth/firebase', headers: headers);
+    }
+    if (response.statusCode == 404) {
+      response = await _apiClient.post('/session/firebase', headers: headers);
+    }
+    return response;
   }
 
   Future<http.Response> refresh(String refreshToken) async {

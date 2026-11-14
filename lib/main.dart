@@ -2,6 +2,8 @@ import 'package:colonia_front_app/data/repositories/sensor_repository.dart';
 import 'package:colonia_front_app/data/services/har_model_service.dart';
 import 'package:colonia_front_app/data/services/sensor_service.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:colonia_front_app/firebase_options.dart';
 import 'package:colonia_front_app/env/env.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:flutter/foundation.dart';
@@ -52,6 +54,9 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   MapboxOptions.setAccessToken(Env.mapboxAccessToken);
   await NotificationService().init();
   await FlutterDownloader.initialize(
