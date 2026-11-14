@@ -4,6 +4,15 @@
     "coloniaTitle": "Colonia",
     "@coloniaTitle": {},
 
+    "downloadModelsTitle": "Descargar Modelos 3D",
+    "downloadModelsMessage": "Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
+    "downloadingModelsTitle": "Descargando Modelos...",
+    "downloadModelsProgress": "Descargando modelos de avatar ({progress}%)",
+    "download": "Descargar",
+    "downloadModels": "Descargar Modelos de Avatar",
+
+    "settings": "Ajustes",
+
     "startYourExcursion": "Empieza tu excursión",
 
     "loginOrSignUp": "Iniciar sesión o registrarse",
@@ -24,7 +33,7 @@
     "ifCreatingNewAccount": "Si estás creando una nueva cuenta, ",
     "@ifCreatingNewAccount": {},
 
-    "selectingThisBoxConfirms": "Seleccionar esta caja confirma que haz leído y consentido el ",
+    "selectingThisBoxConfirms": "Seleccionar esta caja confirma que aceptas el ",
     "@selectingThisBoxConfirms": {},
 
     "privacyNotice" : "Aviso de Privacidad",

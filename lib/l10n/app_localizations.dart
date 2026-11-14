@@ -104,6 +104,48 @@ abstract class AppLocalizations {
   /// **'Colonia'**
   String get coloniaTitle;
 
+  /// No description provided for @downloadModelsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar Modelos 3D'**
+  String get downloadModelsTitle;
+
+  /// No description provided for @downloadModelsMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
+  String get downloadModelsMessage;
+
+  /// No description provided for @downloadingModelsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargando Modelos...'**
+  String get downloadingModelsTitle;
+
+  /// No description provided for @downloadModelsProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargando modelos de avatar ({progress}%)'**
+  String downloadModelsProgress(Object progress);
+
+  /// No description provided for @download.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar'**
+  String get download;
+
+  /// No description provided for @downloadModels.
+  ///
+  /// In es, this message translates to:
+  /// **'Descargar Modelos de Avatar'**
+  String get downloadModels;
+
+  /// No description provided for @settings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get settings;
+
   /// No description provided for @startYourExcursion.
   ///
   /// In es, this message translates to:

@@ -12,6 +12,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coloniaTitle => 'Colonia';
 
   @override
+  String get downloadModelsTitle => 'Download 3D Models';
+
+  @override
+  String get downloadModelsMessage =>
+      'To view and customize 3D avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?';
+
+  @override
+  String get downloadingModelsTitle => 'Downloading Models...';
+
+  @override
+  String downloadModelsProgress(Object progress) {
+    return 'Downloading avatar models ($progress%)';
+  }
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get downloadModels => 'Download Avatar Models';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
   String get startYourExcursion => 'Start your excursion';
 
   @override

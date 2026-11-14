@@ -12,6 +12,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coloniaTitle => 'Colonia';
 
   @override
+  String get downloadModelsTitle => 'Descargar Modelos 3D';
+
+  @override
+  String get downloadModelsMessage =>
+      'Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
+
+  @override
+  String get downloadingModelsTitle => 'Descargando Modelos...';
+
+  @override
+  String downloadModelsProgress(Object progress) {
+    return 'Descargando modelos de avatar ($progress%)';
+  }
+
+  @override
+  String get download => 'Descargar';
+
+  @override
+  String get downloadModels => 'Descargar Modelos de Avatar';
+
+  @override
+  String get settings => 'Ajustes';
+
+  @override
   String get startYourExcursion => 'Empieza tu excursión';
 
   @override
