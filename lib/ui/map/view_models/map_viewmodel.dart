@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
@@ -37,6 +38,9 @@ class MapViewModel extends ChangeNotifier {
   bool _hasInitialCenter = false;
   bool _lastActivityState = false;
   bool _showPoints = true;
+  bool _isOffline = false;
+  bool _isReconnecting = false;
+  bool _isMapReady = false;
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
@@ -46,6 +50,9 @@ class MapViewModel extends ChangeNotifier {
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
   bool get showPoints => _showPoints;
+  bool get isOffline => _isOffline;
+  bool get isReconnecting => _isReconnecting;
+  bool get isMapReady => _isMapReady;
 
   void toggleShowPoints() {
     _showPoints = !_showPoints;
@@ -93,6 +100,7 @@ class MapViewModel extends ChangeNotifier {
     };
     
     checkPendingActivities();
+    checkConnectionAndReload();
   }
 
   bool _didSync = false;
@@ -115,7 +123,37 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> checkConnectionAndReload() async {
+    _isReconnecting = true;
+    notifyListeners();
+
+    try {
+      final result = await InternetAddress.lookup('google.com').timeout(const Duration(seconds: 4));
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        _isOffline = false;
+        _isReconnecting = false;
+        notifyListeners();
+        await reloadMapData();
+        return true;
+      }
+    } catch (_) {
+      _isOffline = true;
+    } finally {
+      _isReconnecting = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
   Future<void> reloadMapData() async {
+    try {
+      final result = await InternetAddress.lookup('google.com').timeout(const Duration(seconds: 3));
+      _isOffline = !(result.isNotEmpty && result[0].rawAddress.isNotEmpty);
+    } catch (_) {
+      _isOffline = true;
+    }
+    notifyListeners();
+
     await checkPendingActivities();
     await _territoryRepository.fetchAllTerritories();
     await fetchActiveChallenges();
@@ -152,6 +190,13 @@ class MapViewModel extends ChangeNotifier {
     _checkInitialPermission();
     _setMapDaylight();
     
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (!_isMapReady) {
+        _isMapReady = true;
+        notifyListeners();
+      }
+    });
+
     if (userPosition != null) {
       _hasInitialCenter = true;
       centerOnUser();
@@ -165,16 +210,23 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<void> onStyleLoaded() async {
-    await _initializeH3Layer();
-    if (_isLocationPermissionGranted) {
-      await _enableLocationComponent();
+    try {
+      await _initializeH3Layer();
+      if (_isLocationPermissionGranted) {
+        await _enableLocationComponent();
+      }
+      if (userPosition != null) {
+        _hasInitialCenter = true;
+        centerOnUser();
+      }
+      unawaited(_territoryRepository.fetchAllTerritories());
+      await _updateH3Grid();
+    } catch (e) {
+      debugPrint("MapViewModel: Error in onStyleLoaded: $e");
+    } finally {
+      _isMapReady = true;
+      notifyListeners();
     }
-    if (userPosition != null) {
-      _hasInitialCenter = true;
-      centerOnUser();
-    }
-    unawaited(_territoryRepository.fetchAllTerritories());
-    await _updateH3Grid();
   }
 
   Future<void> _checkInitialPermission() async {
@@ -322,37 +374,58 @@ class MapViewModel extends ChangeNotifier {
       fillColorExpression: <Object>['get', 'fill_color'],
     ));
 
-    await style.addLayer(SymbolLayer(
-      id: "h3-health-label-layer",
-      sourceId: "h3-grid-source",
-      textSize: 14.0,
-      textFieldExpression: <Object>['get', 'health_label'],
-      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
-      textColor: Colors.white.toARGB32(),
-      textHaloColor: Colors.black.toARGB32(),
-      textLetterSpacing: 0.1,
-      textHaloWidth: 1.0,
-      textOffset: [0, 0],
-      textAllowOverlap: true,
-      textIgnorePlacement: true,
-    ));
+    try {
+      await style.addLayer(SymbolLayer(
+        id: "h3-health-label-layer",
+        sourceId: "h3-grid-source",
+        textSize: 14.0,
+        textFieldExpression: <Object>['get', 'health_label'],
+        textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
+        textColor: Colors.white.toARGB32(),
+        textHaloColor: Colors.black.toARGB32(),
+        textLetterSpacing: 0.1,
+        textHaloWidth: 1.0,
+        textOffset: [0, 0],
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
+      ));
+    } catch (e) {
+      debugPrint("MapViewModel: SymbolLayer error (health label): $e");
+    }
+
+    await _updateH3Grid();
   }
 
   Future<void> _updateH3Grid() async {
     final style = _mapboxMap?.style;
     final map = _mapboxMap;
     if (map == null || style == null) return;
+    if (!await style.styleSourceExists("h3-grid-source")) return;
 
     final camera = await map.getCameraState();
 
     List<String> currentIndexes = [];
     if (camera.zoom >= minZoomToRender) {
+      final centerLat = camera.center.coordinates.lat.toDouble();
+      final centerLon = camera.center.coordinates.lng.toDouble();
+      final radius = math.max(1500.0, maxRenderRadius / camera.zoom);
+
       currentIndexes = H3Helper.getHexagonsInRadius(
-        centerLat: camera.center.coordinates.lat.toDouble(),
-        centerLon: camera.center.coordinates.lng.toDouble(),
-        radiusMeters: maxRenderRadius / camera.zoom,
+        centerLat: centerLat,
+        centerLon: centerLon,
+        radiusMeters: radius,
         resolution: GameConfig.h3Resolution,
       );
+
+      final currentHex = H3Helper.getHexagonAt(
+        lat: centerLat,
+        lon: centerLon,
+        resolution: GameConfig.h3Resolution,
+      );
+      if (currentHex.isNotEmpty) {
+        currentIndexes.add(currentHex);
+        currentIndexes.addAll(H3Helper.getNeighbors(currentHex, ring: 3));
+      }
     }
 
     final Set<String> allHexIndexes = {

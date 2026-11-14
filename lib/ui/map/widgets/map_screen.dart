@@ -3,6 +3,7 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -320,6 +321,38 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           ) : null),
         ),
 
+        if (!widget.viewModel.isMapReady)
+          const Positioned.fill(
+            child: LoadingWidget(),
+          ),
+
+        if (widget.viewModel.isOffline)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 82.0),
+                child: _MapOfflineWidget(
+                  isReconnecting: widget.viewModel.isReconnecting,
+                  onTap: () async {
+                    HapticFeedback.lightImpact();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final success = await widget.viewModel.checkConnectionAndReload();
+                    if (!success && mounted) {
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(locale.stillOffline),
+                          backgroundColor: AppTheme.errorColor,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+
         Align(
           alignment: Alignment.topLeft,
           child: SafeArea(
@@ -340,28 +373,56 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                     height: 54,
                   ),
                   const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.event_sharp,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.tertiaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      showEventsSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
+                  Opacity(
+                    opacity: widget.viewModel.isOffline ? 0.4 : 1.0,
+                    child: IndividualMapButton(
+                      icon: Icons.event_sharp,
+                      iconColor: widget.viewModel.isOffline ? Colors.white38 : Colors.white,
+                      borderColor: widget.viewModel.isOffline ? Colors.grey : AppTheme.tertiaryColor,
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        if (widget.viewModel.isOffline) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(locale.eventsUnavailableOffline),
+                              backgroundColor: Colors.orangeAccent,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                          widget.viewModel.checkConnectionAndReload();
+                          return;
+                        }
+                        showEventsSheet(context);
+                      },
+                      width: 54,
+                      height: 54,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  IndividualMapButton(
-                    icon: Icons.fact_check_outlined,
-                    iconColor: Colors.white,
-                    borderColor: AppTheme.primaryColor,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      _showActiveChallengesSheet(context);
-                    },
-                    width: 54,
-                    height: 54,
+                  Opacity(
+                    opacity: widget.viewModel.isOffline ? 0.4 : 1.0,
+                    child: IndividualMapButton(
+                      icon: Icons.fact_check_outlined,
+                      iconColor: widget.viewModel.isOffline ? Colors.white38 : Colors.white,
+                      borderColor: widget.viewModel.isOffline ? Colors.grey : AppTheme.primaryColor,
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        if (widget.viewModel.isOffline) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(locale.challengesUnavailableOffline),
+                              backgroundColor: Colors.orangeAccent,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                          widget.viewModel.checkConnectionAndReload();
+                          return;
+                        }
+                        _showActiveChallengesSheet(context);
+                      },
+                      width: 54,
+                      height: 54,
+                    ),
                   ),
                   Container(
                     width: 32,
@@ -449,6 +510,98 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
   void _showActiveChallengesSheet(BuildContext context) {
     showChallengesSheet(context, widget.viewModel);
+  }
+}
+
+class _MapOfflineWidget extends StatelessWidget {
+  final VoidCallback onTap;
+  final bool isReconnecting;
+
+  const _MapOfflineWidget({
+    required this.onTap,
+    this.isReconnecting = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    final color = AppTheme.errorColor.withAlpha(200);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground.withAlpha(215),
+          shape: BeveledRectangleBorder(
+            side: BorderSide(color: color, width: 1.2),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isReconnecting)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.errorColor,
+                ),
+              )
+            else
+              Icon(Icons.wifi_off_sharp, color: color, size: 20),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  locale.offline.toUpperCase(),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                    fontFamily: 'Oswald',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: ShapeDecoration(
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                color: color,
+              ),
+              child: Text(
+                locale.reconnect.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Oswald',
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: Colors.redAccent,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -41,6 +41,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   MapboxMap? _mapboxMap;
   bool _isLocationPermissionGranted = false;
   bool _showPoints = true;
+  bool _isMapReady = false;
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
@@ -52,6 +53,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   bool get isLocationPermissionGranted => _isLocationPermissionGranted;
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
+  bool get isMapReady => _isMapReady;
   bool get inActivity => _trackingRepository.isActivityActive;
   bool get showPoints => _showPoints;
 
@@ -197,8 +199,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       centerOnUser();
     }
 
-    if (_drawingThrottle?.isActive ?? false) return;
-    _drawingThrottle = Timer(const Duration(milliseconds: 1000), () => _updateMapLayers());
+    _updateMapLayers();
   }
 
   String _colorToRgba(Color c, double alpha) {
@@ -217,6 +218,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _updateMapLayers() async {
     final style = _mapboxMap?.style;
     if (style == null) return;
+    if (!await style.styleSourceExists("h3-grid-source")) return;
 
     final camera = await _mapboxMap!.getCameraState();
     final userTeamColor = _getUserTeamColor();
@@ -224,17 +226,33 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
     List<String> currentIndexes = [];
     if (camera.zoom >= minZoomToRender) {
+      final centerLat = camera.center.coordinates.lat.toDouble();
+      final centerLon = camera.center.coordinates.lng.toDouble();
+      final radius = max(1500.0, maxRenderRadius / camera.zoom);
+
       currentIndexes = H3Helper.getHexagonsInRadius(
-        centerLat: camera.center.coordinates.lat.toDouble(),
-        centerLon: camera.center.coordinates.lng.toDouble(),
-        radiusMeters: maxRenderRadius / camera.zoom,
+        centerLat: centerLat,
+        centerLon: centerLon,
+        radiusMeters: radius,
         resolution: GameConfig.h3Resolution,
       );
+
+      final currentHex = H3Helper.getHexagonAt(
+        lat: centerLat,
+        lon: centerLon,
+        resolution: GameConfig.h3Resolution,
+      );
+      if (currentHex.isNotEmpty) {
+        currentIndexes.add(currentHex);
+        currentIndexes.addAll(H3Helper.getNeighbors(currentHex, ring: 3));
+      }
     }
 
     final Set<String> allHexIndexes = {
       ...currentIndexes,
       for (final t in _territoryRepository.territories) t.id,
+      for (final cell in _trackingRepository.visitedCells) cell,
+      if (currentCell != null && currentCell!.isNotEmpty) currentCell!,
     };
 
     final features = allHexIndexes.map((hexId) {
@@ -307,10 +325,16 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _checkInitialPermission();
     _setMapDaylight();
     
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (!_isMapReady) {
+        _isMapReady = true;
+        notifyListeners();
+      }
+    });
+
     if (userPosition != null) {
       centerOnUser();
     } else {
-      _trackingRepository.updateCurrentPosition();
       _trackingRepository.updateCurrentPosition();
       final currentUser = AuthRepository.instance.currentUser;
       if (currentUser != null && currentUser.team != null) {
@@ -318,19 +342,27 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       }
     }
 
+    notifyListeners();
   }
 
   Future<void> onStyleLoaded() async {
-    await _initializeH3Layer();
-    await _initializeTrackingPolygon();
-    if (_isLocationPermissionGranted) {
-      await _enableLocationComponent();
+    try {
+      await _initializeH3Layer();
+      await _initializeTrackingPolygon();
+      if (_isLocationPermissionGranted) {
+        await _enableLocationComponent();
+      }
+      if (userPosition != null) {
+        centerOnUser();
+      }
+      unawaited(_territoryRepository.fetchAllTerritories());
+      await _updateMapLayers();
+    } catch (e) {
+      debugPrint("ActivityViewModel: Error in onStyleLoaded: $e");
+    } finally {
+      _isMapReady = true;
+      notifyListeners();
     }
-    if (userPosition != null) {
-      centerOnUser();
-    }
-    unawaited(_territoryRepository.fetchAllTerritories());
-    await _updateMapLayers();
   }
 
   Territory? getClaimedTerritoryAt(double lat, double lon) {
@@ -486,20 +518,24 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       fillColorExpression: <Object>['get', 'fill_color'],
     ));
 
-    await style.addLayer(SymbolLayer(
-      id: "h3-health-label-layer",
-      sourceId: "h3-grid-source",
-      textSize: 14.0,
-      textFieldExpression: <Object>['get', 'health_label'],
-      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
-      textColor: Colors.white.toARGB32(),
-      textHaloColor: Colors.black.toARGB32(),
-      textLetterSpacing: 0.1,
-      textHaloWidth: 1.0,
-      textOffset: [0, 0],
-      textAllowOverlap: true,
-      textIgnorePlacement: true,
-    ));
+    try {
+      await style.addLayer(SymbolLayer(
+        id: "h3-health-label-layer",
+        sourceId: "h3-grid-source",
+        textSize: 14.0,
+        textFieldExpression: <Object>['get', 'health_label'],
+        textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
+        textColor: Colors.white.toARGB32(),
+        textHaloColor: Colors.black.toARGB32(),
+        textLetterSpacing: 0.1,
+        textHaloWidth: 1.0,
+        textOffset: [0, 0],
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
+      ));
+    } catch (e) {
+      debugPrint("ActivityViewModel: SymbolLayer error (health label): $e");
+    }
   }
 
   Future<void> _initializeTrackingPolygon() async {
@@ -549,20 +585,24 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       ],
     ));
 
-    await style.addLayer(SymbolLayer(
-      id: "tracking-nodes-label-layer",
-      sourceId: "tracking-polygon-source",
-      filter: <Object>['==', ['get', 'type'], 'node'],
-      textSize: 12.0,
-      textFieldExpression: <Object>['get', 'points_label'],
-      textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
-      textColor: Colors.white.toARGB32(),
-      textHaloColor: Colors.black.toARGB32(),
-      textHaloWidth: 1.0,
-      textOffset: [0, -1.5],
-      textAllowOverlap: true,
-      textIgnorePlacement: true,
-    ));
+    try {
+      await style.addLayer(SymbolLayer(
+        id: "tracking-nodes-label-layer",
+        sourceId: "tracking-polygon-source",
+        filter: <Object>['==', ['get', 'type'], 'node'],
+        textSize: 12.0,
+        textFieldExpression: <Object>['get', 'points_label'],
+        textFont: ["Open Sans Bold", "Arial Unicode MS Bold"],
+        textColor: Colors.white.toARGB32(),
+        textHaloColor: Colors.black.toARGB32(),
+        textHaloWidth: 1.0,
+        textOffset: [0, -1.5],
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
+      ));
+    } catch (e) {
+      debugPrint("ActivityViewModel: SymbolLayer error (nodes label): $e");
+    }
   }
 
   void _configureOrnaments() {

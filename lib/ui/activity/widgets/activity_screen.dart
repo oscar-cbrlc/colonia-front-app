@@ -9,6 +9,7 @@ import 'package:colonia_front_app/ui/activity/view_models/activity_viewmodel.dar
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
+import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -140,6 +141,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     )
                         : null),
               ),
+
+              if (!widget.viewModel.isMapReady)
+                const Positioned.fill(
+                  child: LoadingWidget(),
+                ),
 
               if (widget.viewModel.isSaving)
                 Container(
