@@ -45,8 +45,11 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   ViewportState? _viewport;
 
   Timer? _debounceTimer;
+  Timer? _mapUpdateTimer;
+  Set<String> _lastH3Indexes = {};
+  int _lastVisitedCount = -1;
+  int _lastPerimeterCount = -1;
 
-  Timer? _drawingThrottle;
   bool _hasInitialCenter = false;
   bool _isFollowingUser = true;
 
@@ -192,14 +195,17 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onTrackingDataChanged() {
     notifyListeners();
-    _updatePuckRing();
 
     if (_isFollowingUser && userPosition != null && !_hasInitialCenter) {
       _hasInitialCenter = true;
       centerOnUser();
     }
 
-    _updateMapLayers();
+    if (_mapUpdateTimer?.isActive ?? false) return;
+    _mapUpdateTimer = Timer(const Duration(milliseconds: 600), () {
+      _updatePuckRing();
+      _updateMapLayers();
+    });
   }
 
   String _colorToRgba(Color c, double alpha) {
@@ -254,6 +260,18 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
       for (final cell in _trackingRepository.visitedCells) cell,
       if (currentCell != null && currentCell!.isNotEmpty) currentCell!,
     };
+
+    final bool visitedChanged = _lastVisitedCount != _trackingRepository.visitedCells.length;
+    final bool perimeterChanged = _lastPerimeterCount != _trackingRepository.perimeter.length;
+    final bool hexIndexesChanged = !_setEquals(_lastH3Indexes, allHexIndexes);
+
+    if (!hexIndexesChanged && !visitedChanged && !perimeterChanged) {
+      return;
+    }
+
+    _lastH3Indexes = allHexIndexes;
+    _lastVisitedCount = _trackingRepository.visitedCells.length;
+    _lastPerimeterCount = _trackingRepository.perimeter.length;
 
     final features = allHexIndexes.map((hexId) {
       final territory = _territoryRepository.getTerritoryOrDefault(hexId);
@@ -732,15 +750,17 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  bool _setEquals(Set<String> a, Set<String> b) => a.length == b.length && a.containsAll(b);
+
   @override
   void dispose() {
+    _mapUpdateTimer?.cancel();
     _sensorRepository?.removeListener(notifyListeners);
     _sensorRepository?.stopReading();
     _trackingRepository.removeListener(_onTrackingDataChanged);
     _sessionRepository.removeListener(notifyListeners);
     _territoryRepository.removeListener(_onTerritoriesChanged);
     WidgetsBinding.instance.removeObserver(this);
-    _drawingThrottle?.cancel();
     super.dispose();
   }
 }

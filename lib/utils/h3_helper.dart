@@ -69,19 +69,23 @@ class H3Helper {
     return cells.map((cell) => cell.toRadixString(16)).toList();
   }
 
+  static final Map<String, List<List<double>>> _cornersCache = {};
+
   static List<List<double>> getHexagonCorners(String h3Index) {
-    final BigInt index = BigInt.parse(h3Index, radix: 16);
+    return _cornersCache.putIfAbsent(h3Index, () {
+      final BigInt index = BigInt.parse(h3Index, radix: 16);
 
-    final List<GeoCoord> boundary = h3.cellToBoundary(index);
+      final List<GeoCoord> boundary = h3.cellToBoundary(index);
 
-    final List<List<double>> corners = boundary.map((coord) {
-      return [coord.lon, coord.lat];
-    }).toList();
+      final List<List<double>> corners = boundary.map((coord) {
+        return [coord.lon, coord.lat];
+      }).toList();
 
-    if (corners.isNotEmpty) {
-      corners.add(corners.first);
-    }
-    return corners;
+      if (corners.isNotEmpty) {
+        corners.add(corners.first);
+      }
+      return corners;
+    });
   }
 
   static List<String> getNeighbors(String h3Index, {int ring = 1}) {
