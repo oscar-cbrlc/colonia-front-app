@@ -415,7 +415,7 @@ class TrackingRepository extends ChangeNotifier {
     }
 
     final now = DateTime.now();
-    if (now.difference(position.timestamp).inSeconds > 3) {
+    if (now.difference(position.timestamp).abs().inMinutes > 5) {
       notifyListeners();
       return;
     }
@@ -440,7 +440,7 @@ class TrackingRepository extends ChangeNotifier {
       );
 
       double reportedSpeed = position.speed;
-      double timeElapsed = now.difference(_lastTrackTime!).inMilliseconds / 1000.0;
+      double timeElapsed = max(0.1, now.difference(_lastTrackTime!).inMilliseconds / 1000.0);
 
       bool isMovementValid = false;
       
@@ -450,9 +450,9 @@ class TrackingRepository extends ChangeNotifier {
       }
 
       if (reportedSpeed < 0.5) {
-        if (delta > 10.0) isMovementValid = true;
+        if (delta > 2.0) isMovementValid = true;
       } else {
-        if (delta > 2.5) isMovementValid = true;
+        if (delta > 1.0) isMovementValid = true;
       }
 
       if (isMovementValid) {
@@ -465,7 +465,7 @@ class TrackingRepository extends ChangeNotifier {
         double avgSpeed = _totalMetersTracked / max(1, _totalSecondsElapsed);
         _averagePace = avgSpeed > 0.1 ? (16.6667 / avgSpeed) : 0.0;
 
-        if (_metersSinceLastPerimeterPoint >= GameConfig.minMetersBetweenTracking) {
+        if (_metersSinceLastPerimeterPoint >= GameConfig.minMetersBetweenTracking || _perimeter.isEmpty) {
           _perimeter.add(GeoCoord(lat: position.latitude, lon: position.longitude));
           _perimeteredCoords.add(GeoCoord(lat: position.latitude, lon: position.longitude));
           _metersSinceLastPerimeterPoint = 0;
