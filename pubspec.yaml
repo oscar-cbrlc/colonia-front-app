@@ -90,8 +90,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/icons/google.svg
-    - assets/icons/apple.svg
+    - assets/icons/
     - assets/har_model/har_model_pipeline.tflite
     - assets/avatar/base_model/AntTexturized.glb
     - assets/avatar/base_model/Ant.glb
