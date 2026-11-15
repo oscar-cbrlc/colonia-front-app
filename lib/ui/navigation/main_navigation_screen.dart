@@ -1,4 +1,5 @@
 import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/user_profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +8,6 @@ import 'package:colonia_front_app/ui/team/widgets/team_screen.dart';
 import 'package:colonia_front_app/ui/team/view_models/team_viewmodel.dart';
 import 'package:colonia_front_app/ui/map/widgets/map_screen.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
-import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
-
-import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:flutter/services.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -43,11 +41,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_tabController.index != 1) {
+          _tabController.animateTo(1);
+        } else {
+          SystemNavigator.pop();
+        }
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+        ),
       child: Scaffold(
         extendBody: true,
         body: TabBarView(
@@ -108,7 +116,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
             ),
           ),
         ),
-      ),
-    );
+      )
+    ));
   }
 }

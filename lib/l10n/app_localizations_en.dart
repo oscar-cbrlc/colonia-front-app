@@ -36,6 +36,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get language => 'Language';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountDialogTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountDialogMessage =>
+      'This action is permanent and cannot be undone. All your progress, items, and profile data will be erased.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Are you absolutely sure?';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'This is your final warning. Your account will be permanently deleted and cannot be recovered.';
+
+  @override
+  String get yesDelete => 'Yes, Delete';
+
+  @override
   String get startYourExcursion => 'Start your excursion';
 
   @override
@@ -846,7 +875,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allAchievementsCompleted => 'All achievements completed!';
 
   @override
-  String get editAccountInfo => 'Edit account info';
+  String get editAccountInfo => 'Edit info';
 
   @override
   String get shop => 'Shop';

@@ -265,6 +265,16 @@ class AuthRepository extends ChangeNotifier {
     _clearLocalCache();
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      await _authService.deleteUser();
+    } catch (e) {
+      debugPrint('AuthRepository: Remote account deletion failed: $e');
+    }
+    await _localStorageService.clearSession();
+    _clearLocalCache();
+  }
+
   void _clearLocalCache() {
     _cachedAuthToken = null;
     _cachedRefreshToken = null;

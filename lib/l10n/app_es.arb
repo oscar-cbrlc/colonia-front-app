@@ -12,6 +12,15 @@
     "downloadModels": "Descargar Modelos de Avatar",
 
     "settings": "Ajustes",
+    "language": "Idioma",
+    "english": "English",
+    "spanish": "Español",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountDialogTitle": "¿Eliminar Cuenta?",
+    "deleteAccountDialogMessage": "Esta acción es permanente y no se puede deshacer. Todo tu progreso, objetos y datos de perfil se borrarán.",
+    "deleteAccountConfirmTitle": "¿Estás completamente seguro?",
+    "deleteAccountConfirmMessage": "Esta es tu última advertencia. Tu cuenta se eliminará permanentemente y no se podrá recuperar.",
+    "yesDelete": "Sí, Eliminar",
 
     "startYourExcursion": "Empieza tu excursión",
 
@@ -901,7 +910,7 @@
     "allAchievementsCompleted": "¡Todos los logros completados!",
     "@allAchievementsCompleted": {},
 
-    "editAccountInfo": "Editar información de cuenta",
+    "editAccountInfo": "Editar información",
     "@editAccountInfo": {},
 
     "shop": "Tienda",

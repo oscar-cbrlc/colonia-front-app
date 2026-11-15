@@ -1,5 +1,4 @@
-import 'package:colonia_front_app/data/models/firebase_auth_result.dart';
-import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
+import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/utils/icon_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -39,12 +38,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _onStateChanged() {
-    if (widget.viewModel.state == WelcomeState.success) {
-      final result = widget.viewModel.authResult;
-      if (result != null) {
-        _handleSocialAuthNavigation(result);
-      }
-    } else if (widget.viewModel.state == WelcomeState.error) {
+    if (widget.viewModel.state == WelcomeState.error) {
       final locale = AppLocalizations.of(context)!;
       final error = widget.viewModel.errorMessage.isEmpty 
           ? locale.errorUnexpected 
@@ -56,12 +50,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
       );
       widget.viewModel.clearError();
-    }
-  }
-
-  void _handleSocialAuthNavigation(FirebaseAuthResult result) {
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed(AppRouter.map);
     }
   }
 
@@ -158,7 +146,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                             onPressed: (viewModel.isLoading || !_isTermsAccepted)
                                 ? null
-                                : () => viewModel.loginWithGoogle(),
+                                : () async {
+                                    final success = await viewModel.loginWithGoogle();
+                                    if (!context.mounted) return;
+                                    if (success) {
+                                      navigateToMapScreen(context);
+                                    }
+                                  },
                             child: viewModel.isLoading
                                 ? const AppLoadingIndicator(
                                     size: 24.0,
