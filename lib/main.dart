@@ -14,6 +14,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
+import 'package:colonia_front_app/ui/core/providers/locale_provider.dart';
 
 import 'package:colonia_front_app/data/services/api/api_client.dart';
 import 'package:colonia_front_app/data/services/api/auth_service.dart';
@@ -72,6 +73,12 @@ void main() async {
 
         Provider<LocalStorageService>(
           create: (_) => LocalStorageService(),
+        ),
+
+        ChangeNotifierProxyProvider<LocalStorageService, LocaleProvider>(
+          create: (context) => LocaleProvider(context.read<LocalStorageService>()),
+          update: (_, localStorageService, previous) =>
+              previous ?? LocaleProvider(localStorageService),
         ),
 
         Provider<SensorService>(
@@ -362,29 +369,34 @@ class _ColoniaAppState extends State<ColoniaApp> {
       );
     }
 
-    return MaterialApp(
-      title: 'Colonia',
-      theme: AppTheme.theme,
-      darkTheme: AppTheme.theme,
-      themeMode: ThemeMode.system,
+    return Consumer<LocaleProvider>(
+      builder: (context, localeProvider, child) {
+        return MaterialApp(
+          title: 'Colonia',
+          theme: AppTheme.theme,
+          darkTheme: AppTheme.theme,
+          themeMode: ThemeMode.system,
+          locale: localeProvider.locale,
 
-      navigatorKey: _navigatorKey,
-      navigatorObservers: [routeObserver],
+          navigatorKey: _navigatorKey,
+          navigatorObservers: [routeObserver],
 
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
 
-      supportedLocales: const [
-        Locale('es'),
-        Locale('en'),
-      ],
+          supportedLocales: const [
+            Locale('es'),
+            Locale('en'),
+          ],
 
-      initialRoute: _initialRoute,
-      onGenerateRoute: AppRouter.generateRoute,
+          initialRoute: _initialRoute,
+          onGenerateRoute: AppRouter.generateRoute,
+        );
+      },
     );
   }
 }
