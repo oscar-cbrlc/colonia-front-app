@@ -86,6 +86,7 @@ class UserProfileScreen extends StatelessWidget {
                       viewModel: vm,
                       onEditAccountPressed: () => _showEditAccountBottomSheet(context, vm),
                       onEditAvatarPressed: () => _showEditAvatarBottomSheet(context, vm),
+                      onSettingsPressed: () => _showSettingsBottomSheet(context, vm, authRepo),
                     ),
                     const SizedBox(height: 16),
   
@@ -164,27 +165,7 @@ class UserProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  if (vm.user == AuthRepository.instance.currentUser)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.darkBackground,
-                          foregroundColor: Colors.white70,
-                          side: const BorderSide(color: Colors.white38, width: 1.0),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: const BeveledRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                          ),
-                        ),
-                        icon: const Icon(Icons.settings),
-                        label: Text(
-                          locale.settings.toUpperCase(),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Oswald'),
-                        ),
-                        onPressed: () => _showSettingsBottomSheet(context, vm, authRepo),
-                      ),
-                    ),
+
                 ],
               ),
             ),
@@ -1002,11 +983,13 @@ class _AvatarSection extends StatefulWidget {
   final UserProfileViewModel viewModel;
   final VoidCallback onEditAccountPressed;
   final VoidCallback onEditAvatarPressed;
+  final VoidCallback onSettingsPressed;
 
   const _AvatarSection({
     required this.viewModel,
     required this.onEditAccountPressed,
     required this.onEditAvatarPressed,
+    required this.onSettingsPressed,
   });
 
   @override
@@ -1049,71 +1032,123 @@ class _AvatarSectionState extends State<_AvatarSection> {
 
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.bottomRight,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 220,
-              height: 220,
-              decoration: ShapeDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    baseAvatarContainerColor.withAlpha(40),
-                    baseAvatarContainerColor.withAlpha(20),
-                    baseAvatarContainerColor.withAlpha(10),
-                    baseAvatarContainerColor.withAlpha(10),
-                    baseAvatarContainerColor.withAlpha(20),
-                    baseAvatarContainerColor.withAlpha(40),
-                  ],
-                  stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
-                ),
-                shape: BeveledRectangleBorder(
-                  side: BorderSide(color: Colors.white.withAlpha(100), width: 1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: ThreeJsAvatarView(
-                  key: ValueKey(user.avatar.hashCode),
-                  baseGlbPath: modelPath,
-                  equippedGlbPaths: _equippedGlbPaths,
-                  avatarColor: _avatarColor,
-                  pixelRatio: 0.75,
-                  onLoadingStateChanged: (isLoading) {
-                    if (mounted && _isModelLoaded != !isLoading) {
-                      setState(() {
-                        _isModelLoaded = !isLoading;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-            if (widget.viewModel.user == AuthRepository.instance.currentUser)
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: GestureDetector(
-                  onTap: canInteract ? widget.onEditAvatarPressed : null,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: canInteract ? 1.0 : 0.4,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: ShapeDecoration(
-                        color: canInteract ? AppTheme.primaryColor : Colors.grey,
-                        shape: const BeveledRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                      ),
-                      child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
+            const SizedBox(width: 52),
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                Container(
+                  width: 220,
+                  height: 220,
+                  decoration: ShapeDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        baseAvatarContainerColor.withAlpha(40),
+                        baseAvatarContainerColor.withAlpha(20),
+                        baseAvatarContainerColor.withAlpha(10),
+                        baseAvatarContainerColor.withAlpha(10),
+                        baseAvatarContainerColor.withAlpha(20),
+                        baseAvatarContainerColor.withAlpha(40),
+                      ],
+                      stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                    ),
+                    shape: BeveledRectangleBorder(
+                      side: BorderSide(color: Colors.white.withAlpha(100), width: 1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: ThreeJsAvatarView(
+                      key: ValueKey(user.avatar.hashCode),
+                      baseGlbPath: modelPath,
+                      equippedGlbPaths: _equippedGlbPaths,
+                      avatarColor: _avatarColor,
+                      pixelRatio: 0.75,
+                      onLoadingStateChanged: (isLoading) {
+                        if (mounted && _isModelLoaded != !isLoading) {
+                          setState(() {
+                            _isModelLoaded = !isLoading;
+                          });
+                        }
+                      },
                     ),
                   ),
                 ),
+                if (widget.viewModel.user == AuthRepository.instance.currentUser)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: canInteract ? widget.onEditAvatarPressed : null,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: canInteract ? 1.0 : 0.4,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: ShapeDecoration(
+                            color: canInteract ? AppTheme.primaryColor : Colors.grey,
+                            shape: const BeveledRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                          ),
+                          child: const Icon(Icons.checkroom, size: 18, color: AppTheme.darkBackground),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (widget.viewModel.user == AuthRepository.instance.currentUser) ...[
+              const SizedBox(width: 12),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    decoration: ShapeDecoration(
+                      color: AppTheme.darkBackground,
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: AppTheme.primaryColor.withAlpha(120),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.edit, color: AppTheme.primaryColor, size: 20),
+                      onPressed: widget.onEditAccountPressed,
+                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: ShapeDecoration(
+                      color: AppTheme.darkBackground,
+                      shape: BeveledRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: AppTheme.primaryColor.withAlpha(120),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.settings, color: AppTheme.primaryColor, size: 20),
+                      onPressed: widget.onSettingsPressed,
+                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
               ),
+            ] else
+              const SizedBox(width: 52),
           ],
         ),
         const SizedBox(height: 12),
@@ -1126,21 +1161,6 @@ class _AvatarSectionState extends State<_AvatarSection> {
               user.username,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            if (widget.viewModel.user == AuthRepository.instance.currentUser)...[
-              const SizedBox(width: 6),
-              InkWell(
-                onTap: widget.onEditAccountPressed,
-                customBorder: const CircleBorder(),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.edit,
-                    color: AppTheme.primaryColor.withValues(alpha: 0.9),
-                    size: 18,
-                  ),
-                ),
-              ),
-            ]
           ],
         ),
 
