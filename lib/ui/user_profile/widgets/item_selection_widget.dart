@@ -18,21 +18,25 @@ class CategoryTabData {
     required this.icon,
   });
 
-  static List<CategoryTabData> get defaultAvatarCategories => [
+  static List<CategoryTabData> getDefaultAvatarCategories(AppLocalizations? locale) => [
         CategoryTabData(
           id: AvatarItemType.head.name,
+          label: locale?.avatarItemTypeHead.toUpperCase() ?? 'HEAD',
           icon: avatarItemTypeIcons[AvatarItemType.head]!,
         ),
         CategoryTabData(
           id: AvatarItemType.neck.name,
+          label: locale?.avatarItemTypeNeck.toUpperCase() ?? 'NECK',
           icon: avatarItemTypeIcons[AvatarItemType.neck]!,
         ),
         CategoryTabData(
           id: AvatarItemType.body.name,
+          label: locale?.avatarItemTypeBody.toUpperCase() ?? 'BODY',
           icon: avatarItemTypeIcons[AvatarItemType.body]!,
         ),
         CategoryTabData(
           id: AvatarItemType.footwear.name,
+          label: locale?.avatarItemTypeFootwear.toUpperCase() ?? 'FOOTWEAR',
           icon: avatarItemTypeIcons[AvatarItemType.footwear]!,
         ),
       ];
@@ -125,15 +129,16 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
   late PageController _pageController;
   int _currentPage = 0;
 
-  List<CategoryTabData> get _activeCategories {
+  List<CategoryTabData> _getActiveCategories(BuildContext? context) {
     if (widget.categories != null && widget.categories!.isNotEmpty) {
       return widget.categories!;
     }
     final itemTypes = widget.items.map((e) => e.type).whereType<String>().toSet();
+    final locale = context != null ? AppLocalizations.of(context) : null;
+    final defaults = CategoryTabData.getDefaultAvatarCategories(locale);
     if (itemTypes.isEmpty) {
-      return CategoryTabData.defaultAvatarCategories;
+      return defaults;
     }
-    final defaults = CategoryTabData.defaultAvatarCategories;
     final categoryList = <CategoryTabData>[];
     for (final defaultCat in defaults) {
       if (itemTypes.contains(defaultCat.id)) {
@@ -149,13 +154,13 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
         ));
       }
     }
-    return categoryList.isEmpty ? CategoryTabData.defaultAvatarCategories : categoryList;
+    return categoryList.isEmpty ? defaults : categoryList;
   }
 
   @override
   void initState() {
     super.initState();
-    final categories = _activeCategories;
+    final categories = _getActiveCategories(null);
     if (widget.initialCategoryId != null &&
         categories.any((c) => c.id == widget.initialCategoryId)) {
       _currentCategoryId = widget.initialCategoryId!;
@@ -183,7 +188,7 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
 
   void _selectCategory(String categoryId) {
     if (_currentCategoryId == categoryId) return;
-    final cat = _activeCategories.firstWhere(
+    final cat = _getActiveCategories(context).firstWhere(
       (c) => c.id == categoryId,
       orElse: () => CategoryTabData(
         id: categoryId,
@@ -213,7 +218,7 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context);
-    final categories = _activeCategories;
+    final categories = _getActiveCategories(context);
     final categoryItems = widget.items
         .where((item) => item.type == _currentCategoryId || _currentCategoryId.isEmpty)
         .toList();
@@ -224,7 +229,7 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (widget.showTabs && categories.isNotEmpty) ...[
           _buildCategoryTabs(categories),
@@ -240,66 +245,27 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
   }
 
   Widget _buildCategoryTabs(List<CategoryTabData> categories) {
-    if (categories.length <= 4) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
         children: categories.asMap().entries.map((entry) {
-          final index = entry.key;
           final cat = entry.value;
-          final isFirst = index == 0;
-          final isLast = index == categories.length - 1;
           final isSelected = cat.id == _currentCategoryId;
 
-          BorderRadius borderRadius;
-          if (isFirst) {
-            borderRadius = const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              bottomLeft: Radius.circular(8),
-            );
-          } else if (isLast) {
-            borderRadius = const BorderRadius.only(
-              topRight: Radius.circular(8),
-              bottomRight: Radius.circular(8),
-            );
-          } else {
-            borderRadius = BorderRadius.zero;
-          }
-
-          return Expanded(
+          return Padding(
+            padding: const EdgeInsets.only(right: 4, left: 4),
             child: _ItemCategoryTabChip(
               icon: cat.icon,
               label: cat.label,
               isSelected: isSelected,
               onSelected: () => _selectCategory(cat.id),
-              borderRadius: borderRadius,
+              borderRadius: BorderRadius.circular(8),
               color: AppTheme.tertiaryColor,
             ),
           );
         }).toList(),
-      );
-    } else {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: categories.asMap().entries.map((entry) {
-            final cat = entry.value;
-            final isSelected = cat.id == _currentCategoryId;
-
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: _ItemCategoryTabChip(
-                icon: cat.icon,
-                label: cat.label,
-                isSelected: isSelected,
-                onSelected: () => _selectCategory(cat.id),
-                borderRadius: BorderRadius.circular(8),
-                color: AppTheme.tertiaryColor,
-              ),
-            );
-          }).toList(),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   Widget _buildPaginatedGrid(List<ItemSelectionData> categoryItems, int totalPages) {
@@ -613,8 +579,9 @@ class _ItemCategoryTabChip extends StatelessWidget {
       },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOutCubicEmphasized,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         alignment: Alignment.center,
         decoration: ShapeDecoration(
           color: isSelected ? color : color.withAlpha(20),
@@ -631,19 +598,25 @@ class _ItemCategoryTabChip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            buildIconWidget(icon, color: iconColor, size: 18),
-            if (label != null && label!.isNotEmpty) ...[
-              const SizedBox(width: 6),
-              Text(
-                label!,
-                style: TextStyle(
-                  color: iconColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  fontFamily: 'Oswald',
-                ),
-              ),
-            ],
+            buildIconWidget(icon, color: iconColor, size: 16),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOutCubicEmphasized,
+              child: isSelected && label != null && label!.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: Text(
+                        label!,
+                        style: TextStyle(
+                          color: iconColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontFamily: 'Oswald',
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
           ],
         ),
       ),
