@@ -59,7 +59,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get selectingThisBoxConfirms =>
-      'Seleccionar esta caja confirma que haz leído y consentido el ';
+      'Seleccionar esta caja confirma que aceptas el ';
 
   @override
   String get privacyNotice => 'Aviso de Privacidad';

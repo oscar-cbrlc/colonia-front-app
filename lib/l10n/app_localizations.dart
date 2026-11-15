@@ -191,7 +191,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectingThisBoxConfirms.
   ///
   /// In es, this message translates to:
-  /// **'Seleccionar esta caja confirma que haz leído y consentido el '**
+  /// **'Seleccionar esta caja confirma que aceptas el '**
   String get selectingThisBoxConfirms;
 
   /// No description provided for @privacyNotice.
