@@ -23,7 +23,7 @@ class ThreeJsAvatarView extends StatefulWidget {
     required this.baseGlbPath,
     required this.equippedGlbPaths,
     this.avatarColor,
-    this.pixelRatio = 0.6,
+    this.pixelRatio = 0.5,
     this.interactive = true,
     this.onLoadingStateChanged,
     this.onModelLoaded,
