@@ -879,7 +879,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get allAchievementsCompleted => '¡Todos los logros completados!';
 
   @override
-  String get editAccountInfo => 'Editar información de cuenta';
+  String get editAccountInfo => 'Editar información';
 
   @override
   String get shop => 'Tienda';

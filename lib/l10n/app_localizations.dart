@@ -1727,7 +1727,7 @@ abstract class AppLocalizations {
   /// No description provided for @editAccountInfo.
   ///
   /// In es, this message translates to:
-  /// **'Editar información de cuenta'**
+  /// **'Editar información'**
   String get editAccountInfo;
 
   /// No description provided for @shop.

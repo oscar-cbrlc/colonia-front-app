@@ -875,7 +875,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allAchievementsCompleted => 'All achievements completed!';
 
   @override
-  String get editAccountInfo => 'Edit account info';
+  String get editAccountInfo => 'Edit info';
 
   @override
   String get shop => 'Shop';
