@@ -12,6 +12,15 @@
     "downloadModels": "Download Avatar Models",
 
     "settings": "Settings",
+    "language": "Language",
+    "english": "English",
+    "spanish": "Español",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDialogTitle": "Delete Account?",
+    "deleteAccountDialogMessage": "This action is permanent and cannot be undone. All your progress, items, and profile data will be erased.",
+    "deleteAccountConfirmTitle": "Are you absolutely sure?",
+    "deleteAccountConfirmMessage": "This is your final warning. Your account will be permanently deleted and cannot be recovered.",
+    "yesDelete": "Yes, Delete",
 
     "startYourExcursion": "Start your excursion",
   

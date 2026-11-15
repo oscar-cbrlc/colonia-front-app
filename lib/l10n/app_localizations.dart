@@ -146,6 +146,60 @@ abstract class AppLocalizations {
   /// **'Ajustes'**
   String get settings;
 
+  /// No description provided for @language.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get language;
+
+  /// No description provided for @english.
+  ///
+  /// In es, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @spanish.
+  ///
+  /// In es, this message translates to:
+  /// **'Español'**
+  String get spanish;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Cuenta'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar Cuenta?'**
+  String get deleteAccountDialogTitle;
+
+  /// No description provided for @deleteAccountDialogMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción es permanente y no se puede deshacer. Todo tu progreso, objetos y datos de perfil se borrarán.'**
+  String get deleteAccountDialogMessage;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Estás completamente seguro?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta es tu última advertencia. Tu cuenta se eliminará permanentemente y no se podrá recuperar.'**
+  String get deleteAccountConfirmMessage;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, Eliminar'**
+  String get yesDelete;
+
   /// No description provided for @startYourExcursion.
   ///
   /// In es, this message translates to:

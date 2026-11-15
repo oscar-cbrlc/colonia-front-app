@@ -36,6 +36,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settings => 'Ajustes';
 
   @override
+  String get language => 'Idioma';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get deleteAccount => 'Eliminar Cuenta';
+
+  @override
+  String get deleteAccountDialogTitle => '¿Eliminar Cuenta?';
+
+  @override
+  String get deleteAccountDialogMessage =>
+      'Esta acción es permanente y no se puede deshacer. Todo tu progreso, objetos y datos de perfil se borrarán.';
+
+  @override
+  String get deleteAccountConfirmTitle => '¿Estás completamente seguro?';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'Esta es tu última advertencia. Tu cuenta se eliminará permanentemente y no se podrá recuperar.';
+
+  @override
+  String get yesDelete => 'Sí, Eliminar';
+
+  @override
   String get startYourExcursion => 'Empieza tu excursión';
 
   @override
