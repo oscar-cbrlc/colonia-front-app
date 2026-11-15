@@ -10,6 +10,7 @@ import 'package:colonia_front_app/domain/models/shop_offer.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
+import 'package:colonia_front_app/ui/core/ui/custom_app_dialog.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/utils/icon_helper.dart';
@@ -1004,205 +1005,83 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
         ? offer.avatarItem!.getNameLocale(locale)
         : offer.name;
 
-    showGeneralDialog(
+    showCustomAppDialog(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withAlpha(180),
-      transitionDuration: const Duration(milliseconds: 350),
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-        return AnimatedBuilder(
-          animation: curvedAnimation,
-          builder: (context, innerChild) {
-            return Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-              child: FadeTransition(
-                opacity: animation,
-                child: innerChild,
-              ),
-            );
-          },
-          child: child,
-        );
-      },
-      pageBuilder: (dialogContext, animation, secondaryAnimation) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 500),
-            padding: const EdgeInsets.all(18),
-            decoration: ShapeDecoration(
-              color: AppTheme.darkBackground.withAlpha(245),
-              shape: BeveledRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(
-                  color: AppTheme.primaryColor,
-                  width: 1.5,
+      title: locale.confirmPurchase,
+      icon: Icons.shopping_bag_outlined,
+      primaryColor: AppTheme.primaryColor,
+      cancelLabel: locale.cancel,
+      confirmLabel: locale.buy,
+      contentWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: Container(
+              width: 70,
+              height: 70,
+              decoration: ShapeDecoration(
+                color: AppTheme.primaryColor.withAlpha(20),
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: AppTheme.primaryColor.withAlpha(100), width: 1),
                 ),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.shopping_bag_outlined,
-                      color: AppTheme.primaryColor,
-                      size: 24,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        locale.confirmPurchase.toUpperCase(),
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          letterSpacing: 1.0,
-                          fontFamily: 'Oswald',
-                          decoration: TextDecoration.none,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                      onPressed: () => Navigator.pop(dialogContext),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Container(
-                    width: 70,
-                    height: 70,
-                    decoration: ShapeDecoration(
-                      color: AppTheme.primaryColor.withAlpha(20),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: AppTheme.primaryColor.withAlpha(100), width: 1),
-                      ),
-                    ),
-                    child: ClipPath(
-                      clipper: ShapeBorderClipper(
-                        shape: BeveledRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: _buildItemVisual(offer.avatarItem, offer.image),
-                    ),
+              child: ClipPath(
+                clipper: ShapeBorderClipper(
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    locale.confirmPurchaseMessage(offerName, offer.price),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                      height: 1.4,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: Colors.white38, width: 1),
-                          shape: const BeveledRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: Text(
-                          locale.cancel.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Oswald',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: AppTheme.darkBackground,
-                          shape: const BeveledRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        onPressed: () async {
-                          final messenger = ScaffoldMessenger.of(context);
-                          Navigator.pop(dialogContext);
-                          final shopRepo = context.read<ShopRepository>();
-                          final success = await shopRepo.buyOffer(offer.id);
-
-                          if (mounted) {
-                            if (success) {
-                              await userProfileVM.loadDownloadedItemModels();
-                              userProfileVM.checkAndDownloadAvatarModels();
-
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text(locale.successfullyPurchased(offerName)),
-                                  backgroundColor: AppTheme.successColor,
-                                ),
-                              );
-                            } else {
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text(shopRepo.errorMessage ?? locale.purchaseFailed),
-                                  backgroundColor: Colors.redAccent,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        child: Text(
-                          locale.buy.toUpperCase(),
-                          style: const TextStyle(
-                            color: AppTheme.darkBackground,
-                            fontFamily: 'Oswald',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                child: _buildItemVisual(offer.avatarItem, offer.image),
+              ),
             ),
           ),
-        );
-      },
-    );
+          const SizedBox(height: 14),
+          Center(
+            child: Text(
+              locale.confirmPurchaseMessage(offerName, offer.price),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.4,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).then((confirmed) async {
+      if (confirmed == true && context.mounted) {
+        final shopRepo = context.read<ShopRepository>();
+        final success = await shopRepo.buyOffer(offer.id);
+        if (success) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(locale.successfullyPurchased(offerName)),
+                backgroundColor: AppTheme.successColor,
+              ),
+            );
+            userProfileVM.loadDownloadedItemModels();
+            if (offer.avatarItem != null) {
+              userProfileVM.checkAndDownloadAvatarModels(
+                items: [offer.avatarItem!],
+              );
+            }
+          }
+        } else {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(shopRepo.errorMessage ?? locale.purchaseFailed),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+        }
+      }
+    });
   }
 }
 

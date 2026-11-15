@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
+import 'package:colonia_front_app/ui/core/ui/custom_app_dialog.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/enums/team_role.dart';
@@ -526,200 +527,15 @@ Future<bool?> showCustomTeamDialog({
   String? cancelLabel,
   bool isDanger = false,
 }) {
-  return showGeneralDialog<bool>(
+  return showCustomAppDialog<bool>(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withAlpha(180),
-    transitionDuration: const Duration(milliseconds: 350),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return _CustomTeamDialog(
-        title: title,
-        message: message,
-        icon: icon,
-        color: color,
-        confirmLabel: confirmLabel,
-        confirmColor: confirmColor,
-        cancelLabel: cancelLabel,
-        isDanger: isDanger,
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      );
-      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-      return AnimatedBuilder(
-        animation: curvedAnimation,
-        builder: (context, innerChild) {
-          return Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-            child: FadeTransition(
-              opacity: animation,
-              child: innerChild,
-            ),
-          );
-        },
-        child: child,
-      );
-    },
+    title: title,
+    message: message,
+    icon: icon,
+    primaryColor: isDanger ? Colors.redAccent : color,
+    confirmLabel: confirmLabel,
+    cancelLabel: cancelLabel,
   );
-}
-
-class _CustomTeamDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final IconData icon;
-  final Color color;
-  final String? confirmLabel;
-  final Color confirmColor;
-  final String? cancelLabel;
-  final bool isDanger;
-
-  const _CustomTeamDialog({
-    required this.title,
-    required this.message,
-    required this.icon,
-    required this.color,
-    this.confirmLabel,
-    this.confirmColor = AppTheme.primaryColor,
-    this.cancelLabel,
-    this.isDanger = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
-    final primaryColor = isDanger ? Colors.redAccent : color;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(18),
-        decoration: ShapeDecoration(
-          color: AppTheme.darkBackground.withAlpha(245),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: primaryColor,
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: primaryColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title.toUpperCase(),
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      letterSpacing: 1.0,
-                      fontFamily: 'Oswald',
-                      decoration: TextDecoration.none,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                  onPressed: () => Navigator.of(context).pop(false),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                height: 1.4,
-                decoration: TextDecoration.none,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                if (cancelLabel != null) ...[
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Colors.white38, width: 1),
-                        shape: const BeveledRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text(
-                        cancelLabel!.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Oswald',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: isDanger ? Colors.redAccent : confirmColor,
-                      foregroundColor: isDanger ? Colors.white : AppTheme.darkBackground,
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Text(
-                      (confirmLabel ?? locale.ok).toUpperCase(),
-                      style: const TextStyle(
-                        fontFamily: 'Oswald',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _CreateEditTeamSheet extends StatefulWidget {

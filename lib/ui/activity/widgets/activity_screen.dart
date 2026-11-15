@@ -10,6 +10,7 @@ import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/map_control_group.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
+import 'package:colonia_front_app/ui/core/ui/custom_app_dialog.dart';
 import 'package:colonia_front_app/ui/core/ui/territory_summary_bottom_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -2800,101 +2801,26 @@ class _HarActivityVisualizerWidget extends StatelessWidget {
 }
 
 void _showPointsCalculationDialog(BuildContext context) {
-  showGeneralDialog(
+  showCustomAppDialog(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withAlpha(180),
-    transitionDuration: const Duration(milliseconds: 350),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return const _PointsCalculationDialog();
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      );
-      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-      return AnimatedBuilder(
-        animation: curvedAnimation,
-        builder: (context, innerChild) {
-          return Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-            child: FadeTransition(
-              opacity: animation,
-              child: innerChild,
-            ),
-          );
-        },
-        child: child,
-      );
-    },
+    title: AppLocalizations.of(context)!.pointsCalculationTitle,
+    icon: Icons.graphic_eq,
+    primaryColor: AppTheme.tertiaryColor,
+    contentWidget: const _PointsCalculationDialogContent(),
   );
 }
 
-class _PointsCalculationDialog extends StatelessWidget {
-  const _PointsCalculationDialog();
+class _PointsCalculationDialogContent extends StatelessWidget {
+  const _PointsCalculationDialogContent();
 
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(18),
-        decoration: ShapeDecoration(
-          color: AppTheme.darkBackground.withAlpha(245),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: AppTheme.tertiaryColor,
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: SingleChildScrollView(
+    return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.graphic_eq,
-                    color: AppTheme.tertiaryColor,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      locale.pointsCalculationTitle.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                        decoration: TextDecoration.none,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2907,7 +2833,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             locale.harUnits.toUpperCase(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
@@ -2927,7 +2853,7 @@ class _PointsCalculationDialog extends StatelessWidget {
                         ),
                         child: Text(
                           locale.unitEquals(GameConfig.unitSeconds),
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppTheme.darkBackground,
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
@@ -3091,21 +3017,31 @@ class _PointsCalculationDialog extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.of(context).pop();
+                  },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     backgroundColor: AppTheme.tertiaryColor,
+                    foregroundColor: AppTheme.darkBackground,
+                    shape: const BeveledRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
                   child: Text(
                     locale.ok.toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontFamily: 'Oswald',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      letterSpacing: 1.0,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 }
@@ -3171,343 +3107,31 @@ class _ActivityPointCard extends StatelessWidget {
 }
 
 Future<bool> _showLeaveExcursionDialog(BuildContext context) async {
-  final result = await showGeneralDialog<bool>(
+  final locale = AppLocalizations.of(context)!;
+  final result = await showCustomAppDialog<bool>(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withAlpha(180),
-    transitionDuration: const Duration(milliseconds: 350),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return const _LeaveExcursionDialog();
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      );
-      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-      return AnimatedBuilder(
-        animation: curvedAnimation,
-        builder: (context, innerChild) {
-          return Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-            child: FadeTransition(
-              opacity: animation,
-              child: innerChild,
-            ),
-          );
-        },
-        child: child,
-      );
-    },
+    title: locale.leaveExcursionTitle,
+    message: locale.leaveExcursionDescription,
+    icon: Icons.warning_amber_rounded,
+    primaryColor: Colors.redAccent,
+    confirmLabel: locale.leave,
+    cancelLabel: locale.cancel,
   );
   return result ?? false;
-}
-
-class _LeaveExcursionDialog extends StatelessWidget {
-  const _LeaveExcursionDialog();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
-    final String titleText = locale.leaveExcursionTitle;
-    final String descText = locale.leaveExcursionDescription;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(18),
-        decoration: ShapeDecoration(
-          color: AppTheme.darkBackground.withAlpha(245),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(
-              color: Colors.redAccent,
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.redAccent,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    titleText.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      letterSpacing: 1.0,
-                      fontFamily: 'Oswald',
-                      decoration: TextDecoration.none,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                  onPressed: () => Navigator.of(context).pop(false),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              descText,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                height: 1.4,
-                decoration: TextDecoration.none,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: Colors.white38, width: 1),
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.of(context).pop(false);
-                    },
-                    child: Text(
-                      locale.cancel.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Oswald',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: Colors.redAccent,
-                      foregroundColor: Colors.white,
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Text(
-                      locale.leave.toUpperCase(),
-                      style: const TextStyle(
-                        fontFamily: 'Oswald',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 Future<bool> _showObjectiveIncompleteDialog(BuildContext context) async {
-  final result = await showGeneralDialog<bool>(
+  final locale = AppLocalizations.of(context)!;
+  final result = await showCustomAppDialog<bool>(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withAlpha(180),
-    transitionDuration: const Duration(milliseconds: 350),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return const _ObjectiveIncompleteDialog();
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      );
-      final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-      return AnimatedBuilder(
-        animation: curvedAnimation,
-        builder: (context, innerChild) {
-          return Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-            child: FadeTransition(
-              opacity: animation,
-              child: innerChild,
-            ),
-          );
-        },
-        child: child,
-      );
-    },
+    title: ((locale as dynamic).objectiveNotCompletedTitle as String?) ?? locale.setObjective,
+    message: ((locale as dynamic).objectiveNotCompletedDescription as String?) ??
+        "Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?",
+    icon: Icons.warning_amber_rounded,
+    primaryColor: AppTheme.primaryColor,
+    confirmLabel: locale.leave,
+    cancelLabel: locale.cancel,
   );
   return result ?? false;
 }
 
-class _ObjectiveIncompleteDialog extends StatelessWidget {
-  const _ObjectiveIncompleteDialog();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
-    final String titleText = ((locale as dynamic).objectiveNotCompletedTitle as String?) ??
-        locale.setObjective.toUpperCase();
-    final String descText = ((locale as dynamic).objectiveNotCompletedDescription as String?) ??
-        "Aún no has completado el objetivo de esta excursión. ¿Estás seguro de que deseas finalizar?";
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(18),
-        decoration: ShapeDecoration(
-          color: AppTheme.darkBackground.withAlpha(245),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(
-              color: AppTheme.primaryColor,
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  color: AppTheme.primaryColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    titleText.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      letterSpacing: 1.0,
-                      fontFamily: 'Oswald',
-                      decoration: TextDecoration.none,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54, size: 20),
-                  onPressed: () => Navigator.of(context).pop(false),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              descText,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                height: 1.4,
-                decoration: TextDecoration.none,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: Colors.white38, width: 1),
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.of(context).pop(false);
-                    },
-                    child: Text(
-                      locale.cancel.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Oswald',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: AppTheme.darkBackground,
-                      shape: const BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Text(
-                      locale.finish.toUpperCase(),
-                      style: const TextStyle(
-                        fontFamily: 'Oswald',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

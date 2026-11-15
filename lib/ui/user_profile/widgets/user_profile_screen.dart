@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
+import 'package:colonia_front_app/ui/core/ui/download_models_dialog.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/shop_offers_sheet.dart';
@@ -34,87 +35,85 @@ class UserProfileScreen extends StatelessWidget {
           final authRepo = Provider.of<AuthRepository>(context);
           final locale = AppLocalizations.of(context);
 
-          return Scaffold(
-            backgroundColor: AppTheme.darkBackground,
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                top: 16.0,
-                bottom: 80.0,
-              ),
-              child: Column(
-                children: [
-                  if (vm.user == AuthRepository.instance.currentUser)
-                    _TopHeaderBarCurrentUser(
-                      viewModel: vm,
-                      onShopPressed: () {
-                        showShopOffersSheet(context);
-                      },
-                      onCoinsPressed: () {
-                        // TODO: Navigate to Coin Shop screen / Buy Coins modal
-                      },
-                    ),
-                  if (vm.user != AuthRepository.instance.currentUser)
-                    //_TopHeaderBarOtherUser(
-                      //viewModel: vm,
-                      //onBackPressed: () => Navigator.pop(context)
-                    //),
+          final bool isDownloading = vm.isDownloadingModels;
+          final bool isAvatarLoaded = vm.downloadedItemModels.isNotEmpty;
 
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: SafeArea(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          behavior: HitTestBehavior.opaque,
-                          child: const Icon(
-                            Icons.arrow_back,
-                            color: AppTheme.primaryColor,
-                            size: 32.0,
+          return AbsorbPointer(
+            absorbing: isDownloading,
+            child: Scaffold(
+              backgroundColor: AppTheme.darkBackground,
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                  bottom: 80.0,
+                ),
+                child: Column(
+                  children: [
+                    if (vm.user == AuthRepository.instance.currentUser)
+                      _TopHeaderBarCurrentUser(
+                        viewModel: vm,
+                        onShopPressed: () {
+                          showShopOffersSheet(context);
+                        },
+                        onCoinsPressed: () {
+                          // TODO: Navigate to Coin Shop screen / Buy Coins modal
+                        },
+                      ),
+                    if (vm.user != AuthRepository.instance.currentUser)
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: SafeArea(
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            behavior: HitTestBehavior.opaque,
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: AppTheme.primaryColor,
+                              size: 32.0,
+                            ),
                           ),
                         ),
-
                       ),
+  
+                    const SizedBox(height: 20),
+  
+                    _AvatarSection(
+                      viewModel: vm,
+                      onEditAccountPressed: () => _showEditAccountBottomSheet(context, vm),
+                      onEditAvatarPressed: () => _showEditAvatarBottomSheet(context, vm),
                     ),
-
-                  const SizedBox(height: 20),
-
-                  _AvatarSection(
-                    viewModel: vm,
-                    onEditAccountPressed: () => _showEditAccountBottomSheet(context, vm),
-                    onEditAvatarPressed: () => _showEditAvatarBottomSheet(context, vm),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _LevelXpSection(viewModel: vm),
-
-
-                  const SizedBox(height: 20),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                    decoration: ShapeDecoration(
-                      color: Colors.white.withAlpha(8),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(
-                          color: AppTheme.primaryColor.withAlpha(60),
-                          width: 1,
+                    const SizedBox(height: 16),
+  
+                    _LevelXpSection(viewModel: vm),
+  
+                    const SizedBox(height: 20),
+  
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      decoration: ShapeDecoration(
+                        color: Colors.white.withAlpha(8),
+                        shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(
+                            color: AppTheme.primaryColor.withAlpha(60),
+                            width: 1,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Expanded(
-                              child: StatItem(
-                                label: locale!.distance.toUpperCase(),
-                                value: vm.formattedDistance,
-                                icon: Icons.straighten,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Expanded(
+                                child: StatItem(
+                                  label: locale!.distance.toUpperCase(),
+                                  value: vm.formattedDistance,
+                                  icon: Icons.straighten,
+                                ),
                               ),
-                            ),
                             Expanded(
                               child: StatItem(
                                 label: locale.time.toUpperCase(),
@@ -186,7 +185,7 @@ class UserProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-          );
+          ));
         },
       ),
     );
@@ -301,36 +300,13 @@ class UserProfileScreen extends StatelessWidget {
   }
 
   void _showDownloadModelsDialog(BuildContext context, UserProfileViewModel vm) {
-    showGeneralDialog(
+    showSharedDownloadModelsDialog(
       context: context,
-      barrierDismissible: false,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withAlpha(180),
-      transitionDuration: const Duration(milliseconds: 350),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return _DownloadModelsDialogProfile(viewModel: vm);
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        final heightFactor = Tween<double>(begin: 0.001, end: 1.0).animate(curvedAnimation);
-
-        return AnimatedBuilder(
-          animation: curvedAnimation,
-          builder: (context, innerChild) {
-            return Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.diagonal3Values(1.0, heightFactor.value, 1.0),
-              child: FadeTransition(
-                opacity: animation,
-                child: innerChild,
-              ),
-            );
-          },
-          child: child,
-        );
+      listenable: vm,
+      getProgress: () => vm.downloadProgress,
+      getIsDownloading: () => vm.isDownloadingModels,
+      onStartDownload: () {
+        vm.checkAndDownloadAvatarModels();
       },
     );
   }
@@ -1275,140 +1251,6 @@ class _InputField extends StatelessWidget {
     );
   }
 }
-
-class _DownloadModelsDialogProfile extends StatefulWidget {
-  final UserProfileViewModel viewModel;
-  const _DownloadModelsDialogProfile({required this.viewModel});
-
-  @override
-  State<_DownloadModelsDialogProfile> createState() => _DownloadModelsDialogProfileState();
-}
-
-class _DownloadModelsDialogProfileState extends State<_DownloadModelsDialogProfile> {
-  bool _isDownloading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context)!;
-    final color = AppTheme.primaryColor;
-
-    return ListenableBuilder(
-      listenable: widget.viewModel,
-      builder: (context, _) {
-        final progress = widget.viewModel.downloadProgress;
-        final isDownloading = widget.viewModel.isDownloadingModels;
-        
-        if (progress >= 1.0 && _isDownloading && !isDownloading) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context).pop();
-          });
-        }
-
-        return PopScope(
-          canPop: !_isDownloading,
-          child: Dialog(
-            backgroundColor: AppTheme.darkBackground,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 40.0),
-            shape: BeveledRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: AppTheme.tertiaryColor,
-                width: 1.5,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    (_isDownloading ? locale.downloadingModelsTitle : locale.downloadModelsTitle).toUpperCase(),
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontFamily: 'Oswald',
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  if (!_isDownloading)
-                    Text(
-                      locale.downloadModelsMessage,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-                    )
-                  else ...[
-                    Text(
-                      locale.downloadModelsProgress((progress * 100).toInt().toString()),
-                      style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: Colors.white12,
-                        color: color,
-                        minHeight: 8,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (!_isDownloading) ...[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(
-                            "Cancel".toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontFamily: 'Oswald',
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            foregroundColor: AppTheme.darkBackground,
-                            shape: const BeveledRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          ),
-                          onPressed: () {
-                            setState(() => _isDownloading = true);
-                            widget.viewModel.checkAndDownloadAvatarModels();
-                          },
-                          child: Text(
-                            locale.download.toUpperCase(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Oswald',
-                              letterSpacing: 1.0,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 
 class _AchievementsSection extends StatelessWidget {
   final UserProfileViewModel viewModel;
