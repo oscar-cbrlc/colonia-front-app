@@ -68,6 +68,7 @@ class _SharedDownloadModelsDialog extends StatefulWidget {
 
 class _SharedDownloadModelsDialogState extends State<_SharedDownloadModelsDialog> {
   bool _isDownloading = false;
+  bool _hasPopped = false;
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +81,12 @@ class _SharedDownloadModelsDialogState extends State<_SharedDownloadModelsDialog
         final progress = widget.getProgress();
         final isDownloading = widget.getIsDownloading();
         
-        if (progress >= 1.0 && _isDownloading && !isDownloading) {
+        if (progress >= 1.0 && _isDownloading && !isDownloading && !_hasPopped) {
+          _hasPopped = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context).pop();
+            if (mounted && Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
           });
         }
 
