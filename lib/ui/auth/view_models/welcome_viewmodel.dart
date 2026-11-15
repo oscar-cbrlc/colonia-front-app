@@ -25,25 +25,29 @@ class WelcomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loginWithGoogle() async {
+  Future<bool> loginWithGoogle() async {
     _setState(WelcomeState.loading);
     try {
       _authResult = await _firebaseAuthRepository.signInWithGoogle();
       _setState(WelcomeState.success);
+      return true;
     } catch (e, stackTrace) {
       developer.log('Google login error', error: e, stackTrace: stackTrace, name: 'WelcomeViewModel');
       _handleError('Google authentication failed. Please try again.');
+      return false;
     }
   }
 
-  Future<void> loginWithApple() async {
+  Future<bool> loginWithApple() async {
     _setState(WelcomeState.loading);
     try {
       _authResult = await _firebaseAuthRepository.signInWithApple();
       _setState(WelcomeState.success);
+      return true;
     } catch (e, stackTrace) {
       developer.log('Apple login error', error: e, stackTrace: stackTrace, name: 'WelcomeViewModel');
       _handleError('Apple authentication failed. Please try again.');
+      return false;
     }
   }
 
