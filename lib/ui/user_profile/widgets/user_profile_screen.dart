@@ -16,6 +16,9 @@ import 'package:provider/provider.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import 'package:colonia_front_app/ui/core/ui/download_models_dialog.dart';
+import 'package:colonia_front_app/ui/core/ui/custom_app_dialog.dart';
+import 'package:colonia_front_app/ui/core/providers/locale_provider.dart';
+import 'package:colonia_front_app/ui/core/ui/app_choice_chip.dart';
 import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewmodel.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/shop_offers_sheet.dart';
@@ -192,8 +195,6 @@ class UserProfileScreen extends StatelessWidget {
   }
 
   void _showSettingsBottomSheet(BuildContext context, UserProfileViewModel vm, AuthRepository authRepo) {
-    final locale = AppLocalizations.of(context)!;
-    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -201,100 +202,196 @@ class UserProfileScreen extends StatelessWidget {
       shape: const BeveledRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (ctx) => Consumer<LocaleProvider>(
+        builder: (ctx, localeProvider, _) {
+          final locale = AppLocalizations.of(ctx) ?? AppLocalizations.of(context)!;
+          final currentLang = localeProvider.locale.languageCode;
+
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      locale.settings.toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Oswald',
+                        fontSize: 20,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white54),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                
                 Text(
-                  locale.settings.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppTheme.primaryColor,
+                  locale.language.toUpperCase(),
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(180),
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Oswald',
-                    fontSize: 20,
+                    fontSize: 14,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54),
-                  onPressed: () => Navigator.pop(ctx),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    AppChoiceChip(
+                      label: locale.spanish,
+                      isSelected: currentLang == 'es',
+                      onSelected: () => localeProvider.setLocale(const Locale('es')),
+                    ),
+                    const SizedBox(width: 12),
+                    AppChoiceChip(
+                      label: locale.english,
+                      isSelected: currentLang == 'en',
+                      onSelected: () => localeProvider.setLocale(const Locale('en')),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 24),
+                
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.secondaryColor.withAlpha(20),
+                      foregroundColor: AppTheme.secondaryColor,
+                      side: const BorderSide(color: AppTheme.secondaryColor, width: 1.0),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                    icon: const Icon(Icons.download),
+                    label: Text(
+                      locale.downloadModels,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white70),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showDownloadModelsDialog(context, vm);
+                    },
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent.withAlpha(40),
+                      foregroundColor: Colors.redAccent,
+                      side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: Text(
+                      locale.logout,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white70),
+                    ),
+                    onPressed: () async {
+                      context.read<TeamRepository>().clear();
+                      context.read<TerritoryRepository>().clearCache();
+                      context.read<TrackingRepository>().clear();
+
+                      await vm.avatarItemRepository.clearModelsCache();
+                      await authRepo.logout();
+                      
+                      if (context.mounted) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRouter.welcome,
+                          (route) => false,
+                        );
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.red.withAlpha(15),
+                      foregroundColor: Colors.redAccent,
+                      side: const BorderSide(color: Colors.redAccent, width: 1.0),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_forever, size: 20),
+                    label: Text(
+                      locale.deleteAccount,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    onPressed: () async {
+                      final firstConfirm = await showCustomAppDialog<bool>(
+                        context: ctx,
+                        title: locale.deleteAccountDialogTitle,
+                        message: locale.deleteAccountDialogMessage,
+                        icon: Icons.warning_amber_rounded,
+                        primaryColor: Colors.redAccent,
+                        confirmLabel: locale.yesDelete,
+                        cancelLabel: locale.cancel,
+                      );
+
+                      if (firstConfirm == true && ctx.mounted) {
+                        final doubleConfirm = await showCustomAppDialog<bool>(
+                          context: ctx,
+                          title: locale.deleteAccountConfirmTitle,
+                          message: locale.deleteAccountConfirmMessage,
+                          icon: Icons.report_problem_rounded,
+                          primaryColor: Colors.redAccent,
+                          confirmLabel: locale.yesDelete,
+                          cancelLabel: locale.cancel,
+                        );
+
+                        if (doubleConfirm == true && ctx.mounted) {
+                          Navigator.pop(ctx);
+
+                          context.read<TeamRepository>().clear();
+                          context.read<TerritoryRepository>().clearCache();
+                          context.read<TrackingRepository>().clear();
+                          await vm.avatarItemRepository.clearModelsCache();
+
+                          await authRepo.deleteAccount();
+
+                          if (context.mounted) {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRouter.welcome,
+                              (route) => false,
+                            );
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
               ],
             ),
-            const SizedBox(height: 24),
-            
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.secondaryColor.withAlpha(20),
-                  foregroundColor: AppTheme.secondaryColor,
-                  side: const BorderSide(color: AppTheme.secondaryColor, width: 1.0),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                ),
-                icon: const Icon(Icons.download),
-                label: Text(
-                  locale.downloadModels,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _showDownloadModelsDialog(context, vm);
-                },
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent.withAlpha(40),
-                  foregroundColor: Colors.redAccent,
-                  side: const BorderSide(color: Colors.redAccent, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                ),
-                icon: const Icon(Icons.logout),
-                label: Text(
-                  locale.logout,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                onPressed: () async {
-                  context.read<TeamRepository>().clear();
-                  context.read<TerritoryRepository>().clearCache();
-                  context.read<TrackingRepository>().clear();
-
-                  await vm.avatarItemRepository.clearModelsCache();
-                  await authRepo.logout();
-                  
-                  if (context.mounted) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      AppRouter.welcome,
-                      (route) => false,
-                    );
-                  }
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
