@@ -24,9 +24,10 @@ class LocalStorageService {
   static const String _inventoryKey = 'colonia_inventory_data';
   static const String _availableBoostsKey = 'colonia_available_boosts_data';
   static const String _avatarItemsKey = 'colonia_avatar_items_data';
-  static const String _avatarModelKey = 'colonia_avatar_model_data';
+  //static const String _avatarModelKey = 'colonia_avatar_model_data';
   static const String _mapTerritoriesKey = 'colonia_map_territories_data';
   static const String _notificationsKey = 'colonia_notifications_data';
+  static const String _languageCodeKey = 'colonia_language_code';
 
   static const String _mergedModelFileName = 'user_avatar_puck.glb';
 
@@ -56,6 +57,14 @@ class LocalStorageService {
 
   Future<String?> get refreshToken async {
     return await _secureStorage.read(key: _refreshTokenKey);
+  }
+
+  Future<String?> get languageCode async {
+    return await _secureStorage.read(key: _languageCodeKey);
+  }
+
+  Future<void> saveLanguageCode(String code) async {
+    await _secureStorage.write(key: _languageCodeKey, value: code);
   }
 
   Future<void> saveUser(User user) async {
