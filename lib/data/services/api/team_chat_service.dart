@@ -9,8 +9,8 @@ class TeamChatService {
   final String _route = '/teamChat';
 
   Future<http.Response> send(String message) async {
-    return await _apiClient.post('$_route/', body: {
-      "chat_message": message,
+    return await _apiClient.post('$_route/', queryParameters: {
+      "message_in": message,
     });
   }
 
