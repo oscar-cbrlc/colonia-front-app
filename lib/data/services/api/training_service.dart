@@ -14,4 +14,8 @@ class TrainingService {
   Future<http.Response> getAllTrainings() async {
     return await _apiClient.get('/trainings');
   }
+
+  Future<http.Response> getMyTrainings() async {
+    return await _apiClient.get('/userTraining/mine');
+  }
 }

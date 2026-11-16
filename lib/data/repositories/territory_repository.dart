@@ -83,6 +83,7 @@ class TerritoryRepository extends ChangeNotifier {
   }
 
   Future<({ActivityResult? result, bool isOffline, String? error})> applyTerritoryImpact({
+    required String trainingUuid,
     required double totalDistance,
     required int totalTime,
     required int secondsWalk,
@@ -91,27 +92,29 @@ class TerritoryRepository extends ChangeNotifier {
     required double distanceWalk,
     required double distanceRun,
     required double distanceBike,
-    required String timestamp,
+    required String startedAt,
     required List<Map<String, dynamic>> territories,
     int? boostId,
   }) async {
+    final Map<String, dynamic> body = {
+      'training_uuid': trainingUuid,
+      'training_distance': totalDistance.round(),
+      'training_time': totalTime,
+      'territories': territories,
+      'started_at': startedAt,
+      if (boostId != null) 'boost_id': boostId,
+      'seconds_walk': secondsWalk,
+      'seconds_run': secondsRun,
+      'seconds_bike': secondsBike,
+      'meters_walk': distanceWalk.round(),
+      'meters_run': distanceRun.round(),
+      'meters_bike': distanceBike.round(),
+    };
     try {
-      final response = await _territoryService.applyPoints(
-        totalDistance: totalDistance,
-        totalTime: totalTime,
-        timestamp: timestamp,
-        territories: territories,
-        boostId: boostId,
-        secondsWalk: secondsWalk,
-        secondsRun: secondsRun,
-        secondsBike: secondsBike,
-        distanceWalk: distanceWalk,
-        distanceRun: distanceRun,
-        distanceBike: distanceBike,
-      );
+      final response = await _territoryService.processTraining(body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         final dynamic decoded = jsonDecode(response.body);
-        final result = ActivityResult.fromJson(decoded);
+        final result = ActivityResult.fromJson(decoded as Map<String, dynamic>);
 
         for (final territory in result.territories) {
           _territories[territory.id] = territory;

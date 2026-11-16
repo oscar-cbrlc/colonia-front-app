@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:colonia_front_app/domain/models/session/session_enums.dart';
 import 'package:colonia_front_app/domain/models/session/training_config.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/utils/uuid_helper.dart';
 
 
 class SessionRepository extends ChangeNotifier {
@@ -31,6 +32,8 @@ class SessionRepository extends ChangeNotifier {
   TrainingConfig? _trainingConfig;
   List<Territory> _affectedTerritories = [];
   double _accumulatedImpactPoints = 0.0;
+  DateTime? _sessionStartTime;
+  String? _sessionTrainingUuid;
 
   int _secondsWalk = 0;
   int _secondsRun = 0;
@@ -155,6 +158,8 @@ class SessionRepository extends ChangeNotifier {
     if (_playingState == PlayingState.playing) return;
     final currentConfig = _trainingConfig;
     _resetSessionData();
+    _sessionStartTime = DateTime.now();
+    _sessionTrainingUuid = generateUuidV4();
     _trainingConfig = currentConfig;
     _playingState = PlayingState.playing;
     _trackingRepository.startActivity(_activityType ?? ActivityType.onFoot);
@@ -214,10 +219,14 @@ class SessionRepository extends ChangeNotifier {
         'points': isValid? entry.value * trainingImpact : entry.value,
       }).toList();
 
+      final String startedAt = (_sessionStartTime ?? DateTime.now()).toIso8601String();
+      final String trainingUuid = _sessionTrainingUuid ?? generateUuidV4();
+
       final impact = PendingActivityImpact(
+        trainingUuid: trainingUuid,
         totalDistance: _distanceWalked + _distanceRun + _distanceBike,
         totalTime: _secondsWalk + _secondsRun + _secondsBike,
-        timestamp: DateTime.now().toIso8601String(),
+        timestamp: startedAt,
         territories: territoriesJson,
         boostId: _trainingConfig?.boost?.id,
         secondsWalk: _secondsWalk,
@@ -229,9 +238,10 @@ class SessionRepository extends ChangeNotifier {
       );
 
       final impactResult = await _territoryRepository.applyTerritoryImpact(
+        trainingUuid: impact.trainingUuid,
         totalDistance: impact.totalDistance,
         totalTime: impact.totalTime,
-        timestamp: impact.timestamp,
+        startedAt: impact.timestamp,
         secondsWalk: impact.secondsWalk,
         secondsRun: impact.secondsRun,
         secondsBike: impact.secondsBike,
@@ -282,9 +292,10 @@ class SessionRepository extends ChangeNotifier {
       for (final impact in pending) {
         try {
           final impactResult = await _territoryRepository.applyTerritoryImpact(
+            trainingUuid: impact.trainingUuid.isNotEmpty ? impact.trainingUuid : generateUuidV4(),
             totalDistance: impact.totalDistance,
             totalTime: impact.totalTime,
-            timestamp: impact.timestamp,
+            startedAt: impact.timestamp,
             territories: impact.territories,
             secondsWalk: impact.secondsWalk,
             secondsRun: impact.secondsRun,
@@ -377,6 +388,8 @@ class SessionRepository extends ChangeNotifier {
     _distanceWalked = 0.0;
     _distanceRun = 0.0;
     _distanceBike = 0.0;
+    _sessionStartTime = null;
+    _sessionTrainingUuid = null;
     _sessionTerritoryImpacts.clear();
     _trackingRepository.clear();
   }

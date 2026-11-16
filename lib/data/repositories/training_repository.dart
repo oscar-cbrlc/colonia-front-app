@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:colonia_front_app/data/services/api/training_service.dart';
 import 'package:colonia_front_app/domain/models/enums/training_type.dart';
 import 'package:colonia_front_app/domain/models/training.dart';
+import 'package:colonia_front_app/domain/models/user_training.dart';
 import 'package:flutter/widgets.dart';
 
 class TrainingRepository extends ChangeNotifier {
@@ -16,7 +17,12 @@ class TrainingRepository extends ChangeNotifier {
     Training(id: 5, name: TrainingType.timeTrial.name, impactPoints: 1.75),
   ];
 
+  List<UserTraining> _userTrainings = [];
+  bool _isUserTrainingsLoading = false;
+
   List<Training> get trainings => _trainings;
+  List<UserTraining> get userTrainings => _userTrainings;
+  bool get isUserTrainingsLoading => _isUserTrainingsLoading;
 
   Training? getTrainingFromList(int id) {
     try {
@@ -62,5 +68,25 @@ class TrainingRepository extends ChangeNotifier {
       // error
     }
     return null;
+  }
+
+  Future<void> fetchMyTrainings() async {
+    _isUserTrainingsLoading = true;
+    notifyListeners();
+    try {
+      final response = await _trainingService.getMyTrainings();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        _userTrainings = data
+            .map((json) => UserTraining.fromJson(json as Map<String, dynamic>))
+            .toList();
+        _userTrainings.sort((a, b) => b.startDate.compareTo(a.startDate));
+      }
+    } catch (e) {
+      // error
+    } finally {
+      _isUserTrainingsLoading = false;
+      notifyListeners();
+    }
   }
 }
