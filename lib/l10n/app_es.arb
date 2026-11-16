@@ -24,6 +24,43 @@
     },
     "versionNotesSummary": "• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n",
 
+    "tutorial": "Tutorial",
+    "tutorialTitle": "EMPIEZA TU EXCURSIÓN",
+    "tutorialInfo": "El mundo es tuyo para conquistar.\nParticipa con otras hormigas para hacer crecer la Colonia, protegerla e invadir territorios en su nombre.",
+    "tutorialTeamSubtitle": "1. Únete a una Colonia o crea la tuya",
+    "tutorialTeamInfo1": "Visita Colonias, conoce a sus miembros y su influencia. Únete y forma parte de algo más grande.",
+    "tutorialTeamInfo2": "Crea tu propia Colonia y empieza desde abajo a crecer tu influencia para que otros te sigan.",
+    "tutorialActivitySubtitle": "2. Inicia una Excursión",
+    "tutorialActivityInfo1": "Escoge tu recorrido",
+    "tutorialActivityInfo2": "Define tu objetivo",
+    "tutorialActivityInfo3": "Empieza tu excursión y conquista territorios",
+    "tutorialProfileSubtitle": "3. Visita tu Perfil",
+    "tutorialProfileInfo1": "Cambia tu nombre",
+    "tutorialProfileInfo2": "Modifica tu avatar",
+    "tutorialProfileInfo3": "Revisa tus logros y progreso",
+    "tutorialChallengesAndEventsSubtitle": "4. Completa retos y participa en eventos por recompensas",
+    "tutorialChallengesAndEventsInfo1": "Participa en desafíos semanales para subir tu experiencia.",
+    "tutorialChallengesAndEventsInfo2": "Explora eventos próximos y participa con la comunidad.",
+    "tutorialSectionInfo": "Info",
+    "tutorialSectionTeam": "Colonia",
+    "tutorialSectionActivity": "Excursión",
+    "tutorialSectionProfile": "Perfil",
+    "tutorialSectionChallenges": "Retos",
+    "tutorialSectionEvents": "Eventos",
+    "tutorialSectionChallengesAndEvents": "Retos y Eventos",
+    "tutorialNext": "Siguiente",
+    "tutorialPrevious": "Anterior",
+    "tutorialFinish": "Entendido",
+    "tutorialSkip": "Saltar",
+    "tutorialOnFoot": "A PIE",
+    "tutorialOnBike": "EN BICICLETA",
+    "tutorialTerritoriesTitle": "Territorios y HP",
+    "tutorialTerritoriesInfo": "El mapa está dividido en territorios. Cada territorio posee Puntos de Vida (HP). Al realizar excursiones generas puntos de impacto: si un territorio enemigo llega a 0 HP, tu Colonia lo conquista; si pertenece a tu Colonia, restauras sus HP para defenderlo.",
+    "tutorialObjectivesTitle": "OBJETIVOS DE ENTRENAMIENTO",
+
+
+    "avatar": "Avatar",
+
     "settings": "Ajustes",
     "about": "Acerca de",
     "aboutTitle": "ACERCA DE COLONIA",
@@ -1639,6 +1676,21 @@
 
     "deleteNotification": "Eliminar notificación",
     "@deleteNotification": {},
+
+    "excursionNotificationBody": "Tiempo: {time} | Distancia: {distance} | Actividad: {activity}",
+    "@excursionNotificationBody": {
+        "parameters": {
+            "time": {
+                "type": "String"
+            },
+            "distance": {
+                "type": "String"
+            },
+            "activity": {
+                "type": "String"
+            }
+        }
+    },
 
     "blockedToExcursionTitle": "HORMIGA SOLITARIA",
     "@blockedToExcursionTitle": {},

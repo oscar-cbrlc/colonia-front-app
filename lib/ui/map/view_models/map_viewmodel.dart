@@ -34,7 +34,7 @@ class MapViewModel extends ChangeNotifier {
   final BoostRepository _boostRepository;
   final ChallengeRepository _challengeRepository;
 
-  static const double defaultInitialZoom = 16.5;
+  static const double defaultInitialZoom = 16;
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
@@ -170,7 +170,7 @@ class MapViewModel extends ChangeNotifier {
 
     if (missingModels.isNotEmpty && context.mounted) {
       final locale = AppLocalizations.of(context)!;
-      _promptDownloadModels(
+      await _promptDownloadModels(
         context,
         customTitle: locale.newModelsAvailableTitle,
         customMessage: locale.newModelsAvailableMessage,
@@ -178,13 +178,13 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
-  void _promptDownloadModels(
+  Future<void> _promptDownloadModels(
     BuildContext context, {
     String? customTitle,
     String? customMessage,
-  }) {
+  }) async {
     if (!context.mounted) return;
-    showSharedDownloadModelsDialog(
+    await showSharedDownloadModelsDialog(
       context: context,
       listenable: this,
       getProgress: () => downloadProgress,

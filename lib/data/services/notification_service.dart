@@ -53,23 +53,27 @@ class NotificationService {
     required int id,
     required String title,
     required String body,
+    bool ongoing = false,
+    bool onlyAlertOnce = false,
   }) async {
     if (!_isInitialized) {
       await init();
     }
 
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'excursion_channel_id',
       'Excursion Notifications',
       channelDescription: 'Phone notifications for excursion events and HAR activity tracking',
       importance: Importance.high,
       priority: Priority.high,
+      ongoing: ongoing,
+      onlyAlertOnce: onlyAlertOnce,
       showWhen: true,
     );
 
-    const NotificationDetails details = NotificationDetails(
+    final NotificationDetails details = NotificationDetails(
       android: androidDetails,
-      iOS: DarwinNotificationDetails(
+      iOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
@@ -80,6 +84,24 @@ class NotificationService {
       await _notificationsPlugin.show(id, title, body, details);
     } catch (e) {
       debugPrint('NotificationService showNotification error: $e');
+    }
+  }
+
+  Future<void> cancelNotification(int id) async {
+    if (!_isInitialized) return;
+    try {
+      await _notificationsPlugin.cancel(id);
+    } catch (e) {
+      debugPrint('NotificationService cancelNotification error: $e');
+    }
+  }
+
+  Future<void> cancelAll() async {
+    if (!_isInitialized) return;
+    try {
+      await _notificationsPlugin.cancelAll();
+    } catch (e) {
+      debugPrint('NotificationService cancelAll error: $e');
     }
   }
 }

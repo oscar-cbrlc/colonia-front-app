@@ -37,10 +37,11 @@ void navigateToCreateUsernameScreen({
   );
 }
 
-void navigateToMapScreen(BuildContext context) {
+void navigateToMapScreen(BuildContext context, {bool isFromSignIn = true}) {
   Navigator.of(context).pushNamedAndRemoveUntil(
     AppRouter.map,
     (route) => false,
+    arguments: {'isFromSignIn': isFromSignIn},
   );
 }
 

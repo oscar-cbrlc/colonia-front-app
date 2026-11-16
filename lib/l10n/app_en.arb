@@ -24,6 +24,43 @@
     },
     "versionNotesSummary": "• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop",
 
+    "tutorial": "Tutorial",
+    "tutorialTitle": "START YOUR EXCURSION",
+    "tutorialInfo": "The world is yours to conquer.\nParticipate with other ants to grow the Colony, protect it, and invade territories in its name",
+    "tutorialTeamSubtitle": "1. Join a Colony or create your own",
+    "tutorialTeamInfo1": "Visit Colonies, meet their members and see their influence. Join and be part of something bigger",
+    "tutorialTeamInfo2": "Create your own Colony and start from scratch to grow your influence so others follow you",
+    "tutorialActivitySubtitle": "2. Start an Excursion",
+    "tutorialActivityInfo1": "Choose your route",
+    "tutorialActivityInfo2": "Define your objective",
+    "tutorialActivityInfo3": "Start your excursion and conquer territories",
+    "tutorialProfileSubtitle": "3. Visit your Profile",
+    "tutorialProfileInfo1": "Change your name",
+    "tutorialProfileInfo2": "Modify your avatar",
+    "tutorialProfileInfo3": "Review your achievements and progress",
+    "tutorialChallengesAndEventsSubtitle": "4. Complete challenges and participate in events for rewards",
+    "tutorialChallengesAndEventsInfo1": "Participate in weekly challenges to increase your experience",
+    "tutorialChallengesAndEventsInfo2": "Explore upcoming events and participate with the community",
+    "tutorialSectionInfo": "Info",
+    "tutorialSectionTeam": "Team",
+    "tutorialSectionActivity": "Activity",
+    "tutorialSectionProfile": "Profile",
+    "tutorialSectionChallenges": "Challenges",
+    "tutorialSectionEvents": "Events",
+    "tutorialSectionChallengesAndEvents": "Challenges & Events",
+    "tutorialNext": "Next",
+    "tutorialPrevious": "Previous",
+    "tutorialFinish": "Got it",
+    "tutorialSkip": "Skip",
+    "tutorialOnFoot": "ON FOOT",
+    "tutorialOnBike": "ON BIKE",
+    "tutorialTerritoriesTitle": "Territories and HP",
+    "tutorialTerritoriesInfo": "The map is divided into territories. Each territory has Health Points (HP). Excursions generate impact points: if an enemy territory reaches 0 HP, your Colony conquers it; if it belongs to your Colony, you restore its HP to defend it.",
+    "tutorialObjectivesTitle": "TRAINING OBJECTIVES",
+
+
+    "avatar": "Avatar",
+
     "settings": "Settings",
     "about": "About",
     "aboutTitle": "ABOUT COLONIA",
@@ -1637,6 +1674,21 @@
 
     "deleteNotification": "Delete notification",
     "@deleteNotification": {},
+
+    "excursionNotificationBody": "Time: {time} | Distance: {distance} | Activity: {activity}",
+    "@excursionNotificationBody": {
+        "parameters": {
+            "time": {
+                "type": "String"
+            },
+            "distance": {
+                "type": "String"
+            },
+            "activity": {
+                "type": "String"
+            }
+        }
+    },
 
     "blockedToExcursionTitle": "LONELY ANT",
     "@blockedToExcursionTitle": {},

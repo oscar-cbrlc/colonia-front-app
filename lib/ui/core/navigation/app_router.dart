@@ -129,9 +129,11 @@ class AppRouter {
         );
 
       case map:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final isFromSignIn = args?['isFromSignIn'] as bool? ?? false;
         return MaterialPageRoute(
           settings: settings,
-          builder: (context) => const MainNavigationScreen(),
+          builder: (context) => MainNavigationScreen(isFromSignIn: isFromSignIn),
         );
 
       case summary:
