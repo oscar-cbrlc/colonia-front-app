@@ -28,12 +28,15 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
+  String? _lastNotificationBody;
 
   @override
   void initState() {
     super.initState();
+    super.initState();
     mapbox.MapboxOptions.setAccessToken(Env.mapboxAccessToken);
     widget.viewModel.requestLocationPermission();
+    widget.viewModel.addListener(_onViewModelChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -51,14 +54,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     widget.viewModel.sessionRepository.onStartNotification = () {
       if (!mounted) return;
-      final locale = AppLocalizations.of(context);
-      if (locale != null) {
-        NotificationService().showNotification(
-          id: 101,
-          title: 'Colonia',
-          body: locale.activityStarted,
-        );
-      }
+      _updateExcursionNotification();
     };
 
     widget.viewModel.trackingRepository.onSuspectedInvalidNotification = () {
@@ -84,6 +80,47 @@ class _ActivityScreenState extends State<ActivityScreen> {
         );
       }
     };
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.removeListener(_onViewModelChanged);
+    _cancelExcursionNotification();
+    super.dispose();
+  }
+
+  void _onViewModelChanged() {
+    if (!mounted) return;
+    if (widget.viewModel.playingState == PlayingState.playing) {
+      _updateExcursionNotification();
+    } else if (widget.viewModel.playingState == PlayingState.stopped) {
+      _cancelExcursionNotification();
+    }
+  }
+
+  void _updateExcursionNotification() {
+    final locale = AppLocalizations.of(context);
+    if (locale == null) return;
+    final timeStr = _formatDuration(Duration(seconds: widget.viewModel.totalSecondsElapsed));
+    final distStr = "${(widget.viewModel.totalMetersTracked / 1000).toStringAsFixed(2)} km";
+    final activityStr = widget.viewModel.trackingRepository.currentHarActivity.getLocale(locale);
+
+    final body = locale.excursionNotificationBody(activityStr, distStr, timeStr);
+    if (body != _lastNotificationBody) {
+      _lastNotificationBody = body;
+      NotificationService().showNotification(
+        id: 101,
+        title: 'Colonia',
+        body: body,
+        ongoing: true,
+        onlyAlertOnce: true,
+      );
+    }
+  }
+
+  void _cancelExcursionNotification() {
+    _lastNotificationBody = null;
+    NotificationService().cancelAll();
   }
 
   @override

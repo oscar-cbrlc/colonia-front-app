@@ -24,6 +24,7 @@ import 'package:colonia_front_app/utils/h3_helper.dart';
 
 import 'package:colonia_front_app/data/repositories/session_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
+import 'package:colonia_front_app/data/services/notification_service.dart';
 
 class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final SessionRepository _sessionRepository;
@@ -492,6 +493,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _selectedBoost = null;
     _selectedPreTrainingType = TrainingType.free;
     _selectedActivityType = ActivityType.onFoot;
+    NotificationService().cancelAll();
     notifyListeners();
   }
 
@@ -501,6 +503,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   Future<Map<String, dynamic>?> onPushStopButton() async {
     _isSaving = true;
     _sensorRepository?.stopReading();
+    NotificationService().cancelAll();
     notifyListeners();
     try {
       final trainingType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
