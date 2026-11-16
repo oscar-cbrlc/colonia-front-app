@@ -40,6 +40,8 @@ abstract class TeamMemberSummary with _$TeamMemberSummary {
     @JsonKey(name: 'user_thumbnail') String? userThumbnail,
     @JsonKey(name: 'team_role') required String role,
     @JsonKey(name: 'avatar') UserAvatar? avatar,
+    @JsonKey(name: 'stats_level') @Default(0) int level,
+    @JsonKey(name: 'stats_xp') @Default(0) int xp,
   }) = _TeamMemberSummary;
 
   factory TeamMemberSummary.fromJson(Map<String, dynamic> json) =>
