@@ -356,6 +356,8 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
                 children: [
                   Text(
                     locale.excursionDetailsTitle.toUpperCase(),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -388,35 +390,52 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(
-                                        activityType == ActivityType.onBike
-                                            ? Icons.pedal_bike_sharp
-                                            : Icons.hiking_sharp,
-                                        color: AppTheme.primaryColor,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.activity.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
+                                      Flexible(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              activityType == ActivityType.onBike
+                                                  ? Icons.pedal_bike_sharp
+                                                  : Icons.hiking_sharp,
+                                              color: AppTheme.primaryColor,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                locale.activity.toUpperCase(),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.8,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const Spacer(),
-                                      Text(
-                                        (activityType == ActivityType.onBike
-                                                ? locale.onBike
-                                                : locale.onFoot)
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
+                                      const SizedBox(width: 16),
+                                      Flexible(
+                                        child: Text(
+                                          (activityType == ActivityType.onBike
+                                                  ? locale.onBike
+                                                  : locale.onFoot)
+                                              .toUpperCase(),
+                                          textAlign: TextAlign.end,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Oswald',
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -424,27 +443,44 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
                                   const Divider(color: Colors.white12, height: 16),
 
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(widget.viewModel.selectedTrainingType?.getIcon(),
-                                          color: AppTheme.primaryColor, size: 16),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.training.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
+                                      Flexible(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(widget.viewModel.selectedTrainingType?.getIcon(),
+                                                color: AppTheme.primaryColor, size: 16),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                locale.training.toUpperCase(),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.8,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const Spacer(),
-                                      Text(
-                                        training.getLocale(locale).toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
+                                      const SizedBox(width: 16),
+                                      Flexible(
+                                        child: Text(
+                                          training.getLocale(locale).toUpperCase(),
+                                          textAlign: TextAlign.end,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Oswald',
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -453,27 +489,44 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
                                   if (training != TrainingType.free) ...[
                                     const Divider(color: Colors.white12, height: 16),
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Icon(Icons.flag_outlined,
-                                            color: AppTheme.primaryColor, size: 16),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          locale.setObjective.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Colors.white54,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.8,
+                                        Flexible(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.flag_outlined,
+                                                  color: AppTheme.primaryColor, size: 16),
+                                              const SizedBox(width: 8),
+                                              Flexible(
+                                                child: Text(
+                                                  locale.setObjective.toUpperCase(),
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: const TextStyle(
+                                                    color: Colors.white54,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                    letterSpacing: 0.8,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        const Spacer(),
-                                        Text(
-                                          _formatObjectiveSummary(widget.viewModel, training, locale),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Oswald',
+                                        const SizedBox(width: 16),
+                                        Flexible(
+                                          child: Text(
+                                            _formatObjectiveSummary(widget.viewModel, training, locale),
+                                            textAlign: TextAlign.end,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Oswald',
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -482,32 +535,49 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
 
                                   const Divider(color: Colors.white12, height: 16),
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(
-                                        boost != null ? boost.icon : Icons.electric_bolt_sharp,
-                                        color: AppTheme.primaryColor,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.boosts.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
+                                      Flexible(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              boost != null ? boost.icon : Icons.electric_bolt_sharp,
+                                              color: AppTheme.primaryColor,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                locale.boosts.toUpperCase(),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.8,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const Spacer(),
-                                      Text(
-                                        boost != null
-                                            ? boost.getNameWithEffect(locale).toUpperCase()
-                                            : locale.noBoost.toUpperCase(),
-                                        style: TextStyle(
-                                          color: boost != null ? AppTheme.tertiaryColor : Colors.white54,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
+                                      const SizedBox(width: 16),
+                                      Flexible(
+                                        child: Text(
+                                          boost != null
+                                              ? boost.getNameWithEffect(locale).toUpperCase()
+                                              : locale.noBoost.toUpperCase(),
+                                          textAlign: TextAlign.end,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            color: boost != null ? AppTheme.tertiaryColor : Colors.white54,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Oswald',
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -515,27 +585,44 @@ class _PreActivityOverviewCardState extends State<_PreActivityOverviewCard> {
 
                                   const Divider(color: Colors.white12, height: 16),
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Icon(Icons.data_thresholding_sharp,
-                                          color: AppTheme.primaryColor, size: 16),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        locale.trainingImpactMod.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
+                                      Flexible(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.data_thresholding_sharp,
+                                                color: AppTheme.primaryColor, size: 16),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                locale.trainingImpactMod.toUpperCase(),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 3,
+                                                style: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.8,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const Spacer(),
-                                      Text(
-                                        "x${widget.viewModel.currentMultiplier.toStringAsFixed(2)}",
-                                        style: const TextStyle(
-                                          color: AppTheme.secondaryColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Oswald',
+                                      const SizedBox(width: 16),
+                                      Flexible(
+                                        child: Text(
+                                          "x${widget.viewModel.currentMultiplier.toStringAsFixed(2)}",
+                                          textAlign: TextAlign.end,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            color: AppTheme.secondaryColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Oswald',
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -2954,7 +3041,7 @@ class _PointsCalculationDialogContent extends StatelessWidget {
                             letterSpacing: 1.0,
                             decoration: TextDecoration.none,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
