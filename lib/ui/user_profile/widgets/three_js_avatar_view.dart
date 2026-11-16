@@ -110,14 +110,15 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     _debounceTimer?.cancel();
     _clearAndDisposeAvatarGroup();
     _orbitControls?.dispose();
+    _threeJS.dispose();
     super.dispose();
   }
 
   void _clearAndDisposeAvatarGroup() {
-    while (_avatarGroup.children.isNotEmpty) {
-      final child = _avatarGroup.children.first;
-      _disposeObject(child);
+    final childrenToRemove = List<three.Object3D>.from(_avatarGroup.children);
+    for (final child in childrenToRemove) {
       _avatarGroup.remove(child);
+      _disposeObject(child);
     }
   }
 
@@ -184,6 +185,10 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     if (_orbitControls != null) {
       _orbitControls!.target.setFrom(center);
       _orbitControls!.enablePan = false;
+      
+      _orbitControls!.minPolarAngle = math.pi / 4; 
+      _orbitControls!.maxPolarAngle = math.pi / 1.5; 
+      
       _orbitControls!.enabled = !_isLoading && widget.interactive;
       _orbitControls!.minDistance = distance * 0.6;
       _orbitControls!.maxDistance = distance * 1.6;
@@ -261,12 +266,27 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     mat.opacity = 1.0;
     mat.depthWrite = true;
     mat.depthTest = true;
-    mat.alphaTest = 0.05;
+    mat.alphaTest = 0.5;
+    mat.side = three.FrontSide;
 
-    if (isBase && color != null && mat is three.MeshStandardMaterial) {
-      mat.color = three.Color(color.r, color.g, color.b);
+    if (mat is three.MeshStandardMaterial) {
+      if (isBase && color != null) {
+        mat.color = three.Color(color.r, color.g, color.b);
+      }
+      mat.roughness = 0.7;
+      mat.metalness = 0.1;
+      mat.transparent = false;
+      mat.depthWrite = true;
       mat.needsUpdate = true;
     }
+  }
+
+  void _overrideRenderOrder(three.Object3D obj, {required bool isBase}) {
+    obj.traverse((child) {
+      if (child is three.Mesh) {
+        child.renderOrder = isBase ? 0 : 1;
+      }
+    });
   }
 
   Future<three.Object3D?> _loadModelPath(String path, {bool isBase = false}) async {
@@ -292,14 +312,21 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
 
       clonedObj.traverse((child) {
         if (child is three.Mesh) {
+          if (child.geometry != null) {
+            child.geometry = child.geometry!.clone();
+          }
           final mat = child.material;
           if (mat != null) {
-            final clonedMat = mat.clone();
-            _makeMaterialOpaque(clonedMat, isBase: isBase, color: widget.avatarColor);
-            child.material = clonedMat;
+            if (mat is three.MeshStandardMaterial) {
+              final clonedMat = mat.clone();
+              _makeMaterialOpaque(clonedMat, isBase: isBase, color: widget.avatarColor);
+              child.material = clonedMat;
+            }
           }
         }
       });
+      
+      _overrideRenderOrder(clonedObj, isBase: isBase);
 
       return clonedObj;
     } catch (e, stackTrace) {
