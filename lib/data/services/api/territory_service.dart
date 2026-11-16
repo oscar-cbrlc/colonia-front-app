@@ -17,6 +17,7 @@ class TerritoryService {
   }
 
   Future<http.Response> applyPoints({
+    required String trainingUuid,
     required double totalDistance,
     required int totalTime,
     required String timestamp,
@@ -29,18 +30,19 @@ class TerritoryService {
     required List<Map<String, dynamic>> territories,
     int? boostId,
   }) async {
-    return await _apiClient.patch('$_route/apply-points', body: {
-      'total_distance': totalDistance,
-      'total_time': totalTime,
-      'timestamp': timestamp,
+    return await _apiClient.post('/userTraining/', body: {
+      'training_uuid': trainingUuid,
+      'training_distance': totalDistance.round(),
+      'training_time': totalTime,
       'territories': territories,
-      'boost_id': ?boostId,
+      'started_at': timestamp,
+      'boost_id': boostId,
       'seconds_walk': secondsWalk,
       'seconds_run': secondsRun,
       'seconds_bike': secondsBike,
-      'meters_walk': distanceWalk,
-      'meters_run': distanceRun,
-      'meters_bike': distanceBike,
+      'meters_walk': distanceWalk.round(),
+      'meters_run': distanceRun.round(),
+      'meters_bike': distanceBike.round(),
     });
   }
 }

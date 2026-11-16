@@ -1,4 +1,5 @@
 class PendingActivityImpact {
+  final String trainingUuid;
   final double totalDistance;
   final int totalTime;
   final String timestamp;
@@ -12,6 +13,7 @@ class PendingActivityImpact {
   final double distanceBike;
 
   PendingActivityImpact({
+    required this.trainingUuid,
     required this.totalDistance,
     required this.totalTime,
     required this.timestamp,
@@ -26,6 +28,7 @@ class PendingActivityImpact {
   });
 
   Map<String, dynamic> toJson() => {
+    'training_uuid': trainingUuid,
     'total_distance': totalDistance,
     'total_time': totalTime,
     'timestamp': timestamp,
@@ -39,7 +42,23 @@ class PendingActivityImpact {
     'distance_bike': distanceBike,
   };
 
+  Map<String, dynamic> toUserTrainingCreateJson() => {
+    'training_uuid': trainingUuid,
+    'training_distance': totalDistance.round(),
+    'training_time': totalTime,
+    'territories': territories,
+    'started_at': timestamp,
+    'boost_id': boostId,
+    'seconds_walk': secondsWalk,
+    'seconds_run': secondsRun,
+    'seconds_bike': secondsBike,
+    'meters_walk': distanceWalk.round(),
+    'meters_run': distanceRun.round(),
+    'meters_bike': distanceBike.round(),
+  };
+
   factory PendingActivityImpact.fromJson(Map<String, dynamic> json) => PendingActivityImpact(
+    trainingUuid: (json['training_uuid'] as String?) ?? '',
     totalDistance: (json['total_distance'] as num).toDouble(),
     totalTime: (json['total_time'] as num).toInt(),
     timestamp: json['timestamp'] as String,

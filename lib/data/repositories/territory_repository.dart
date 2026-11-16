@@ -83,6 +83,7 @@ class TerritoryRepository extends ChangeNotifier {
   }
 
   Future<({ActivityResult? result, bool isOffline, String? error})> applyTerritoryImpact({
+    required String trainingUuid,
     required double totalDistance,
     required int totalTime,
     required int secondsWalk,
@@ -97,6 +98,7 @@ class TerritoryRepository extends ChangeNotifier {
   }) async {
     try {
       final response = await _territoryService.applyPoints(
+        trainingUuid: trainingUuid,
         totalDistance: totalDistance,
         totalTime: totalTime,
         timestamp: timestamp,
