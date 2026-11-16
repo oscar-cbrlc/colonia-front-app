@@ -269,8 +269,8 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
   }
 
   Widget _buildPaginatedGrid(List<ItemSelectionData> categoryItems, int totalPages) {
-    final hasPrice = categoryItems.any((item) => item.cost != null);
-    final defaultAspectRatio = hasPrice ? 0.72 : 0.85;
+    final hasBadge = categoryItems.any((item) => item.cost != null || _isItemEquipped(item));
+    final defaultAspectRatio = hasBadge ? 0.72 : 0.85;
     final aspectRatio = widget.childAspectRatio ?? defaultAspectRatio;
 
     return LayoutBuilder(
@@ -357,6 +357,7 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
   }
 
   Widget _buildItemCard(BuildContext context, ItemSelectionData item) {
+    final locale = AppLocalizations.of(context);
     final isSelected = _isItemSelected(item.id);
     final isUnlocked = item.isUnlocked;
     final isEquipped = _isItemEquipped(item);
@@ -372,10 +373,10 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
         children: [
           Container(
             decoration: ShapeDecoration(
-              color: isSelected
-                  ? AppTheme.tertiaryColor.withAlpha(25)
-                  : (isEquipped
-                      ? AppTheme.primaryColor.withAlpha(25)
+              color: isEquipped
+                  ? AppTheme.successColor.withAlpha(35)
+                  : (isSelected
+                      ? AppTheme.tertiaryColor.withAlpha(25)
                       : (isUnlocked ? Colors.black26 : Colors.white.withAlpha(5))),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -383,7 +384,7 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
                   color: isSelected
                       ? AppTheme.secondaryColor
                       : (isEquipped
-                          ? AppTheme.primaryColor.withAlpha(160)
+                          ? AppTheme.successColor.withAlpha(160)
                           : (isUnlocked ? Colors.white24 : Colors.white12)),
                   width: 1,
                 ),
@@ -409,14 +410,53 @@ class _ItemSelectionWidgetState extends State<ItemSelectionWidget> {
                           ),
                           if (isEquipped)
                             Container(
-                              color: AppTheme.primaryColor.withAlpha(45),
+                              color: AppTheme.successColor.withAlpha(40),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.check_circle_outline,
+                                  color: AppTheme.successColor,
+                                  size: 26,
+                                ),
+                              ),
                             ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                if (item.cost != null) ...[
+                if (isEquipped) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                    decoration: ShapeDecoration(
+                      color: AppTheme.successColor.withAlpha(50),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check,
+                          color: AppTheme.successColor,
+                          size: 13,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          (locale?.equipped ?? 'EQUIPPED').toUpperCase(),
+                          style: const TextStyle(
+                            color: AppTheme.successColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            fontFamily: 'Oswald',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else if (item.cost != null) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
