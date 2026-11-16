@@ -448,7 +448,8 @@ class TrackingRepository extends ChangeNotifier {
 
       bool isMovementValid = false;
       
-      if (delta < position.accuracy) {
+      final double minRequiredDistance = max(_lastRecordedPosition!.accuracy, position.accuracy);
+      if (delta < minRequiredDistance) {
           notifyListeners();
           return;
       }
@@ -458,6 +459,7 @@ class TrackingRepository extends ChangeNotifier {
       } else {
         if (delta > 1.0) isMovementValid = true;
       }
+
 
       if (isMovementValid) {
         _totalMetersTracked += delta;

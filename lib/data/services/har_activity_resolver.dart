@@ -21,7 +21,7 @@ class HarActivityResolver {
       'HarActivityResolver: model=$model, heuristic=$heuristic, speed=${speedKmH.toStringAsFixed(1)}km/h, pace=${paceMinKm.toStringAsFixed(1)}min/km',
     );
 
-    if (speedKmH <= 0.5 || heuristic == HarActivity.standing) {
+    if (speedKmH <= 0.5 && heuristic == HarActivity.standing) {
       return HarActivity.standing;
     }
 
