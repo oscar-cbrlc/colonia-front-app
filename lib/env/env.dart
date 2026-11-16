@@ -17,4 +17,14 @@ abstract class Env {
 
   @EnviedField(varName: 'MAPBOX_ACCESS_TOKEN', obfuscate: true)
   static final String mapboxAccessToken = _Env.mapboxAccessToken;
+
+  @EnviedField(varName: 'AWS_ACCESS', obfuscate: true)
+  static final String awsAccess = _Env.awsAccess;
+
+  @EnviedField(varName: 'AWS_SECRET', obfuscate: true)
+  static final String awsSecret = _Env.awsSecret;
+
+  @EnviedField(varName: 'USER_THUMBS_ENDPOINT', obfuscate: true)
+  static final String userThumbsEndpoint = _Env.userThumbsEndpoint;
+
 }
