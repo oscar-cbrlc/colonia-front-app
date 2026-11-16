@@ -33,6 +33,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get downloadModels => 'Descargar Modelos de Avatar';
 
   @override
+  String get checkingForModelUpdatesTitle => 'Buscando Actualizaciones...';
+
+  @override
+  String get checkingForModelUpdatesMessage =>
+      'Comprobando actualizaciones de modelos 3D...';
+
+  @override
+  String get newModelsAvailableTitle => 'Nuevos Modelos 3D Disponibles';
+
+  @override
+  String get newModelsAvailableMessage =>
+      'Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
+
+  @override
   String get settings => 'Ajustes';
 
   @override

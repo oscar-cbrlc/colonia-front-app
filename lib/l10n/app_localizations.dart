@@ -140,6 +140,30 @@ abstract class AppLocalizations {
   /// **'Descargar Modelos de Avatar'**
   String get downloadModels;
 
+  /// No description provided for @checkingForModelUpdatesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscando Actualizaciones...'**
+  String get checkingForModelUpdatesTitle;
+
+  /// No description provided for @checkingForModelUpdatesMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprobando actualizaciones de modelos 3D...'**
+  String get checkingForModelUpdatesMessage;
+
+  /// No description provided for @newModelsAvailableTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos Modelos 3D Disponibles'**
+  String get newModelsAvailableTitle;
+
+  /// No description provided for @newModelsAvailableMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
+  String get newModelsAvailableMessage;
+
   /// No description provided for @settings.
   ///
   /// In es, this message translates to:

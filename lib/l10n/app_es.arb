@@ -10,6 +10,10 @@
     "downloadModelsProgress": "Descargando modelos de avatar ({progress}%)",
     "download": "Descargar",
     "downloadModels": "Descargar Modelos de Avatar",
+    "checkingForModelUpdatesTitle": "Buscando Actualizaciones...",
+    "checkingForModelUpdatesMessage": "Comprobando actualizaciones de modelos 3D...",
+    "newModelsAvailableTitle": "Nuevos Modelos 3D Disponibles",
+    "newModelsAvailableMessage": "Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
 
     "settings": "Ajustes",
     "language": "Idioma",
