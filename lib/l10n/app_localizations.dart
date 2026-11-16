@@ -107,13 +107,13 @@ abstract class AppLocalizations {
   /// No description provided for @downloadModelsTitle.
   ///
   /// In es, this message translates to:
-  /// **'Descargar Modelos 3D'**
+  /// **'Descargar Modelos'**
   String get downloadModelsTitle;
 
   /// No description provided for @downloadModelsMessage.
   ///
   /// In es, this message translates to:
-  /// **'Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
+  /// **'Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
   String get downloadModelsMessage;
 
   /// No description provided for @downloadingModelsTitle.
@@ -149,20 +149,32 @@ abstract class AppLocalizations {
   /// No description provided for @checkingForModelUpdatesMessage.
   ///
   /// In es, this message translates to:
-  /// **'Comprobando actualizaciones de modelos 3D...'**
+  /// **'Comprobando actualizaciones de modelos...'**
   String get checkingForModelUpdatesMessage;
 
   /// No description provided for @newModelsAvailableTitle.
   ///
   /// In es, this message translates to:
-  /// **'Nuevos Modelos 3D Disponibles'**
+  /// **'Nuevos Modelos Disponibles'**
   String get newModelsAvailableTitle;
 
   /// No description provided for @newModelsAvailableMessage.
   ///
   /// In es, this message translates to:
-  /// **'Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
+  /// **'Hay nuevos modelos disponibles para descargar. Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?'**
   String get newModelsAvailableMessage;
+
+  /// No description provided for @versionNotesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'NOTAS DE LA VERSIÓN {version}'**
+  String versionNotesTitle(String version);
+
+  /// No description provided for @versionNotesSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n'**
+  String get versionNotesSummary;
 
   /// No description provided for @settings.
   ///
@@ -2759,13 +2771,13 @@ abstract class AppLocalizations {
   /// No description provided for @globalNotifications.
   ///
   /// In es, this message translates to:
-  /// **'Globales'**
+  /// **'Global'**
   String get globalNotifications;
 
   /// No description provided for @personalNotifications.
   ///
   /// In es, this message translates to:
-  /// **'Personales'**
+  /// **'Personal'**
   String get personalNotifications;
 
   /// No description provided for @noGlobalNotifications.

@@ -4,16 +4,25 @@
     "coloniaTitle": "Colonia",
     "@coloniaTitle": {},
 
-    "downloadModelsTitle": "Descargar Modelos 3D",
-    "downloadModelsMessage": "Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
+    "downloadModelsTitle": "Descargar Modelos",
+    "downloadModelsMessage": "Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
     "downloadingModelsTitle": "Descargando Modelos...",
     "downloadModelsProgress": "Descargando modelos de avatar ({progress}%)",
     "download": "Descargar",
     "downloadModels": "Descargar Modelos de Avatar",
     "checkingForModelUpdatesTitle": "Buscando Actualizaciones...",
-    "checkingForModelUpdatesMessage": "Comprobando actualizaciones de modelos 3D...",
-    "newModelsAvailableTitle": "Nuevos Modelos 3D Disponibles",
-    "newModelsAvailableMessage": "Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
+    "checkingForModelUpdatesMessage": "Comprobando actualizaciones de modelos...",
+    "newModelsAvailableTitle": "Nuevos Modelos Disponibles",
+    "newModelsAvailableMessage": "Hay nuevos modelos disponibles para descargar. Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?",
+    "versionNotesTitle": "NOTAS DE LA VERSIÓN {version}",
+    "@versionNotesTitle": {
+        "placeholders": {
+            "version": {
+                "type": "String"
+            }
+        }
+    },
+    "versionNotesSummary": "• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n",
 
     "settings": "Ajustes",
     "language": "Idioma",
@@ -1546,10 +1555,10 @@
     "notificationsTitle": "NOTIFICACIONES",
     "@notificationsTitle": {},
 
-    "globalNotifications": "Globales",
+    "globalNotifications": "Global",
     "@globalNotifications": {},
 
-    "personalNotifications": "Personales",
+    "personalNotifications": "Personal",
     "@personalNotifications": {},
 
     "noGlobalNotifications": "No hay notificaciones globales.",

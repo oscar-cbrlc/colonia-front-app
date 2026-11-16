@@ -12,11 +12,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coloniaTitle => 'Colonia';
 
   @override
-  String get downloadModelsTitle => 'Descargar Modelos 3D';
+  String get downloadModelsTitle => 'Descargar Modelos';
 
   @override
   String get downloadModelsMessage =>
-      'Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
+      'Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
 
   @override
   String get downloadingModelsTitle => 'Descargando Modelos...';
@@ -37,14 +37,23 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get checkingForModelUpdatesMessage =>
-      'Comprobando actualizaciones de modelos 3D...';
+      'Comprobando actualizaciones de modelos...';
 
   @override
-  String get newModelsAvailableTitle => 'Nuevos Modelos 3D Disponibles';
+  String get newModelsAvailableTitle => 'Nuevos Modelos Disponibles';
 
   @override
   String get newModelsAvailableMessage =>
-      'Hay nuevos modelos 3D disponibles para descargar. Para ver y personalizar avatares 3D, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
+      'Hay nuevos modelos disponibles para descargar. Para ver y personalizar avatares, necesitas descargar los modelos. Recomendamos conectarte a Wi-Fi. ¿Deseas descargarlos ahora?';
+
+  @override
+  String versionNotesTitle(String version) {
+    return 'NOTAS DE LA VERSIÓN $version';
+  }
+
+  @override
+  String get versionNotesSummary =>
+      '• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n';
 
   @override
   String get settings => 'Ajustes';
@@ -1444,10 +1453,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notificationsTitle => 'NOTIFICACIONES';
 
   @override
-  String get globalNotifications => 'Globales';
+  String get globalNotifications => 'Global';
 
   @override
-  String get personalNotifications => 'Personales';
+  String get personalNotifications => 'Personal';
 
   @override
   String get noGlobalNotifications => 'No hay notificaciones globales.';

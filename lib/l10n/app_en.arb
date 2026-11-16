@@ -4,16 +4,25 @@
     "coloniaTitle": "Colonia",
     "@coloniaTitle": {},
 
-    "downloadModelsTitle": "Download 3D Models",
-    "downloadModelsMessage": "To view and customize 3D avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?",
+    "downloadModelsTitle": "Download Models",
+    "downloadModelsMessage": "To view and customize avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?",
     "downloadingModelsTitle": "Downloading Models...",
     "downloadModelsProgress": "Downloading avatar models ({progress}%)",
     "download": "Download",
     "downloadModels": "Download Avatar Models",
     "checkingForModelUpdatesTitle": "Checking for Updates...",
-    "checkingForModelUpdatesMessage": "Checking for 3D model updates...",
-    "newModelsAvailableTitle": "New 3D Models Available",
-    "newModelsAvailableMessage": "New 3D models are available to download. To view and customize 3D avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?",
+    "checkingForModelUpdatesMessage": "Checking for model updates...",
+    "newModelsAvailableTitle": "New Models Available",
+    "newModelsAvailableMessage": "New models are available to download. To view and customize avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?",
+    "versionNotesTitle": "VERSION {version} NOTES",
+    "@versionNotesTitle": {
+        "placeholders": {
+            "version": {
+                "type": "String"
+            }
+        }
+    },
+    "versionNotesSummary": "• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop",
 
     "settings": "Settings",
     "language": "Language",

@@ -12,11 +12,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coloniaTitle => 'Colonia';
 
   @override
-  String get downloadModelsTitle => 'Download 3D Models';
+  String get downloadModelsTitle => 'Download Models';
 
   @override
   String get downloadModelsMessage =>
-      'To view and customize 3D avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?';
+      'To view and customize avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?';
 
   @override
   String get downloadingModelsTitle => 'Downloading Models...';
@@ -36,15 +36,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkingForModelUpdatesTitle => 'Checking for Updates...';
 
   @override
-  String get checkingForModelUpdatesMessage =>
-      'Checking for 3D model updates...';
+  String get checkingForModelUpdatesMessage => 'Checking for model updates...';
 
   @override
-  String get newModelsAvailableTitle => 'New 3D Models Available';
+  String get newModelsAvailableTitle => 'New Models Available';
 
   @override
   String get newModelsAvailableMessage =>
-      'New 3D models are available to download. To view and customize 3D avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?';
+      'New models are available to download. To view and customize avatars, you need to download the models. We recommend connecting to Wi-Fi. Do you want to download them now?';
+
+  @override
+  String versionNotesTitle(String version) {
+    return 'VERSION $version NOTES';
+  }
+
+  @override
+  String get versionNotesSummary =>
+      '• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop';
 
   @override
   String get settings => 'Settings';
