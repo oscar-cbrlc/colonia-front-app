@@ -11,7 +11,12 @@ import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:flutter/services.dart';
 
 class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+  final bool isFromSignIn;
+
+  const MainNavigationScreen({
+    super.key,
+    this.isFromSignIn = false,
+  });
 
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
@@ -66,7 +71,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
               builder: (context, viewModel, _) => TeamScreen(viewModel: viewModel),
             ),
             Consumer<MapViewModel>(
-              builder: (context, viewModel, _) => MapScreen(viewModel: viewModel),
+              builder: (context, viewModel, _) => MapScreen(
+                viewModel: viewModel,
+                isFromSignIn: widget.isFromSignIn,
+              ),
             ),
             Consumer<UserProfileViewModel>(
               builder: (context, viewModel, _) => UserProfileScreen(viewModel: viewModel),

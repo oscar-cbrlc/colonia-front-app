@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
+import 'package:colonia_front_app/ui/core/ui/tutorial_dialog.dart';
 
 void showAboutBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -177,29 +178,54 @@ class AboutSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: AppTheme.primaryColor.withAlpha(120), width: 1.0),
-                shape: const BeveledRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: AppTheme.primaryColor.withAlpha(120), width: 1.0),
+                    shape: const BeveledRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                  ),
+                  icon: const Icon(Icons.auto_awesome, color: AppTheme.primaryColor, size: 18),
+                  label: const Text(
+                    "Tutorial",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                  ),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.pop(context);
+                    showTutorialDialog(context);
+                  },
                 ),
               ),
-              icon: const Icon(Icons.shield_outlined, color: AppTheme.primaryColor, size: 18),
-              label: Text(
-                locale.privacyPolicy,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white70),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: AppTheme.primaryColor.withAlpha(120), width: 1.0),
+                    shape: const BeveledRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                  ),
+                  icon: const Icon(Icons.shield_outlined, color: AppTheme.primaryColor, size: 18),
+                  label: Text(
+                    locale.privacyPolicy,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white70),
+                  ),
+                  onPressed: () async {
+                    HapticFeedback.lightImpact();
+                    final uri = Uri.parse(GameConfig.privacyPolicyUrl);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                ),
               ),
-              onPressed: () async {
-                HapticFeedback.lightImpact();
-                final uri = Uri.parse(GameConfig.privacyPolicyUrl);
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-            ),
+            ],
           ),
         ],
       ),

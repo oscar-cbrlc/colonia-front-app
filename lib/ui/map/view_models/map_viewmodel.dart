@@ -170,7 +170,7 @@ class MapViewModel extends ChangeNotifier {
 
     if (missingModels.isNotEmpty && context.mounted) {
       final locale = AppLocalizations.of(context)!;
-      _promptDownloadModels(
+      await _promptDownloadModels(
         context,
         customTitle: locale.newModelsAvailableTitle,
         customMessage: locale.newModelsAvailableMessage,
@@ -178,13 +178,13 @@ class MapViewModel extends ChangeNotifier {
     }
   }
 
-  void _promptDownloadModels(
+  Future<void> _promptDownloadModels(
     BuildContext context, {
     String? customTitle,
     String? customMessage,
-  }) {
+  }) async {
     if (!context.mounted) return;
-    showSharedDownloadModelsDialog(
+    await showSharedDownloadModelsDialog(
       context: context,
       listenable: this,
       getProgress: () => downloadProgress,

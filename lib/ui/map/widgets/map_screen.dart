@@ -17,10 +17,17 @@ import 'package:colonia_front_app/ui/notifications/widgets/notifications_sheet.d
 import 'package:colonia_front_app/ui/map/widgets/trainings_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
+import 'package:colonia_front_app/ui/core/ui/tutorial_dialog.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, required this.viewModel});
+  const MapScreen({
+    super.key,
+    required this.viewModel,
+    this.isFromSignIn = false,
+  });
+
   final MapViewModel viewModel;
+  final bool isFromSignIn;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -72,9 +79,11 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     widget.viewModel.requestLocationPermission();
     widget.viewModel.checkPendingActivities();
     
-    Future.microtask(() {
-      if (mounted) {
-        widget.viewModel.checkModelsDownload(context);
+    Future.microtask(() async {
+      if (!mounted) return;
+      await widget.viewModel.checkModelsDownload(context);
+      if (mounted && widget.isFromSignIn) {
+        await showTutorialDialog(context);
       }
     });
   }
