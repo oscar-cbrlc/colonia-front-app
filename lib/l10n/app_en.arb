@@ -24,6 +24,7 @@
     },
     "versionNotesSummary": "• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop",
 
+    "tutorial": "Tutorial",
     "tutorialTitle": "START YOUR EXCURSION",
     "tutorialInfo": "The world is yours to conquer.\nParticipate with other ants to grow the Colony, protect it, and invade territories in its name",
     "tutorialTeamSubtitle": "1. Join a Colony or create your own",
@@ -1673,6 +1674,21 @@
 
     "deleteNotification": "Delete notification",
     "@deleteNotification": {},
+
+    "excursionNotificationBody": "Time: {time} | Distance: {distance} | Activity: {activity}",
+    "@excursionNotificationBody": {
+        "parameters": {
+            "time": {
+                "type": "String"
+            },
+            "distance": {
+                "type": "String"
+            },
+            "activity": {
+                "type": "String"
+            }
+        }
+    },
 
     "blockedToExcursionTitle": "LONELY ANT",
     "@blockedToExcursionTitle": {},

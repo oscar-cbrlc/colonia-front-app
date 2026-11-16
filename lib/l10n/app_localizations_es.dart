@@ -56,6 +56,9 @@ class AppLocalizationsEs extends AppLocalizations {
       '• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n';
 
   @override
+  String get tutorial => 'Tutorial';
+
+  @override
   String get tutorialTitle => 'EMPIEZA TU EXCURSIÓN';
 
   @override
@@ -1636,6 +1639,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Eliminar notificación';
+
+  @override
+  String excursionNotificationBody(
+    Object activity,
+    Object distance,
+    Object time,
+  ) {
+    return 'Tiempo: $time | Distancia: $distance | Actividad: $activity';
+  }
 
   @override
   String get blockedToExcursionTitle => 'HORMIGA SOLITARIA';

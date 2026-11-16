@@ -55,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
       '• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop';
 
   @override
+  String get tutorial => 'Tutorial';
+
+  @override
   String get tutorialTitle => 'START YOUR EXCURSION';
 
   @override
@@ -1626,6 +1629,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteNotification => 'Delete notification';
+
+  @override
+  String excursionNotificationBody(
+    Object activity,
+    Object distance,
+    Object time,
+  ) {
+    return 'Time: $time | Distance: $distance | Activity: $activity';
+  }
 
   @override
   String get blockedToExcursionTitle => 'LONELY ANT';

@@ -24,6 +24,7 @@
     },
     "versionNotesSummary": "• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n",
 
+    "tutorial": "Tutorial",
     "tutorialTitle": "EMPIEZA TU EXCURSIÓN",
     "tutorialInfo": "El mundo es tuyo para conquistar.\nParticipa con otras hormigas para hacer crecer la Colonia, protegerla e invadir territorios en su nombre.",
     "tutorialTeamSubtitle": "1. Únete a una Colonia o crea la tuya",
@@ -1675,6 +1676,21 @@
 
     "deleteNotification": "Eliminar notificación",
     "@deleteNotification": {},
+
+    "excursionNotificationBody": "Tiempo: {time} | Distancia: {distance} | Actividad: {activity}",
+    "@excursionNotificationBody": {
+        "parameters": {
+            "time": {
+                "type": "String"
+            },
+            "distance": {
+                "type": "String"
+            },
+            "activity": {
+                "type": "String"
+            }
+        }
+    },
 
     "blockedToExcursionTitle": "HORMIGA SOLITARIA",
     "@blockedToExcursionTitle": {},

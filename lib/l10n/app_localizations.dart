@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n'**
   String get versionNotesSummary;
 
+  /// No description provided for @tutorial.
+  ///
+  /// In es, this message translates to:
+  /// **'Tutorial'**
+  String get tutorial;
+
   /// No description provided for @tutorialTitle.
   ///
   /// In es, this message translates to:
@@ -3103,6 +3109,16 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar notificación'**
   String get deleteNotification;
+
+  /// No description provided for @excursionNotificationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo: {time} | Distancia: {distance} | Actividad: {activity}'**
+  String excursionNotificationBody(
+    Object activity,
+    Object distance,
+    Object time,
+  );
 
   /// No description provided for @blockedToExcursionTitle.
   ///
