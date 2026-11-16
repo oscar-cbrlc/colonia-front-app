@@ -28,6 +28,7 @@ class LocalStorageService {
   static const String _mapTerritoriesKey = 'colonia_map_territories_data';
   static const String _notificationsKey = 'colonia_notifications_data';
   static const String _languageCodeKey = 'colonia_language_code';
+  static const String _hasSeenTutorialKey = 'colonia_has_seen_tutorial';
 
   static const String _mergedModelFileName = 'user_avatar_puck.glb';
 
@@ -240,5 +241,14 @@ class LocalStorageService {
   Future<bool> hasAvatarModels() async {
     final models = await getAvatarItemModels();
     return models.isNotEmpty;
+  }
+
+  Future<bool> hasSeenTutorial() async {
+    final value = await _secureStorage.read(key: _hasSeenTutorialKey);
+    return value == 'true';
+  }
+
+  Future<void> saveHasSeenTutorial(bool value) async {
+    await _secureStorage.write(key: _hasSeenTutorialKey, value: value.toString());
   }
 }
