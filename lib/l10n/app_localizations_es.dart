@@ -1464,7 +1464,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bundles => 'Paquetes';
 
   @override
-  String get owned => 'EN PROPIEDAD';
+  String get owned => 'ADQUIRIDO';
 
   @override
   String get buy => 'COMPRAR';

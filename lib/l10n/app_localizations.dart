@@ -2801,7 +2801,7 @@ abstract class AppLocalizations {
   /// No description provided for @owned.
   ///
   /// In es, this message translates to:
-  /// **'EN PROPIEDAD'**
+  /// **'ADQUIRIDO'**
   String get owned;
 
   /// No description provided for @buy.
