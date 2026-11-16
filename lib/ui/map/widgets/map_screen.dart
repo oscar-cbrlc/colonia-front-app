@@ -14,6 +14,7 @@ import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/ui/events/widgets/challenges_sheet.dart';
 import 'package:colonia_front_app/ui/events/widgets/events_sheet.dart';
 import 'package:colonia_front_app/ui/notifications/widgets/notifications_sheet.dart';
+import 'package:colonia_front_app/ui/map/widgets/trainings_sheet.dart';
 import 'package:colonia_front_app/ui/map/view_models/map_viewmodel.dart';
 import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 
@@ -262,6 +263,37 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 onCenterOnUser: widget.viewModel.toggleFollowUser,
                 onToggleShowPoints: widget.viewModel.toggleShowPoints,
                 onResetNorth: widget.viewModel.resetNorth,
+              ),
+            ),
+          ),
+        ),
+
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 12, left: 16),
+              child: IndividualMapButton(
+                icon: Icons.fitness_center_sharp,
+                iconColor: widget.viewModel.isOffline ? Colors.white38 : Colors.white,
+                borderColor: widget.viewModel.isOffline ? Colors.grey : AppTheme.secondaryColor,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  if (widget.viewModel.isOffline) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(locale.trainingsUnavailableOffline),
+                        backgroundColor: Colors.orangeAccent,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                    widget.viewModel.checkConnectionAndReload();
+                    return;
+                  }
+                  showUserTrainingsSheet(context);
+                },
+                width: 54,
+                height: 54,
               ),
             ),
           ),
