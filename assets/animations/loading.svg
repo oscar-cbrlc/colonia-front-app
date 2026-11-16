@@ -1,0 +1,11 @@
+<svg viewBox="0 0 24 24" stroke-width="3" fill="currentColor" width="32" height="32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <polygon opacity="0.3" points="14.309401 12 13.154701 10 10.845299 10 9.690599 12 10.845299 14 13.154701 14">
+        <animate id="fireworks_a0" attributeName="opacity" dur="1s" repeatCount="indefinite" values="0.3; 0.3; 1; 0.3; 0.3" />
+    </polygon>
+    <path opacity="0.3" d="M6.5953 21.3612h2.3094l1.1547-2-1.1547-2H6.5953l-1.1547 2zM17.4047 21.3612l1.1547-2-1.1547-2h-2.3094l-1.1547 2 1.1547 2zM22.8094 12l-1.1547-2h-2.3094l-1.1547 2 1.1547 2h2.3094zM15.0953 6.6388h2.3094l1.1547-2-1.1547-2h-2.3094l-1.1547 2zM8.9047 6.6388l1.1547-2-1.1547-2H6.5953l-1.1547 2 1.1547 2zM5.8094 12 4.6547 10H2.3453l-1.1547 2 1.1547 2h2.3094z">
+        <animate attributeName="opacity" begin="fireworks_a0.begin+0.4s" dur="1s" repeatCount="indefinite" values="0.3; 0.3; 1; 0.3; 0.3" />
+    </path>
+    <path opacity="0.3" d="M6.5152 11.5h2.3094l1.1547-2-1.1547-2H6.5152l-1.1547 2zM8.8246 16.5l1.1547-2-1.1547-2H6.5152l-1.1547 2 1.1547 2zM14.3094 17l-1.1547-2h-2.3094l-1.1547 2 1.1547 2h2.3094zM15.1754 16.5h2.3094l1.1547-2-1.1547-2h-2.3094l-1.1547 2zM17.4848 11.5l1.1547-2-1.1547-2h-2.3094l-1.1547 2 1.1547 2zM14.3094 7 13.1547 5h-2.3094L9.6906 7l1.1547 2h2.3094z">
+        <animate attributeName="opacity" begin="fireworks_a0.begin+0.2s" dur="1s" repeatCount="indefinite" values="0.3; 0.3; 1; 0.3; 0.3" />
+    </path>
+</svg>

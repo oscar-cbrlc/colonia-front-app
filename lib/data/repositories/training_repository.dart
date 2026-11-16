@@ -74,13 +74,13 @@ class TrainingRepository extends ChangeNotifier {
     _isUserTrainingsLoading = true;
     notifyListeners();
     try {
-      final response = await _trainingService.getMyTrainings();
+      final response = await _trainingService.getAllMyUserTrainings();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         _userTrainings = data
             .map((json) => UserTraining.fromJson(json as Map<String, dynamic>))
             .toList();
-        _userTrainings.sort((a, b) => b.startDate.compareTo(a.startDate));
+        _userTrainings.sort((a, b) => b.startedAt.compareTo(a.startedAt));
       }
     } catch (e) {
       // error
