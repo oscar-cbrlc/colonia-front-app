@@ -97,6 +97,7 @@ class AvatarItemRepository extends ChangeNotifier {
     int? body,
     int? footwear,
     int? color,
+    String? thumbnailUrl,
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -107,6 +108,7 @@ class AvatarItemRepository extends ChangeNotifier {
       if (body != null) updateData['avatar_body'] = body;
       if (footwear != null) updateData['avatar_footwear'] = footwear;
       if (color != null) updateData['avatar_color'] = color;
+      if (thumbnailUrl != null) updateData['user_thumbnail'] = thumbnailUrl;
 
       final response = await _avatarService.updateAvatar(updateData);
       if (response.statusCode == 200) {
