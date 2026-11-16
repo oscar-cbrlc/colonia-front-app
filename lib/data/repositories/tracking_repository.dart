@@ -35,9 +35,10 @@ class TrackingRepository extends ChangeNotifier {
   double _metersSinceLastNode = 0.0;
   double _metersBetweenNodes = GameConfig.baseMetersBetweenNodes;
   int _totalSecondsElapsed = 0;
+  DateTime? _startedAt;
   DateTime? _lastTrackTime;
-  double _currentSpeed = 0.0; 
-  double _averagePace = 0.0; 
+  double _currentSpeed = 0.0;
+  double _averagePace = 0.0;
   Timer? _gameTimer;
   Timer? _routineTimer;
 
@@ -102,6 +103,7 @@ class TrackingRepository extends ChangeNotifier {
   double get metersSinceLastNode => _metersSinceLastNode;
   double get metersBetweenNodes => _metersBetweenNodes;
 
+  DateTime? get startedAt => _startedAt;
   HarActivity get currentHarActivity => _currentHarActivity;
   int get secondsWalk => _secondsWalk;
   int get secondsRun => _secondsRun;
@@ -135,11 +137,11 @@ class TrackingRepository extends ChangeNotifier {
   bool isValidActivity(HarActivity activity) {
     if (_activityType == ActivityType.onFoot) {
       return activity == HarActivity.walk ||
-             activity == HarActivity.run ||
-             activity == HarActivity.standing;
+          activity == HarActivity.run ||
+          activity == HarActivity.standing;
     } else if (_activityType == ActivityType.onBike) {
       return activity == HarActivity.bike ||
-             activity == HarActivity.standing;
+          activity == HarActivity.standing;
     }
     return activity != HarActivity.vehicle && activity != HarActivity.unknown;
   }
@@ -267,7 +269,8 @@ class TrackingRepository extends ChangeNotifier {
     _onTrackNodes.clear();
     _visitedCells.clear();
     _lastRecordedPosition = null;
-    _lastTrackTime = DateTime.now();
+    _startedAt = DateTime.now();
+    _lastTrackTime = _startedAt;
     _pingsToSkip = 0;
     _startTimer();
     _startRoutinePolling();
@@ -316,6 +319,7 @@ class TrackingRepository extends ChangeNotifier {
     }
 
     final session = TrackingSession(
+      startedAt: _startedAt ?? DateTime.now(),
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
       durationSeconds: _totalSecondsElapsed,
@@ -327,8 +331,8 @@ class TrackingRepository extends ChangeNotifier {
       distanceBike: _distanceBike,
       distanceRun: _distanceRun,
       distanceWalk: _distanceWalk,
-      territories: _visitedCells.map((id) => 
-        _territoryRepository.getTerritoryOrDefault(id)
+      territories: _visitedCells.map((id) =>
+          _territoryRepository.getTerritoryOrDefault(id)
       ).toList(),
     );
 
@@ -361,8 +365,8 @@ class TrackingRepository extends ChangeNotifier {
   void addSecondaryNodes(List<OnTrackNode> nodes) {
     for (final node in nodes) {
       final cellId = H3Helper.getHexagonAt(
-        lat: node.lat, 
-        lon: node.lon, 
+        lat: node.lat,
+        lon: node.lon,
         resolution: GameConfig.h3Resolution,
       );
       if (cellId.isNotEmpty) {
@@ -404,13 +408,13 @@ class TrackingRepository extends ChangeNotifier {
 
   void _onLocationReceived(geo.Position position) {
     if (position.accuracy < 30.0) {
-        _userPosition = Point(coordinates: Position(position.longitude, position.latitude));
-        _currentBearing = position.heading;
-        _currentCell = H3Helper.getHexagonAt(lat: position.latitude, lon: position.longitude, resolution: GameConfig.h3Resolution);
+      _userPosition = Point(coordinates: Position(position.longitude, position.latitude));
+      _currentBearing = position.heading;
+      _currentCell = H3Helper.getHexagonAt(lat: position.latitude, lon: position.longitude, resolution: GameConfig.h3Resolution);
     }
 
     if (position.accuracy > 15.0) {
-      notifyListeners(); 
+      notifyListeners();
       return;
     }
 
@@ -435,18 +439,19 @@ class TrackingRepository extends ChangeNotifier {
 
     if (_lastRecordedPosition != null) {
       double delta = geo.Geolocator.distanceBetween(
-        _lastRecordedPosition!.latitude, _lastRecordedPosition!.longitude,
-        position.latitude, position.longitude
+          _lastRecordedPosition!.latitude, _lastRecordedPosition!.longitude,
+          position.latitude, position.longitude
       );
 
       double reportedSpeed = position.speed;
       double timeElapsed = max(0.1, now.difference(_lastTrackTime!).inMilliseconds / 1000.0);
 
       bool isMovementValid = false;
-      
-      if (delta < position.accuracy) {
-          notifyListeners();
-          return;
+
+      final double minRequiredDistance = max(_lastRecordedPosition!.accuracy, position.accuracy);
+      if (delta < minRequiredDistance) {
+        notifyListeners();
+        return;
       }
 
       if (reportedSpeed < 0.5) {
@@ -455,13 +460,14 @@ class TrackingRepository extends ChangeNotifier {
         if (delta > 1.0) isMovementValid = true;
       }
 
+
       if (isMovementValid) {
         _totalMetersTracked += delta;
         _metersSinceLastPerimeterPoint += delta;
         _metersSinceLastNode += delta;
         _unitDistanceTracked += delta;
         _currentSpeed = delta / max(1.0, timeElapsed);
-        
+
         double avgSpeed = _totalMetersTracked / max(1, _totalSecondsElapsed);
         _averagePace = avgSpeed > 0.1 ? (16.6667 / avgSpeed) : 0.0;
 
@@ -475,9 +481,9 @@ class TrackingRepository extends ChangeNotifier {
           final double nodePoints = _pendingNodeImpactPoints;
 
           final node = OnTrackNode(
-            lat: position.latitude, 
-            lon: position.longitude, 
-            pace: currentPace, 
+            lat: position.latitude,
+            lon: position.longitude,
+            pace: currentPace,
             points: nodePoints,
             timestamp: now,
             secondsWalk: _nodeSecondsWalk,
@@ -491,7 +497,7 @@ class TrackingRepository extends ChangeNotifier {
             _visitedCells.add(_currentCell!);
           }
           _onTrackNodes.add(node);
-          
+
           _metersSinceLastNode -= _metersBetweenNodes;
 
           _pendingNodeImpactPoints = 0.0;
@@ -504,7 +510,7 @@ class TrackingRepository extends ChangeNotifier {
 
           onNodeCompleted?.call(node);
         }
-        
+
         _lastRecordedPosition = position;
         _lastTrackTime = now;
       }
@@ -591,6 +597,7 @@ class TrackingRepository extends ChangeNotifier {
 }
 
 class TrackingSession {
+  final DateTime startedAt;
   final List<GeoCoord> route;
   final double totalDistance;
   final int durationSeconds;
@@ -603,10 +610,11 @@ class TrackingSession {
   final double distanceRun;
   final double distanceWalk;
   List<Territory> territories;
-  bool isSuccess; 
+  bool isSuccess;
   double impactPoints;
 
   TrackingSession({
+    required this.startedAt,
     required this.route,
     required this.totalDistance,
     required this.durationSeconds,
