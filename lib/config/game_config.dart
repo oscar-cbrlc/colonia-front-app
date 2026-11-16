@@ -1,6 +1,9 @@
 import 'package:colonia_front_app/domain/models/enums/har_activity.dart';
 
 abstract class GameConfig {
+  static const String appVersion = '1.0.0';
+  static const privacyPolicyUrl = 'https://oscar-cbrlc.github.io/colonia-legal/';
+
   static const int h3Resolution = 10;
 
   // at resolution 10
