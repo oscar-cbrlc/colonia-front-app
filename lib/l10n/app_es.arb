@@ -274,6 +274,9 @@
     "thumbnailUploaded": "Miniatura subida exitosamente",
     "@thumbnailUploaded": {},
 
+    "equipped": "EQUIPADO",
+    "@equipped": {},
+
     "teamRoleLeader": "Líder",
     "teamRoleModerator": "Moderador",
     "teamRoleMember": "Miembro",

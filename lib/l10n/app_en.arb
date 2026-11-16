@@ -274,6 +274,9 @@
     "thumbnailUploaded": "Thumbnail uploaded successfully",
     "@thumbnailUploaded": {},
 
+    "equipped": "EQUIPPED",
+    "@equipped": {},
+
     "teamRoleLeader": "Leader",
     "teamRoleModerator": "Moderator",
     "teamRoleMember": "Member",

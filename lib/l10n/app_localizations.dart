@@ -716,6 +716,12 @@ abstract class AppLocalizations {
   /// **'Miniatura subida exitosamente'**
   String get thumbnailUploaded;
 
+  /// No description provided for @equipped.
+  ///
+  /// In es, this message translates to:
+  /// **'EQUIPADO'**
+  String get equipped;
+
   /// No description provided for @teamRoleLeader.
   ///
   /// In es, this message translates to:

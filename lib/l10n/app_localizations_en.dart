@@ -329,6 +329,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thumbnailUploaded => 'Thumbnail uploaded successfully';
 
   @override
+  String get equipped => 'EQUIPPED';
+
+  @override
   String get teamRoleLeader => 'Leader';
 
   @override
