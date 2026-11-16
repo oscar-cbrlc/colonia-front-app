@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/auth_repository.dart';
-import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
-import 'package:colonia_front_app/ui/user_profile/widgets/three_js_avatar_view.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/team_request.dart';
@@ -31,6 +27,16 @@ class StatItem extends StatelessWidget {
   }
 }
 
+String _getFormattedThumbnailUrl(String url) {
+  if (url.isEmpty) return url;
+  final uri = Uri.tryParse(url);
+  if (uri == null) return url;
+  final cacheBuster = DateTime.now().millisecondsSinceEpoch ~/ 60000;
+  final queryParams = Map<String, String>.from(uri.queryParameters);
+  queryParams['t'] = cacheBuster.toString();
+  return uri.replace(queryParameters: queryParams).toString();
+}
+
 class MemberCard extends StatelessWidget {
   final TeamMemberSummary member;
   final VoidCallback? onTap;
@@ -48,32 +54,6 @@ class MemberCard extends StatelessWidget {
     final currentUser = AuthRepository.instance.currentUser;
     final isCurrentUser = currentUser != null && currentUser.id == member.userId;
     final avatar = isCurrentUser ? currentUser.avatar : member.avatar;
-
-    final Color memberAvatarColor = avatar?.color != null
-        ? Color(avatar!.color!)
-        : themeColor;
-
-    final avatarItemRepo = Provider.of<AvatarItemRepository>(context, listen: false);
-
-    Future<List<String>> fetchMemberEquippedPaths() async {
-      if (isCurrentUser) {
-        return await avatarItemRepo.getEquippedModelPaths();
-      }
-      if (avatar == null) return const <String>[];
-
-      final storedModels = await avatarItemRepo.getStoredItemModels();
-      final paths = <String>[];
-      final selectedIds = [avatar.head, avatar.neck, avatar.body, avatar.footwear];
-      for (final id in selectedIds) {
-        if (id != null) {
-          final model = storedModels.where((m) => m.id == id).firstOrNull;
-          if (model != null && model.filePath.isNotEmpty) {
-            paths.add(model.filePath);
-          }
-        }
-      }
-      return paths;
-    }
 
     return GestureDetector(
       onTap: onTap,
@@ -107,25 +87,40 @@ class MemberCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: FutureBuilder<List<String>>(
-                      future: fetchMemberEquippedPaths(),
-                      builder: (context, snapshot) {
-                        return ThreeJsAvatarView(
-                          baseGlbPath: GameConfig.baseModelPath,
-                          equippedGlbPaths: snapshot.data ?? const <String>[],
-                          avatarColor: memberAvatarColor,
-                          interactive: false,
-                          pixelRatio: 0.5,
-                        );
-                      },
-                    ),
+                    child: avatar?.thumbnailUrl != null
+                        ? Image.network(
+                            _getFormattedThumbnailUrl(avatar!.thumbnailUrl!),
+                            width: avatarSize * 2,
+                            height: avatarSize * 2,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: themeColor,
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.person, color: themeColor, size: avatarSize),
+                          )
+                        : Icon(Icons.person, color: themeColor, size: avatarSize),
                   ),
                 ),
                 if (isLeader)
                   const Icon(Icons.star, color: Colors.amber, size: 20),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               member.userName,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: isLarge ? 14 : 13),
@@ -133,9 +128,32 @@ class MemberCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 2),
             Text(
-              member.role.toUpperCase(),
-              style: TextStyle(color: AppTheme.primaryColor.withAlpha(150), fontSize: 9, fontWeight: FontWeight.bold),
+              TeamRole.fromString(member.role).getLocaleName(AppLocalizations.of(context)!).toUpperCase(),
+              style: TextStyle(color: AppTheme.primaryColor.withAlpha(150), fontSize: 11, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.stars, color: Colors.amber.withAlpha(200), size: 12),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Lvl ${member.level}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '•  ${member.xp} XP',
+                    style: const TextStyle(color: Colors.white54, fontSize: 11),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -432,7 +450,7 @@ class TeamDetailsBody extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.0,
+                childAspectRatio: 0.85,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -478,7 +496,7 @@ class TeamDetailsBody extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.0,
+                childAspectRatio: 0.85,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

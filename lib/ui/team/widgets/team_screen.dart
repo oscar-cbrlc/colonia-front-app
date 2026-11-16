@@ -12,28 +12,13 @@ import '../../../ui/core/navigation/app_router.dart';
 import 'team_chat_sheet.dart';
 import 'team_shared_widgets.dart';
 
-class TeamScreen extends StatelessWidget {
+class TeamScreen extends StatefulWidget {
   final TeamViewModel viewModel;
 
   const TeamScreen({super.key, required this.viewModel});
 
   @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: viewModel,
-      builder: (context, _) {
-        if (viewModel.isLoading) {
-          return const LoadingWidget();
-        }
-
-        if (viewModel.currentTeam == null) {
-          return _NoTeamView(viewModel: viewModel);
-        }
-
-        return _TeamDetailsView(viewModel: viewModel);
-      },
-    );
-  }
+  State<TeamScreen> createState() => _TeamScreenState();
 
   static void showExploreTeamsSheet(BuildContext context, TeamViewModel viewModel) {
     showModalBottomSheet(
@@ -71,6 +56,36 @@ class TeamScreen extends StatelessWidget {
           isLoading: viewModel.isLoading,
         ),
       ),
+    );
+  }
+}
+
+class _TeamScreenState extends State<TeamScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.viewModel.refresh();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        if (widget.viewModel.isLoading && widget.viewModel.currentTeam == null) {
+          return const LoadingWidget();
+        }
+
+        if (widget.viewModel.currentTeam == null) {
+          return _NoTeamView(viewModel: widget.viewModel);
+        }
+
+        return _TeamDetailsView(viewModel: widget.viewModel);
+      },
     );
   }
 }
