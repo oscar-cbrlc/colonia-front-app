@@ -34,7 +34,7 @@ class MapViewModel extends ChangeNotifier {
   final BoostRepository _boostRepository;
   final ChallengeRepository _challengeRepository;
 
-  static const double defaultInitialZoom = 16.5;
+  static const double defaultInitialZoom = 16;
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
