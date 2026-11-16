@@ -20,10 +20,9 @@ abstract class ActivityResult with _$ActivityResult{
   const factory ActivityResult({
     @JsonKey(name: 'user') required ActivityResultUser user,
     @JsonKey(name: 'training') required TrainingResult trainingResult,
-    @JsonKey(name: 'territories') required List<Territory> territories,
-    @JsonKey(name: 'achievements') required List<Achievement> achievements,
-    @JsonKey(name: 'challenges') required List<StartedChallenge> challenges,
-
+    @JsonKey(name: 'territories') @Default([]) List<Territory> territories,
+    @JsonKey(name: 'achievements') @Default([]) List<Achievement> achievements,
+    @JsonKey(name: 'challenges') @Default([]) List<StartedChallenge> challenges,
   }) = _ActivityResult;
 
   factory ActivityResult.fromJson(Map<String, dynamic> json) => _$ActivityResultFromJson(json);
