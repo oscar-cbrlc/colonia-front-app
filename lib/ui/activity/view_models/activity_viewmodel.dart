@@ -34,6 +34,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   final TeamRepository _teamRepository;
   final SensorRepository? _sensorRepository;
 
+  static const double defaultInitialZoom = 17.5;
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
@@ -59,6 +60,30 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   bool get isMapReady => _isMapReady;
   bool get inActivity => _trackingRepository.isActivityActive;
   bool get showPoints => _showPoints;
+  bool get isFollowingUser => _isFollowingUser;
+
+  Future<void> stopFollowingUser() async {
+    _isFollowingUser = false;
+    _viewport = null;
+    if (_mapboxMap != null) {
+      try {
+        await _mapboxMap!.location.updateSettings(
+          LocationComponentSettings(puckBearingEnabled: false),
+        );
+      } catch (e) {
+        debugPrint("ActivityViewModel: Error updating location settings on stopFollowing: $e");
+      }
+    }
+    notifyListeners();
+  }
+
+  void toggleFollowUser() {
+    if (_isFollowingUser) {
+      stopFollowingUser();
+    } else {
+      centerOnUser();
+    }
+  }
 
   void toggleShowPoints() {
     _showPoints = !_showPoints;
@@ -402,11 +427,20 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     if (pos == null) return;
     
     if (_mapboxMap != null) {
-      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 18.0, pitch: 60.0));
+      try {
+        await _mapboxMap!.location.updateSettings(
+          LocationComponentSettings(
+            puckBearingEnabled: true,
+            puckBearing: PuckBearing.HEADING,
+          ),
+        );
+      } catch (_) {}
+
+      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: defaultInitialZoom, pitch: 60.0));
     }
 
     _viewport = FollowPuckViewportState(
-        zoom: 18.0,
+        zoom: defaultInitialZoom,
         bearing: FollowPuckViewportStateBearingHeading(),
         pitch: 60.0,
         padding: MbxEdgeInsets(top: -110, left: 0, bottom: 0, right: 0),
@@ -510,15 +544,19 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> resetNorth() async {
+    await stopFollowingUser();
     final map = _mapboxMap;
     if (map == null) return;
     final camera = await map.getCameraState();
-    await map.setCamera(CameraOptions(
-      center: camera.center,
-      zoom: camera.zoom,
-      pitch: camera.pitch,
-      bearing: 0.0,
-    ));
+    await map.flyTo(
+      CameraOptions(
+        center: camera.center,
+        zoom: camera.zoom,
+        pitch: camera.pitch,
+        bearing: 0.0,
+      ),
+      MapAnimationOptions(duration: 500),
+    );
     _mapBearing = 0.0;
     notifyListeners();
   }

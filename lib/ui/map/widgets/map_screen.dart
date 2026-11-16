@@ -94,8 +94,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           children: [
             mapbox.MapWidget(
               key: const ValueKey("map_screen_mapbox"),
-          styleUri: mapbox.MapboxStyles.STANDARD,
-          onMapCreated: widget.viewModel.onMapCreated,
+              styleUri: mapbox.MapboxStyles.STANDARD,
+              onMapCreated: widget.viewModel.onMapCreated,
           onStyleLoadedListener: (data) {
             widget.viewModel.onStyleLoaded();
 
@@ -115,10 +115,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
             );
           },
           onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-          viewport: widget.viewModel.viewport ?? (widget.viewModel.userPosition != null ? mapbox.CameraViewportState(
-            center: widget.viewModel.userPosition!,
-            zoom: 15.0,
-          ) : null),
+          viewport: widget.viewModel.viewport,
         ),
 
         if (!widget.viewModel.isMapReady)
@@ -260,8 +257,9 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
               child: MapControlGroup(
                 listenable: widget.viewModel,
                 currentBearing: widget.viewModel.currentBearing,
+                isFollowingUser: widget.viewModel.isFollowingUser,
                 showPoints: widget.viewModel.showPoints,
-                onCenterOnUser: widget.viewModel.centerOnUser,
+                onCenterOnUser: widget.viewModel.toggleFollowUser,
                 onToggleShowPoints: widget.viewModel.toggleShowPoints,
                 onResetNorth: widget.viewModel.resetNorth,
               ),

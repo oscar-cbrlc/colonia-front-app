@@ -134,13 +134,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   );
                 },
                 onCameraChangeListener: (data) => widget.viewModel.onCameraChanged(data),
-                viewport: widget.viewModel.viewport ??
-                    (widget.viewModel.userPosition != null
-                        ? mapbox.CameraViewportState(
-                      center: widget.viewModel.userPosition!,
-                      zoom: 17.0,
-                    )
-                        : null),
+                viewport: widget.viewModel.viewport,
               ),
 
               if (!widget.viewModel.isMapReady)
@@ -196,8 +190,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   child: MapControlGroup(
                     listenable: widget.viewModel,
                     currentBearing: widget.viewModel.currentBearing,
+                    isFollowingUser: widget.viewModel.isFollowingUser,
                     showPoints: widget.viewModel.showPoints,
-                    onCenterOnUser: widget.viewModel.centerOnUser,
+                    onCenterOnUser: widget.viewModel.toggleFollowUser,
                     onToggleShowPoints: widget.viewModel.toggleShowPoints,
                     onResetNorth: widget.viewModel.resetNorth,
                   ),

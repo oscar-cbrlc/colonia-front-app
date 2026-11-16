@@ -5,6 +5,7 @@ import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 class MapControlGroup extends StatelessWidget {
   final Listenable listenable;
   final double currentBearing;
+  final bool isFollowingUser;
   final bool? showPoints;
   final VoidCallback onCenterOnUser;
   final VoidCallback? onToggleShowPoints;
@@ -15,6 +16,7 @@ class MapControlGroup extends StatelessWidget {
     super.key,
     required this.listenable,
     required this.currentBearing,
+    this.isFollowingUser = false,
     this.showPoints,
     required this.onCenterOnUser,
     this.onToggleShowPoints,
@@ -31,9 +33,11 @@ class MapControlGroup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IndividualMapButton(
-              icon: Icons.my_location,
-              iconColor: Colors.redAccent,
-              borderColor: Colors.redAccent.withAlpha(150),
+              icon: isFollowingUser ? Icons.my_location : Icons.location_searching,
+              iconColor: isFollowingUser ? AppTheme.secondaryColor : Colors.white54,
+              borderColor: isFollowingUser
+                  ? AppTheme.secondaryColor.withAlpha(180)
+                  : Colors.white24,
               onPressed: () {
                 HapticFeedback.mediumImpact();
                 onCenterOnUser();

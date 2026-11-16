@@ -34,6 +34,7 @@ class MapViewModel extends ChangeNotifier {
   final BoostRepository _boostRepository;
   final ChallengeRepository _challengeRepository;
 
+  static const double defaultInitialZoom = 16.5;
   static const double minZoomToRender = 13.0;
   static const double minZoomToShowPoints = 15.0;
   static const double maxRenderRadius = 5000.0;
@@ -58,6 +59,31 @@ class MapViewModel extends ChangeNotifier {
   bool get isOffline => _isOffline;
   bool get isReconnecting => _isReconnecting;
   bool get isMapReady => _isMapReady;
+  bool _isFollowingUser = false;
+  bool get isFollowingUser => _isFollowingUser;
+
+  Future<void> stopFollowingUser() async {
+    _isFollowingUser = false;
+    _viewport = null;
+    if (_mapboxMap != null) {
+      try {
+        await _mapboxMap!.location.updateSettings(
+          LocationComponentSettings(puckBearingEnabled: false),
+        );
+      } catch (e) {
+        debugPrint("MapViewModel: Error updating location settings on stopFollowing: $e");
+      }
+    }
+    notifyListeners();
+  }
+
+  void toggleFollowUser() {
+    if (_isFollowingUser) {
+      stopFollowingUser();
+    } else {
+      centerOnUser();
+    }
+  }
 
   void toggleShowPoints() {
     _showPoints = !_showPoints;
@@ -346,6 +372,7 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<void> centerOnUser() async {
+    _isFollowingUser = true;
     if (!_isLocationPermissionGranted) await requestLocationPermission();
     
     if (userPosition == null) {
@@ -356,11 +383,20 @@ class MapViewModel extends ChangeNotifier {
     if (pos == null) return;
     
     if (_mapboxMap != null) {
-      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: 16.0, pitch: 0.0));
+      try {
+        await _mapboxMap!.location.updateSettings(
+          LocationComponentSettings(
+            puckBearingEnabled: true,
+            puckBearing: PuckBearing.HEADING,
+          ),
+        );
+      } catch (_) {}
+
+      await _mapboxMap!.setCamera(CameraOptions(center: pos, zoom: defaultInitialZoom, pitch: 0.0));
     }
 
     _viewport = FollowPuckViewportState(
-      zoom: 16.0,
+      zoom: defaultInitialZoom,
       bearing: FollowPuckViewportStateBearingHeading(), 
       pitch: 0.0
     );
@@ -377,15 +413,20 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<void> resetNorth() async {
+    await stopFollowingUser();
+
     final map = _mapboxMap;
     if (map == null) return;
     final camera = await map.getCameraState();
-    await map.setCamera(CameraOptions(
-      center: camera.center,
-      zoom: camera.zoom,
-      pitch: camera.pitch,
-      bearing: 0.0,
-    ));
+    await map.flyTo(
+      CameraOptions(
+        center: camera.center,
+        zoom: camera.zoom,
+        pitch: camera.pitch,
+        bearing: 0.0,
+      ),
+      MapAnimationOptions(duration: 500),
+    );
     _mapBearing = 0.0;
     notifyListeners();
   }
