@@ -710,6 +710,30 @@ abstract class AppLocalizations {
   /// **'Finalizar'**
   String get finish;
 
+  /// No description provided for @thumbnailUploaded.
+  ///
+  /// In es, this message translates to:
+  /// **'Miniatura subida exitosamente'**
+  String get thumbnailUploaded;
+
+  /// No description provided for @teamRoleLeader.
+  ///
+  /// In es, this message translates to:
+  /// **'Líder'**
+  String get teamRoleLeader;
+
+  /// No description provided for @teamRoleModerator.
+  ///
+  /// In es, this message translates to:
+  /// **'Moderador'**
+  String get teamRoleModerator;
+
+  /// No description provided for @teamRoleMember.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro'**
+  String get teamRoleMember;
+
   /// No description provided for @setUpActivity.
   ///
   /// In es, this message translates to:

@@ -271,6 +271,13 @@
     "finish": "Finish",
     "@finish": {},
 
+    "thumbnailUploaded": "Thumbnail uploaded successfully",
+    "@thumbnailUploaded": {},
+
+    "teamRoleLeader": "Leader",
+    "teamRoleModerator": "Moderator",
+    "teamRoleMember": "Member",
+
     "setUpActivity": "Set up excursion",
     "@setUpActivity": {},
 

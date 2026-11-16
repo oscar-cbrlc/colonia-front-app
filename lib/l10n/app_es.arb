@@ -271,6 +271,13 @@
     "finish": "Finalizar",
     "@finish": {},
 
+    "thumbnailUploaded": "Miniatura subida exitosamente",
+    "@thumbnailUploaded": {},
+
+    "teamRoleLeader": "Líder",
+    "teamRoleModerator": "Moderador",
+    "teamRoleMember": "Miembro",
+
     "setUpActivity": "Configurar excursión",
     "@setUpActivity": {},
 

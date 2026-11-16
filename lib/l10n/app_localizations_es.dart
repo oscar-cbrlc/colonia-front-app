@@ -331,6 +331,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get finish => 'Finalizar';
 
   @override
+  String get thumbnailUploaded => 'Miniatura subida exitosamente';
+
+  @override
+  String get teamRoleLeader => 'Líder';
+
+  @override
+  String get teamRoleModerator => 'Moderador';
+
+  @override
+  String get teamRoleMember => 'Miembro';
+
+  @override
   String get setUpActivity => 'Configurar excursión';
 
   @override

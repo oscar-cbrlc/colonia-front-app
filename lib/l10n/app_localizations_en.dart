@@ -326,6 +326,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finish => 'Finish';
 
   @override
+  String get thumbnailUploaded => 'Thumbnail uploaded successfully';
+
+  @override
+  String get teamRoleLeader => 'Leader';
+
+  @override
+  String get teamRoleModerator => 'Moderator';
+
+  @override
+  String get teamRoleMember => 'Member';
+
+  @override
   String get setUpActivity => 'Set up excursion';
 
   @override
