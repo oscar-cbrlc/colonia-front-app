@@ -176,6 +176,204 @@ abstract class AppLocalizations {
   /// **'• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n'**
   String get versionNotesSummary;
 
+  /// No description provided for @tutorialTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'EMPIEZA TU EXCURSIÓN'**
+  String get tutorialTitle;
+
+  /// No description provided for @tutorialInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'El mundo es tuyo para conquistar.\nParticipa con otras hormigas para hacer crecer la Colonia, protegerla e invadir territorios en su nombre.'**
+  String get tutorialInfo;
+
+  /// No description provided for @tutorialTeamSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'1. Únete a una Colonia o crea la tuya'**
+  String get tutorialTeamSubtitle;
+
+  /// No description provided for @tutorialTeamInfo1.
+  ///
+  /// In es, this message translates to:
+  /// **'Visita Colonias, conoce a sus miembros y su influencia. Únete y forma parte de algo más grande.'**
+  String get tutorialTeamInfo1;
+
+  /// No description provided for @tutorialTeamInfo2.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea tu propia Colonia y empieza desde abajo a crecer tu influencia para que otros te sigan.'**
+  String get tutorialTeamInfo2;
+
+  /// No description provided for @tutorialActivitySubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'2. Inicia una Excursión'**
+  String get tutorialActivitySubtitle;
+
+  /// No description provided for @tutorialActivityInfo1.
+  ///
+  /// In es, this message translates to:
+  /// **'Escoge tu recorrido'**
+  String get tutorialActivityInfo1;
+
+  /// No description provided for @tutorialActivityInfo2.
+  ///
+  /// In es, this message translates to:
+  /// **'Define tu objetivo'**
+  String get tutorialActivityInfo2;
+
+  /// No description provided for @tutorialActivityInfo3.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza tu excursión y conquista territorios'**
+  String get tutorialActivityInfo3;
+
+  /// No description provided for @tutorialProfileSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'3. Visita tu Perfil'**
+  String get tutorialProfileSubtitle;
+
+  /// No description provided for @tutorialProfileInfo1.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambia tu nombre'**
+  String get tutorialProfileInfo1;
+
+  /// No description provided for @tutorialProfileInfo2.
+  ///
+  /// In es, this message translates to:
+  /// **'Modifica tu avatar'**
+  String get tutorialProfileInfo2;
+
+  /// No description provided for @tutorialProfileInfo3.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa tus logros y progreso'**
+  String get tutorialProfileInfo3;
+
+  /// No description provided for @tutorialChallengesAndEventsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'4. Completa retos y participa en eventos por recompensas'**
+  String get tutorialChallengesAndEventsSubtitle;
+
+  /// No description provided for @tutorialChallengesAndEventsInfo1.
+  ///
+  /// In es, this message translates to:
+  /// **'Participa en desafíos semanales para subir tu experiencia.'**
+  String get tutorialChallengesAndEventsInfo1;
+
+  /// No description provided for @tutorialChallengesAndEventsInfo2.
+  ///
+  /// In es, this message translates to:
+  /// **'Explora eventos próximos y participa con la comunidad.'**
+  String get tutorialChallengesAndEventsInfo2;
+
+  /// No description provided for @tutorialSectionInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Info'**
+  String get tutorialSectionInfo;
+
+  /// No description provided for @tutorialSectionTeam.
+  ///
+  /// In es, this message translates to:
+  /// **'Colonia'**
+  String get tutorialSectionTeam;
+
+  /// No description provided for @tutorialSectionActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión'**
+  String get tutorialSectionActivity;
+
+  /// No description provided for @tutorialSectionProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get tutorialSectionProfile;
+
+  /// No description provided for @tutorialSectionChallenges.
+  ///
+  /// In es, this message translates to:
+  /// **'Retos'**
+  String get tutorialSectionChallenges;
+
+  /// No description provided for @tutorialSectionEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Eventos'**
+  String get tutorialSectionEvents;
+
+  /// No description provided for @tutorialSectionChallengesAndEvents.
+  ///
+  /// In es, this message translates to:
+  /// **'Retos y Eventos'**
+  String get tutorialSectionChallengesAndEvents;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialPrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get tutorialPrevious;
+
+  /// No description provided for @tutorialFinish.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get tutorialFinish;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In es, this message translates to:
+  /// **'Saltar'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialOnFoot.
+  ///
+  /// In es, this message translates to:
+  /// **'A PIE'**
+  String get tutorialOnFoot;
+
+  /// No description provided for @tutorialOnBike.
+  ///
+  /// In es, this message translates to:
+  /// **'EN BICICLETA'**
+  String get tutorialOnBike;
+
+  /// No description provided for @tutorialTerritoriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Territorios y HP'**
+  String get tutorialTerritoriesTitle;
+
+  /// No description provided for @tutorialTerritoriesInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'El mapa está dividido en territorios. Cada territorio posee Puntos de Vida (HP). Al realizar excursiones generas puntos de impacto: si un territorio enemigo llega a 0 HP, tu Colonia lo conquista; si pertenece a tu Colonia, restauras sus HP para defenderlo.'**
+  String get tutorialTerritoriesInfo;
+
+  /// No description provided for @tutorialObjectivesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'OBJETIVOS DE ENTRENAMIENTO'**
+  String get tutorialObjectivesTitle;
+
+  /// No description provided for @avatar.
+  ///
+  /// In es, this message translates to:
+  /// **'Avatar'**
+  String get avatar;
+
   /// No description provided for @settings.
   ///
   /// In es, this message translates to:

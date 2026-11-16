@@ -56,6 +56,113 @@ class AppLocalizationsEs extends AppLocalizations {
       '• Seguimiento de actividad en tiempo real\n• Captura de territorios\n• Participación por equipos\n• Potenciadores e inventario\n• Desafios semanales y eventos\n• Personalización y tienda de avatares\n';
 
   @override
+  String get tutorialTitle => 'EMPIEZA TU EXCURSIÓN';
+
+  @override
+  String get tutorialInfo =>
+      'El mundo es tuyo para conquistar.\nParticipa con otras hormigas para hacer crecer la Colonia, protegerla e invadir territorios en su nombre.';
+
+  @override
+  String get tutorialTeamSubtitle => '1. Únete a una Colonia o crea la tuya';
+
+  @override
+  String get tutorialTeamInfo1 =>
+      'Visita Colonias, conoce a sus miembros y su influencia. Únete y forma parte de algo más grande.';
+
+  @override
+  String get tutorialTeamInfo2 =>
+      'Crea tu propia Colonia y empieza desde abajo a crecer tu influencia para que otros te sigan.';
+
+  @override
+  String get tutorialActivitySubtitle => '2. Inicia una Excursión';
+
+  @override
+  String get tutorialActivityInfo1 => 'Escoge tu recorrido';
+
+  @override
+  String get tutorialActivityInfo2 => 'Define tu objetivo';
+
+  @override
+  String get tutorialActivityInfo3 =>
+      'Empieza tu excursión y conquista territorios';
+
+  @override
+  String get tutorialProfileSubtitle => '3. Visita tu Perfil';
+
+  @override
+  String get tutorialProfileInfo1 => 'Cambia tu nombre';
+
+  @override
+  String get tutorialProfileInfo2 => 'Modifica tu avatar';
+
+  @override
+  String get tutorialProfileInfo3 => 'Revisa tus logros y progreso';
+
+  @override
+  String get tutorialChallengesAndEventsSubtitle =>
+      '4. Completa retos y participa en eventos por recompensas';
+
+  @override
+  String get tutorialChallengesAndEventsInfo1 =>
+      'Participa en desafíos semanales para subir tu experiencia.';
+
+  @override
+  String get tutorialChallengesAndEventsInfo2 =>
+      'Explora eventos próximos y participa con la comunidad.';
+
+  @override
+  String get tutorialSectionInfo => 'Info';
+
+  @override
+  String get tutorialSectionTeam => 'Colonia';
+
+  @override
+  String get tutorialSectionActivity => 'Excursión';
+
+  @override
+  String get tutorialSectionProfile => 'Perfil';
+
+  @override
+  String get tutorialSectionChallenges => 'Retos';
+
+  @override
+  String get tutorialSectionEvents => 'Eventos';
+
+  @override
+  String get tutorialSectionChallengesAndEvents => 'Retos y Eventos';
+
+  @override
+  String get tutorialNext => 'Siguiente';
+
+  @override
+  String get tutorialPrevious => 'Anterior';
+
+  @override
+  String get tutorialFinish => 'Entendido';
+
+  @override
+  String get tutorialSkip => 'Saltar';
+
+  @override
+  String get tutorialOnFoot => 'A PIE';
+
+  @override
+  String get tutorialOnBike => 'EN BICICLETA';
+
+  @override
+  String get tutorialTerritoriesTitle => 'Territorios y HP';
+
+  @override
+  String get tutorialTerritoriesInfo =>
+      'El mapa está dividido en territorios. Cada territorio posee Puntos de Vida (HP). Al realizar excursiones generas puntos de impacto: si un territorio enemigo llega a 0 HP, tu Colonia lo conquista; si pertenece a tu Colonia, restauras sus HP para defenderlo.';
+
+  @override
+  String get tutorialObjectivesTitle => 'OBJETIVOS DE ENTRENAMIENTO';
+
+  @override
+  String get avatar => 'Avatar';
+
+  @override
   String get settings => 'Ajustes';
 
   @override

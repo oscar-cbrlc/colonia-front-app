@@ -55,6 +55,113 @@ class AppLocalizationsEn extends AppLocalizations {
       '• Real time activity recognition\n• Territory capture\n• Team participation\n• Boosts and inventory\n• Weekly challenges and events\n• Customization and avatar shop';
 
   @override
+  String get tutorialTitle => 'START YOUR EXCURSION';
+
+  @override
+  String get tutorialInfo =>
+      'The world is yours to conquer.\nParticipate with other ants to grow the Colony, protect it, and invade territories in its name';
+
+  @override
+  String get tutorialTeamSubtitle => '1. Join a Colony or create your own';
+
+  @override
+  String get tutorialTeamInfo1 =>
+      'Visit Colonies, meet their members and see their influence. Join and be part of something bigger';
+
+  @override
+  String get tutorialTeamInfo2 =>
+      'Create your own Colony and start from scratch to grow your influence so others follow you';
+
+  @override
+  String get tutorialActivitySubtitle => '2. Start an Excursion';
+
+  @override
+  String get tutorialActivityInfo1 => 'Choose your route';
+
+  @override
+  String get tutorialActivityInfo2 => 'Define your objective';
+
+  @override
+  String get tutorialActivityInfo3 =>
+      'Start your excursion and conquer territories';
+
+  @override
+  String get tutorialProfileSubtitle => '3. Visit your Profile';
+
+  @override
+  String get tutorialProfileInfo1 => 'Change your name';
+
+  @override
+  String get tutorialProfileInfo2 => 'Modify your avatar';
+
+  @override
+  String get tutorialProfileInfo3 => 'Review your achievements and progress';
+
+  @override
+  String get tutorialChallengesAndEventsSubtitle =>
+      '4. Complete challenges and participate in events for rewards';
+
+  @override
+  String get tutorialChallengesAndEventsInfo1 =>
+      'Participate in weekly challenges to increase your experience';
+
+  @override
+  String get tutorialChallengesAndEventsInfo2 =>
+      'Explore upcoming events and participate with the community';
+
+  @override
+  String get tutorialSectionInfo => 'Info';
+
+  @override
+  String get tutorialSectionTeam => 'Team';
+
+  @override
+  String get tutorialSectionActivity => 'Activity';
+
+  @override
+  String get tutorialSectionProfile => 'Profile';
+
+  @override
+  String get tutorialSectionChallenges => 'Challenges';
+
+  @override
+  String get tutorialSectionEvents => 'Events';
+
+  @override
+  String get tutorialSectionChallengesAndEvents => 'Challenges & Events';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialPrevious => 'Previous';
+
+  @override
+  String get tutorialFinish => 'Got it';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialOnFoot => 'ON FOOT';
+
+  @override
+  String get tutorialOnBike => 'ON BIKE';
+
+  @override
+  String get tutorialTerritoriesTitle => 'Territories and HP';
+
+  @override
+  String get tutorialTerritoriesInfo =>
+      'The map is divided into territories. Each territory has Health Points (HP). Excursions generate impact points: if an enemy territory reaches 0 HP, your Colony conquers it; if it belongs to your Colony, you restore its HP to defend it.';
+
+  @override
+  String get tutorialObjectivesTitle => 'TRAINING OBJECTIVES';
+
+  @override
+  String get avatar => 'Avatar';
+
+  @override
   String get settings => 'Settings';
 
   @override
