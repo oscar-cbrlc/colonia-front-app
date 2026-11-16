@@ -26,6 +26,7 @@ import 'package:colonia_front_app/ui/user_profile/view_models/user_profile_viewm
 import 'package:colonia_front_app/ui/user_profile/widgets/item_selection_widget.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/shop_offers_sheet.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/about_sheet.dart';
+import 'package:colonia_front_app/ui/core/ui/tutorial_dialog.dart';
 
 
 class UserProfileScreen extends StatelessWidget {
@@ -249,7 +250,34 @@ class UserProfileScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white10,
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 1.0),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const BeveledRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                    ),
+                    icon: const Icon(Icons.map_sharp, color: Colors.white),
+                    label: Text(
+                      locale.tutorial,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white70),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(ctx);
+                      showTutorialDialog(context);
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
