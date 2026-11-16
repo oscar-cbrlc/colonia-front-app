@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 
+import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/shop_repository.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/shop_offer.dart';
@@ -1063,11 +1064,26 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
                 backgroundColor: AppTheme.successColor,
               ),
             );
+
+            try {
+              final authRepo = context.read<AuthRepository>();
+              final updatedUser = await authRepo.fetchCurrentUser();
+              userProfileVM.updateUser(updatedUser);
+            } catch (e) {
+              debugPrint('ShopOffersSheet: Error refreshing user data after purchase: $e');
+            }
+
             userProfileVM.loadDownloadedItemModels();
             if (offer.avatarItem != null) {
               userProfileVM.checkAndDownloadAvatarModels(
                 items: [offer.avatarItem!],
               );
+            }
+
+            try {
+              await shopRepo.fetchOffers();
+            } catch (e) {
+              debugPrint('ShopOffersSheet: Error refreshing shop offers: $e');
             }
           }
         } else {
