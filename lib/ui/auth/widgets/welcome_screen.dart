@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/ui/core/navigation/navigation_callbacks.dart';
 import 'package:colonia_front_app/utils/icon_helper.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/auth/view_models/welcome_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
+import 'package:url_launcher/url_launcher.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
@@ -247,8 +249,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           color: AppTheme.secondaryColor,
                                         ),
                                         recognizer: TapGestureRecognizer()
-                                          ..onTap = () {
-                                            // TODO: Navigate to Privacy Policy
+                                          ..onTap = () async {
+                                            final uri = Uri.parse(GameConfig.privacyPolicyUrl);
+                                            if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                            }
                                           },
                                       ),
                                     ],
