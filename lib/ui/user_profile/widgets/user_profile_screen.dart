@@ -294,7 +294,6 @@ class UserProfileScreen extends StatelessWidget {
                       context.read<TerritoryRepository>().clearCache();
                       context.read<TrackingRepository>().clear();
 
-                      await vm.avatarItemRepository.clearModelsCache();
                       await authRepo.logout();
                       
                       if (context.mounted) {

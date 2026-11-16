@@ -151,6 +151,7 @@ class AvatarItemRepository extends ChangeNotifier {
       }
 
       if (missingItems.isEmpty) {
+        await updateEquippedMergedModelLocally();
         onProgress(1.0);
         return;
       }
@@ -204,9 +205,21 @@ class AvatarItemRepository extends ChangeNotifier {
       }
 
       await _localStorageService.saveAvatarItemModels(updatedStored);
+      await updateEquippedMergedModelLocally();
       onProgress(1.0);
     } catch (e) {
       debugPrint('AvatarItemRepository: Error checking/downloading models: $e');
+    }
+  }
+
+  Future<void> updateEquippedMergedModelLocally() async {
+    try {
+      final equippedPaths = await getEquippedModelPaths();
+      final userColorInt = AuthRepository.instance.currentUser?.avatar?.color;
+      final baseColor = userColorInt != null ? Color(userColorInt) : null;
+      await saveMergedModelLocally(equippedPaths, baseColor: baseColor);
+    } catch (e) {
+      debugPrint('AvatarItemRepository: Error updating equipped merged model locally: $e');
     }
   }
 
