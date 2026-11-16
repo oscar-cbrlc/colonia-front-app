@@ -7,8 +7,11 @@ import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
-import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
+import 'package:colonia_front_app/data/services/cloud_storage_service.dart';
 import 'package:colonia_front_app/ui/team/widgets/team_shared_widgets.dart';
+import 'package:colonia_front_app/ui/core/navigation/app_router.dart';
 import 'package:colonia_front_app/ui/user_profile/widgets/three_js_avatar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -996,7 +999,9 @@ class _AvatarSection extends StatefulWidget {
 }
 
 class _AvatarSectionState extends State<_AvatarSection> {
+  final GlobalKey _avatarRepaintKey = GlobalKey();
   bool _isModelLoaded = false;
+  bool _isUploadingThumbnail = false;
 
   Color? get _avatarColor {
     final colorInt = widget.viewModel.user.avatar?.color;
@@ -1018,6 +1023,55 @@ class _AvatarSectionState extends State<_AvatarSection> {
       }
     }
     return paths;
+  }
+
+  Future<void> _captureAndUploadThumbnail() async {
+    if (_isUploadingThumbnail) return;
+    setState(() {
+      _isUploadingThumbnail = true;
+    });
+
+    try {
+      final RenderRepaintBoundary boundary = _avatarRepaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData != null) {
+        final Uint8List pngBytes = byteData.buffer.asUint8List();
+        
+        final uploadedUrl = await CloudStorageService.uploadUserThumbnail(
+          userId: widget.viewModel.user.id,
+          imageBytes: pngBytes,
+        );
+
+        if (uploadedUrl != null && mounted) {
+          final success = await widget.viewModel.updateUserThumbnail(uploadedUrl);
+          if (success && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.thumbnailUploaded),
+                backgroundColor: AppTheme.successColor,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error capturing and uploading thumbnail: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorUnexpected),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingThumbnail = false;
+        });
+      }
+    }
   }
 
   @override
@@ -1062,23 +1116,26 @@ class _AvatarSectionState extends State<_AvatarSection> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: ThreeJsAvatarView(
-                      key: ValueKey(user.avatar.hashCode),
-                      baseGlbPath: modelPath,
-                      equippedGlbPaths: _equippedGlbPaths,
-                      avatarColor: _avatarColor,
-                      pixelRatio: 0.75,
-                      onLoadingStateChanged: (isLoading) {
-                        if (mounted && _isModelLoaded != !isLoading) {
-                          setState(() {
-                            _isModelLoaded = !isLoading;
-                          });
-                        }
-                      },
+                    child: RepaintBoundary(
+                      key: _avatarRepaintKey,
+                      child: ThreeJsAvatarView(
+                        key: ValueKey(user.avatar.hashCode),
+                        baseGlbPath: modelPath,
+                        equippedGlbPaths: _equippedGlbPaths,
+                        avatarColor: _avatarColor,
+                        pixelRatio: 0.75,
+                        onLoadingStateChanged: (isLoading) {
+                          if (mounted && _isModelLoaded != !isLoading) {
+                            setState(() {
+                              _isModelLoaded = !isLoading;
+                            });
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ),
-                if (widget.viewModel.user == AuthRepository.instance.currentUser)
+                if (widget.viewModel.user == AuthRepository.instance.currentUser) ...[
                   Positioned(
                     bottom: 8,
                     right: 8,
@@ -1100,6 +1157,37 @@ class _AvatarSectionState extends State<_AvatarSection> {
                       ),
                     ),
                   ),
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: GestureDetector(
+                      onTap: canInteract && !_isUploadingThumbnail ? _captureAndUploadThumbnail : null,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: canInteract ? 1.0 : 0.4,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: ShapeDecoration(
+                            color: canInteract ? AppTheme.tertiaryColor : Colors.grey,
+                            shape: const BeveledRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                          ),
+                          child: _isUploadingThumbnail
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.darkBackground,
+                                  ),
+                                )
+                              : const Icon(Icons.camera_alt, size: 18, color: AppTheme.darkBackground),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]
               ],
             ),
             if (widget.viewModel.user == AuthRepository.instance.currentUser) ...[

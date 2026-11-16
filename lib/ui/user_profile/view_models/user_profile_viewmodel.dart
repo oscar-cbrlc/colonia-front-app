@@ -148,11 +148,8 @@ class UserProfileViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final currentAvatar = _user.avatar ?? const UserAvatar(color: 0xFFFFFF);
-      final updatedAvatar = currentAvatar.copyWith(thumbnailUrl: thumbnailUrl);
-      final updatedUser = _user.copyWith(avatar: updatedAvatar);
-
-      await AuthRepository.instance.updateCurrentUser(updatedUser);
+      await _avatarItemRepository.updateAvatar(thumbnailUrl: thumbnailUrl);
+      final updatedUser = await AuthRepository.instance.fetchCurrentUser();
       _user = updatedUser;
 
       _isLoading = false;
