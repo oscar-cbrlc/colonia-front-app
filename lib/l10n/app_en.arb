@@ -370,10 +370,14 @@
         }
     },
 
-    "teamKick": "{username} has been exiled from the colony",
+    "teamKick": "{userTrigger} exiled {username} from the colony",
     "@teamKick": {
         "description": "Message shown when a member has been exiled from the team",
         "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
             "username": {
                 "type": "String",
                 "example": "JuanDaniel"
@@ -391,6 +395,59 @@
             }
         }
     },
+
+    "teamAccept": "{userTrigger} accepted {username} into the colony",
+    "@teamAccept": {
+        "description": "Message shown when a member request has been accepted into the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamPromote": "{userTrigger} promoted {username}",
+    "@teamPromote": {
+        "description": "Message shown when a member has been promoted in the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamDemote": "{userTrigger} demoted {username}",
+    "@teamDemote": {
+        "description": "Message shown when a member has been demoted in the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "myTrainings": "MY TRAININGS",
+    "myTrainingsSubtitle": "History of completed workouts and territory impacts",
+    "noTrainingsYet": "No trainings recorded yet",
+    "noTrainingsYetDescription": "Complete a workout to view your history and stats here.",
+    "trainingsUnavailableOffline": "Trainings are unavailable while offline",
+    "boostUsed": "BOOST USED",
+    "activities": "ACTIVITIES",
 
     "colonyChat": "Chat",
     "@colonyChat": {},

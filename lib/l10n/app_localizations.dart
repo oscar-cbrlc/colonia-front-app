@@ -917,14 +917,74 @@ abstract class AppLocalizations {
   /// Message shown when a member has been exiled from the team
   ///
   /// In es, this message translates to:
-  /// **'{username} ha sido exiliado de la colonia'**
-  String teamKick(String username);
+  /// **'{userTrigger} ha exiliado a {username} de la colonia'**
+  String teamKick(String userTrigger, String username);
 
   /// Message shown when a member has left from the team
   ///
   /// In es, this message translates to:
   /// **'{username} ha abandonado la colonia'**
   String teamExit(String username);
+
+  /// Message shown when a member request has been accepted into the team
+  ///
+  /// In es, this message translates to:
+  /// **'{userTrigger} ha aceptado a {username} en la colonia'**
+  String teamAccept(String userTrigger, String username);
+
+  /// Message shown when a member has been promoted in the team
+  ///
+  /// In es, this message translates to:
+  /// **'{userTrigger} ha ascendido a {username}'**
+  String teamPromote(String userTrigger, String username);
+
+  /// Message shown when a member has been demoted in the team
+  ///
+  /// In es, this message translates to:
+  /// **'{userTrigger} ha degradado a {username}'**
+  String teamDemote(String userTrigger, String username);
+
+  /// No description provided for @myTrainings.
+  ///
+  /// In es, this message translates to:
+  /// **'MIS ENTRENAMIENTOS'**
+  String get myTrainings;
+
+  /// No description provided for @myTrainingsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de entrenamientos y estadísticas de territorio'**
+  String get myTrainingsSubtitle;
+
+  /// No description provided for @noTrainingsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay entrenamientos registrados aún'**
+  String get noTrainingsYet;
+
+  /// No description provided for @noTrainingsYetDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un entrenamiento para ver tu historial y estadísticas aquí.'**
+  String get noTrainingsYetDescription;
+
+  /// No description provided for @trainingsUnavailableOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Los entrenamientos no están disponibles sin conexión'**
+  String get trainingsUnavailableOffline;
+
+  /// No description provided for @boostUsed.
+  ///
+  /// In es, this message translates to:
+  /// **'POTENCIADOR USADO'**
+  String get boostUsed;
+
+  /// No description provided for @activities.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVIDADES'**
+  String get activities;
 
   /// No description provided for @colonyChat.
   ///

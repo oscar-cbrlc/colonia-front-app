@@ -370,10 +370,14 @@
         }
     },
 
-    "teamKick": "{username} ha sido exiliado de la colonia",
+    "teamKick": "{userTrigger} ha exiliado a {username} de la colonia",
     "@teamKick": {
         "description": "Message shown when a member has been exiled from the team",
         "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
             "username": {
                 "type": "String",
                 "example": "JuanDaniel"
@@ -391,6 +395,59 @@
             }
         }
     },
+
+    "teamAccept": "{userTrigger} ha aceptado a {username} en la colonia",
+    "@teamAccept": {
+        "description": "Message shown when a member request has been accepted into the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamPromote": "{userTrigger} ha ascendido a {username}",
+    "@teamPromote": {
+        "description": "Message shown when a member has been promoted in the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "teamDemote": "{userTrigger} ha degradado a {username}",
+    "@teamDemote": {
+        "description": "Message shown when a member has been demoted in the team",
+        "placeholders": {
+            "userTrigger": {
+                "type": "String",
+                "example": "Leader"
+            },
+            "username": {
+                "type": "String",
+                "example": "JuanDaniel"
+            }
+        }
+    },
+
+    "myTrainings": "MIS ENTRENAMIENTOS",
+    "myTrainingsSubtitle": "Historial de entrenamientos y estadísticas de territorio",
+    "noTrainingsYet": "No hay entrenamientos registrados aún",
+    "noTrainingsYetDescription": "Completa un entrenamiento para ver tu historial y estadísticas aquí.",
+    "trainingsUnavailableOffline": "Los entrenamientos no están disponibles sin conexión",
+    "boostUsed": "POTENCIADOR USADO",
+    "activities": "ACTIVIDADES",
 
     "colonyChat": "Chat",
     "@colonyChat": {},

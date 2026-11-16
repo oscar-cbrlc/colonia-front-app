@@ -430,14 +430,53 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String teamKick(String username) {
-    return '$username has been exiled from the colony';
+  String teamKick(String userTrigger, String username) {
+    return '$userTrigger exiled $username from the colony';
   }
 
   @override
   String teamExit(String username) {
     return '$username has abandoned the colony';
   }
+
+  @override
+  String teamAccept(String userTrigger, String username) {
+    return '$userTrigger accepted $username into the colony';
+  }
+
+  @override
+  String teamPromote(String userTrigger, String username) {
+    return '$userTrigger promoted $username';
+  }
+
+  @override
+  String teamDemote(String userTrigger, String username) {
+    return '$userTrigger demoted $username';
+  }
+
+  @override
+  String get myTrainings => 'MY TRAININGS';
+
+  @override
+  String get myTrainingsSubtitle =>
+      'History of completed workouts and territory impacts';
+
+  @override
+  String get noTrainingsYet => 'No trainings recorded yet';
+
+  @override
+  String get noTrainingsYetDescription =>
+      'Complete a workout to view your history and stats here.';
+
+  @override
+  String get trainingsUnavailableOffline =>
+      'Trainings are unavailable while offline';
+
+  @override
+  String get boostUsed => 'BOOST USED';
+
+  @override
+  String get activities => 'ACTIVITIES';
 
   @override
   String get colonyChat => 'Chat';
