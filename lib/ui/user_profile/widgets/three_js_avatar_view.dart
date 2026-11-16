@@ -266,7 +266,7 @@ class _ThreeJsAvatarViewState extends State<ThreeJsAvatarView> {
     mat.opacity = 1.0;
     mat.depthWrite = true;
     mat.depthTest = true;
-    mat.alphaTest = 0.5;
+    mat.alphaTest = 0.0;
     mat.side = three.FrontSide;
 
     if (mat is three.MeshStandardMaterial) {
