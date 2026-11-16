@@ -881,7 +881,7 @@ abstract class AppLocalizations {
   /// No description provided for @colonyChat.
   ///
   /// In es, this message translates to:
-  /// **'Chat de Colonia'**
+  /// **'Chat'**
   String get colonyChat;
 
   /// No description provided for @noMessagesYet.
@@ -983,7 +983,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinRequests.
   ///
   /// In es, this message translates to:
-  /// **'SOLICITUDES DE UNIÓN'**
+  /// **'SOLICITUDES'**
   String get joinRequests;
 
   /// No description provided for @leaveColony.

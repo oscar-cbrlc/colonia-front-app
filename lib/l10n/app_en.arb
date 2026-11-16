@@ -379,7 +379,7 @@
         }
     },
 
-    "colonyChat": "Colony Chat",
+    "colonyChat": "Chat",
     "@colonyChat": {},
 
     "noMessagesYet": "No messages yet",
@@ -430,7 +430,7 @@
     "viewSentRequests": "VIEW SENT REQUESTS",
     "@viewSentRequests": {},
 
-    "joinRequests": "JOIN REQUESTS",
+    "joinRequests": "JOIN",
     "@joinRequests": {},
 
     "leaveColony": "LEAVE COLONY",

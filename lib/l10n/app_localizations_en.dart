@@ -416,7 +416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get colonyChat => 'Colony Chat';
+  String get colonyChat => 'Chat';
 
   @override
   String get noMessagesYet => 'No messages yet';
@@ -470,7 +470,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewSentRequests => 'VIEW SENT REQUESTS';
 
   @override
-  String get joinRequests => 'JOIN REQUESTS';
+  String get joinRequests => 'JOIN';
 
   @override
   String get leaveColony => 'LEAVE COLONY';

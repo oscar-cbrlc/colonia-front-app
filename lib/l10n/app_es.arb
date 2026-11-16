@@ -379,7 +379,7 @@
         }
     },
 
-    "colonyChat": "Chat de Colonia",
+    "colonyChat": "Chat",
     "@colonyChat": {},
 
     "noMessagesYet": "No hay mensajes aún",
@@ -430,7 +430,7 @@
     "viewSentRequests": "VER SOLICITUDES ENVIADAS",
     "@viewSentRequests": {},
 
-    "joinRequests": "SOLICITUDES DE UNIÓN",
+    "joinRequests": "SOLICITUDES",
     "@joinRequests": {},
 
     "leaveColony": "DEJAR COLONIA",

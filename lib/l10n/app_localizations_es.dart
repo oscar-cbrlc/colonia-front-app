@@ -421,7 +421,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get colonyChat => 'Chat de Colonia';
+  String get colonyChat => 'Chat';
 
   @override
   String get noMessagesYet => 'No hay mensajes aún';
@@ -475,7 +475,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get viewSentRequests => 'VER SOLICITUDES ENVIADAS';
 
   @override
-  String get joinRequests => 'SOLICITUDES DE UNIÓN';
+  String get joinRequests => 'SOLICITUDES';
 
   @override
   String get leaveColony => 'DEJAR COLONIA';
