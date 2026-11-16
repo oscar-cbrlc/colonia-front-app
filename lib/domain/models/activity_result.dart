@@ -21,8 +21,8 @@ abstract class ActivityResult with _$ActivityResult{
     @JsonKey(name: 'user') required ActivityResultUser user,
     @JsonKey(name: 'training') required TrainingResult trainingResult,
     @JsonKey(name: 'territories') required List<Territory> territories,
-    @JsonKey(name: 'achievements') required List<Achievement> achievements,
-    @JsonKey(name: 'challenges') required List<StartedChallenge> challenges,
+    @JsonKey(name: 'achievements') @Default([]) List<Achievement> achievements,
+    @JsonKey(name: 'challenges') @Default([]) List<StartedChallenge> challenges,
 
   }) = _ActivityResult;
 
