@@ -182,6 +182,24 @@ abstract class AppLocalizations {
   /// **'Ajustes'**
   String get settings;
 
+  /// No description provided for @about.
+  ///
+  /// In es, this message translates to:
+  /// **'Acerca de'**
+  String get about;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ACERCA DE COLONIA'**
+  String get aboutTitle;
+
+  /// No description provided for @modelDesignerAttribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Modelos por'**
+  String get modelDesignerAttribution;
+
   /// No description provided for @language.
   ///
   /// In es, this message translates to:

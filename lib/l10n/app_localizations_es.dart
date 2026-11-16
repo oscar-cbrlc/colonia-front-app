@@ -59,6 +59,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settings => 'Ajustes';
 
   @override
+  String get about => 'Acerca de';
+
+  @override
+  String get aboutTitle => 'ACERCA DE COLONIA';
+
+  @override
+  String get modelDesignerAttribution => 'Modelos por';
+
+  @override
   String get language => 'Idioma';
 
   @override
