@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:colonia_front_app/config/game_config.dart';
 import 'package:colonia_front_app/data/repositories/notification_repository.dart';
 import 'package:colonia_front_app/domain/models/notification.dart' as domain;
 import 'package:colonia_front_app/l10n/app_localizations.dart';
@@ -200,11 +201,11 @@ class _NotificationListState extends State<_NotificationList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading && widget.notifications.isEmpty) {
+    if (widget.isLoading && widget.notifications.isEmpty && widget.isPersonal) {
       return const LoadingWidget();
     }
 
-    if (widget.notifications.isEmpty) {
+    if (widget.notifications.isEmpty && widget.isPersonal) {
       return Center(
         child: Text(
           widget.emptyMessage,
@@ -212,6 +213,9 @@ class _NotificationListState extends State<_NotificationList> {
         ),
       );
     }
+
+    final int extraHeaderCount = widget.isPersonal ? 0 : 1;
+    final int totalCount = widget.notifications.length + extraHeaderCount;
 
     return GestureDetector(
       onTap: _collapseDelete,
@@ -223,10 +227,14 @@ class _NotificationListState extends State<_NotificationList> {
         },
         color: AppTheme.primaryColor,
         child: ListView.builder(
-          itemCount: widget.notifications.length,
+          itemCount: totalCount,
           padding: const EdgeInsets.only(bottom: 16),
           itemBuilder: (context, index) {
-            final notification = widget.notifications[index];
+            if (!widget.isPersonal && index == 0) {
+              return const _VersionNotesCard(appVersion: GameConfig.appVersion);
+            }
+            final notificationIndex = index - extraHeaderCount;
+            final notification = widget.notifications[notificationIndex];
             return _NotificationCard(
               notification: notification,
               isPersonal: widget.isPersonal,
@@ -235,6 +243,128 @@ class _NotificationListState extends State<_NotificationList> {
               onCardTap: _collapseDelete,
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _VersionNotesCard extends StatefulWidget {
+  final String appVersion;
+  const _VersionNotesCard({required this.appVersion});
+
+  @override
+  State<_VersionNotesCard> createState() => _VersionNotesCardState();
+}
+
+class _VersionNotesCardState extends State<_VersionNotesCard> {
+  bool _isExpanded = false;
+
+  void _toggleExpanded() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context)!;
+    return GestureDetector(
+      onTap: _toggleExpanded,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOutCubicEmphasized,
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: ShapeDecoration(
+          color: AppTheme.darkBackground,//.withAlpha(20),
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(
+              color: AppTheme.tertiaryColor.withAlpha(_isExpanded ? 180 : 120),
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: ShapeDecoration(
+                    color: AppTheme.secondaryColor.withAlpha(30),
+                    shape: BeveledRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      side: BorderSide(color: AppTheme.secondaryColor.withAlpha(150), width: 1),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.note_alt_outlined,
+                    color: Colors.white70,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    locale.versionNotesTitle(widget.appVersion).toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Oswald',
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AnimatedRotation(
+                  turns: _isExpanded ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOutCubicEmphasized,
+                  child: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppTheme.secondaryColor,
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
+            AnimatedSize(
+              alignment: Alignment.topCenter,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOutCubicEmphasized,
+              child: _isExpanded
+                  ? SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          const Divider(color: Colors.white12, height: 1),
+                          const SizedBox(height: 12),
+                          Text(
+                            locale.versionNotesSummary,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              height: 1.45,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(
+                      width: double.infinity,
+                      child: SizedBox.shrink(),
+                    ),
+            ),
+          ],
         ),
       ),
     );
