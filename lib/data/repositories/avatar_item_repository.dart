@@ -133,22 +133,25 @@ class AvatarItemRepository extends ChangeNotifier {
     return file.existsSync() && file.lengthSync() > 0;
   }
 
+  Future<List<AvatarItem>> getMissingModels({List<AvatarItem>? items}) async {
+    final catalog = items ?? await fetchCatalogItems();
+    final List<AvatarItem> missingItems = [];
+    for (final item in catalog) {
+      final isDownloaded = await isModelDownloaded(item.id);
+      if (!isDownloaded) {
+        missingItems.add(item);
+      }
+    }
+    return missingItems;
+  }
+
   Future<void> checkAndDownloadModels({
     List<AvatarItem>? items,
     required void Function(double progress) onProgress,
   }) async {
     try {
-      await fetchCatalogItems();
-      final targetItems = items ?? availableAvatarItems;
+      final missingItems = await getMissingModels(items: items);
       final dir = await getApplicationDocumentsDirectory();
-
-      final List<AvatarItem> missingItems = [];
-      for (final item in targetItems) {
-        final isDownloaded = await isModelDownloaded(item.id);
-        if (!isDownloaded) {
-          missingItems.add(item);
-        }
-      }
 
       if (missingItems.isEmpty) {
         await updateEquippedMergedModelLocally();

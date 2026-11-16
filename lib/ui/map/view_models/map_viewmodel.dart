@@ -5,7 +5,9 @@ import 'package:colonia_front_app/data/repositories/auth_repository.dart';
 import 'package:colonia_front_app/data/repositories/avatar_item_repository.dart';
 import 'package:colonia_front_app/data/repositories/team_repository.dart';
 import 'package:colonia_front_app/data/repositories/territory_repository.dart';
+import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/territory.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -115,22 +117,54 @@ class MapViewModel extends ChangeNotifier {
   }
 
   Future<void> checkModelsDownload(BuildContext context) async {
-    final hasModels = await _sessionRepository.localStorageService.hasAvatarModels();
-    
-    if (!hasModels) {
-      if (context.mounted) {
-        _promptDownloadModels(context);
-      }
+    final avatarRepo = Provider.of<AvatarItemRepository>(context, listen: false);
+
+    bool isCheckingDialogOpen = true;
+    showCheckingModelsUpdatesDialog(context: context).then((_) {
+      isCheckingDialogOpen = false;
+    });
+
+    List<AvatarItem> missingModels = [];
+    bool hasError = false;
+
+    try {
+      missingModels = await avatarRepo.getMissingModels().timeout(const Duration(seconds: 12));
+    } catch (e) {
+      debugPrint("MapViewModel: Error or timeout checking missing models: $e");
+      hasError = true;
+    }
+
+    if (context.mounted && isCheckingDialogOpen) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    if (hasError) {
+      return;
+    }
+
+    if (missingModels.isNotEmpty && context.mounted) {
+      final locale = AppLocalizations.of(context)!;
+      _promptDownloadModels(
+        context,
+        customTitle: locale.newModelsAvailableTitle,
+        customMessage: locale.newModelsAvailableMessage,
+      );
     }
   }
 
-  void _promptDownloadModels(BuildContext context) {
+  void _promptDownloadModels(
+    BuildContext context, {
+    String? customTitle,
+    String? customMessage,
+  }) {
     if (!context.mounted) return;
     showSharedDownloadModelsDialog(
       context: context,
       listenable: this,
       getProgress: () => downloadProgress,
       getIsDownloading: () => isDownloadingModels,
+      customTitle: customTitle,
+      customMessage: customMessage,
       onStartDownload: () {
         final avatarRepo = Provider.of<AvatarItemRepository>(context, listen: false);
         downloadAvatarModels(context, avatarRepo);
