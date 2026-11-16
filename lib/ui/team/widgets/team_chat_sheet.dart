@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:colonia_front_app/domain/models/enums/message_type.dart';
 import 'package:colonia_front_app/domain/models/enums/team_role.dart';
-import 'package:colonia_front_app/domain/models/team_chat_message.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
@@ -96,20 +94,6 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
         }
       }
     });
-  }
-
-  String _getLocalizedSystemMessage(AppLocalizations locale, TeamChatMessage msg) {
-    final username = msg.user?.name ?? 'User';
-    switch (msg.type) {
-      case 'team_join':
-        return locale.teamJoin(username);
-      case 'team_kick':
-        return locale.teamKick(username);
-      case 'team_exit':
-        return locale.teamExit(username);
-      default:
-        return msg.message;
-    }
   }
 
   String _formatTimestamp(BuildContext context, dynamic timestamp) {
@@ -236,8 +220,7 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                               itemCount: teamVm.chatMessages.length,
                             itemBuilder: (context, index) {
                               final msg = teamVm.chatMessages[index];
-                              final type = msg.type ?? 'user_message';
-                              final isUserMessage = type == 'user_message' || type == MessageType.user_message.name;
+                              final isUserMessage = msg.isUserMessage;
                               final isOwnMessage = msg.user?.id == currentUser?.id;
                               final targetRole = msg.user?.role?.toLowerCase() ?? '';
                               final isTargetLeader = targetRole == TeamRole.leader.name.toLowerCase();
@@ -248,7 +231,7 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                               final isSelected = _selectedMessageId == msg.id;
 
                               if (!isUserMessage) {
-                                final systemText = _getLocalizedSystemMessage(locale, msg);
+                                final systemText = msg.getLocalizedSystemMessage(locale);
 
                                 return Container(
                                   margin: const EdgeInsets.symmetric(vertical: 8),
