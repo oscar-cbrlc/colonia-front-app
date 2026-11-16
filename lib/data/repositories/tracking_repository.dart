@@ -35,6 +35,7 @@ class TrackingRepository extends ChangeNotifier {
   double _metersSinceLastNode = 0.0;
   double _metersBetweenNodes = GameConfig.baseMetersBetweenNodes;
   int _totalSecondsElapsed = 0;
+  DateTime? _startedAt;
   DateTime? _lastTrackTime;
   double _currentSpeed = 0.0; 
   double _averagePace = 0.0; 
@@ -102,6 +103,7 @@ class TrackingRepository extends ChangeNotifier {
   double get metersSinceLastNode => _metersSinceLastNode;
   double get metersBetweenNodes => _metersBetweenNodes;
 
+  DateTime? get startedAt => _startedAt;
   HarActivity get currentHarActivity => _currentHarActivity;
   int get secondsWalk => _secondsWalk;
   int get secondsRun => _secondsRun;
@@ -267,7 +269,8 @@ class TrackingRepository extends ChangeNotifier {
     _onTrackNodes.clear();
     _visitedCells.clear();
     _lastRecordedPosition = null;
-    _lastTrackTime = DateTime.now();
+    _startedAt = DateTime.now();
+    _lastTrackTime = _startedAt;
     _pingsToSkip = 0;
     _startTimer();
     _startRoutinePolling();
@@ -316,6 +319,7 @@ class TrackingRepository extends ChangeNotifier {
     }
 
     final session = TrackingSession(
+      startedAt: _startedAt ?? DateTime.now(),
       route: List.from(_perimeter),
       totalDistance: _totalMetersTracked,
       durationSeconds: _totalSecondsElapsed,
@@ -444,7 +448,8 @@ class TrackingRepository extends ChangeNotifier {
 
       bool isMovementValid = false;
       
-      if (delta < position.accuracy) {
+      final double minRequiredDistance = max(_lastRecordedPosition!.accuracy, position.accuracy);
+      if (delta < minRequiredDistance) {
           notifyListeners();
           return;
       }
@@ -454,6 +459,7 @@ class TrackingRepository extends ChangeNotifier {
       } else {
         if (delta > 1.0) isMovementValid = true;
       }
+
 
       if (isMovementValid) {
         _totalMetersTracked += delta;
@@ -591,6 +597,7 @@ class TrackingRepository extends ChangeNotifier {
 }
 
 class TrackingSession {
+  final DateTime startedAt;
   final List<GeoCoord> route;
   final double totalDistance;
   final int durationSeconds;
@@ -607,6 +614,7 @@ class TrackingSession {
   double impactPoints;
 
   TrackingSession({
+    required this.startedAt,
     required this.route,
     required this.totalDistance,
     required this.durationSeconds,
