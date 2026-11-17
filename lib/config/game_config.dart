@@ -16,8 +16,8 @@ abstract class GameConfig {
   static const Duration gpsUpdateInterval = Duration(seconds: 2);
   static const double validPaceRange = 0.20;
 
-  static const double baseTerritoryHealth = 1000;
-  static const double maxTerritoryHealth = 5000;
+  static const double baseTerritoryHealth = 2000;
+  static const double maxTerritoryHealth = 10000;
 
   static const int impactHexagonAreaLevel = 1;
 
