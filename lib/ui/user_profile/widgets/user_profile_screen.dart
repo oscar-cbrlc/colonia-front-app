@@ -207,13 +207,17 @@ class UserProfileScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      locale.settings.toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Oswald',
-                        fontSize: 20,
+                    Expanded(
+                      child: Text(
+                        locale.settings.toUpperCase(),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                     IconButton(
@@ -476,13 +480,17 @@ class UserProfileScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        locale.editAccountInfo.toUpperCase(),
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Oswald',
-                          fontSize: 20,
+                      Expanded(
+                        child: Text(
+                          locale.editAccountInfo.toUpperCase(),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Oswald',
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                       IconButton(
@@ -1143,7 +1151,7 @@ class _AvatarSectionState extends State<_AvatarSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 52),
+            const Spacer(),
             Stack(
               alignment: Alignment.bottomRight,
               children: [
@@ -1245,52 +1253,54 @@ class _AvatarSectionState extends State<_AvatarSection> {
                 ]
               ],
             ),
-            if (widget.viewModel.user == AuthRepository.instance.currentUser) ...[
-              const SizedBox(width: 12),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    decoration: ShapeDecoration(
-                      color: AppTheme.darkBackground,
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: AppTheme.primaryColor.withAlpha(120),
-                          width: 1,
-                        ),
+            Expanded(
+              child: widget.viewModel.user == AuthRepository.instance.currentUser
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            decoration: ShapeDecoration(
+                              color: AppTheme.darkBackground,
+                              shape: BeveledRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: AppTheme.primaryColor.withAlpha(120),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit, color: AppTheme.primaryColor, size: 20),
+                              onPressed: widget.onEditAccountPressed,
+                              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            decoration: ShapeDecoration(
+                              color: AppTheme.darkBackground,
+                              shape: BeveledRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: AppTheme.primaryColor.withAlpha(120),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.settings, color: AppTheme.primaryColor, size: 20),
+                              onPressed: widget.onSettingsPressed,
+                              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.edit, color: AppTheme.primaryColor, size: 20),
-                      onPressed: widget.onEditAccountPressed,
-                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                      padding: EdgeInsets.zero,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: ShapeDecoration(
-                      color: AppTheme.darkBackground,
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: AppTheme.primaryColor.withAlpha(120),
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.settings, color: AppTheme.primaryColor, size: 20),
-                      onPressed: widget.onSettingsPressed,
-                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                      padding: EdgeInsets.zero,
-                    ),
-                  ),
-                ],
-              ),
-            ] else
-              const SizedBox(width: 52),
+                    )
+                  : const SizedBox.shrink(),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -1299,9 +1309,13 @@ class _AvatarSectionState extends State<_AvatarSection> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              user.username,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            Flexible(
+              child: Text(
+                user.username,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
             ),
           ],
         ),

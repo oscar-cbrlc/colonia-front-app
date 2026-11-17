@@ -113,7 +113,7 @@ class _UserTrainingsSheetState extends State<UserTrainingsSheet> {
                         child: Text(
                           locale.myTrainings.toUpperCase(),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          maxLines: 2,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
