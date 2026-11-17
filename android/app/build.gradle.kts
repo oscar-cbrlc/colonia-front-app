@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.colonia_front_app"
+    namespace = "com.coloniateam.colonia"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.colonia_front_app"
+        applicationId = "com.coloniateam.colonia"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -52,4 +52,10 @@ dependencies {
 
 flutter {
     source = "../.."
+}
+
+tasks.configureEach {
+    if (name.startsWith("copyFlutterAssets")) {
+        doNotTrackState("Flutter assets task shares destination directory with AGP mergeAssets")
+    }
 }
