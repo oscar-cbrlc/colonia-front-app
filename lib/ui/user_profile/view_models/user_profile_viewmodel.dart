@@ -5,6 +5,7 @@ import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class UserProfileViewModel extends ChangeNotifier {
   User _user;
@@ -63,35 +64,44 @@ class UserProfileViewModel extends ChangeNotifier {
   int get unlockedCount => unlockedAchievements.length;
   int get totalAchievements => achievements.length;
 
+  static final NumberFormat _numberFormat = NumberFormat('#,##0', 'en_US');
+  static final NumberFormat _decimalFormat = NumberFormat('#,##0.0', 'en_US');
+
   int get level => _user.stats?.level ?? 0;
   int get xp => _user.stats?.xp ?? 0;
   int get xpForNextLevel => _user.xpForNextLevel ?? 0;
 
+  String get formattedLevel => _numberFormat.format(level);
+  String get formattedXp => _numberFormat.format(xp);
+  String get formattedXpForNextLevel => _numberFormat.format(xpForNextLevel);
+
   String get formattedDistance {
     final distInKm = ((_user.stats?.totalDistance ?? 0.0) / 1000.0);
-    return '${distInKm.toStringAsFixed(1)} km';
+    return '${_decimalFormat.format(distInKm)} km';
   }
 
   String get formattedTime {
     final totalSeconds = (_user.stats?.totalTime ?? 0.0).toInt();
     final hours = totalSeconds ~/ 3600;
     final minutes = (totalSeconds % 3600) ~/ 60;
-    return hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+    return hours > 0
+        ? '${_numberFormat.format(hours)}h ${minutes}m'
+        : '${minutes}m';
   }
 
   String get formattedAttack {
-    final attack = _user.stats?.totalAttack ?? 0.0;
-    return attack.toInt().toString();
+    final attack = (_user.stats?.totalAttack ?? 0.0).toInt();
+    return _numberFormat.format(attack);
   }
 
   String get formattedDefense {
-    final defense = _user.stats?.totalDefense ?? 0.0;
-    return defense.toInt().toString();
+    final defense = (_user.stats?.totalDefense ?? 0.0).toInt();
+    return _numberFormat.format(defense);
   }
 
   String get formattedTerritoriesCaptured {
     final count = _user.stats?.territoriesCaptured ?? 0;
-    return count.toString();
+    return _numberFormat.format(count);
   }
 
   Future<void> loadDownloadedItemModels() async {

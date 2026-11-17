@@ -5,6 +5,7 @@ import 'package:colonia_front_app/data/repositories/territory_repository.dart';
 import 'package:colonia_front_app/data/repositories/tracking_repository.dart';
 import 'package:colonia_front_app/domain/models/achievement.dart';
 import 'package:colonia_front_app/domain/models/avatar_item.dart';
+import 'package:colonia_front_app/domain/models/enums/achievement_type.dart';
 import 'package:colonia_front_app/domain/models/user.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'dart:ui' as ui;
@@ -1356,7 +1357,6 @@ class _LevelXpSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
     final isCurrentUser = viewModel.user == AuthRepository.instance.currentUser;
-    final level = viewModel.level;
     final xp = viewModel.xp;
     final xpForNextLevel = viewModel.xpForNextLevel;
 
@@ -1397,7 +1397,7 @@ class _LevelXpSection extends StatelessWidget {
                   children: [
                     const SizedBox(width: 6),
                     Text(
-                      '${locale.levelLabel.toUpperCase()} $level',
+                      '${locale.levelLabel.toUpperCase()} ${viewModel.formattedLevel}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1422,7 +1422,7 @@ class _LevelXpSection extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '$xp XP',
+                      '${viewModel.formattedXp} XP',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1451,7 +1451,7 @@ class _LevelXpSection extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$xpForNextLevel XP',
+                  '${viewModel.formattedXpForNextLevel} XP',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
@@ -1667,9 +1667,7 @@ class _AchievementsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final achievements = viewModel.achievements;
-    final unlockedAchievements = viewModel.unlockedAchievements;
-    final lockedAchievements = achievements.where((a) => a.acquisitionDate == null).toList();
-    final locale = AppLocalizations.of(context);
+    final locale = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1678,8 +1676,8 @@ class _AchievementsSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              locale!.achievements.toUpperCase(),
-              style: TextStyle(
+              locale.achievements.toUpperCase(),
+              style: const TextStyle(
                 color: AppTheme.primaryColor,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -1710,46 +1708,61 @@ class _AchievementsSection extends StatelessWidget {
         const SizedBox(height: 16),
 
         if (achievements.isEmpty)
-          Text(locale.noAchievementsYet, style: TextStyle(color: Colors.white54))
+          Text(locale.noAchievementsYet, style: const TextStyle(color: Colors.white54))
         else ...[
-          Text(
-            '${locale.unlocked.toUpperCase()} (${unlockedAchievements.length})',
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
-          ),
-          if (unlockedAchievements.isEmpty)
-            Text(locale.noUnlockedAchievementsYet, style: TextStyle(color: Colors.white38, fontSize: 13))
-          else
-            _AchievementGrid(
-              achievements: unlockedAchievements,
-              onTap: (ach) => _showAchievementDetailBottomSheet(context, ach),
-            ),
+          for (final type in AchievementType.values) ...[
+            Builder(
+              builder: (context) {
+                final categoryAchievements =
+                    achievements.where((a) => a.type == type.name).toList();
+                if (categoryAchievements.isEmpty) return const SizedBox.shrink();
 
+                final unlocked =
+                    categoryAchievements.where((a) => a.acquisitionDate != null).toList();
+                final locked =
+                    categoryAchievements.where((a) => a.acquisitionDate == null).toList();
+                final orderedList = [...unlocked, ...locked];
 
-          if (viewModel.user == AuthRepository.instance.currentUser) ... [
-            const SizedBox(height: 24),
-            Text(
-              '${locale.locked.toUpperCase()} (${lockedAchievements.length})',
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          type.getIcon(),
+                          size: 16,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          type.getDisplayName(locale).toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '(${unlocked.length}/${categoryAchievements.length})',
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _AchievementGrid(
+                      achievements: orderedList,
+                      onTap: (ach) => _showAchievementDetailBottomSheet(context, ach),
+                    ),
+                  ],
+                );
+              },
             ),
-            if (lockedAchievements.isEmpty)
-              Text(locale.allAchievementsCompleted, style: TextStyle(color: Colors.white38, fontSize: 13))
-            else
-              _AchievementGrid(
-                achievements: lockedAchievements,
-                onTap: (ach) => _showAchievementDetailBottomSheet(context, ach),
-              ),
-
-          ]
+          ],
         ],
       ],
     );
