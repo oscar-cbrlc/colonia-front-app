@@ -194,14 +194,15 @@ class UserProfileScreen extends StatelessWidget {
           final locale = AppLocalizations.of(ctx) ?? AppLocalizations.of(context)!;
           final currentLang = localeProvider.locale.languageCode;
 
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-            ),
-            child: Column(
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -433,6 +434,7 @@ class UserProfileScreen extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
             ),
+          ),
           );
         },
       ),
@@ -466,15 +468,16 @@ class UserProfileScreen extends StatelessWidget {
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-              ),
-              child: Column(
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 20,
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+                ),
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -580,6 +583,7 @@ class UserProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           );
         },
       ),

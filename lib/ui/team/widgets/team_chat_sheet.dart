@@ -383,14 +383,16 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                     ),
                   ),
                 ),
-              Container(
-                padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(100),
-                  border: Border(top: BorderSide(color: Colors.white.withAlpha(20))),
-                ),
-                child: Row(
-                  children: [
+              SafeArea(
+                top: false,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(100),
+                    border: Border(top: BorderSide(color: Colors.white.withAlpha(20))),
+                  ),
+                  child: Row(
+                    children: [
                     Expanded(
                       child: TextField(
                         controller: _messageController,
@@ -466,6 +468,7 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                     ),
                   ],
                 ),
+              ),
               ),
             ],
           ),

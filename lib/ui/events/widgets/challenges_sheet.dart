@@ -56,9 +56,10 @@ class _ActiveChallengesSheetState extends State<ActiveChallengesSheet> {
             ),
             color: AppTheme.darkBackground,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -124,6 +125,7 @@ class _ActiveChallengesSheetState extends State<ActiveChallengesSheet> {
               ),
             ],
           ),
+          )
         );
       },
     );

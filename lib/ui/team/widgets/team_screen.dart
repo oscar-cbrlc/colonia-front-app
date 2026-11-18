@@ -191,9 +191,17 @@ class _TeamDetailsView extends StatelessWidget {
     final pendingRequestsCount = viewModel.teamReceivedRequests.length;
     final locale = AppLocalizations.of(context)!;
 
+    final screenSize = MediaQuery.of(context).size;
+    final double fabSize = 56.0;
+    final double xOffset = screenSize.width - fabSize - 20.0;
+    final double yOffset = screenSize.height * 0.215;
+
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      floatingActionButtonLocation: CustomFloatingActionButtonLocation(xOffset: 310, yOffset: 120),
+      floatingActionButtonLocation: CustomFloatingActionButtonLocation(
+        xOffset: xOffset,
+        yOffset: yOffset,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
@@ -672,8 +680,9 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
         ),
         color: AppTheme.darkBackground.withAlpha(240),
       ),
-      child: SingleChildScrollView(
-        child: Column(
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -800,7 +809,7 @@ class _CreateEditTeamSheetState extends State<_CreateEditTeamSheet> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -902,9 +911,10 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
         ),
         color: AppTheme.darkBackground,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1048,7 +1058,7 @@ class _ExploreTeamsSheetState extends State<_ExploreTeamsSheet> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

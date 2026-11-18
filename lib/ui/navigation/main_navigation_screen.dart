@@ -83,7 +83,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
         ),
         bottomNavigationBar: Container(
           clipBehavior: Clip.antiAlias,
-          height: 60,
           decoration: ShapeDecoration(
             shape: const BeveledRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -92,8 +91,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
           ),
           child: SafeArea(
             top: false,
-            bottom: false,
-            child: TabBar(
+            bottom: true,
+            child: SizedBox(
+              height: 60,
+              child: TabBar(
               controller: _tabController,
               indicator: const BoxDecoration(
                 color: AppTheme.primaryColor,
@@ -125,6 +126,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
           ),
         ),
       )
-    ));
+    )));
   }
 }

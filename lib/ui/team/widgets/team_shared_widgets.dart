@@ -590,9 +590,10 @@ class _RequestListSheetState extends State<RequestListSheet> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -707,7 +708,7 @@ class _RequestListSheetState extends State<RequestListSheet> {
             ),
         ],
       ),
-    );
+    ));
   }
 
   String _formatTimestamp(BuildContext context, dynamic timestamp) {
