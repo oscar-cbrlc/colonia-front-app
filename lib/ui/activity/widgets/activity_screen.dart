@@ -80,6 +80,40 @@ class _ActivityScreenState extends State<ActivityScreen> {
         );
       }
     };
+
+    widget.viewModel.onObjectiveCompletedNotification = () {
+      if (!mounted) return;
+      HapticFeedback.heavyImpact();
+      final locale = AppLocalizations.of(context);
+      if (locale != null) {
+        NotificationService().showNotification(
+          id: 104,
+          title: 'Colonia',
+          body: locale.objectiveAchieved.toUpperCase(),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check, color: AppTheme.primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  locale.objectiveAchieved.toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.successColor,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    };
   }
 
   @override
@@ -271,7 +305,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
             if (widget.viewModel.playingState == PlayingState.stopped)
               Align(
                 alignment: AlignmentGeometry.bottomCenter,
-                child: Column(
+                child: SafeArea(
+                  top: false,
+                  child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.viewModel.readyToStart && !widget.viewModel.isSaving) ...[
@@ -308,6 +344,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   ],
                 ),
               ),
+            ),
             ],
           );
         },
@@ -1217,7 +1254,9 @@ class _ActivityProgressPanelState extends State<_ActivityProgressPanel> {
             ),
             color: AppTheme.darkBackground.withAlpha(240),
           ),
-          child: Column(
+          child: SafeArea(
+            top: false,
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
@@ -1394,95 +1433,154 @@ class _ActivityProgressPanelState extends State<_ActivityProgressPanel> {
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _MapActionButton(
-                      icon: viewModel.playingState == PlayingState.playing
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                      color: AppTheme.darkBackground.withAlpha(220),
-                      iconColor: AppTheme.primaryColor,
-                      borderColor: AppTheme.primaryColor,
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        viewModel.onPushPlayButton();
-                      },
-                      shape: const StarBorder(
-                        side: BorderSide(color: AppTheme.primaryColor, width: 2),
-                        points: 6,
-                        innerRadiusRatio: 0.86,
-                        rotation: 30,
-                        pointRounding: 0.15,
-                      ),
-                    ),
-                    if (viewModel.playingState == PlayingState.paused) ...[
-                      const SizedBox(width: 24),
-                      _MapActionButton(
-                        icon: Icons.stop,
-                        color: Colors.redAccent.withAlpha(220),
-                        iconColor: Colors.white,
-                        borderColor: Colors.redAccent,
-                        onTap: () async {
-                          HapticFeedback.heavyImpact();
-                          final nav = Navigator.of(context);
-                          final scaf = ScaffoldMessenger.of(context);
+                child: Builder(
+                  builder: (context) {
+                    final bool isPaused = viewModel.playingState == PlayingState.paused;
 
-                          final selectedType = viewModel.selectedTrainingType ?? TrainingType.free;
-                          final isNotFree = selectedType != TrainingType.free;
-                          final isObjectiveNotMet = !viewModel.isObjectiveCompleted;
-
-                          if (isNotFree && isObjectiveNotMet) {
-                            final shouldFinish = await _showObjectiveIncompleteDialog(context);
-                            if (!shouldFinish) return;
-                          }
-
-                          final result = await viewModel.onPushStopButton();
-                          debugPrint("ActivityScreen.onTap: result=$result");
-
-                          if (result != null) {
-                            if (result['activityResult'] == null) {
-                              final bool isOffline = result['isOffline'] == true;
-                              final String message = isOffline
-                                  ? locale.activitySavedLocally
-                                  : locale.errorSavingActivity;
-
-                              scaf.showSnackBar(
-                                SnackBar(
-                                  content: Text(message),
-                                  backgroundColor: isOffline ? Colors.orangeAccent : Colors.redAccent,
-                                  behavior: SnackBarBehavior.floating,
+                    return SizedBox(
+                      height: 70,
+                      width: 280,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          AnimatedSlide(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOutCubicEmphasized,
+                            offset: isPaused ? const Offset(-1.38, 0.0) : const Offset(0.0, 0.0),
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              opacity: isPaused ? 1.0 : 0.0,
+                              child: IgnorePointer(
+                                ignoring: !isPaused,
+                                child: _MapActionButton(
+                                  icon: Icons.close_sharp,
+                                  color: Colors.redAccent.withAlpha(40),
+                                  iconColor: Colors.redAccent,
+                                  borderColor: Colors.redAccent,
+                                  onTap: () async {
+                                    HapticFeedback.mediumImpact();
+                                    final nav = Navigator.of(context);
+                                    final shouldLeave = await _showLeaveExcursionDialog(context);
+                                    if (shouldLeave) {
+                                      viewModel.cancelActivity();
+                                      nav.pop();
+                                    }
+                                  },
+                                  shape: const StarBorder(
+                                    side: BorderSide(color: Colors.redAccent, width: 2),
+                                    points: 6,
+                                    innerRadiusRatio: 0.86,
+                                    rotation: 30,
+                                    pointRounding: 0.15,
+                                  ),
                                 ),
-                              );
-                            }
-
-                            nav.pushReplacementNamed(
-                              AppRouter.summary,
-                              arguments: result,
-                            );
-                          } else {
-                            scaf.showSnackBar(
-                              SnackBar(
-                                content: Text(locale.errorSavingActivity),
-                                backgroundColor: AppTheme.errorColor,
                               ),
-                            );
-                          }
-                        },
-                        shape: const StarBorder(
-                          side: BorderSide(color: Colors.white, width: 2),
-                          points: 6,
-                          innerRadiusRatio: 0.86,
-                          rotation: 30,
-                          pointRounding: 0.15,
-                        ),
+                            ),
+                          ),
+
+                          AnimatedSlide(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOutCubicEmphasized,
+                            offset: isPaused ? const Offset(1.38, 0.0) : const Offset(0.0, 0.0),
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              opacity: isPaused ? 1.0 : 0.0,
+                              child: IgnorePointer(
+                                ignoring: !isPaused,
+                                child: _MapActionButton(
+                                  icon: Icons.stop,
+                                  color: Colors.redAccent.withAlpha(220),
+                                  iconColor: Colors.white,
+                                  borderColor: Colors.redAccent,
+                                  onTap: () async {
+                                    HapticFeedback.heavyImpact();
+                                    final nav = Navigator.of(context);
+                                    final scaf = ScaffoldMessenger.of(context);
+
+                                    final selectedType = viewModel.selectedTrainingType ?? TrainingType.free;
+                                    final isNotFree = selectedType != TrainingType.free;
+                                    final isObjectiveNotMet = !viewModel.isObjectiveCompleted;
+
+                                    if (isNotFree && isObjectiveNotMet) {
+                                      final shouldFinish = await _showObjectiveIncompleteDialog(context);
+                                      if (!shouldFinish) return;
+                                    }
+
+                                    final result = await viewModel.onPushStopButton();
+                                    debugPrint("ActivityScreen.onTap: result=$result");
+
+                                    if (result != null) {
+                                      if (result['activityResult'] == null) {
+                                        final bool isOffline = result['isOffline'] == true;
+                                        final String message = isOffline
+                                            ? locale.activitySavedLocally
+                                            : locale.errorSavingActivity;
+
+                                        scaf.showSnackBar(
+                                          SnackBar(
+                                            content: Text(message),
+                                            backgroundColor: isOffline ? Colors.orangeAccent : Colors.redAccent,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+
+                                      nav.pushReplacementNamed(
+                                        AppRouter.summary,
+                                        arguments: result,
+                                      );
+                                    } else {
+                                      scaf.showSnackBar(
+                                        SnackBar(
+                                          content: Text(locale.errorSavingActivity),
+                                          backgroundColor: AppTheme.errorColor,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  shape: const StarBorder(
+                                    side: BorderSide(color: Colors.white, width: 2),
+                                    points: 6,
+                                    innerRadiusRatio: 0.86,
+                                    rotation: 30,
+                                    pointRounding: 0.15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          _MapActionButton(
+                            icon: viewModel.playingState == PlayingState.playing
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: AppTheme.darkBackground.withAlpha(220),
+                            iconColor: AppTheme.primaryColor,
+                            borderColor: AppTheme.primaryColor,
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              viewModel.onPushPlayButton();
+                            },
+                            shape: const StarBorder(
+                              side: BorderSide(color: AppTheme.primaryColor, width: 2),
+                              points: 6,
+                              innerRadiusRatio: 0.86,
+                              rotation: 30,
+                              pointRounding: 0.15,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
           ),
+        ),
         );
       },
     );

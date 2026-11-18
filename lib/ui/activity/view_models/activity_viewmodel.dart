@@ -55,6 +55,9 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
   bool _hasInitialCenter = false;
   bool _isFollowingUser = true;
 
+  void Function()? onObjectiveCompletedNotification;
+  bool _wasObjectiveCompleted = false;
+
   bool get isLocationPermissionGranted => _isLocationPermissionGranted;
   MapboxMap? get mapboxMap => _mapboxMap;
   ViewportState? get viewport => _viewport;
@@ -221,6 +224,12 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onTrackingDataChanged() {
     notifyListeners();
+
+    final tType = selectedTrainingType ?? _selectedPreTrainingType ?? TrainingType.free;
+    if (inActivity && tType != TrainingType.free && !_wasObjectiveCompleted && isObjectiveCompleted) {
+      _wasObjectiveCompleted = true;
+      onObjectiveCompletedNotification?.call();
+    }
 
     if (_isFollowingUser && userPosition != null && !_hasInitialCenter) {
       _hasInitialCenter = true;
@@ -460,6 +469,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _selectedActivityType = activityType;
     _selectedPreTrainingType = trainingType;
     _selectedBoost = boost;
+    _wasObjectiveCompleted = false;
 
     final trainingObj = _trainingRepository.getTrainingByType(trainingType);
 
@@ -477,6 +487,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void onPushPlayButton() {
     if (playingState == PlayingState.stopped) {
+      _wasObjectiveCompleted = false;
       _sessionRepository.startGame();
       _sensorRepository?.startReading();
     } else if (playingState == PlayingState.playing) {
@@ -493,6 +504,7 @@ class ActivityViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _selectedBoost = null;
     _selectedPreTrainingType = TrainingType.free;
     _selectedActivityType = ActivityType.onFoot;
+    _wasObjectiveCompleted = false;
     NotificationService().cancelAll();
     notifyListeners();
   }
