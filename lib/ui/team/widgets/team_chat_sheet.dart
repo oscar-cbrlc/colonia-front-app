@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:colonia_front_app/domain/models/enums/team_role.dart';
+import 'package:colonia_front_app/domain/models/enums/team_role_type.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:colonia_front_app/ui/core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
@@ -223,8 +223,8 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                               final isUserMessage = msg.isUserMessage;
                               final isOwnMessage = msg.user?.id == currentUser?.id;
                               final targetRole = msg.user?.role?.toLowerCase() ?? '';
-                              final isTargetLeader = targetRole == TeamRole.leader.name.toLowerCase();
-                              final isTargetModerator = targetRole == TeamRole.moderator.name.toLowerCase();
+                              final isTargetLeader = targetRole == TeamRoleType.leader.name.toLowerCase();
+                              final isTargetModerator = targetRole == TeamRoleType.moderator.name.toLowerCase();
                               final canDelete = isLeader ||
                                   (isModerator && !isTargetLeader && !isTargetModerator) ||
                                   isOwnMessage;
@@ -311,7 +311,7 @@ class _TeamChatSheetState extends State<TeamChatSheet> {
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
-                                              (msg.user?.role ?? 'member').toUpperCase(),
+                                              TeamRoleType.fromString(msg.user?.role ?? 'member').getLocaleName(locale).toUpperCase(),
                                               style: const TextStyle(
                                                 color: AppTheme.primaryColor,
                                                 fontSize: 9,

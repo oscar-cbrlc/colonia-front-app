@@ -1330,7 +1330,7 @@ class _AvatarSectionState extends State<_AvatarSection> {
 
         if (user.team != null) ...[
           Text(
-            user.team!.role.toUpperCase(),
+            user.getTeamRoleLocale(AppLocalizations.of(context)!).toUpperCase(),
             style: TextStyle(color: Colors.white.withAlpha(190), fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 6),

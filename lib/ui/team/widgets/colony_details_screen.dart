@@ -5,6 +5,7 @@ import '../view_models/team_viewmodel.dart';
 import '../../core/themes/app_theme.dart';
 import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import '../../../domain/models/team.dart';
+import '../../../domain/models/enums/team_role_type.dart';
 import '../../../l10n/app_localizations.dart';
 import 'team_shared_widgets.dart';
 
@@ -182,7 +183,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
   void _showMemberActions(BuildContext context, TeamViewModel viewModel, TeamMemberSummary member) {
     final currentUser = viewModel.currentUser;
     if (currentUser == null || currentUser.id == member.userId) return;
-
+    final locale = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.darkBackground,
@@ -196,7 +197,7 @@ class _ColonyDetailsScreenState extends State<ColonyDetailsScreen> {
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
               title: Text(member.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: Text(member.role.toUpperCase(), style: const TextStyle(color: Colors.white54)),
+              subtitle: Text(TeamRoleType.fromString(member.role).getLocaleName(locale).toUpperCase(), style: const TextStyle(color: Colors.white54)),
               trailing: const Icon(Icons.chevron_right, color: Colors.white24),
               onTap: () {
                 Navigator.pop(context);

@@ -7,7 +7,7 @@ import 'package:colonia_front_app/ui/core/ui/loading_widget.dart';
 import 'package:colonia_front_app/ui/core/ui/custom_app_dialog.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../domain/models/team.dart';
-import '../../../domain/models/enums/team_role.dart';
+import '../../../domain/models/enums/team_role_type.dart';
 import '../../../ui/core/navigation/app_router.dart';
 import 'team_chat_sheet.dart';
 import 'team_shared_widgets.dart';
@@ -194,7 +194,7 @@ class _TeamDetailsView extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     final double fabSize = 56.0;
     final double xOffset = screenSize.width - fabSize - 20.0;
-    final double yOffset = screenSize.height * 0.215;
+    final double yOffset = screenSize.height * 0.2;
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -353,8 +353,8 @@ class _TeamDetailsView extends StatelessWidget {
     final isLeader = currentUser.isTeamLeader;
     final isModerator = currentUser.canModerateTeam && !isLeader;
 
-    final targetIsModerator = member.role == TeamRole.moderator.name;
-    final targetIsMember = member.role == TeamRole.member.name;
+    final targetIsModerator = member.role == TeamRoleType.moderator.name;
+    final targetIsMember = member.role == TeamRoleType.member.name;
     final locale = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
@@ -370,7 +370,7 @@ class _TeamDetailsView extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
               title: Text(member.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: Text(member.role.toUpperCase(), style: const TextStyle(color: Colors.white54)),
+              subtitle: Text(TeamRoleType.fromString(member.role).getLocaleName(locale).toUpperCase(), style: const TextStyle(color: Colors.white54)),
               trailing: const Icon(Icons.chevron_right, color: Colors.white24),
               onTap: () {
                 Navigator.pop(context);

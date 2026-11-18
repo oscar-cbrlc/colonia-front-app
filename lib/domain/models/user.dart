@@ -1,6 +1,7 @@
 import 'package:colonia_front_app/domain/models/achievement.dart';
-import 'package:colonia_front_app/domain/models/enums/team_role.dart';
+import 'package:colonia_front_app/domain/models/enums/team_role_type.dart';
 import 'package:colonia_front_app/domain/models/enums/user_type.dart';
+import 'package:colonia_front_app/l10n/app_localizations.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user.freezed.dart';
@@ -31,12 +32,17 @@ abstract class User with _$User {
   bool get canModerateTeam {
     if (!hasTeam) return false;
     final role = team!.role.toLowerCase();
-    return role == TeamRole.moderator.name.toLowerCase() || 
-           role == TeamRole.leader.name.toLowerCase();
+    return role == TeamRoleType.moderator.name.toLowerCase() ||
+           role == TeamRoleType.leader.name.toLowerCase();
   }
 
-  bool get isTeamLeader => hasTeam && team?.role.toLowerCase() == TeamRole.leader.name.toLowerCase();
-  bool get isTeamMod => hasTeam && team?.role.toLowerCase() == TeamRole.moderator.name.toLowerCase();
+  bool get isTeamLeader => hasTeam && team?.role.toLowerCase() == TeamRoleType.leader.name.toLowerCase();
+  bool get isTeamMod => hasTeam && team?.role.toLowerCase() == TeamRoleType.moderator.name.toLowerCase();
+
+  String getTeamRoleLocale(AppLocalizations locale) {
+    if (!hasTeam) return '';
+    return TeamRoleType.fromString(team!.role).getLocaleName(locale);
+  }
 
   bool get hasCustomAvatar =>
       avatar?.head != null ||

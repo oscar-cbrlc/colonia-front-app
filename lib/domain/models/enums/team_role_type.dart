@@ -1,6 +1,6 @@
 import 'package:colonia_front_app/l10n/app_localizations.dart';
 
-enum TeamRole {
+enum TeamRoleType {
   leader,
   moderator,
   member;
@@ -18,10 +18,10 @@ enum TeamRole {
     }
   }
 
-  static TeamRole fromString(String role) {
-    return TeamRole.values.firstWhere(
+  static TeamRoleType fromString(String role) {
+    return TeamRoleType.values.firstWhere(
       (e) => e.name.toLowerCase() == role.toLowerCase(),
-      orElse: () => TeamRole.member,
+      orElse: () => TeamRoleType.member,
     );
   }
 }

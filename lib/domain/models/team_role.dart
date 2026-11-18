@@ -1,3 +1,4 @@
+import 'package:colonia_front_app/domain/models/enums/team_role_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'team_role.freezed.dart';
@@ -14,4 +15,5 @@ abstract class TeamRole with _$TeamRole {
   }) = _TeamRole;
 
   factory TeamRole.fromJson(Map<String, dynamic> json) => _$TeamRoleFromJson(json);
+  TeamRoleType get type => TeamRoleType.fromString(name);
 }

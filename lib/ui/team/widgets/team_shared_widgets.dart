@@ -4,7 +4,7 @@ import 'package:colonia_front_app/ui/core/ui/app_loading_indicator.dart';
 import '../../core/themes/app_theme.dart';
 import '../../../domain/models/team.dart';
 import '../../../domain/models/team_request.dart';
-import '../../../domain/models/enums/team_role.dart';
+import '../../../domain/models/enums/team_role_type.dart';
 import '../../../l10n/app_localizations.dart';
 
 class StatItem extends StatelessWidget {
@@ -48,7 +48,7 @@ class MemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final avatarSize = isLarge ? 40.0 : 30.0;
-    final isLeader = member.role == TeamRole.leader.name;
+    final isLeader = member.role == TeamRoleType.leader.name;
     final themeColor = color != null ? Color(color!) : AppTheme.primaryColor;
 
     final currentUser = AuthRepository.instance.currentUser;
@@ -130,7 +130,7 @@ class MemberCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              TeamRole.fromString(member.role).getLocaleName(AppLocalizations.of(context)!).toUpperCase(),
+              TeamRoleType.fromString(member.role).getLocaleName(AppLocalizations.of(context)!).toUpperCase(),
               style: TextStyle(color: AppTheme.primaryColor.withAlpha(150), fontSize: 11, fontWeight: FontWeight.bold),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -188,9 +188,9 @@ class TeamDetailsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context)!;
     
-    final leader = members.where((m) => m.role == TeamRole.leader.name).firstOrNull;
-    final moderators = members.where((m) => m.role == TeamRole.moderator.name).toList();
-    final regularMembers = members.where((m) => m.role == TeamRole.member.name).toList();
+    final leader = members.where((m) => m.role == TeamRoleType.leader.name).firstOrNull;
+    final moderators = members.where((m) => m.role == TeamRoleType.moderator.name).toList();
+    final regularMembers = members.where((m) => m.role == TeamRoleType.member.name).toList();
 
     final teamColor = Color(team.color);
 
