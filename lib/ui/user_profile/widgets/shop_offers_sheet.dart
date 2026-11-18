@@ -36,10 +36,8 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
   String _selectedItemTabId = 'all';
 
   late PageController _itemPageController;
-  late PageController _bundlePageController;
 
   int _currentItemPage = 0;
-  int _currentBundlePage = 0;
 
   int? _selectedItemOfferId;
   int? _selectedBundleOfferId;
@@ -48,7 +46,6 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
   void initState() {
     super.initState();
     _itemPageController = PageController();
-    _bundlePageController = PageController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -60,7 +57,6 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
   @override
   void dispose() {
     _itemPageController.dispose();
-    _bundlePageController.dispose();
     super.dispose();
   }
 
@@ -647,8 +643,6 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
     UserProfileViewModel userProfileVM,
     int userCoins,
   ) {
-    final totalPages = bundleOffers.length;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -673,46 +667,19 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
           ],
         ),
         const SizedBox(height: 12),
-        if (totalPages == 0) ...[
+        if (bundleOffers.isEmpty) ...[
           _buildEmptySectionState(locale.noBundleOffers),
         ] else ...[
-          SizedBox(
-            height: 260,
-            child: PageView.builder(
-              controller: _bundlePageController,
-              itemCount: totalPages,
-              onPageChanged: (pageIndex) {
-                setState(() {
-                  _currentBundlePage = pageIndex;
-                });
-              },
-              itemBuilder: (context, pageIndex) {
-                final offer = bundleOffers[pageIndex];
-                return _buildBundleOfferCard(offer, locale, userProfileVM, userCoins);
-              },
-            ),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: bundleOffers.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final offer = bundleOffers[index];
+              return _buildBundleOfferCard(offer, locale, userProfileVM, userCoins);
+            },
           ),
-          if (totalPages > 1) ...[
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(totalPages, (index) {
-                final isCurrent = index == _currentBundlePage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: isCurrent ? 16 : 6,
-                  height: 6,
-                  decoration: ShapeDecoration(
-                    color: isCurrent ? AppTheme.tertiaryColor : Colors.white24,
-                    shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ],
         ],
       ],
     );
@@ -909,22 +876,17 @@ class _ShopOffersSheetState extends State<ShopOffersSheet> {
                 ),
               ),
               const SizedBox(height: 6),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: items.map((item) {
-                      return ShopBundleItemChip(
-                        avatarItem: item,
-                        locale: locale,
-                        mainColor: AppTheme.tertiaryColor,
-                        mainTextColor: Colors.white,
-                      );
-                    }).toList(),
-                  ),
-                ),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: items.map((item) {
+                  return ShopBundleItemChip(
+                    avatarItem: item,
+                    locale: locale,
+                    mainColor: AppTheme.tertiaryColor,
+                    mainTextColor: Colors.white,
+                  );
+                }).toList(),
               ),
             ],
           ],
