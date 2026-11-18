@@ -1146,6 +1146,7 @@ class _AvatarSectionState extends State<_AvatarSection> {
 
     final bool hasDownloadedModels = widget.viewModel.downloadedItemModels.isNotEmpty;
     final bool canInteract = _isModelLoaded && !widget.viewModel.isDownloadingModels && hasDownloadedModels;
+    final bool canCameraInteract = _isModelLoaded && !widget.viewModel.isDownloadingModels;
 
     return Column(
       children: [
@@ -1225,14 +1226,14 @@ class _AvatarSectionState extends State<_AvatarSection> {
                     bottom: 8,
                     left: 8,
                     child: GestureDetector(
-                      onTap: canInteract && !_isUploadingThumbnail ? _captureAndUploadThumbnail : null,
+                      onTap: canCameraInteract && !_isUploadingThumbnail ? _captureAndUploadThumbnail : null,
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 200),
-                        opacity: canInteract ? 1.0 : 0.4,
+                        opacity: canCameraInteract ? 1.0 : 0.4,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: ShapeDecoration(
-                            color: canInteract ? AppTheme.tertiaryColor : Colors.grey,
+                            color: canCameraInteract ? AppTheme.tertiaryColor : Colors.grey,
                             shape: const BeveledRectangleBorder(
                               borderRadius: BorderRadius.all(Radius.circular(8)),
                             ),
