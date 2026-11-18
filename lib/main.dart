@@ -377,6 +377,7 @@ class _ColoniaAppState extends State<ColoniaApp> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Colonia',
           theme: AppTheme.theme,
           darkTheme: AppTheme.theme,
