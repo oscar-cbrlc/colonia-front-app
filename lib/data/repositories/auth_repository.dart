@@ -86,27 +86,38 @@ class AuthRepository extends ChangeNotifier {
       _cachedAuthToken = await _localStorageService.authToken;
       _cachedRefreshToken = await _localStorageService.refreshToken;
 
-      if (_cachedAuthToken != null) {
-        if (_isTokenExpired(_cachedAuthToken!)) {
-          if (_cachedRefreshToken != null && !_isTokenExpired(_cachedRefreshToken!)) {
-            await refreshSession();
+      bool sessionValid = false;
+
+      if (_cachedRefreshToken != null && !_isTokenExpired(_cachedRefreshToken!)) {
+        if (_cachedAuthToken != null && !_isTokenExpired(_cachedAuthToken!)) {
+          sessionValid = true;
+          if (_currentUser != null) {
+            fetchCurrentUser().catchError((e) {
+              debugPrint('AuthRepository: Background refresh failed: $e');
+            });
           } else {
-            await _localStorageService.clearSession();
-            _clearLocalCache();
+            try {
+              await fetchCurrentUser();
+            } catch (e) {
+              debugPrint('AuthRepository: fetchCurrentUser failed during init: $e');
+            }
           }
         } else {
-          fetchCurrentUser().catchError((e) {
-            debugPrint('AuthRepository: Background refresh failed: $e');
-          });
+          final refreshed = await refreshSession();
+          if (refreshed) {
+            sessionValid = true;
+            if (_currentUser == null) {
+              try {
+                await fetchCurrentUser();
+              } catch (e) {
+                debugPrint('AuthRepository: fetchCurrentUser failed after refresh: $e');
+              }
+            }
+          }
         }
-        onSessionInitialized?.call();
-      } else if (_cachedRefreshToken != null) {
-        if (!_isTokenExpired(_cachedRefreshToken!)) {
-          await refreshSession();
-        } else {
-          await _localStorageService.clearSession();
-          _clearLocalCache();
-        }
+      }
+
+      if (sessionValid && _currentUser != null) {
         onSessionInitialized?.call();
       } else {
         await _localStorageService.clearSession();
@@ -114,6 +125,8 @@ class AuthRepository extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('AuthRepository: Error during initializeSession: $e');
+      await _localStorageService.clearSession();
+      _clearLocalCache();
     } finally {
       notifyListeners();
     }
@@ -333,5 +346,9 @@ class AuthRepository extends ChangeNotifier {
     }
   }
 
-  bool get hasActiveSession => _cachedRefreshToken != null && _cachedRefreshToken!.isNotEmpty;
+  bool get hasActiveSession =>
+      _currentUser != null &&
+      _cachedRefreshToken != null &&
+      _cachedRefreshToken!.isNotEmpty &&
+      !_isTokenExpired(_cachedRefreshToken!);
 }

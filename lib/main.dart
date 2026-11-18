@@ -69,7 +69,6 @@ void main() async {
     debug: kDebugMode,
     ignoreSsl: true,
   );
-  // Show top status bar only, hide bottom navigation bar
   await SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [SystemUiOverlay.top],
@@ -380,7 +379,9 @@ class _ColoniaAppState extends State<ColoniaApp> with WidgetsBindingObserver {
       if (mounted) {
         final authRepo = Provider.of<AuthRepository>(context, listen: false);
         setState(() {
-          _initialRoute = authRepo.hasActiveSession ? AppRouter.map : AppRouter.welcome;
+          _initialRoute = (authRepo.hasActiveSession && authRepo.currentUser != null)
+              ? AppRouter.map
+              : AppRouter.welcome;
           _isInitializing = false;
         });
       }
