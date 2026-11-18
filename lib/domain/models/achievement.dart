@@ -1,5 +1,6 @@
 import 'package:colonia_front_app/domain/models/enums/achievement_type.dart';
 import 'package:colonia_front_app/l10n/app_localizations.dart';
+import 'package:colonia_front_app/utils/number_formatter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 
@@ -41,20 +42,20 @@ abstract class Achievement with _$Achievement {
   String getDescription(AppLocalizations locale) {
     if (type == AchievementType.total_distance.name) {
       // meters to km
-      return locale.achievementTotalDistanceDescription(objective ~/ 1000);
+      return locale.achievementTotalDistanceDescription(formatNumber(objective ~/ 1000));
     }
     if (type == AchievementType.total_time.name) {
       // seconds to hours
-      return locale.achievementTotalTimeDescription(objective ~/ 3600);
+      return locale.achievementTotalTimeDescription(formatNumber(objective ~/ 3600));
     }
     if (type == AchievementType.captured_territories.name) {
-      return locale.achievementTerritoriesCapturedDescription(objective);
+      return locale.achievementTerritoriesCapturedDescription(formatNumber(objective));
     }
     if (type == AchievementType.total_attack.name) {
-      return locale.achievementTotalAttackDescription(objective);
+      return locale.achievementTotalAttackDescription(formatNumber(objective));
     }
     if (type == AchievementType.total_defense.name) {
-      return locale.achievementTotalDefenseDescription(objective);
+      return locale.achievementTotalDefenseDescription(formatNumber(objective));
     }
     return "";
   }

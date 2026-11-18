@@ -956,7 +956,7 @@
     "@achievementTotalDistanceDescription": {
         "placeholders": {
             "distance": {
-                "type": "int",
+                "type": "String",
                 "example": "100"
             }
         }
@@ -966,7 +966,7 @@
     "@achievementTotalTimeDescription": {
         "placeholders": {
             "time": {
-                "type": "int",
+                "type": "String",
                 "example": "100"
             }
         }
@@ -976,7 +976,7 @@
     "@achievementTerritoriesCapturedDescription": {
         "placeholders": {
             "territories": {
-                "type": "int",
+                "type": "String",
                 "example": "100"
             }
         }
@@ -986,7 +986,7 @@
     "@achievementTotalAttackDescription": {
         "placeholders": {
             "points": {
-                "type": "int",
+                "type": "String",
                 "example": "100"
             }
         }
@@ -996,7 +996,7 @@
     "@achievementTotalDefenseDescription": {
         "placeholders": {
             "points": {
-                "type": "int",
+                "type": "String",
                 "example": "100"
             }
         }

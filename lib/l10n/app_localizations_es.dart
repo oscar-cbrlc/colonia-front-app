@@ -1023,27 +1023,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ach_def_5 => 'Evolución convergente';
 
   @override
-  String achievementTotalDistanceDescription(int distance) {
+  String achievementTotalDistanceDescription(String distance) {
     return 'Recorre una distancia total de $distance km';
   }
 
   @override
-  String achievementTotalTimeDescription(int time) {
+  String achievementTotalTimeDescription(String time) {
     return 'Realiza un tiempo total de $time horas en excursiones';
   }
 
   @override
-  String achievementTerritoriesCapturedDescription(int territories) {
+  String achievementTerritoriesCapturedDescription(String territories) {
     return 'Conquista $territories territorios';
   }
 
   @override
-  String achievementTotalAttackDescription(int points) {
+  String achievementTotalAttackDescription(String points) {
     return 'Produce un total de $points de puntos de ataque';
   }
 
   @override
-  String achievementTotalDefenseDescription(int points) {
+  String achievementTotalDefenseDescription(String points) {
     return 'Producr un total de $points de puntos de defensa';
   }
 

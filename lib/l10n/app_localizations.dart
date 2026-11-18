@@ -1992,31 +1992,31 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Recorre una distancia total de {distance} km'**
-  String achievementTotalDistanceDescription(int distance);
+  String achievementTotalDistanceDescription(String distance);
 
   /// No description provided for @achievementTotalTimeDescription.
   ///
   /// In es, this message translates to:
   /// **'Realiza un tiempo total de {time} horas en excursiones'**
-  String achievementTotalTimeDescription(int time);
+  String achievementTotalTimeDescription(String time);
 
   /// No description provided for @achievementTerritoriesCapturedDescription.
   ///
   /// In es, this message translates to:
   /// **'Conquista {territories} territorios'**
-  String achievementTerritoriesCapturedDescription(int territories);
+  String achievementTerritoriesCapturedDescription(String territories);
 
   /// No description provided for @achievementTotalAttackDescription.
   ///
   /// In es, this message translates to:
   /// **'Produce un total de {points} de puntos de ataque'**
-  String achievementTotalAttackDescription(int points);
+  String achievementTotalAttackDescription(String points);
 
   /// No description provided for @achievementTotalDefenseDescription.
   ///
   /// In es, this message translates to:
   /// **'Producr un total de {points} de puntos de defensa'**
-  String achievementTotalDefenseDescription(int points);
+  String achievementTotalDefenseDescription(String points);
 
   /// No description provided for @completed.
   ///
