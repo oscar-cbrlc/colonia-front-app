@@ -69,6 +69,11 @@ void main() async {
     debug: kDebugMode,
     ignoreSsl: true,
   );
+  // Show top status bar only, hide bottom navigation bar
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top],
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -337,7 +342,7 @@ class ColoniaApp extends StatefulWidget {
   State<ColoniaApp> createState() => _ColoniaAppState();
 }
 
-class _ColoniaAppState extends State<ColoniaApp> {
+class _ColoniaAppState extends State<ColoniaApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _isInitializing = true;
   String _initialRoute = AppRouter.welcome;
@@ -345,7 +350,24 @@ class _ColoniaAppState extends State<ColoniaApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initApp();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top],
+      );
+    }
   }
 
   Future<void> _initApp() async {
