@@ -52,11 +52,7 @@ class _SummaryExpandableCardState extends State<SummaryExpandableCard> {
     final targetSummary = vm.formatObjectiveTarget(locale);
     final bool isSuccess = session.isSuccess;
     final Color statusColor = isSuccess ? AppTheme.successColor : AppTheme.errorColor;
-    final String statusText = isSuccess
-        ? (vm.trainingType == TrainingType.free
-            ? locale.completed.toUpperCase()
-            : locale.failed.toUpperCase())
-        : locale.failed.toUpperCase();
+    final String statusText = isSuccess ? locale.completed.toUpperCase() : locale.failed.toUpperCase();
     final IconData statusIcon = isSuccess ? Icons.check_circle_outline : Icons.cancel_outlined;
 
     return Material(
